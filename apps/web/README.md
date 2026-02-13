@@ -1,4 +1,4 @@
-# Web frontend for Trip Loom
+# Web frontend for TripLoom
 
 This is the web frontend for Trip Loom built with: 
 

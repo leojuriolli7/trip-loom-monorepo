@@ -64,7 +64,10 @@ interface QuickActionProps {
   description: string;
 }
 
-// TODO: Decide on AI prompts/actions for each
+/**
+ * TODO: Each one of these could be an MCP prompt implementation, or could
+ * just redirect to the chat page, with suggestions there on the input box on what to write...
+ */
 function QuickAction({ icon, title, description }: QuickActionProps) {
   return (
     <button className="group flex items-center gap-4 rounded-xl border border-border/60 bg-card/50 p-4 text-left transition-all hover:border-primary/30 hover:bg-card hover:shadow-sm">

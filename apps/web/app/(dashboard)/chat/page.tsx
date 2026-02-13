@@ -104,6 +104,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { AirplaneSeatView } from "@/components/tools-ui/airplane-seat-view";
+import { MOCK_SEAT_ROWS } from "@/components/tools-ui/airplane-seat-view/_mocks";
 import {
   currentTrips,
   drafts,
@@ -118,7 +120,7 @@ export default function ChatPage() {
   };
 
   return (
-    <SidebarProvider>
+    <SidebarProvider className="h-svh overflow-hidden">
       <Sidebar className="border-r border-sidebar-border">
         <SidebarHeader className="border-b border-sidebar-border p-4">
           <Link href="/" className="flex items-center gap-2">
@@ -272,7 +274,7 @@ export default function ChatPage() {
         </SidebarFooter>
       </Sidebar>
 
-      <SidebarInset className="flex flex-col">
+      <SidebarInset className="flex min-h-0 flex-col overflow-hidden">
         {/* Header */}
         <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border/60 px-4">
           <SidebarTrigger />
@@ -286,13 +288,40 @@ export default function ChatPage() {
         </header>
 
         {/* Chat Area */}
-        <div className="relative flex flex-1 flex-col overflow-hidden">
-          <Conversation className="flex-1">
+        <div className="relative flex min-h-0 flex-1 flex-col">
+          <Conversation className="min-h-0 flex-1">
             <ConversationContent className="mx-auto max-w-3xl px-4 py-6">
               {mockMessages.map((msg) => (
                 <Message key={msg.id} from={msg.from}>
                   <MessageContent>
                     <MessageResponse>{msg.content}</MessageResponse>
+                    {msg.widget?.type === "seat-picker" && (
+                      <div className="mt-4">
+                        <AirplaneSeatView
+                          rows={MOCK_SEAT_ROWS}
+                          initialSelectedSeatId={
+                            msg.widget.data.initialSelectedSeatId
+                          }
+                          cabinClass={msg.widget.data.cabinClass}
+                          flightNumber={msg.widget.data.flightNumber}
+                          flightInfo={msg.widget.data.flightInfo}
+                          onConfirm={(seatId, price) => {
+                            // TODO: Will trigger AI booking flow
+                            console.log(
+                              `Confirmed seat ${seatId} for $${price}`,
+                            );
+                          }}
+                          onCancel={() => {
+                            // TODO: Will close the widget/cancel booking
+                            console.log("Cancelled seat selection");
+                          }}
+                          onRequestChanges={(message) => {
+                            // TODO: Will send message to AI
+                            console.log(`Request changes: ${message}`);
+                          }}
+                        />
+                      </div>
+                    )}
                   </MessageContent>
                 </Message>
               ))}

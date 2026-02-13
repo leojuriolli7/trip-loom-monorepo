@@ -47,17 +47,37 @@ export const pastTrips = [
   },
 ];
 
+import type { FlightInfo, SeatRow } from "@/components/tools-ui/airplane-seat-view/types";
+
 // Mock conversation messages
-export const mockMessages = [
+export type MessageWidget = {
+  type: "seat-picker";
+  data: {
+    rows: SeatRow[];
+    initialSelectedSeatId: string;
+    cabinClass: string;
+    flightNumber: string;
+    flightInfo: FlightInfo;
+  };
+};
+
+export type MockMessage = {
+  id: string;
+  from: "user" | "assistant";
+  content: string;
+  widget?: MessageWidget;
+};
+
+export const mockMessages: MockMessage[] = [
   {
     id: "msg-1",
-    from: "user" as const,
+    from: "user",
     content:
       "Find me a place to go on vacation in July. I like warm beaches and good food!",
   },
   {
     id: "msg-2",
-    from: "assistant" as const,
+    from: "assistant",
     content: `Great choice! July is perfect for a beach vacation. Based on your preferences for warm beaches and great food, here are my top recommendations:
 
 **1. Santorini, Greece** 🇬🇷
@@ -75,5 +95,38 @@ Would you like me to dive deeper into any of these destinations? I can help you:
 - Create a personalized itinerary
 
 Just let me know which destination catches your eye! ✨`,
+  },
+  {
+    id: "msg-3",
+    from: "user",
+    content:
+      "Santorini sounds amazing! I want to go July 15-22. Can you book me flights from New York?",
+  },
+  {
+    id: "msg-4",
+    from: "assistant",
+    content: `I found a great flight option for your Santorini trip! Here's what I recommend:
+
+**Delta DL1842** - Direct flight from JFK to Santorini (JTR)
+
+I've pre-selected seat 3C for you - it's a window seat with extra legroom. You can change the seat selection below if you'd like a different one.`,
+    widget: {
+      type: "seat-picker",
+      data: {
+        rows: [], // Will use MOCK_SEAT_ROWS from the component
+        initialSelectedSeatId: "3C",
+        cabinClass: "Business",
+        flightNumber: "DL1842",
+        flightInfo: {
+          fromCode: "JFK",
+          fromCity: "New York",
+          departureTime: "18:30",
+          toCode: "JTR",
+          toCity: "Santorini",
+          arrivalTime: "12:45+1",
+          duration: "10h 15m",
+        },
+      },
+    },
   },
 ];

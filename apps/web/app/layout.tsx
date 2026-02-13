@@ -19,9 +19,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Trip Loom | Weaving everything together",
+  title: "TripLoom | Weaving everything together",
   description:
-    "Trip Loom: Your AI Travel Agent — plan & book everything in one place",
+    "TripLoom: Your AI Travel Agent — plan & book everything in one place",
 };
 
 export default function RootLayout({

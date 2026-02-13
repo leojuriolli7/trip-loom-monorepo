@@ -19,15 +19,13 @@ export default function Page() {
           <HomeChatInput />
 
           {/*
-            Still unsure about actions here, should clicking on card:
-            - Open a dialog with more information:
-              - Actions like: Read itinerary, edit itinerary (redirects to AI Chat + prompt)
-              - If user hasn't booked a hotel/plane: Book X (redirects to AI Chat + prompt)
+            TODO: Since trips have been decided as each having 1 chat (Can read more in chat/page.tsx)
+            we should make these redirect to that conversation in /chat.
             */}
           <TripsCarousel title="Upcoming trips" trips={upcomingTrips} />
 
           {/*
-            Same as above, but past trips so less actions to do.
+            TOOD: Same as above.
             */}
           <TripsCarousel
             title="Past trips"
@@ -36,7 +34,7 @@ export default function Page() {
           />
 
           {/*
-            Clicking could open dialog with more information + Actions like:
+            TODO: Clicking could open dialog with more information + Actions like:
             - Ask AI about activies
             - Ask AI to plan your trip
             etc...
