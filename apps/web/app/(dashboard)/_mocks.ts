@@ -8,10 +8,6 @@ import type { Destination } from "./_components/destination-card";
  * and types above.
  */
 
-export const mockUser = {
-  name: "Leonardo",
-};
-
 export const upcomingTrips: Trip[] = [
   {
     id: "1",

@@ -4,12 +4,8 @@ import { HomeChatInput } from "./_components/home-chat-input";
 import { TripsCarousel } from "./_components/trips-carousel";
 import { DestinationsCarousel } from "./_components/destinations-carousel";
 
-import {
-  mockUser,
-  pastTrips,
-  suggestedDestinations,
-  upcomingTrips,
-} from "./_constants";
+import { pastTrips, suggestedDestinations, upcomingTrips } from "./_mocks";
+import { mockUser } from "@/lib/mockUser";
 
 export default function Page() {
   return (

@@ -1,5 +1,6 @@
 "use client";
 
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { mockUser } from "@/lib/mockUser";
 import {
   LogOutIcon,
   MapIcon,
@@ -21,17 +23,9 @@ import {
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
-
-const mockUser = {
-  name: "Leonardo",
-  email: "leo@triploom.com",
-  avatar:
-    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-};
+import Link from "next/link";
 
 export function Header() {
-  const { theme, setTheme } = useTheme();
-
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-18 max-w-5xl items-center justify-between px-6 lg:px-8">
@@ -43,17 +37,15 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <SunIcon className="size-[18px] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <MoonIcon className="absolute size-[18px] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            <span className="sr-only">Toggle theme</span>
-          </Button>
+          <Link href="/chat">
+            <Button>Plan a Trip</Button>
+          </Link>
 
+          <ThemeToggle />
+
+          {/*
+            TODO: This same dropdown must also be used in the sidebar footer profile button in /chat page.
+            */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
