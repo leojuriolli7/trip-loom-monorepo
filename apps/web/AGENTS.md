@@ -42,6 +42,10 @@ For rich, detailed icons (images), we are using custom stylized, playful 3D icon
 - `palm-tree.png`: Island with a palm tree in the center of it.
 - `pyramid.png`: Egyptian pyramid, with sun behind it.
 - `statue-liberty.png`: Statue of Liberty.
+- `stone-face.png`: Stonehedge-like stone face.
+- `japanese-temple.png`: Ancient Japanese temple.
+- `duffel.png`: Duffel bag with passport hanging out of it.
+- `camera.png`: Digital camera.
 
 If you think none fit and you need to a new icon, request the developer to generate your desired icon.
 
