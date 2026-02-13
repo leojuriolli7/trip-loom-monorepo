@@ -67,12 +67,12 @@ interface QuickActionProps {
 function QuickAction({ icon, title, description }: QuickActionProps) {
   return (
     <button className="group flex items-center gap-4 rounded-xl border border-border/60 bg-card/50 p-4 text-left transition-all hover:border-primary/30 hover:bg-card hover:shadow-sm">
-      <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+      <div className="flex size-16 shrink-0 items-center justify-center rounded-lg bg-primary/10">
         <Image
           src={icon}
           alt=""
-          width={58}
-          height={58}
+          width={64}
+          height={64}
           className="transition-transform group-hover:scale-110"
         />
       </div>
