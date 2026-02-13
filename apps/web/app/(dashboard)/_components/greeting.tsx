@@ -39,16 +39,19 @@ export function Greeting({ userName }: GreetingProps) {
         <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <QuickAction
             icon="/island.png"
+            hoverIcon="/japanese-temple.png"
             title="Explore destinations"
             description="Discover your next adventure"
           />
           <QuickAction
             icon="/bungalow.png"
+            hoverIcon="/camping.png"
             title="Book accommodations"
             description="Find the perfect place to stay"
           />
           <QuickAction
             icon="/backpack.png"
+            hoverIcon="/map.png"
             title="Plan itinerary"
             description="Create your travel schedule"
           />
@@ -60,6 +63,7 @@ export function Greeting({ userName }: GreetingProps) {
 
 interface QuickActionProps {
   icon: string;
+  hoverIcon?: string;
   title: string;
   description: string;
 }
@@ -68,17 +72,35 @@ interface QuickActionProps {
  * TODO: Each one of these could be an MCP prompt implementation, or could
  * just redirect to the chat page, with suggestions there on the input box on what to write...
  */
-function QuickAction({ icon, title, description }: QuickActionProps) {
+function QuickAction({
+  icon,
+  hoverIcon,
+  title,
+  description,
+}: QuickActionProps) {
   return (
-    <button className="group flex items-center gap-4 rounded-xl border border-border/60 bg-card/50 p-4 text-left transition-all hover:border-primary/30 hover:bg-card hover:shadow-sm">
-      <div className="flex size-20 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+    <button className="group flex items-center gap-4 rounded-xl border border-border/60 bg-card/50 p-4 text-left transition-all duration-200 hover:scale-[1.02] hover:border-primary/30 hover:bg-card hover:shadow-sm">
+      <div className="relative flex size-20 shrink-0 items-center justify-center rounded-lg bg-primary/10">
         <Image
           src={icon}
           alt=""
           width={80}
           height={80}
-          className="transition-transform group-hover:scale-110"
+          className={
+            hoverIcon
+              ? "transition-all duration-200 group-hover:scale-110 group-hover:opacity-0"
+              : "transition-transform duration-200 group-hover:scale-110"
+          }
         />
+        {hoverIcon ? (
+          <Image
+            src={hoverIcon}
+            alt=""
+            width={80}
+            height={80}
+            className="absolute opacity-0 transition-all duration-200 group-hover:scale-110 group-hover:opacity-100"
+          />
+        ) : null}
       </div>
       <div className="flex flex-col gap-0.5">
         <span className="font-medium text-foreground">{title}</span>
