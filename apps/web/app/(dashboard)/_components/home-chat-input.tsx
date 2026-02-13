@@ -15,6 +15,11 @@ export function HomeChatInput() {
 
   return (
     <section className="mx-auto max-w-5xl px-6 lg:px-8">
+      <h3 className="mb-2 text-lg font-semibold">Ask your travel agent</h3>
+
+      {/*
+        TODO: Already suggestions above it in the greeting.tsx cards, but could add suggestions here too.
+        */}
       <PromptInput
         onSubmit={handleSubmit}
         className="rounded-2xl border border-border/60 bg-card shadow-sm transition-all hover:shadow-md hover:border-border focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-primary/20"

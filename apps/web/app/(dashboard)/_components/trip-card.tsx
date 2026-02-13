@@ -11,12 +11,15 @@ import Image from "next/image";
 
 export interface Trip {
   id: string;
+  // TODO: Destination will be a complete object and separate DB entity
   destination: string;
-  country: string;
+  country: string; // Same for country maybe
   imageUrl: string;
   startDate: string;
   endDate: string;
+  // TODO: Real app will have cancelled (But not implemented yet)
   status: "upcoming" | "past" | "ongoing";
+  // TODO: In the real app, will differentiate inbound, outbound and both (Can book just one or both or none)
   hasFlights?: boolean;
   hasHotel?: boolean;
   hasItinerary?: boolean;
