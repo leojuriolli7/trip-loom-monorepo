@@ -13,15 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { mockUser } from "@/lib/mockUser";
-import {
-  LogOutIcon,
-  MapIcon,
-  SettingsIcon,
-  UserIcon,
-  SunIcon,
-  MoonIcon,
-} from "lucide-react";
-import { useTheme } from "next-themes";
+import { LogOutIcon, MapIcon, SettingsIcon, UserIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 

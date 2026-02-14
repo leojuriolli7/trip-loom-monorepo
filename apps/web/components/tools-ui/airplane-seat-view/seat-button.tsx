@@ -24,9 +24,6 @@ export const SeatButton = React.memo(function SeatButton({
     }
   }, [seat, onSelect]);
 
-  // Extract just the letter from seat ID (e.g., "1A" -> "A")
-  const seatLetter = seat.id.replace(/[0-9]/g, "");
-
   return (
     <button
       type="button"
@@ -64,7 +61,7 @@ export const SeatButton = React.memo(function SeatButton({
           seat.isBooked && "text-muted-foreground/40",
         )}
       >
-        {seatLetter}
+        {seat.id}
       </span>
       {!seat.isBooked && (
         <span

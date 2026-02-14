@@ -9,9 +9,37 @@ import {
   PlaneIcon,
 } from "lucide-react";
 
-import type { Seat, AirplaneSeatViewProps } from "./types";
+import type { FlightInfo, Seat, SeatRow } from "./types";
 import { calculatePriceTiers, getPriceTier } from "./utils";
 import { SeatButton } from "./seat-button";
+
+interface AirplaneSeatViewProps {
+  /** Array of seat rows defining the plane layout */
+  rows: SeatRow[];
+  /** Initially selected seat ID */
+  initialSelectedSeatId: string;
+  /** Cabin class label (e.g., "Business", "Economy") */
+  cabinClass: string;
+  /** Flight number for display */
+  flightNumber: string;
+  /** Flight route and time information */
+  flightInfo: FlightInfo;
+  /**
+   * Called when user confirms seat selection.
+   * TODO: Will trigger AI booking flow
+   */
+  onConfirm?: (seatId: string, price: number) => void;
+  /**
+   * Called when user cancels seat selection.
+   * TODO: Will close the seat picker widget
+   */
+  onCancel?: () => void;
+  /**
+   * Called when user wants to request changes.
+   * TODO: Will send message to AI for different options
+   */
+  onRequestChanges?: (message: string) => void;
+}
 
 export function AirplaneSeatView({
   rows,
@@ -309,7 +337,7 @@ export function AirplaneSeatView({
                 className="gap-1.5"
               >
                 <MessageSquareIcon className="size-3.5" />
-                Changes
+                Request changes
               </Button>
               <Button
                 size="sm"
