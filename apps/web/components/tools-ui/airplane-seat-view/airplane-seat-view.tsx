@@ -12,6 +12,7 @@ import {
 import type { FlightInfo, Seat, SeatRow } from "./types";
 import { calculatePriceTiers, getPriceTier } from "./utils";
 import { SeatButton } from "./seat-button";
+import { cn } from "@/lib/utils";
 
 interface AirplaneSeatViewProps {
   /** Array of seat rows defining the plane layout */
@@ -201,14 +202,21 @@ export function AirplaneSeatView({
                 key={row.rowNumber}
                 className="flex items-center justify-center gap-0"
               >
-                <div className="flex w-6 items-center justify-center text-xs font-medium text-muted-foreground">
+                <div className="flex w-6 items-center justify-center text-xs font-medium text-muted-foreground mr-2">
                   {row.rowNumber}
                 </div>
 
                 <div className="flex items-center">
                   {row.sections.map((section, sectionIdx) => (
                     <React.Fragment key={sectionIdx}>
-                      <div className="flex gap-1.5">
+                      <div
+                        className={cn(
+                          "flex gap-1.5 relative before:content-[''] before:absolute before:top-2/4 before:h-2/5 before:w-0.5 before:-translate-y-1/2 before:bg-secondary before:rounded-4xl",
+                          sectionIdx === 0
+                            ? "before:-left-2"
+                            : "before:-right-2",
+                        )}
+                      >
                         {section.map((seat) => (
                           <SeatButton
                             key={seat.id}
@@ -227,7 +235,7 @@ export function AirplaneSeatView({
                   ))}
                 </div>
 
-                <div className="flex w-6 items-center justify-center text-xs font-medium text-muted-foreground">
+                <div className="flex w-6 items-center justify-center text-xs font-medium text-muted-foreground ml-2">
                   {row.rowNumber}
                 </div>
               </div>

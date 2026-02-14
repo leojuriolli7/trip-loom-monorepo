@@ -22,7 +22,12 @@ export default function Page() {
             TODO: Since trips have been decided as each having 1 chat (Can read more in chat/page.tsx)
             we should make these redirect to that conversation in /chat.
             */}
-          <TripsCarousel title="Upcoming trips" trips={upcomingTrips} />
+          <TripsCarousel
+            title="Upcoming trips"
+            trips={upcomingTrips}
+            emptyMessage="You haven't booked any trips with us yet"
+            emptyMessageIcon="/colliseum.png"
+          />
 
           {/*
             TOOD: Same as above.
@@ -31,6 +36,7 @@ export default function Page() {
             title="Past trips"
             trips={pastTrips}
             emptyMessage="You haven't taken any trips yet"
+            emptyMessageIcon="/pyramid.png"
           />
 
           {/*
