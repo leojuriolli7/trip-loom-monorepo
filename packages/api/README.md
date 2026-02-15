@@ -14,24 +14,26 @@ Think of this package as an **engine**, not a car:
 
 The API package **defines** the application logic but doesn't **run** anything by itself. Consumers mount it wherever they need to deploy.
 
-## URL Prefix
+## URL Structure
 
-All routes are prefixed with `/api`. This is configured in the Elysia app:
+| Path | Description |
+|------|-------------|
+| `/api/*` | Custom API routes (health, trips, etc.) |
+| `/api/auth/*` | Better Auth authentication routes |
+
+Examples:
+- `GET /api/health` - Health check
+- `POST /api/auth/sign-up/email` - Create account
+- `POST /api/auth/sign-in/email` - Sign in
+- `GET /api/auth/session` - Get current session
+
+When using the Eden client for custom routes:
 
 ```typescript
-export const app = new Elysia({ prefix: "/api" })
+client.api.health.get() // GET /api/health
 ```
 
-This means:
-- A route defined as `.api.get("/health", ...)` is accessible at `/api/health`
-- A route defined as `.api.post("/auth/login", ...)` is accessible at `/api/auth/login`
-
-When using the Eden client, the prefix is reflected in the path:
-
-```typescript
-client.api.health.get()      // GET /api/health
-client.api.auth.login.post() // POST /api/auth/login
-```
+For authentication, use the Better Auth client directly (see below).
 
 ## Exports
 
@@ -66,8 +68,106 @@ const { data, error } = await api.api.health.get();
 src/
 ├── index.ts      # Main Elysia app, exports `app` and `type App`
 ├── client.ts     # Eden client factory, exports `createApiClient`
-└── modules/      # Feature modules (auth, trips, flights, etc.)
-    └── ...
+├── env.d.ts      # Environment variable type definitions
+├── db/
+│   ├── index.ts  # Database connection (Drizzle + Postgres)
+│   └── schema.ts # Drizzle schema (includes Better Auth tables)
+├── lib/
+│   └── auth.ts   # Better Auth configuration
+└── routes/       # Route modules
+    ├── auth.ts   # Authentication routes (Better Auth)
+    └── health.ts # Health check endpoint
+```
+
+## Adding Routes
+
+Follow the established pattern when adding new route modules:
+
+```typescript
+// src/routes/trips.ts
+import { Elysia } from "elysia";
+
+export const tripsRoutes = new Elysia({ name: "trips", prefix: "/api/trips" })
+  .get("/", () => { /* list trips */ })
+  .post("/", ({ body }) => { /* create trip */ })
+  .get("/:id", ({ params }) => { /* get trip */ });
+```
+
+Then register in `src/index.ts`:
+
+```typescript
+import { tripsRoutes } from "./routes/trips";
+
+export const app = new Elysia({ name: "api" })
+  .use(authRoutes)
+  .use(healthRoutes)
+  .use(tripsRoutes); // Add new routes here
+```
+
+## Authentication
+
+Authentication is handled by [Better Auth](https://better-auth.com) with email/password support.
+
+### Server-side (in API routes)
+
+```typescript
+import { auth } from "@trip-loom/api";
+
+// Get session from request headers
+const session = await auth.api.getSession({ headers: request.headers });
+```
+
+### Client-side (in Next.js)
+
+```typescript
+import { authClient } from "@/lib/auth-client";
+
+// Sign up
+await authClient.signUp.email({ email, password, name });
+
+// Sign in
+await authClient.signIn.email({ email, password });
+
+// Get session (React hook)
+const { data: session } = authClient.useSession();
+
+// Sign out
+await authClient.signOut();
+```
+
+### Dev vs Production
+
+| Setting | Development | Production |
+|---------|-------------|------------|
+| Email verification | Disabled | Enabled |
+| Rate limiting | Disabled | Enabled |
+| Secure cookies | Disabled | Enabled |
+
+## Environment Variables
+
+This package requires the following environment variables (provided by the app that imports it):
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `BETTER_AUTH_SECRET` | Yes | Auth encryption secret (min 32 chars). Generate: `openssl rand -base64 32` |
+| `BETTER_AUTH_URL` | Yes | Base URL for auth (e.g., `http://localhost:3000`) |
+| `TRUSTED_ORIGINS` | Prod | Comma-separated list of trusted origins |
+| `CORS_ORIGINS` | Prod | Comma-separated list of CORS origins |
+
+Environment files (`.env`) live in **apps**, not packages. See `apps/web/.env.example`.
+
+## Database
+
+Uses [Drizzle ORM](https://orm.drizzle.team) with PostgreSQL.
+
+### Commands
+
+```bash
+pnpm db:generate  # Generate migrations from schema changes
+pnpm db:migrate   # Apply migrations to database
+pnpm db:push      # Push schema directly (dev only)
+pnpm db:studio    # Open Drizzle Studio GUI
 ```
 
 ## Adding a Standalone Server

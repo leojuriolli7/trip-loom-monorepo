@@ -12,12 +12,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { mockUser } from "@/lib/mockUser";
+import { Spinner } from "@/components/ui/spinner";
+import { authClient } from "@/lib/api/auth";
 import { LogOutIcon, MapIcon, SettingsIcon, UserIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export function Header() {
+  const { data: sessionData, isPending: isSessionPending } =
+    authClient.useSession();
+
+  const { user } = sessionData || {};
+
+  const router = useRouter();
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-18 max-w-5xl items-center justify-between px-6 lg:px-8">
@@ -36,7 +44,7 @@ export function Header() {
           <ThemeToggle />
 
           {/*
-            TODO: This same dropdown must also be used in the sidebar footer profile button in /chat page.
+            TODO: Create user-avatar.tsx component for re-using this in chat page.
             */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -45,10 +53,19 @@ export function Header() {
                 className="relative h-9 w-9 rounded-full ring-2 ring-border/50 ring-offset-2 ring-offset-background transition-all hover:ring-primary/30"
               >
                 <Avatar className="size-9">
-                  <AvatarImage src={mockUser.avatar} alt={mockUser.name} />
-                  <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                    {mockUser.name.slice(0, 2).toUpperCase()}
-                  </AvatarFallback>
+                  {isSessionPending ? (
+                    <Spinner className="mx-auto my-auto" />
+                  ) : (
+                    <>
+                      <AvatarImage
+                        src={user?.image as string}
+                        alt={user?.name}
+                      />
+                      <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                        {user?.name.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </>
+                  )}
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -56,10 +73,10 @@ export function Header() {
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col gap-1">
                   <p className="text-sm font-medium leading-none">
-                    {mockUser.name}
+                    {user?.name}
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {mockUser.email}
+                    {user?.email}
                   </p>
                 </div>
               </DropdownMenuLabel>
@@ -79,7 +96,16 @@ export function Header() {
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuItem variant="destructive">
+              <DropdownMenuItem
+                onClick={() => {
+                  authClient.signOut();
+
+                  // TODO: Should be able to just re-call the layout.tsx code,
+                  // and have it work as the redirect... router.refresh() didn't work.
+                  router.replace("/enter");
+                }}
+                variant="destructive"
+              >
                 <LogOutIcon />
                 Log out
               </DropdownMenuItem>

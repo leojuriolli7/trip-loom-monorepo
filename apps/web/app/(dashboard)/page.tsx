@@ -5,15 +5,26 @@ import { TripsCarousel } from "./_components/trips-carousel";
 import { DestinationsCarousel } from "./_components/destinations-carousel";
 
 import { pastTrips, suggestedDestinations, upcomingTrips } from "./_mocks";
-import { mockUser } from "@/lib/mockUser";
+import { auth } from "@trip-loom/api/auth";
+import { headers } from "next/headers";
+import { unauthorized } from "next/navigation";
 
-export default function Page() {
+export default async function Page() {
+  const headersStore = await headers();
+
+  // TODO: Need to understand if this call results in another call, separate from layout.tsx cal
+  const sessionResult = await auth.api.getSession({ headers: headersStore });
+
+  if (!sessionResult?.user) {
+    unauthorized();
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
 
       <main className="flex-1">
-        <Greeting userName={mockUser.name} />
+        <Greeting userName={sessionResult?.user.name} />
 
         <div className="space-y-12 pb-16">
           <HomeChatInput />
