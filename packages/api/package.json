@@ -1,0 +1,23 @@
+{
+  "name": "@trip-loom/api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@elysiajs/eden": "^1.2.0",
+    "elysia": "^1.2.25",
+    "server-only": "^0.0.1",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.0",
+    "typescript": "^5.7.0"
+  }
+}

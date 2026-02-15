@@ -25,7 +25,7 @@ export default function Page() {
           <TripsCarousel
             title="Upcoming trips"
             trips={upcomingTrips}
-            emptyMessage="You haven't booked any trips with us yet"
+            emptyMessage="You don't have any trips coming up"
             emptyMessageIcon="/colliseum.png"
           />
 

@@ -13,7 +13,7 @@
 ### **Core tech features**
 
 - MCP Server
-- Fully type-safe API client + API definition: Need a library like tRPC that can generate a typesafe client for usage, but that can be used on the frontend & on the MCP server to call the API easily, plus types/schemas for each endpoint for eventual tool calls and validation.
+- Fully type-safe API client + API definition: Need a library like tRPC that can generate a typesafe client for usage, but that can be used on the frontend & on the MCP server to call the API easily, plus types/schemas for each endpoint for eventual tool calls and validation. -- Elysia with Eden client: `packages/api`
 - Multiple AI agents, orchestrated with LangChain
 - Shadcn, warm design with big spacing and cozy feel
 - Database with Drizzle, for additional typesafety
