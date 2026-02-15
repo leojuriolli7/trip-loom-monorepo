@@ -8,7 +8,6 @@ import { SignUpForm } from "./_components/sign-up-form";
 
 type AuthMode = "sign-in" | "sign-up";
 
-// TODO: Page can be better looking, perhaps with an image on the left-side part.
 export default function EnterPage() {
   const [mode, setMode] = useState<AuthMode>("sign-in");
 
@@ -18,64 +17,63 @@ export default function EnterPage() {
 
   return (
     <div className="bg-background relative flex min-h-svh">
-      {/* Left side - Visual branding */}
-      <div className="bg-primary/5 relative hidden w-1/2 overflow-hidden lg:block">
-        {/* Decorative gradient orbs */}
-        <div className="bg-primary/20 absolute -left-32 -top-32 size-96 rounded-full blur-3xl" />
-        <div className="bg-primary/10 absolute -bottom-48 -right-24 size-[500px] rounded-full blur-3xl" />
+      <div className="relative hidden w-1/2 overflow-hidden lg:block">
+        <Image
+          src="/enter-hero-3.jpg"
+          alt="Travel destination"
+          fill
+          className="object-cover"
+          priority
+        />
 
-        {/* Content */}
-        <div className="relative z-10 flex h-full flex-col justify-between p-12">
-          {/* Logo */}
-          <div className="flex items-center gap-1">
-            <div className="flex size-10 items-center justify-center rounded-xl">
-              <Image
-                src="/logo.png"
-                alt="TripLoom"
-                width={28}
-                height={28}
-                className="drop-shadow-sm"
-              />
-            </div>
-            <span className="text-xl font-semibold tracking-tight">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          }}
+        />
+
+        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-black/10" />
+
+        <div className="relative z-10 flex h-full flex-col justify-between p-10">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="flex items-center gap-2"
+          >
+            <Image
+              src="/logo.png"
+              alt="Location pin made with an orange woven material"
+              width={32}
+              height={32}
+              className="drop-shadow-lg"
+            />
+            <span className="text-xl font-semibold tracking-tight text-white drop-shadow-lg">
               TripLoom
             </span>
-          </div>
+          </motion.div>
 
-          {/* Main visual */}
-          <div className="flex flex-1 flex-col items-center justify-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              className="text-center"
-            >
-              <div className="relative mx-auto mb-8 size-48">
-                <Image
-                  src="/statue-liberty.png"
-                  alt="Travel"
-                  fill
-                  className="object-contain drop-shadow-2xl"
-                  priority
-                />
-              </div>
-              <h1 className="mb-4 text-4xl font-bold tracking-tight">
-                Weaving your
-                <br />
-                <span className="text-primary">perfect journey</span>
-              </h1>
-              <p className="text-muted-foreground mx-auto max-w-sm text-lg">
-                Your AI travel agent that plans, books, and organizes everything
-                in one place.
-              </p>
-            </motion.div>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+            className="max-w-md"
+          >
+            <h1 className="mb-4 text-4xl font-bold leading-tight tracking-tight text-white drop-shadow-lg xl:text-5xl">
+              Weaving your
+              <br />
+              <span className="text-primary">perfect journey</span>
+            </h1>
+            <p className="text-lg text-white/80 drop-shadow-md">
+              Your AI travel agent that plans, books, and organizes everything
+              in one place.
+            </p>
+          </motion.div>
         </div>
       </div>
 
-      {/* Right side - Auth forms */}
       <div className="flex flex-1 flex-col">
-        {/* Mobile logo */}
         <div className="flex items-center gap-1 p-6 lg:hidden">
           <div className="flex size-9 items-center justify-center rounded-xl">
             <Image
@@ -89,7 +87,6 @@ export default function EnterPage() {
           <span className="text-lg font-semibold tracking-tight">TripLoom</span>
         </div>
 
-        {/* Form container */}
         <div className="flex flex-1 items-center justify-center px-6 py-12 lg:px-12">
           <div className="w-full max-w-sm">
             <AnimatePresence mode="wait">
@@ -100,7 +97,6 @@ export default function EnterPage() {
                 exit={{ opacity: 0, x: mode === "sign-in" ? 20 : -20 }}
                 transition={{ duration: 0.2, ease: "easeInOut" }}
               >
-                {/* Header */}
                 <div className="mb-7 text-center">
                   <h2 className="mb-2 text-2xl font-bold tracking-tight">
                     {mode === "sign-in" ? "Welcome back" : "Create an account"}
@@ -112,10 +108,8 @@ export default function EnterPage() {
                   </p>
                 </div>
 
-                {/* Form */}
                 {mode === "sign-in" ? <SignInForm /> : <SignUpForm />}
 
-                {/* Toggle */}
                 <p className="text-muted-foreground mt-4 text-center text-sm">
                   {mode === "sign-in"
                     ? "Don't have an account?"
