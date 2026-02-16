@@ -24,7 +24,7 @@ test.describe("Authentication", () => {
       await page.getByTestId("toggle-to-sign-up").click();
 
       // Verify we're in sign-up mode
-      await expect(page.getByText("Create an account")).toBeVisible();
+      await expect(page.getByTestId("sign-up-title")).toBeVisible();
 
       // Fill in the form
       await page.getByTestId("sign-up-name-input").fill(testUser.name);
@@ -161,6 +161,7 @@ test.describe("Authentication", () => {
 
       // Should be on dashboard
       await expect(page).toHaveURL("/");
+      await expect(page.getByTestId("greeting-message")).toBeVisible();
 
       // User name should be visible
       await page.getByTestId("user-avatar-trigger").click();
@@ -198,6 +199,7 @@ test.describe("Authentication", () => {
 
       // Verify we're logged in
       await expect(page).toHaveURL("/");
+      await expect(page.getByTestId("greeting-message")).toBeVisible();
 
       // Sign out
       await signOutUser(page);
@@ -261,6 +263,7 @@ test.describe("Authentication", () => {
 
       // Should be redirected to dashboard
       await expect(page).toHaveURL("/");
+      await expect(page.getByTestId("greeting-message")).toBeVisible();
     });
   });
 });

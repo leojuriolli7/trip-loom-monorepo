@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,8 +13,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Spinner } from "@/components/ui/spinner";
-import { authClient } from "@/lib/api/auth";
-import { LogOutIcon, MapIcon, SettingsIcon, UserIcon } from "lucide-react";
+import { UserPreferencesDialog } from "@/components/user-preferences-dialog";
+import { authClient } from "@/lib/api/auth-client";
+import { useQueryClient } from "@tanstack/react-query";
+import { LogOutIcon, MapIcon, UserIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -26,9 +29,11 @@ type UserAvatarProps = {
 };
 
 export function UserAvatar({ variant = "icon" }: UserAvatarProps) {
+  const [preferencesOpen, setPreferencesOpen] = React.useState(false);
   const { data: sessionData, isPending: isSessionPending } =
     authClient.useSession();
 
+  const queryClient = useQueryClient();
   const { user } = sessionData || {};
   const router = useRouter();
 
@@ -37,6 +42,7 @@ export function UserAvatar({ variant = "icon" }: UserAvatarProps) {
       .signOut()
       .then(() => {
         router.refresh();
+        queryClient.removeQueries();
       })
       .catch((err) => {
         toast.error(
@@ -81,7 +87,10 @@ export function UserAvatar({ variant = "icon" }: UserAvatarProps) {
           >
             {avatarContent}
             <div className="flex flex-1 flex-col overflow-hidden">
-              <span className="truncate text-sm font-medium" data-testid="user-name">
+              <span
+                className="truncate text-sm font-medium"
+                data-testid="user-name"
+              >
                 {user?.name}
               </span>
               <span className="truncate text-xs text-muted-foreground">
@@ -98,7 +107,10 @@ export function UserAvatar({ variant = "icon" }: UserAvatarProps) {
       >
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col gap-1">
-            <p className="text-sm font-medium leading-none" data-testid="dropdown-user-name">
+            <p
+              className="text-sm font-medium leading-none"
+              data-testid="dropdown-user-name"
+            >
               {user?.name}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
@@ -108,17 +120,16 @@ export function UserAvatar({ variant = "icon" }: UserAvatarProps) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => setPreferencesOpen(true)}
+            data-testid="preferences-menu-item"
+          >
             <UserIcon />
             Profile
           </DropdownMenuItem>
           <DropdownMenuItem>
             <MapIcon />
             My Trips
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <SettingsIcon />
-            Settings
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
@@ -131,6 +142,11 @@ export function UserAvatar({ variant = "icon" }: UserAvatarProps) {
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>
+
+      <UserPreferencesDialog
+        open={preferencesOpen}
+        onOpenChange={setPreferencesOpen}
+      />
     </DropdownMenu>
   );
 }

@@ -20,7 +20,10 @@ export function Greeting({ userName }: GreetingProps) {
       <div className="mx-auto max-w-5xl px-6 lg:px-8">
         <div className="flex flex-col items-start gap-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-col gap-3">
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground lg:text-4xl">
+            <h1
+              data-testid="greeting-message"
+              className="text-3xl font-semibold tracking-tight text-foreground lg:text-4xl"
+            >
               {getGreeting()}, {userName}
             </h1>
             <p className="max-w-lg text-lg text-muted-foreground">

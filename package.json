@@ -10,13 +10,16 @@
     "typecheck:api": "pnpm --filter @trip-loom/api typecheck",
     "test:e2e": "pnpm --filter web test:e2e",
     "test:e2e:ui": "pnpm --filter web test:e2e:ui",
+    "test:api": "pnpm --filter @trip-loom/api test",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
     "db:reset": "docker compose down -v && docker compose up -d",
     "db:generate": "pnpm --filter @trip-loom/api db:generate",
     "db:migrate": "pnpm --filter @trip-loom/api db:migrate",
     "db:push": "pnpm --filter @trip-loom/api db:push",
-    "db:studio": "pnpm --filter @trip-loom/api db:studio"
+    "db:studio": "pnpm --filter @trip-loom/api db:studio",
+    "db:seed": "pnpm --filter @trip-loom/api db:seed",
+    "db:seed:validate": "pnpm --filter @trip-loom/api db:seed:validate"
   },
   "devDependencies": {
     "dotenv-cli": "^11.0.0"

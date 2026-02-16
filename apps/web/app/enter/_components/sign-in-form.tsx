@@ -14,7 +14,7 @@ import {
   FieldError,
   FieldGroup,
 } from "@/components/ui/field";
-import { authClient } from "@/lib/api/auth";
+import { authClient } from "@/lib/api/auth-client";
 import { Spinner } from "@/components/ui/spinner";
 
 const signInSchema = z.object({

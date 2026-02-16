@@ -19,6 +19,86 @@ Before writing React code, read the `vercel-react-best-practices` skill for perf
 - Bundle optimization
 - Next.js specific patterns
 
+## API Communication Layer
+
+All frontend API communication must go through the Eden treaty client in `lib/api/api-client.ts`:
+
+```ts
+import { treaty } from "@elysiajs/eden";
+import type { App } from "@trip-loom/api";
+
+export const apiClient = treaty<App>(process.env.NEXT_PUBLIC_API_BASE_URL);
+```
+
+This is our main API layer because it gives end-to-end type safety from backend routes to frontend calls. Endpoints are consumed like typed functions (for example: `apiClient.api.user.preferences.get(...)`), so request/response contracts stay aligned with backend types.
+
+When adding new API communication, follow the same integration pattern used in `lib/api/react-query/user-preferences.ts`: define query/mutation option factories in `lib/api/react-query/*` and consume them via TanStack React Query hooks in components.
+
+## React Query Patterns
+
+We standardize React Query usage around query/mutation option factories and typed query keys.
+
+- Keep keys in a key factory (like `KEYS` in `lib/api/react-query/user-preferences.ts`) and expose options via objects like `userPreferencesQueries`.
+
+```typescript
+import { mutationOptions, queryOptions } from "@tanstack/react-query";
+import { apiClient } from "../api-client";
+
+const KEYS = { // Base keys, not tagged query keys and not exported.
+  base: () => ["user-preferences"],
+  get: () => [...KEYS.base(), "get-user-preferences"],
+  put: () => [...KEYS.base(), "put-user-preferences"],
+};
+
+export const userPreferencesQueries = { // We will use the keys from here on the app, they are tagged and have typesafety on their expected data types
+  base: () => KEYS.base(),
+  getUserPreferences: () =>
+    queryOptions({
+      queryKey: KEYS.get(),
+      queryFn: async ({ signal }) =>
+        apiClient.api.user.preferences.get({ fetch: { signal } }),
+    }),
+  putUserPreferences: () =>
+    mutationOptions({
+      mutationFn: async (
+        vars: Parameters<typeof apiClient.api.user.preferences.put>[0],
+      ) => apiClient.api.user.preferences.put(vars),
+      mutationKey: KEYS.put(),
+    }),
+};
+
+```
+
+- Reuse the produced query key directly when reading/writing cache.
+- Treat these keys as tagged query keys: they carry type information for cached data operations.
+
+```ts
+queryClient.setQueryData(
+  userPreferencesQueries.getUserPreferences().queryKey,
+  result,
+);
+```
+
+In this pattern, `setQueryData` is type-safe: passing the wrong data shape results in a TypeScript error.
+
+### Mutations
+
+For mutations, always call `mutateAsync` and handle the promise with `.then(...).catch(...)`. Never use `mutate` with `onSuccess`/`onError`. Follow the mutation flow shown in `components/user-preferences-dialog.tsx`.
+
+## Shared DTO and Schema Reuse
+
+Always reuse backend DTO types and schema values from `@trip-loom/api/dto`. Do not redefine enums, literal unions, or DTO types in `apps/web`.
+
+```ts
+import {
+  cabinClassValues,
+  budgetRangeValues,
+  travelInterestValues,
+  regionValues,
+  type UserPreferenceDTO,
+} from "@trip-loom/api/dto";
+```
+
 ## Frontend Design
 
 Before doing any UI work, read the `frontend-design` skill to ensure production-grade, distinctive interfaces that avoid generic AI aesthetics.
@@ -46,6 +126,7 @@ For rich, detailed icons (images), we are using custom stylized, playful 3D icon
 - `japanese-temple.png`: Ancient Japanese temple.
 - `duffel.png`: Duffel bag with passport hanging out of it.
 - `camera.png`: Digital camera.
+- More...
 
 If you think none fit and you need to a new icon, request the developer to generate your desired icon.
 

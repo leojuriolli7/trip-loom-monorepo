@@ -132,7 +132,12 @@ export default function EnterPage() {
                 transition={{ duration: 0.2, ease: "easeInOut" }}
               >
                 <div className="mb-7 text-center">
-                  <h2 className="mb-2 text-2xl font-bold tracking-tight">
+                  <h2
+                    data-testid={
+                      mode === "sign-in" ? "sign-in-title" : "sign-up-title"
+                    }
+                    className="mb-2 text-2xl font-bold tracking-tight"
+                  >
                     {mode === "sign-in" ? "Welcome back" : "Create an account"}
                   </h2>
                   <p className="text-muted-foreground">

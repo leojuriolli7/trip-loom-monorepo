@@ -11,3 +11,7 @@ dist
 
 # Drizzle
 drizzle/
+
+# for now, ignore seed files
+ packages/api/seeds/*
+plans/*
