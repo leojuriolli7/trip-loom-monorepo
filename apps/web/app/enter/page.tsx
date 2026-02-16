@@ -25,10 +25,10 @@ export default function EnterPage() {
           src="/enter-hero-2.jpg"
           alt="Beach view with the ocean on the left-side and palm trees on the right-side, sunny day, blue sky"
           fill
-          className="object-cover blur-sm"
+          className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-background/60" />
+        <div className="absolute inset-0 bg-background/40" />
       </div>
 
       {/* Desktop: Left side hero panel */}
