@@ -116,10 +116,10 @@ export function SignInForm() {
           {isLoading ? (
             <>
               <LoaderIcon className="animate-spin" />
-              Signing in...
+              Logging in...
             </>
           ) : (
-            "Sign in"
+            "Login"
           )}
         </Button>
       </FieldGroup>

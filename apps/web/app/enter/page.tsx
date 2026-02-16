@@ -17,15 +17,31 @@ export default function EnterPage() {
 
   return (
     <div className="bg-background relative flex min-h-svh">
+      {/* Mobile: Full-screen blurred background */}
+      <div className="fixed inset-0 lg:hidden">
+        <Image
+          fetchPriority="high"
+          loading="eager"
+          src="/enter-hero-2.jpg"
+          alt="Beach view with the ocean on the left-side and palm trees on the right-side, sunny day, blue sky"
+          fill
+          className="object-cover blur-sm"
+          priority
+        />
+        <div className="absolute inset-0 bg-background/60" />
+      </div>
+
+      {/* Desktop: Left side hero panel */}
       <div className="relative hidden w-1/2 overflow-hidden lg:block">
         <Image
           src="/enter-hero-3.jpg"
-          alt="Travel destination"
+          alt="A bright pink inflatable flamingo float sits on clear turquoise ocean water, photographed half-above and half-below the surface, with sunlight flaring in a blue sky and a distant shoreline on the horizon."
           fill
           className="object-cover"
           priority
         />
 
+        {/* Noise texture overlay */}
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.03]"
           style={{
@@ -33,8 +49,10 @@ export default function EnterPage() {
           }}
         />
 
+        {/* Gradient overlay */}
         <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-black/10" />
 
+        {/* Content floating on image */}
         <div className="relative z-10 flex h-full flex-col justify-between p-10">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -73,22 +91,38 @@ export default function EnterPage() {
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col">
-        <div className="flex items-center gap-1 p-6 lg:hidden">
-          <div className="flex size-9 items-center justify-center rounded-xl">
-            <Image
-              src="/logo.png"
-              alt="TripLoom"
-              width={24}
-              height={24}
-              className="drop-shadow-sm"
-            />
-          </div>
-          <span className="text-lg font-semibold tracking-tight">TripLoom</span>
-        </div>
+      {/* Right side / Mobile: Auth forms */}
+      <div className="relative z-10 flex flex-1 flex-col">
+        {/* Mobile logo */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="flex items-center gap-2 p-6 lg:hidden"
+        >
+          <Image
+            fetchPriority="high"
+            loading="eager"
+            src="/logo.png"
+            alt="Location pin made with an orange woven material"
+            width={28}
+            height={28}
+            className="drop-shadow-md"
+          />
+          <span className="text-lg font-semibold tracking-tight drop-shadow-sm">
+            TripLoom
+          </span>
+        </motion.div>
 
+        {/* Form container */}
         <div className="flex flex-1 items-center justify-center px-6 py-12 lg:px-12">
-          <div className="w-full max-w-sm">
+          {/* Frosted glass card on mobile */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="w-full max-w-sm rounded-3xl bg-card/80 px-6 py-8 shadow-xl ring-1 ring-border/50 backdrop-blur-md lg:bg-transparent lg:p-0 lg:shadow-none lg:ring-0 lg:backdrop-blur-none"
+          >
             <AnimatePresence mode="wait">
               <motion.div
                 key={mode}
@@ -119,12 +153,12 @@ export default function EnterPage() {
                     onClick={toggleMode}
                     className="text-primary hover:text-primary/80 font-medium underline-offset-4 transition-colors hover:underline"
                   >
-                    {mode === "sign-in" ? "Sign up" : "Sign in"}
+                    {mode === "sign-in" ? "Register" : "Login"}
                   </button>
                 </p>
               </motion.div>
             </AnimatePresence>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

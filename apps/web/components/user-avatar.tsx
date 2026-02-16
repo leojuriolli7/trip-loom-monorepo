@@ -15,11 +15,12 @@ import { Spinner } from "@/components/ui/spinner";
 import { authClient } from "@/lib/api/auth";
 import { LogOutIcon, MapIcon, SettingsIcon, UserIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type UserAvatarProps = {
   /**
-   * "icon" - Just the avatar button (used in header)
-   * "full" - Avatar with name and email beside it (used in sidebar footer)
+   * "icon" - Just the avatar button
+   * "full" - Avatar with name and email beside it
    */
   variant?: "icon" | "full";
 };
@@ -32,8 +33,18 @@ export function UserAvatar({ variant = "icon" }: UserAvatarProps) {
   const router = useRouter();
 
   const handleSignOut = () => {
-    authClient.signOut();
-    router.replace("/enter");
+    authClient
+      .signOut()
+      .then(() => {
+        router.refresh();
+      })
+      .catch((err) => {
+        toast.error(
+          "Error logging you out! Please try again or contact support",
+        );
+
+        console.error("Error on logout:", err);
+      });
   };
 
   const avatarContent = (
