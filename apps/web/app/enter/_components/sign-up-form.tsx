@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
 import { Check, X } from "lucide-react";
 import { toast } from "sonner";
@@ -15,7 +14,6 @@ import {
   FieldLabel,
   FieldError,
   FieldGroup,
-  FieldDescription,
 } from "@/components/ui/field";
 import { authClient } from "@/lib/api/auth";
 import { Spinner } from "@/components/ui/spinner";
@@ -39,10 +37,7 @@ const signUpSchema = z
       .min(1, "Name is required")
       .min(4, "Name must be at least 4 characters")
       .max(30, "Name must be at most 30 characters"),
-    email: z
-      .string()
-      .min(1, "Email is required")
-      .email("Invalid email address"),
+    email: z.email("Invalid email address").min(1, "Email is required"),
     password: z
       .string()
       .min(1, "Password is required")
@@ -90,7 +85,7 @@ export function SignUpForm() {
   const router = useRouter();
 
   const form = useForm<SignUpFormData>({
-    resolver: zodResolver(signUpSchema),
+    resolver: standardSchemaResolver(signUpSchema),
     defaultValues: {
       name: "",
       email: "",

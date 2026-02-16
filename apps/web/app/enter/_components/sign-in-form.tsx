@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
 import { toast } from "sonner";
 
@@ -19,7 +18,7 @@ import { authClient } from "@/lib/api/auth";
 import { Spinner } from "@/components/ui/spinner";
 
 const signInSchema = z.object({
-  email: z.string().min(1, "Email is required").email("Invalid email address"),
+  email: z.email("Invalid e-mail address").min(1, "Email is required"),
   password: z.string().min(1, "Password is required"),
 });
 
@@ -29,7 +28,7 @@ export function SignInForm() {
   const router = useRouter();
 
   const form = useForm<SignInFormData>({
-    resolver: zodResolver(signInSchema),
+    resolver: standardSchemaResolver(signInSchema),
     defaultValues: {
       email: "",
       password: "",
