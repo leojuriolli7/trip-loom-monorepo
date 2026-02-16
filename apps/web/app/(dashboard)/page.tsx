@@ -12,7 +12,7 @@ import { unauthorized } from "next/navigation";
 export default async function Page() {
   const headersStore = await headers();
 
-  // TODO: Need to understand if this call results in another call, separate from layout.tsx cal
+  // This gets deduplicated with the call from layout.tsx above this page
   const sessionResult = await auth.api.getSession({ headers: headersStore });
 
   if (!sessionResult?.user) {

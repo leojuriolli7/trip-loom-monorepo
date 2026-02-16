@@ -36,7 +36,8 @@ const signUpSchema = z
     name: z
       .string()
       .min(1, "Name is required")
-      .min(2, "Name must be at least 2 characters"),
+      .min(4, "Name must be at least 4 characters")
+      .max(30, "Name must be at most 30 characters"),
     email: z
       .string()
       .min(1, "Email is required")

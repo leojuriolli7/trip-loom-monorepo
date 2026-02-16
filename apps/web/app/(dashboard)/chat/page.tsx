@@ -77,7 +77,6 @@ import {
   PromptInputTextarea,
 } from "@/components/ai-elements/prompt-input";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
@@ -94,6 +93,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { UserAvatar } from "@/components/user-avatar";
 
 import {
   CalendarIcon,
@@ -113,15 +113,8 @@ import {
   pastTrips,
   upcomingTrips,
 } from "./_mocks";
-import { authClient } from "@/lib/api/auth";
-import { Spinner } from "@/components/ui/spinner";
 
 export default function ChatPage() {
-  const { data: sessionData, isPending: isSessionPending } =
-    authClient.useSession();
-
-  const { user } = sessionData || {};
-
   const handleSubmit = () => {
     // Mock - would send message to AI
   };
@@ -258,30 +251,8 @@ export default function ChatPage() {
         </SidebarContent>
 
         <SidebarFooter className="border-t border-sidebar-border p-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Avatar className="size-8">
-                {isSessionPending ? (
-                  <Spinner className="mx-auto my-auto" />
-                ) : (
-                  <>
-                    <AvatarImage src={user?.image as string} alt={user?.name} />
-                    <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                      {user?.name.slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </>
-                )}
-              </Avatar>
-              <div className="flex flex-col overflow-hidden">
-                <span className="truncate text-sm font-medium">
-                  {user?.name}
-                </span>
-                <span className="truncate text-xs text-muted-foreground">
-                  {user?.email}
-                </span>
-              </div>
-            </div>
-
+          <div className="flex items-center justify-between gap-2">
+            <UserAvatar variant="full" />
             <ThemeToggle />
           </div>
         </SidebarFooter>
