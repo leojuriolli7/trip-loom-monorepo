@@ -313,6 +313,10 @@ export default function ChatPage() {
           </Conversation>
 
           {/* Input Area */}
+          {/*
+            TODO: Add suggestions: Initial suggestions when page empty and separate agent to generate suggestions
+            on-the-fly after each message.
+            */}
           <div className="shrink-0 border-t border-border/60 bg-background p-4">
             <div className="mx-auto max-w-3xl">
               <PromptInput

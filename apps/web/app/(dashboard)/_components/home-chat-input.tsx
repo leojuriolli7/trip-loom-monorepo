@@ -7,6 +7,10 @@ import {
   PromptInputSubmit,
 } from "@/components/ai-elements/prompt-input";
 
+/**
+ * TODO: Implement functionality
+ * Also: If ongoing trip exists, have a CTA and UI change to reflect it.
+ */
 export function HomeChatInput() {
   const handleSubmit = () => {
     // Would redirect to /chat with the message

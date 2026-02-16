@@ -103,3 +103,13 @@ Server to base myself: https://github.com/modelcontextprotocol/servers/blob/main
 **4.2 Client**
 
 Client examples: https://modelcontextprotocol.io/clients
+
+
+### 5. For later
+
+We still need to implement in our authentication flow: 
+
+- Forgot password
+- E-mail verification
+
+These can come later, after concrete functionality in the app has been achieved.

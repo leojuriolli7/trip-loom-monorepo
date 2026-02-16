@@ -31,7 +31,7 @@ export function Greeting({ userName }: GreetingProps) {
 
           <div className="hidden items-center gap-4 lg:flex">
             <div className="relative">
-              <Image src="/plane.png" alt="" width={100} height={100} />
+              <Image src="/plane.png" alt="" width={120} height={120} />
             </div>
           </div>
         </div>

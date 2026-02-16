@@ -52,3 +52,39 @@ If you think none fit and you need to a new icon, request the developer to gener
 ## AI User Interfaces
 
 When building AI-related user interfaces, use components from `components/ai-elements/` before creating new ones.
+
+## Forms
+
+All forms are built with `react-hook-form`, `zod`, and `standardSchemaResolver` from `@hookform/resolvers/standard-schema`.
+
+```tsx
+import { useForm, Controller } from "react-hook-form";
+import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { z } from "zod";
+
+const schema = z.object({
+  email: z.email("Invalid email").min(1, "Required"),
+});
+
+type FormSchema = z.infer<typeof schema>;
+
+
+const form = useForm<FormSchema>({
+  resolver: standardSchemaResolver(schema),
+  defaultValues: { email: "" },
+});
+```
+
+**Example forms:**
+- `app/enter/_components/sign-up-form.tsx` - Full form with validation, password requirements UI
+- `app/enter/_components/sign-in-form.tsx` - Simple form with validation
+
+## E2E Testing
+
+After implementing a complete feature, always write E2E tests using Playwright. See `e2e/README.md` for setup instructions, test patterns, and examples.
+
+**Key points:**
+- Use `data-testid` attributes for test selectors
+- Test utilities are in `e2e/fixtures/utils.ts`
+- Constants (passwords, etc.) are in `e2e/fixtures/constants.ts`
+- Run tests with `pnpm test:e2e`
