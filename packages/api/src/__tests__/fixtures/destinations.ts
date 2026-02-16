@@ -1,4 +1,5 @@
 import type { DB_NewDestination, DB_NewHotel } from "../../db/types";
+import { regionValues } from "../../dto/destinations";
 import { generateId } from "../../lib/nanoid";
 
 /**
@@ -10,7 +11,7 @@ import { generateId } from "../../lib/nanoid";
  */
 export function createTestDestinations(
   prefix: string,
-  region: string,
+  region: (typeof regionValues)[number],
 ): DB_NewDestination[] {
   return [
     {

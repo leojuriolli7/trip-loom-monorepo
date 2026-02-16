@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { paginationQuerySchema } from "../lib/pagination";
-import { priceRangeEnum } from "../db/schema";
+import { amenityEnum, priceRangeEnum } from "../db/schema";
 
 // =============================================================================
 // Response Schemas
@@ -8,6 +8,7 @@ import { priceRangeEnum } from "../db/schema";
 
 /** Price range enum values derived from DB schema */
 export const priceRangeValues = priceRangeEnum.enumValues;
+export const amenityValues = amenityEnum.enumValues;
 
 /** What the API returns for a hotel */
 export const hotelSchema = z.object({
@@ -19,7 +20,7 @@ export const hotelSchema = z.object({
   longitude: z.number().nullable(),
   imageUrl: z.string().nullable(),
   starRating: z.number().int().min(1).max(5),
-  amenities: z.array(z.string()),
+  amenities: z.array(z.enum(amenityValues)),
   priceRange: z.enum(priceRangeValues),
   avgPricePerNightInCents: z.number().int().min(0),
   description: z.string().nullable(),
@@ -46,7 +47,7 @@ export const hotelQuerySchema = paginationQuerySchema.extend({
   destinationId: z.string().optional(),
   priceRange: z.enum(priceRangeValues).optional(),
   minStarRating: z.coerce.number().int().min(1).max(5).optional(),
-  amenity: z.string().optional(),
+  amenity: z.enum(amenityValues).optional(),
 });
 
 export type HotelQuery = z.infer<typeof hotelQuerySchema>;

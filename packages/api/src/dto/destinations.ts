@@ -1,5 +1,9 @@
 import { z } from "zod";
 import { paginationQuerySchema } from "../lib/pagination";
+import { regionEnum, travelInterestEnum } from "../db/schema";
+
+export const regionValues = regionEnum.enumValues;
+export const travelInterestValues = travelInterestEnum.enumValues;
 
 // =============================================================================
 // Response Schemas
@@ -11,11 +15,11 @@ export const destinationSchema = z.object({
   name: z.string(),
   country: z.string(),
   countryCode: z.string(),
-  region: z.string().nullable(),
+  region: z.enum(regionValues).nullable(),
   timezone: z.string(),
   imageUrl: z.string().nullable(),
   description: z.string().nullable(),
-  highlights: z.array(z.string()).nullable(),
+  highlights: z.array(z.enum(travelInterestValues)).nullable(),
   bestTimeToVisit: z.string().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -38,9 +42,9 @@ export type DestinationWithStatsDTO = z.infer<
 
 /** Query params for list endpoint - extends shared pagination schema */
 export const destinationQuerySchema = paginationQuerySchema.extend({
-  region: z.string().optional(),
+  region: z.enum(regionValues).optional(),
   country: z.string().optional(),
-  highlight: z.string().optional(),
+  highlight: z.enum(travelInterestValues).optional(),
 });
 
 export type DestinationQuery = z.infer<typeof destinationQuerySchema>;

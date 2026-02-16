@@ -9,7 +9,7 @@ import {
 
 // Test setup
 const ctx = createTestContext("dest");
-const TEST_REGION = "DestTestRegion";
+const TEST_REGION = "North America" as const;
 const testDestinations = createTestDestinations(ctx.prefix, TEST_REGION);
 const testHotels = createTestHotelsForTokyo(ctx.prefix, testDestinations[0].id);
 const app = new Elysia().use(destinationRoutes);

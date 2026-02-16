@@ -93,6 +93,28 @@ export const travelInterestEnum = pgEnum("travel_interest", [
   "photography",
 ]);
 
+export const amenityEnum = pgEnum("amenity", [
+  "wifi",
+  "pool",
+  "spa",
+  "gym",
+  "restaurant",
+  "bar",
+  "parking",
+  "airport-shuttle",
+  "room-service",
+  "concierge",
+  "beach-access",
+  "pet-friendly",
+  "business-center",
+  "kids-club",
+  "laundry",
+  "air-conditioning",
+  "balcony",
+  "ocean-view",
+  "city-view",
+]);
+
 export const regionEnum = pgEnum("region", [
   "Europe",
   "East Asia",
@@ -174,11 +196,11 @@ export const destination = pgTable(
     name: text("name").notNull(),
     country: text("country").notNull(),
     countryCode: text("country_code").notNull(), // ISO 3166-1 alpha-2
-    region: text("region"), // e.g., "Caribbean", "Southeast Asia"
+    region: regionEnum("region"), // e.g., "Caribbean", "Southeast Asia"
     timezone: text("timezone").notNull(), // IANA timezone
     imageUrl: text("image_url"),
     description: text("description"),
-    highlights: text("highlights").array(), // e.g., ["beaches", "nightlife"]
+    highlights: travelInterestEnum("highlights").array(), // e.g., ["beaches", "nightlife"]
     bestTimeToVisit: text("best_time_to_visit"),
     // Full-text search vector - maintained by trigger
     searchVector: tsvector("search_vector"),
@@ -209,7 +231,7 @@ export const hotel = pgTable(
     longitude: real("longitude"),
     imageUrl: text("image_url"),
     starRating: integer("star_rating").notNull(), // 1-5
-    amenities: text("amenities").array().notNull(), // e.g., ["pool", "spa"]
+    amenities: amenityEnum("amenities").array().notNull(), // e.g., ["pool", "spa"]
     priceRange: priceRangeEnum("price_range").notNull(),
     avgPricePerNightInCents: integer("avg_price_per_night_in_cents").notNull(),
     description: text("description"),
