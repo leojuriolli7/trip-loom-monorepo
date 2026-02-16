@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { LoaderIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -17,6 +16,7 @@ import {
   FieldGroup,
 } from "@/components/ui/field";
 import { authClient } from "@/lib/api/auth";
+import { Spinner } from "@/components/ui/spinner";
 
 const signInSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email address"),
@@ -89,14 +89,6 @@ export function SignInForm() {
             <Field data-invalid={fieldState.invalid}>
               <div className="flex items-center justify-between">
                 <FieldLabel htmlFor={field.name}>Password</FieldLabel>
-                {/* TODO: Implement forgot password flow
-                <button
-                  type="button"
-                  className="text-primary hover:text-primary/80 text-sm font-medium underline-offset-4 transition-colors hover:underline"
-                >
-                  Forgot password?
-                </button>
-                */}
               </div>
               <Input
                 {...field}
@@ -108,6 +100,13 @@ export function SignInForm() {
                 disabled={isLoading}
               />
               {fieldState.error && <FieldError errors={[fieldState.error]} />}
+
+              {/*<button
+                  type="button"
+                  className="text-primary ml-auto -mb-3 shrink w-auto! hover:text-primary/80 text-sm font-medium underline-offset-4 transition-colors hover:underline"
+                >
+                  Forgot password?
+                </button>*/}
             </Field>
           )}
         />
@@ -115,7 +114,7 @@ export function SignInForm() {
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? (
             <>
-              <LoaderIcon className="animate-spin" />
+              <Spinner />
               Logging in...
             </>
           ) : (

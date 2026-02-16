@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { LoaderIcon, Check, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import {
   FieldDescription,
 } from "@/components/ui/field";
 import { authClient } from "@/lib/api/auth";
+import { Spinner } from "@/components/ui/spinner";
 
 // Password validation functions - used in both zod schema and UI
 const validateLength = (password: string) => password.length >= 8;
@@ -209,7 +210,7 @@ export function SignUpForm() {
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? (
             <>
-              <LoaderIcon className="animate-spin" />
+              <Spinner />
               Creating account...
             </>
           ) : (
