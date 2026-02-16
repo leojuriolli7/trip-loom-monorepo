@@ -152,6 +152,11 @@ export default function EnterPage() {
                     type="button"
                     onClick={toggleMode}
                     className="text-primary hover:text-primary/80 font-medium underline-offset-4 transition-colors hover:underline"
+                    data-testid={
+                      mode === "sign-in"
+                        ? "toggle-to-sign-up"
+                        : "toggle-to-sign-in"
+                    }
                   >
                     {mode === "sign-in" ? "Register" : "Login"}
                   </button>

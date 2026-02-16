@@ -117,6 +117,7 @@ export function SignUpForm() {
 
       toast.success("Account created! Welcome to TripLoom.");
       router.push("/");
+      router.refresh();
     } catch (err) {
       toast.error("Something went wrong. Please try again.");
       console.error("Account creation error:", err);
@@ -140,6 +141,7 @@ export function SignUpForm() {
                 autoComplete="name"
                 aria-invalid={fieldState.invalid}
                 disabled={isLoading}
+                data-testid="sign-up-name-input"
               />
               {fieldState.error && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -160,6 +162,7 @@ export function SignUpForm() {
                 autoComplete="email"
                 aria-invalid={fieldState.invalid}
                 disabled={isLoading}
+                data-testid="sign-up-email-input"
               />
               {fieldState.error && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -180,6 +183,7 @@ export function SignUpForm() {
                 autoComplete="new-password"
                 aria-invalid={fieldState.invalid}
                 disabled={isLoading}
+                data-testid="sign-up-password-input"
               />
               <PasswordRequirements password={passwordValue} />
               {fieldState.error && <FieldError errors={[fieldState.error]} />}
@@ -201,13 +205,19 @@ export function SignUpForm() {
                 autoComplete="new-password"
                 aria-invalid={fieldState.invalid}
                 disabled={isLoading}
+                data-testid="sign-up-confirm-password-input"
               />
               {fieldState.error && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isLoading}
+          data-testid="sign-up-submit"
+        >
           {isLoading ? (
             <>
               <Spinner />

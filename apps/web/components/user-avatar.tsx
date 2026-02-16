@@ -69,6 +69,7 @@ export function UserAvatar({ variant = "icon" }: UserAvatarProps) {
           <Button
             variant="ghost"
             className="relative h-9 w-9 rounded-full ring-2 ring-border/50 ring-offset-2 ring-offset-background transition-all hover:ring-primary/30"
+            data-testid="user-avatar-trigger"
           >
             {avatarContent}
           </Button>
@@ -76,10 +77,13 @@ export function UserAvatar({ variant = "icon" }: UserAvatarProps) {
           <button
             type="button"
             className="flex w-full items-center gap-3 rounded-md p-1 text-left transition-colors hover:opacity-80"
+            data-testid="user-avatar-trigger"
           >
             {avatarContent}
             <div className="flex flex-1 flex-col overflow-hidden">
-              <span className="truncate text-sm font-medium">{user?.name}</span>
+              <span className="truncate text-sm font-medium" data-testid="user-name">
+                {user?.name}
+              </span>
               <span className="truncate text-xs text-muted-foreground">
                 {user?.email}
               </span>
@@ -94,7 +98,9 @@ export function UserAvatar({ variant = "icon" }: UserAvatarProps) {
       >
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col gap-1">
-            <p className="text-sm font-medium leading-none">{user?.name}</p>
+            <p className="text-sm font-medium leading-none" data-testid="dropdown-user-name">
+              {user?.name}
+            </p>
             <p className="text-xs leading-none text-muted-foreground">
               {user?.email}
             </p>
@@ -116,7 +122,11 @@ export function UserAvatar({ variant = "icon" }: UserAvatarProps) {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleSignOut} variant="destructive">
+        <DropdownMenuItem
+          onClick={handleSignOut}
+          variant="destructive"
+          data-testid="logout-button"
+        >
           <LogOutIcon />
           Log out
         </DropdownMenuItem>

@@ -76,6 +76,7 @@ export function SignInForm() {
                 autoComplete="email"
                 aria-invalid={fieldState.invalid}
                 disabled={isLoading}
+                data-testid="sign-in-email-input"
               />
               {fieldState.error && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -98,6 +99,7 @@ export function SignInForm() {
                 autoComplete="current-password"
                 aria-invalid={fieldState.invalid}
                 disabled={isLoading}
+                data-testid="sign-in-password-input"
               />
               {fieldState.error && <FieldError errors={[fieldState.error]} />}
 
@@ -111,7 +113,12 @@ export function SignInForm() {
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isLoading}
+          data-testid="sign-in-submit"
+        >
           {isLoading ? (
             <>
               <Spinner />
