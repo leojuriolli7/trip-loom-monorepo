@@ -37,6 +37,8 @@ export const hotelSeedSchema = z.object({
   latitude: z.number().nullable(),
   longitude: z.number().nullable(),
   imageUrl: z.string().url().nullable(),
+  source: z.string().min(1).nullable().default(null),
+  sourceId: z.string().min(1).nullable().default(null),
   starRating: z.number().int().min(1).max(5),
   amenities: z.array(z.enum(amenityValues)).min(1),
   priceRange: priceRangeSchema,

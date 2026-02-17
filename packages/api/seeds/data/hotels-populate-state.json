@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "createdAt": "2026-02-17T11:55:21.052Z",
+  "updatedAt": "2026-02-17T12:19:18.060Z",
+  "batchSize": 120,
+  "countries": {
+    "AD": {
+      "totalDestinations": 5,
+      "nextOffset": 5,
+      "completedBatches": 1,
+      "failedBatches": 0,
+      "done": true,
+      "lastError": null,
+      "updatedAt": "2026-02-17T11:55:53.925Z"
+    },
+    "AE": {
+      "totalDestinations": 92,
+      "nextOffset": 92,
+      "completedBatches": 1,
+      "failedBatches": 0,
+      "done": true,
+      "lastError": null,
+      "updatedAt": "2026-02-17T12:07:49.940Z"
+    },
+    "AF": {
+      "totalDestinations": 93,
+      "nextOffset": 93,
+      "completedBatches": 1,
+      "failedBatches": 0,
+      "done": true,
+      "lastError": null,
+      "updatedAt": "2026-02-17T12:18:54.881Z"
+    },
+    "AG": {
+      "totalDestinations": 1,
+      "nextOffset": 1,
+      "completedBatches": 1,
+      "failedBatches": 0,
+      "done": true,
+      "lastError": null,
+      "updatedAt": "2026-02-17T12:19:18.060Z"
+    },
+
+    "AL": {
+      "totalDestinations": 65,
+      "nextOffset": 65,
+      "completedBatches": 1,
+      "failedBatches": 0,
+      "done": true,
+      "lastError": null,
+      "updatedAt": "2026-02-17T12:19:18.060Z"
+    },
+    "AM": {
+      "totalDestinations": 81,
+      "nextOffset": 81,
+      "completedBatches": 1,
+      "failedBatches": 0,
+      "done": true,
+      "lastError": null,
+      "updatedAt": "2026-02-17T12:19:18.060Z"
+    },
+    "AO": {
+      "totalDestinations": 142,
+      "nextOffset": 142,
+      "completedBatches": 2,
+      "failedBatches": 0,
+      "done": true,
+      "lastError": null,
+      "updatedAt": "2026-02-17T12:19:18.060Z"
+    },
+    "AR": {
+      "totalDestinations": 471,
+      "nextOffset": 471,
+      "completedBatches": 4,
+      "failedBatches": 0,
+      "done": true,
+      "lastError": null,
+      "updatedAt": "2026-02-17T12:19:18.060Z"
+    },
+    "AS": {
+      "totalDestinations": 2,
+      "nextOffset": 2,
+      "completedBatches": 1,
+      "failedBatches": 0,
+      "done": true,
+      "lastError": null,
+      "updatedAt": "2026-02-17T12:19:18.060Z"
+    },
+    "AT": {
+      "totalDestinations": 206,
+      "nextOffset": 206,
+      "completedBatches": 2,
+      "failedBatches": 0,
+      "done": true,
+      "lastError": null,
+      "updatedAt": "2026-02-17T12:19:18.060Z"
+    }
+  }
+}
