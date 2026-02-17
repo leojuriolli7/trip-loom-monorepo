@@ -29,18 +29,18 @@ const KEYS = {
   ],
 };
 
-export type CreateHotelBookingVars = {
+type CreateHotelBookingVars = {
   tripId: string;
   body: CreateHotelBookingInput;
 };
 
-export type UpdateHotelBookingVars = {
+type UpdateHotelBookingVars = {
   tripId: string;
   hotelBookingId: string;
   body: UpdateHotelBookingInput;
 };
 
-export type DeleteHotelBookingVars = {
+type DeleteHotelBookingVars = {
   tripId: string;
   hotelBookingId: string;
 };

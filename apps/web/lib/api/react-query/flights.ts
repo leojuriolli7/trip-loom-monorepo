@@ -31,18 +31,18 @@ const KEYS = {
   ],
 };
 
-export type CreateFlightBookingVars = {
+type CreateFlightBookingVars = {
   tripId: string;
   body: CreateFlightBookingInput;
 };
 
-export type UpdateFlightBookingVars = {
+type UpdateFlightBookingVars = {
   tripId: string;
   flightId: string;
   body: UpdateFlightBookingInput;
 };
 
-export type DeleteFlightBookingVars = {
+type DeleteFlightBookingVars = {
   tripId: string;
   flightId: string;
 };

@@ -22,12 +22,12 @@ const KEYS = {
   remove: (tripId: string) => [...KEYS.base(), "delete", tripId] as const,
 };
 
-export type UpdateTripVars = {
+type UpdateTripVars = {
   tripId: string;
   body: UpdateTripInput;
 };
 
-export type DeleteTripVars = {
+type DeleteTripVars = {
   tripId: string;
 };
 

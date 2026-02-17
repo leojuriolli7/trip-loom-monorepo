@@ -14,7 +14,7 @@ const KEYS = {
   refund: (paymentId: string) => [...KEYS.base(), "refund", paymentId],
 };
 
-export type RefundPaymentVars = {
+type RefundPaymentVars = {
   paymentId: string;
   body: RefundPaymentInput;
 };

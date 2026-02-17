@@ -9,12 +9,12 @@ const KEYS = {
   remove: (tripId: string) => [...KEYS.base(), "delete", tripId],
 };
 
-export type CreateItineraryVars = {
+type CreateItineraryVars = {
   tripId: string;
   body: CreateItineraryInput;
 };
 
-export type DeleteItineraryVars = {
+type DeleteItineraryVars = {
   tripId: string;
 };
 
@@ -24,7 +24,9 @@ export const itineraryQueries = {
     queryOptions({
       queryKey: KEYS.detailByTrip(tripId),
       queryFn: async ({ signal }) =>
-        apiClient.api.trips({ id: tripId }).itinerary.get({ fetch: { signal } }),
+        apiClient.api
+          .trips({ id: tripId })
+          .itinerary.get({ fetch: { signal } }),
     }),
   createTripItinerary: () =>
     mutationOptions({
