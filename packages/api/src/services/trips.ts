@@ -44,8 +44,6 @@ import {
   paginationOrderBy,
 } from "../lib/pagination";
 import {
-  hotelBookingSelectFields,
-  hotelSummarySelectFields,
   itineraryActivitySelectFields,
   itineraryDaySelectFields,
   itinerarySelectFields,
@@ -55,6 +53,10 @@ import {
   tripSelectFields,
 } from "../mappers/trips";
 import { flightBookingSelectFields } from "../mappers/flights";
+import {
+  hotelBookingSelectFields,
+  hotelSummarySelectFields,
+} from "../mappers/hotel-bookings";
 
 const buildTripSearchCondition = (
   search: string | undefined,

@@ -1,6 +1,4 @@
 import {
-  hotel,
-  hotelBooking,
   itinerary,
   itineraryActivity,
   itineraryDay,
@@ -68,30 +66,6 @@ export const mapTripWithDestination = (
   ...row,
   destination: mapTripDestination(row.destination),
 });
-
-export const hotelBookingSelectFields = {
-  id: hotelBooking.id,
-  tripId: hotelBooking.tripId,
-  hotelId: hotelBooking.hotelId,
-  paymentId: hotelBooking.paymentId,
-  checkInDate: hotelBooking.checkInDate,
-  checkOutDate: hotelBooking.checkOutDate,
-  roomType: hotelBooking.roomType,
-  numberOfNights: hotelBooking.numberOfNights,
-  pricePerNightInCents: hotelBooking.pricePerNightInCents,
-  totalPriceInCents: hotelBooking.totalPriceInCents,
-  status: hotelBooking.status,
-  createdAt: hotelBooking.createdAt,
-  updatedAt: hotelBooking.updatedAt,
-} as const;
-
-export const hotelSummarySelectFields = {
-  id: hotel.id,
-  name: hotel.name,
-  address: hotel.address,
-  imageUrl: hotel.imageUrl,
-  starRating: hotel.starRating,
-} as const;
 
 export const paymentSelectFields = {
   id: payment.id,

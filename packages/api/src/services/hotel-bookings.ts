@@ -10,7 +10,7 @@ import type {
 import { NotFoundError } from "../errors";
 import { generateId } from "../lib/nanoid";
 import { getOwnedTripMeta, refreshTripStatus } from "../lib/trips/ownership";
-import { hotelSummarySelectFields } from "../mappers/trips";
+import { hotelSummarySelectFields } from "../mappers/hotel-bookings";
 
 /**
  * Column selection for hotel summary in relational queries.
