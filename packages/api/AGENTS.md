@@ -512,7 +512,5 @@ export function createTestDestinations(
 ## Seed Data
 
 Seed data files are located in `packages/api/seeds/data/`:
-- `destinations.json` - Destination data (~50 destinations)
-- `hotels.json` - Hotel data (~300-500 hotels)
-
-See `plans/SEED.md` for the full seed data specification.
+- `destinations.json` - Destination data 
+- `hotels.json` - Hotel data

@@ -30,10 +30,11 @@ const bookingParamsSchema = z.object({
 
 export const flightRoutes = new Elysia({
   name: "flights",
+  prefix: "/api",
 })
   .use(requireAuthMacro)
   .get(
-    "/api/flights/search",
+    "/flights/search",
     async ({ query }) => {
       return searchFlights(query);
     },
@@ -46,7 +47,7 @@ export const flightRoutes = new Elysia({
     },
   )
   .get(
-    "/api/trips/:id/flights",
+    "/trips/:id/flights",
     async ({ user, params, status }) => {
       const result = await listFlightBookings(user.id, params.id);
       if (!result) {
@@ -70,7 +71,7 @@ export const flightRoutes = new Elysia({
     },
   )
   .post(
-    "/api/trips/:id/flights",
+    "/trips/:id/flights",
     async ({ user, params, body, status }) => {
       const result = await createFlightBooking(user.id, params.id, body);
       if (!result) {
@@ -96,7 +97,7 @@ export const flightRoutes = new Elysia({
     },
   )
   .get(
-    "/api/trips/:id/flights/:flightId",
+    "/trips/:id/flights/:flightId",
     async ({ user, params, status }) => {
       const result = await getFlightBooking(user.id, params.id, params.flightId);
       if (!result) {
@@ -120,7 +121,7 @@ export const flightRoutes = new Elysia({
     },
   )
   .patch(
-    "/api/trips/:id/flights/:flightId",
+    "/trips/:id/flights/:flightId",
     async ({ user, params, body, status }) => {
       const result = await updateFlightBooking(
         user.id,
@@ -151,7 +152,7 @@ export const flightRoutes = new Elysia({
     },
   )
   .delete(
-    "/api/trips/:id/flights/:flightId",
+    "/trips/:id/flights/:flightId",
     async ({ user, params, status }) => {
       const success = await cancelFlightBooking(user.id, params.id, params.flightId);
       if (!success) {

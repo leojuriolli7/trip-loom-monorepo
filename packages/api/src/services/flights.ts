@@ -1,6 +1,6 @@
 import { and, asc, eq } from "drizzle-orm";
 import { db } from "../db";
-import { airport, flightBooking, trip } from "../db/schema";
+import { airport, flightBooking } from "../db/schema";
 import { BadRequestError } from "../errors";
 import type {
   AirportSummaryDTO,
@@ -16,16 +16,8 @@ import {
   generateFlightOptions,
   generateSeatMapForFlight,
 } from "../lib/flights/generator";
-import { resolveTripStatus } from "../lib/trips/rules";
-import { hasTripTravelPlan } from "../lib/trips/travel-plan";
+import { getOwnedTripMeta, refreshTripStatus } from "../lib/trips/ownership";
 import { flightBookingSelectFields } from "../mappers/flights";
-
-type OwnedTrip = {
-  id: string;
-  status: (typeof trip.$inferSelect)["status"];
-  startDate: string | null;
-  endDate: string | null;
-};
 
 type SeatMapSource = {
   flightNumber: string;
@@ -89,46 +81,6 @@ const ensureAirport = async (code: string): Promise<ResolvedAirport> => {
   return resolved;
 };
 
-const getOwnedTrip = async (
-  userId: string,
-  tripId: string,
-): Promise<OwnedTrip | null> => {
-  const rows = await db
-    .select({
-      id: trip.id,
-      status: trip.status,
-      startDate: trip.startDate,
-      endDate: trip.endDate,
-    })
-    .from(trip)
-    .where(and(eq(trip.id, tripId), eq(trip.userId, userId)))
-    .limit(1);
-
-  return rows[0] ?? null;
-};
-
-const refreshTripStatus = async (ownedTrip: OwnedTrip): Promise<void> => {
-  const nextStatus = resolveTripStatus({
-    currentStatus: ownedTrip.status,
-    requestedStatus: undefined,
-    startDate: ownedTrip.startDate,
-    endDate: ownedTrip.endDate,
-    hasTravelPlan: await hasTripTravelPlan(ownedTrip.id),
-  });
-
-  if (nextStatus === ownedTrip.status) {
-    return;
-  }
-
-  await db
-    .update(trip)
-    .set({
-      status: nextStatus,
-      updatedAt: new Date(),
-    })
-    .where(eq(trip.id, ownedTrip.id));
-};
-
 const getFlightBookingById = async (
   tripId: string,
   bookingId: string,
@@ -159,7 +111,7 @@ export async function listFlightBookings(
   userId: string,
   tripId: string,
 ): Promise<FlightBookingDTO[] | null> {
-  const ownedTrip = await getOwnedTrip(userId, tripId);
+  const ownedTrip = await getOwnedTripMeta(userId, tripId);
   if (!ownedTrip) {
     return null;
   }
@@ -180,7 +132,7 @@ export async function getFlightBooking(
   tripId: string,
   bookingId: string,
 ): Promise<FlightBookingDetailDTO | null> {
-  const ownedTrip = await getOwnedTrip(userId, tripId);
+  const ownedTrip = await getOwnedTripMeta(userId, tripId);
   if (!ownedTrip) {
     return null;
   }
@@ -242,7 +194,7 @@ export async function createFlightBooking(
   tripId: string,
   input: CreateFlightBookingInput,
 ): Promise<FlightBookingDTO | null> {
-  const ownedTrip = await getOwnedTrip(userId, tripId);
+  const ownedTrip = await getOwnedTripMeta(userId, tripId);
   if (!ownedTrip) {
     return null;
   }
@@ -285,7 +237,7 @@ export async function updateFlightBooking(
   bookingId: string,
   input: UpdateFlightBookingInput,
 ): Promise<FlightBookingDTO | null> {
-  const ownedTrip = await getOwnedTrip(userId, tripId);
+  const ownedTrip = await getOwnedTripMeta(userId, tripId);
   if (!ownedTrip) {
     return null;
   }
@@ -318,7 +270,7 @@ export async function cancelFlightBooking(
   tripId: string,
   bookingId: string,
 ): Promise<boolean> {
-  const ownedTrip = await getOwnedTrip(userId, tripId);
+  const ownedTrip = await getOwnedTripMeta(userId, tripId);
   if (!ownedTrip) {
     return false;
   }

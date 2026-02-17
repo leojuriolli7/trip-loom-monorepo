@@ -15,6 +15,7 @@ import {
   createJsonRequester,
   createTestApp,
   createTestContext,
+  dateWithOffset,
 } from "./harness";
 
 const ctx = createTestContext("flight");
@@ -34,14 +35,6 @@ type SeedData = {
 };
 
 let seed: SeedData;
-
-const formatDate = (date: Date): string => date.toISOString().slice(0, 10);
-
-const dateWithOffset = (offsetDays: number): string => {
-  const date = new Date();
-  date.setUTCDate(date.getUTCDate() + offsetDays);
-  return formatDate(date);
-};
 
 const cleanupFlightsFixtureData = async () => {
   await ctx.cleanup();
