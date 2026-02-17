@@ -104,8 +104,15 @@ Server to base myself: https://github.com/modelcontextprotocol/servers/blob/main
 
 Client examples: https://modelcontextprotocol.io/clients
 
+### 5. Immediate TODOs
 
-### 5. For later
+1. The destination database is fine, it works and has many destinations.
+
+  However, the hotels database is not working properly, eg: Park Hyatt in Sydney is marked as a hotel from the destination "Wollstonecraft" instead.
+
+  Likely better approach: Similarly to flights, generate hotel options on-the-fly. 
+
+### 6. For later
 
 We still need to implement in our authentication flow: 
 

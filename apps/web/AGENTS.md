@@ -116,6 +116,33 @@ In this pattern, `setQueryData` is type-safe: passing the wrong data shape resul
 
 For mutations, always call `mutateAsync` and handle the promise with `.then(...).catch(...)`. Never use `mutate` with `onSuccess`/`onError`. Follow the mutation flow shown in `components/user-preferences-dialog.tsx`.
 
+### Polling Pattern
+
+For polling scenarios (e.g., waiting for payment confirmation), prefer using `queryClient.fetchQuery` with the `poll` utility from `lib/poll.ts` over `useQuery` with `refetchInterval` + `useEffect`. The imperative approach is easier to read, follow, and reason about.
+
+```tsx
+import { poll } from "@/lib/poll";
+import { paymentQueries } from "@/lib/api/react-query/payments";
+
+// Inside your component/handler
+await poll({
+  createPromise: async () => {
+    return queryClient.fetchQuery(paymentQueries.getPaymentById(paymentId));
+  },
+  onSuccess: (result) => {
+    if (result.data?.status === "succeeded") {
+      return false; // Stop polling
+    }
+    return true; // Continue polling
+  },
+  interval: 2000,
+  maxAttempts: 30,
+  abortSignal: abortController.signal,
+});
+```
+
+See `app/(dashboard)/dev/api-crud/_components/steps/pay-flight-step.tsx` for a full example.
+
 ## Shared DTO and Schema Reuse
 
 Always reuse backend DTO types and schema values from `@trip-loom/api/dto`. Do not redefine enums, literal unions, or DTO types in `apps/web`.
