@@ -1,8 +1,4 @@
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
-import type {
-  CreateHotelBookingInput,
-  UpdateHotelBookingInput,
-} from "@trip-loom/api/dto";
 import { apiClient } from "../api-client";
 
 const KEYS = {
@@ -29,15 +25,17 @@ const KEYS = {
   ],
 };
 
+type TripsCall = ReturnType<typeof apiClient.api.trips>;
+
 type CreateHotelBookingVars = {
   tripId: string;
-  body: CreateHotelBookingInput;
+  body: Parameters<TripsCall["hotels"]["post"]>[0];
 };
 
 type UpdateHotelBookingVars = {
   tripId: string;
   hotelBookingId: string;
-  body: UpdateHotelBookingInput;
+  body: Parameters<ReturnType<TripsCall["hotels"]>["patch"]>[0];
 };
 
 type DeleteHotelBookingVars = {

@@ -7,6 +7,10 @@ const KEYS = {
   put: () => [...KEYS.base(), "put-user-preferences"],
 };
 
+type PutUserPreferencesVars = Parameters<
+  typeof apiClient.api.user.preferences.put
+>[0];
+
 export const userPreferencesQueries = {
   base: () => KEYS.base(),
   getUserPreferences: () =>
@@ -17,9 +21,8 @@ export const userPreferencesQueries = {
     }),
   putUserPreferences: () =>
     mutationOptions({
-      mutationFn: async (
-        vars: Parameters<typeof apiClient.api.user.preferences.put>[0],
-      ) => apiClient.api.user.preferences.put(vars),
+      mutationFn: async (vars: PutUserPreferencesVars) =>
+        apiClient.api.user.preferences.put(vars),
       mutationKey: KEYS.put(),
     }),
 };

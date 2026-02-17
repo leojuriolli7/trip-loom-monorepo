@@ -8,28 +8,24 @@ import type {
   PaginatedResponse,
   TripQuery,
   TripWithDestinationDTO,
-  UpdateTripInput,
 } from "@trip-loom/api/dto";
 import { apiClient } from "../api-client";
 
 const KEYS = {
-  base: () => ["trips"] as const,
-  list: (query: Omit<TripQuery, "cursor">) =>
-    [...KEYS.base(), "list", query] as const,
-  detail: (tripId: string) => [...KEYS.base(), "detail", tripId] as const,
-  create: () => [...KEYS.base(), "create"] as const,
-  update: (tripId: string) => [...KEYS.base(), "update", tripId] as const,
-  remove: (tripId: string) => [...KEYS.base(), "delete", tripId] as const,
+  base: () => ["trips"],
+  list: (query: Omit<TripQuery, "cursor">) => [...KEYS.base(), "list", query],
+  detail: (tripId: string) => [...KEYS.base(), "detail", tripId],
+  create: () => [...KEYS.base(), "create"],
+  update: (tripId: string) => [...KEYS.base(), "update", tripId],
+  remove: (tripId: string) => [...KEYS.base(), "delete", tripId],
 };
 
 type UpdateTripVars = {
   tripId: string;
-  body: UpdateTripInput;
+  body: Parameters<ReturnType<typeof apiClient.api.trips>["patch"]>[0];
 };
 
-type DeleteTripVars = {
-  tripId: string;
-};
+type DeleteTripVars = Parameters<typeof apiClient.api.trips>[0];
 
 export const tripQueries = {
   base: () => KEYS.base(),
@@ -81,6 +77,6 @@ export const tripQueries = {
     mutationOptions({
       mutationKey: KEYS.remove("any"),
       mutationFn: async (vars: DeleteTripVars) =>
-        apiClient.api.trips({ id: vars.tripId }).delete(),
+        apiClient.api.trips(vars).delete(),
     }),
 };

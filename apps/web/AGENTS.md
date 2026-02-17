@@ -36,41 +36,72 @@ When adding new API communication, follow the same integration pattern used in `
 
 ## React Query Patterns
 
-We standardize React Query usage around query/mutation option factories and typed query keys.
+We standardize React Query around domain files in `lib/api/react-query/*` with query/mutation option factories and typed keys.
 
-- Keep keys in a key factory (like `KEYS` in `lib/api/react-query/user-preferences.ts`) and expose options via objects like `userPreferencesQueries`.
+### Domains
 
-```typescript
+- Create one domain file per API area (`trips.ts`, `flights.ts`, `user-preferences.ts`, etc.).
+- In each file, define a local `KEYS` factory and export a single `*Queries` object.
+- Keep `KEYS` private to the file and expose `base: () => KEYS.base()` from the exported object.
+- Name endpoint factories by intent (`list*`, `get*`, `create*`, `update*`, `delete*`).
+
+### New Endpoints
+
+When adding an endpoint to a domain:
+
+1. Add a key builder to `KEYS`.
+2. Add a query/mutation option factory to the exported `*Queries` object.
+3. Use `queryOptions`/`infiniteQueryOptions`/`mutationOptions` from `@tanstack/react-query`.
+4. Always pass `fetch: { signal }` in query functions.
+5. For mutation keys with runtime IDs, use stable placeholders (for example `"any"`) in the key factory call.
+
+### Variable Types From `apiClient` (Required)
+
+Always derive mutation `vars` types from the treaty client method signatures. Do not redeclare request body shapes manually.
+
+```ts
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
 import { apiClient } from "../api-client";
 
-const KEYS = { // Base keys, not tagged query keys and not exported.
-  base: () => ["user-preferences"],
-  get: () => [...KEYS.base(), "get-user-preferences"],
-  put: () => [...KEYS.base(), "put-user-preferences"],
+const KEYS = {
+  base: () => ["hotel-bookings"],
+  create: (tripId: string) => [...KEYS.base(), "create", tripId],
 };
 
-export const userPreferencesQueries = { // We will use the keys from here on the app, they are tagged and have typesafety on their expected data types
+type TripsCall = ReturnType<typeof apiClient.api.trips>;
+
+type CreateHotelBookingVars = {
+  tripId: string;
+  body: Parameters<TripsCall["hotels"]["post"]>[0];
+};
+
+type PutUserPreferencesVars = Parameters<
+  typeof apiClient.api.user.preferences.put
+>[0];
+
+export const hotelBookingQueries = {
   base: () => KEYS.base(),
-  getUserPreferences: () =>
-    queryOptions({
-      queryKey: KEYS.get(),
-      queryFn: async ({ signal }) =>
-        apiClient.api.user.preferences.get({ fetch: { signal } }),
-    }),
-  putUserPreferences: () =>
+  createTripHotelBooking: () =>
     mutationOptions({
-      mutationFn: async (
-        vars: Parameters<typeof apiClient.api.user.preferences.put>[0],
-      ) => apiClient.api.user.preferences.put(vars),
-      mutationKey: KEYS.put(),
+      mutationKey: KEYS.create("any"),
+      mutationFn: async (vars: CreateHotelBookingVars) =>
+        apiClient.api.trips({ id: vars.tripId }).hotels.post(vars.body),
     }),
 };
-
 ```
 
-- Reuse the produced query key directly when reading/writing cache.
-- Treat these keys as tagged query keys: they carry type information for cached data operations.
+For nested dynamic routes, derive from the returned call type:
+
+```ts
+type UpdateHotelBookingVars = {
+  tripId: string;
+  hotelBookingId: string;
+  body: Parameters<ReturnType<TripsCall["hotels"]>["patch"]>[0];
+};
+```
+
+Reuse the produced query key directly when reading/writing cache.
+Treat these keys as tagged query keys: they carry type information for cached data operations.
 
 ```ts
 queryClient.setQueryData(

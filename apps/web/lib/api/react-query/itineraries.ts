@@ -1,5 +1,4 @@
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
-import type { CreateItineraryInput } from "@trip-loom/api/dto";
 import { apiClient } from "../api-client";
 
 const KEYS = {
@@ -9,9 +8,11 @@ const KEYS = {
   remove: (tripId: string) => [...KEYS.base(), "delete", tripId],
 };
 
+type TripsCall = ReturnType<typeof apiClient.api.trips>;
+
 type CreateItineraryVars = {
   tripId: string;
-  body: CreateItineraryInput;
+  body: Parameters<TripsCall["itinerary"]["post"]>[0];
 };
 
 type DeleteItineraryVars = {

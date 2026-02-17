@@ -1,9 +1,5 @@
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
-import type {
-  CreateFlightBookingInput,
-  FlightSearchQuery,
-  UpdateFlightBookingInput,
-} from "@trip-loom/api/dto";
+import type { FlightSearchQuery } from "@trip-loom/api/dto";
 import { apiClient } from "../api-client";
 
 const KEYS = {
@@ -31,15 +27,17 @@ const KEYS = {
   ],
 };
 
+type TripsCall = ReturnType<typeof apiClient.api.trips>;
+
 type CreateFlightBookingVars = {
   tripId: string;
-  body: CreateFlightBookingInput;
+  body: Parameters<TripsCall["flights"]["post"]>[0];
 };
 
 type UpdateFlightBookingVars = {
   tripId: string;
   flightId: string;
-  body: UpdateFlightBookingInput;
+  body: Parameters<ReturnType<TripsCall["flights"]>["patch"]>[0];
 };
 
 type DeleteFlightBookingVars = {
@@ -49,18 +47,21 @@ type DeleteFlightBookingVars = {
 
 export const flightQueries = {
   base: () => KEYS.base(),
+
   searchFlights: (query: FlightSearchQuery) =>
     queryOptions({
       queryKey: KEYS.search(query),
       queryFn: async ({ signal }) =>
         apiClient.api.flights.search.get({ query, fetch: { signal } }),
     }),
+
   listTripFlightBookings: (tripId: string) =>
     queryOptions({
       queryKey: KEYS.listByTrip(tripId),
       queryFn: async ({ signal }) =>
         apiClient.api.trips({ id: tripId }).flights.get({ fetch: { signal } }),
     }),
+
   getTripFlightBooking: (tripId: string, flightId: string) =>
     queryOptions({
       queryKey: KEYS.detail(tripId, flightId),
@@ -70,12 +71,14 @@ export const flightQueries = {
           .flights({ flightId })
           .get({ fetch: { signal } }),
     }),
+
   createTripFlightBooking: () =>
     mutationOptions({
       mutationKey: KEYS.create("any"),
       mutationFn: async (vars: CreateFlightBookingVars) =>
         apiClient.api.trips({ id: vars.tripId }).flights.post(vars.body),
     }),
+
   updateTripFlightBooking: () =>
     mutationOptions({
       mutationKey: KEYS.update("any", "any"),
@@ -85,6 +88,7 @@ export const flightQueries = {
           .flights({ flightId: vars.flightId })
           .patch(vars.body),
     }),
+
   deleteTripFlightBooking: () =>
     mutationOptions({
       mutationKey: KEYS.remove("any", "any"),
