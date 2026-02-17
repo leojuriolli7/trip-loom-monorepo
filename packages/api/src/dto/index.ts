@@ -61,17 +61,33 @@ export {
 
 export {
   hotelBookingStatusValues,
+  hotelSummarySchema,
   hotelBookingSchema,
+  createHotelBookingInputSchema,
+  updateHotelBookingInputSchema,
+  type HotelSummaryDTO,
   type HotelBookingDTO,
+  type CreateHotelBookingInput,
+  type UpdateHotelBookingInput,
 } from "./hotel-bookings";
 
 export {
+  createActivityInputSchema,
+  createDayInputSchema,
+  createItineraryInputSchema,
   itineraryActivitySchema,
   itineraryDaySchema,
   itineraryDetailSchema,
+  updateActivityInputSchema,
+  updateDayInputSchema,
+  type CreateActivityInput,
+  type CreateDayInput,
+  type CreateItineraryInput,
   type ItineraryActivityDTO,
   type ItineraryDayDTO,
   type ItineraryDetailDTO,
+  type UpdateActivityInput,
+  type UpdateDayInput,
 } from "./itineraries";
 
 export {

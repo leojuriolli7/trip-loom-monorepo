@@ -16,6 +16,7 @@
     "db:migrate": "dotenv -e ../../apps/web/.env -- drizzle-kit migrate",
     "db:studio": "dotenv -e ../../apps/web/.env -- drizzle-kit studio",
     "db:seed": "dotenv -e ../../apps/web/.env -- tsx seeds/seed.ts",
+    "stripe:listen": "stripe listen --forward-to localhost:3000/api/webhooks/stripe",
     "data:populate:destinations": "tsx seeds/scripts/generate-destinations-from-geonames.ts",
     "data:populate:hotels": "tsx seeds/scripts/generate-hotels-from-overpass.ts",
     "data:populate:hotels:worldwide": "tsx seeds/scripts/populate-hotels-worldwide.ts"
