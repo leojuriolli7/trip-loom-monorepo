@@ -44,9 +44,6 @@ import {
   paginationOrderBy,
 } from "../lib/pagination";
 import {
-  itineraryActivitySelectFields,
-  itineraryDaySelectFields,
-  itinerarySelectFields,
   mapTripWithDestination,
   paymentSelectFields,
   tripDestinationSelectFields,
@@ -57,6 +54,11 @@ import {
   hotelBookingSelectFields,
   hotelSummarySelectFields,
 } from "../mappers/hotel-bookings";
+import {
+  itineraryActivitySelectFields,
+  itineraryDaySelectFields,
+  itinerarySelectFields,
+} from "../mappers/itineraries";
 
 const buildTripSearchCondition = (
   search: string | undefined,

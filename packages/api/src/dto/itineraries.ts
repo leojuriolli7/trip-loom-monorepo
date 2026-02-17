@@ -2,6 +2,15 @@ import { z } from "zod";
 
 const isoDateSchema = z.string().date();
 
+// Time format validation (HH:mm)
+const timeSchema = z
+  .string()
+  .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format, expected HH:mm");
+
+// =============================================================================
+// Output Schemas (for API responses)
+// =============================================================================
+
 export const itineraryActivitySchema = z.object({
   id: z.string(),
   itineraryDayId: z.string(),
@@ -42,3 +51,83 @@ export const itineraryDetailSchema = z.object({
 });
 
 export type ItineraryDetailDTO = z.infer<typeof itineraryDetailSchema>;
+
+// =============================================================================
+// Input Schemas (for API requests)
+// =============================================================================
+
+// Activity input (nested in day creation)
+const activityInputSchema = z.object({
+  orderIndex: z.number().int().min(0),
+  title: z.string().min(1).max(200),
+  description: z.string().max(2000).optional(),
+  startTime: timeSchema.optional(),
+  endTime: timeSchema.optional(),
+  location: z.string().max(500).optional(),
+  locationUrl: z.string().url().max(2000).optional(),
+  estimatedCostInCents: z.number().int().min(0).optional(),
+});
+
+// Day input (nested in itinerary creation)
+const dayInputSchema = z.object({
+  dayNumber: z.number().int().positive(),
+  date: isoDateSchema,
+  title: z.string().min(1).max(200).optional(),
+  notes: z.string().max(5000).optional(),
+  activities: z.array(activityInputSchema).optional().default([]),
+});
+
+// Create itinerary (can include days and activities in one call)
+export const createItineraryInputSchema = z.object({
+  days: z.array(dayInputSchema).optional().default([]),
+});
+
+export type CreateItineraryInput = z.infer<typeof createItineraryInputSchema>;
+
+// Add a day to existing itinerary
+export const createDayInputSchema = z.object({
+  dayNumber: z.number().int().positive(),
+  date: isoDateSchema,
+  title: z.string().min(1).max(200).optional(),
+  notes: z.string().max(5000).optional(),
+});
+
+export type CreateDayInput = z.infer<typeof createDayInputSchema>;
+
+// Update existing day
+export const updateDayInputSchema = z.object({
+  dayNumber: z.number().int().positive().optional(),
+  date: isoDateSchema.optional(),
+  title: z.string().min(1).max(200).nullable().optional(),
+  notes: z.string().max(5000).nullable().optional(),
+});
+
+export type UpdateDayInput = z.infer<typeof updateDayInputSchema>;
+
+// Add activity to a day
+export const createActivityInputSchema = z.object({
+  orderIndex: z.number().int().min(0),
+  title: z.string().min(1).max(200),
+  description: z.string().max(2000).optional(),
+  startTime: timeSchema.optional(),
+  endTime: timeSchema.optional(),
+  location: z.string().max(500).optional(),
+  locationUrl: z.string().url().max(2000).optional(),
+  estimatedCostInCents: z.number().int().min(0).optional(),
+});
+
+export type CreateActivityInput = z.infer<typeof createActivityInputSchema>;
+
+// Update existing activity
+export const updateActivityInputSchema = z.object({
+  orderIndex: z.number().int().min(0).optional(),
+  title: z.string().min(1).max(200).optional(),
+  description: z.string().max(2000).nullable().optional(),
+  startTime: timeSchema.nullable().optional(),
+  endTime: timeSchema.nullable().optional(),
+  location: z.string().max(500).nullable().optional(),
+  locationUrl: z.string().url().max(2000).nullable().optional(),
+  estimatedCostInCents: z.number().int().min(0).nullable().optional(),
+});
+
+export type UpdateActivityInput = z.infer<typeof updateActivityInputSchema>;

@@ -8,6 +8,7 @@ import { userPreferenceRoutes } from "./routes/user-preferences";
 import { tripRoutes } from "./routes/trips";
 import { flightRoutes } from "./routes/flights";
 import { hotelBookingRoutes } from "./routes/hotel-bookings";
+import { itineraryRoutes } from "./routes/itineraries";
 import { auth } from "./lib/auth";
 import {
   BadRequestError,
@@ -57,6 +58,7 @@ export const app = new Elysia({ name: "api" })
   .use(userPreferenceRoutes)
   .use(tripRoutes)
   .use(flightRoutes)
-  .use(hotelBookingRoutes);
+  .use(hotelBookingRoutes)
+  .use(itineraryRoutes);
 
 export type App = typeof app;

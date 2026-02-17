@@ -114,6 +114,10 @@ We still need to implement in our authentication flow:
 
 These can come later, after concrete functionality in the app has been achieved.
 
+About itineraries: 
+
+- Should activity start and end times be strings (`13:00`, `12:50`...), or some other data type that is easier to validate? 
+
 ## Testing Notes
 
 - Run API tests from monorepo root with `pnpm test:api`.

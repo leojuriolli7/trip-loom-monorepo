@@ -1,11 +1,4 @@
-import {
-  itinerary,
-  itineraryActivity,
-  itineraryDay,
-  payment,
-  trip,
-  destination,
-} from "../db/schema";
+import { payment, trip, destination } from "../db/schema";
 import type { TripWithDestinationDTO } from "../dto/trips";
 
 export const tripSelectFields = {
@@ -80,37 +73,4 @@ export const paymentSelectFields = {
   metadata: payment.metadata,
   createdAt: payment.createdAt,
   updatedAt: payment.updatedAt,
-} as const;
-
-export const itinerarySelectFields = {
-  id: itinerary.id,
-  tripId: itinerary.tripId,
-  createdAt: itinerary.createdAt,
-  updatedAt: itinerary.updatedAt,
-} as const;
-
-export const itineraryDaySelectFields = {
-  id: itineraryDay.id,
-  itineraryId: itineraryDay.itineraryId,
-  dayNumber: itineraryDay.dayNumber,
-  date: itineraryDay.date,
-  title: itineraryDay.title,
-  notes: itineraryDay.notes,
-  createdAt: itineraryDay.createdAt,
-  updatedAt: itineraryDay.updatedAt,
-} as const;
-
-export const itineraryActivitySelectFields = {
-  id: itineraryActivity.id,
-  itineraryDayId: itineraryActivity.itineraryDayId,
-  orderIndex: itineraryActivity.orderIndex,
-  title: itineraryActivity.title,
-  description: itineraryActivity.description,
-  startTime: itineraryActivity.startTime,
-  endTime: itineraryActivity.endTime,
-  location: itineraryActivity.location,
-  locationUrl: itineraryActivity.locationUrl,
-  estimatedCostInCents: itineraryActivity.estimatedCostInCents,
-  createdAt: itineraryActivity.createdAt,
-  updatedAt: itineraryActivity.updatedAt,
 } as const;

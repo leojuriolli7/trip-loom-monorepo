@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-02-17T11:55:21.052Z",
-  "updatedAt": "2026-02-17T15:18:09.166Z",
+  "updatedAt": "2026-02-17T15:42:10.837Z",
   "batchSize": 120,
   "countries": {
     "AD": {
@@ -96,12 +96,12 @@
     },
     "AU": {
       "totalDestinations": 1493,
-      "nextOffset": 960,
-      "completedBatches": 8,
+      "nextOffset": 1080,
+      "completedBatches": 9,
       "failedBatches": 0,
       "done": false,
       "lastError": null,
-      "updatedAt": "2026-02-17T15:18:09.165Z"
+      "updatedAt": "2026-02-17T15:42:10.836Z"
     }
   }
 }
