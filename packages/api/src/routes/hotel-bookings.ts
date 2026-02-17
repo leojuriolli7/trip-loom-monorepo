@@ -1,0 +1,159 @@
+import { Elysia } from "elysia";
+import { z } from "zod";
+import { errorResponseSchema } from "../dto/common";
+import {
+  createHotelBookingInputSchema,
+  hotelBookingSchema,
+  updateHotelBookingInputSchema,
+} from "../dto/hotel-bookings";
+import { requireAuthMacro } from "../lib/auth-plugin";
+import {
+  cancelHotelBooking,
+  createHotelBooking,
+  getHotelBooking,
+  listHotelBookings,
+  updateHotelBooking,
+} from "../services/hotel-bookings";
+
+const tripParamsSchema = z.object({
+  id: z.string().min(1),
+});
+
+const bookingParamsSchema = z.object({
+  id: z.string().min(1),
+  hotelBookingId: z.string().min(1),
+});
+
+export const hotelBookingRoutes = new Elysia({
+  name: "hotel-bookings",
+  prefix: "/api",
+})
+  .use(requireAuthMacro)
+  .get(
+    "/trips/:id/hotels",
+    async ({ user, params, status }) => {
+      const result = await listHotelBookings(user.id, params.id);
+      if (!result) {
+        return status(404, {
+          error: "Not Found",
+          message: "Trip not found",
+          statusCode: 404,
+        });
+      }
+
+      return result;
+    },
+    {
+      auth: true,
+      params: tripParamsSchema,
+      response: {
+        200: z.array(hotelBookingSchema),
+        401: errorResponseSchema,
+        404: errorResponseSchema,
+      },
+    },
+  )
+  .post(
+    "/trips/:id/hotels",
+    async ({ user, params, body, status }) => {
+      const result = await createHotelBooking(user.id, params.id, body);
+      if (!result) {
+        return status(404, {
+          error: "Not Found",
+          message: "Trip not found",
+          statusCode: 404,
+        });
+      }
+
+      return status(201, result);
+    },
+    {
+      auth: true,
+      params: tripParamsSchema,
+      body: createHotelBookingInputSchema,
+      response: {
+        201: hotelBookingSchema,
+        400: errorResponseSchema,
+        401: errorResponseSchema,
+        404: errorResponseSchema,
+      },
+    },
+  )
+  .get(
+    "/trips/:id/hotels/:hotelBookingId",
+    async ({ user, params, status }) => {
+      const result = await getHotelBooking(user.id, params.id, params.hotelBookingId);
+      if (!result) {
+        return status(404, {
+          error: "Not Found",
+          message: "Hotel booking not found",
+          statusCode: 404,
+        });
+      }
+
+      return result;
+    },
+    {
+      auth: true,
+      params: bookingParamsSchema,
+      response: {
+        200: hotelBookingSchema,
+        401: errorResponseSchema,
+        404: errorResponseSchema,
+      },
+    },
+  )
+  .patch(
+    "/trips/:id/hotels/:hotelBookingId",
+    async ({ user, params, body, status }) => {
+      const result = await updateHotelBooking(
+        user.id,
+        params.id,
+        params.hotelBookingId,
+        body,
+      );
+
+      if (!result) {
+        return status(404, {
+          error: "Not Found",
+          message: "Hotel booking not found",
+          statusCode: 404,
+        });
+      }
+
+      return result;
+    },
+    {
+      auth: true,
+      params: bookingParamsSchema,
+      body: updateHotelBookingInputSchema,
+      response: {
+        200: hotelBookingSchema,
+        401: errorResponseSchema,
+        404: errorResponseSchema,
+      },
+    },
+  )
+  .delete(
+    "/trips/:id/hotels/:hotelBookingId",
+    async ({ user, params, status }) => {
+      const success = await cancelHotelBooking(user.id, params.id, params.hotelBookingId);
+      if (!success) {
+        return status(404, {
+          error: "Not Found",
+          message: "Hotel booking not found",
+          statusCode: 404,
+        });
+      }
+
+      return new Response(null, { status: 204 });
+    },
+    {
+      auth: true,
+      params: bookingParamsSchema,
+      response: {
+        401: errorResponseSchema,
+        404: errorResponseSchema,
+      },
+    },
+  );
