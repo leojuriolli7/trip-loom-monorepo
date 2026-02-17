@@ -1,5 +1,4 @@
-import { Elysia } from "elysia";
-import { and, eq, like } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import {
   afterAll,
   beforeAll,
@@ -7,43 +6,22 @@ import {
   describe,
   expect,
   it,
-  vi,
 } from "vitest";
 import { db } from "../db";
 import { airport, flightBooking, itinerary, trip, user } from "../db/schema";
-import {
-  BadRequestError,
-  ConflictError,
-  ForbiddenError,
-  NotFoundError,
-} from "../errors";
-import { auth } from "../lib/auth";
 import { flightRoutes } from "../routes/flights";
-import { createTestContext } from "./utils/test-db";
+import {
+  createHeaderAuthMock,
+  createJsonRequester,
+  createTestApp,
+  createTestContext,
+} from "./harness";
 
 const ctx = createTestContext("flight");
-const app = new Elysia()
-  .error({
-    BadRequestError,
-    NotFoundError,
-    ForbiddenError,
-    ConflictError,
-  })
-  .onError(({ code, error, status }) => {
-    switch (code) {
-      case "BadRequestError":
-      case "NotFoundError":
-      case "ForbiddenError":
-      case "ConflictError":
-        return status(error.status, {
-          error: error.error,
-          message: error.message,
-          statusCode: error.status,
-        });
-    }
-  })
-  .use(flightRoutes);
-const authSpy = vi.spyOn(auth.api, "getSession");
+const app = createTestApp().use(flightRoutes);
+const request = createJsonRequester(app);
+const requestJson = request.requestJson;
+const authMock = createHeaderAuthMock(ctx.prefix);
 
 type SeedData = {
   primaryUserId: string;
@@ -65,49 +43,8 @@ const dateWithOffset = (offsetDays: number): string => {
   return formatDate(date);
 };
 
-const requestJson = async ({
-  method,
-  path,
-  userId,
-  body,
-}: {
-  method: "GET" | "POST" | "PATCH" | "DELETE";
-  path: string;
-  userId?: string;
-  body?: unknown;
-}) => {
-  const headers = new Headers();
-
-  if (userId) {
-    headers.set("x-test-user-id", userId);
-  }
-
-  if (body !== undefined) {
-    headers.set("content-type", "application/json");
-  }
-
-  const res = await app.handle(
-    new Request(`http://localhost${path}`, {
-      method,
-      headers,
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-    }),
-  );
-
-  const contentType = res.headers.get("content-type") ?? "";
-  const json = contentType.includes("application/json")
-    ? await res.json()
-    : null;
-
-  return { res, body: json };
-};
-
 const cleanupFlightsFixtureData = async () => {
-  await db
-    .delete(flightBooking)
-    .where(like(flightBooking.id, `${ctx.prefix}%`));
-  await db.delete(trip).where(like(trip.id, `${ctx.prefix}%`));
-  await db.delete(user).where(like(user.id, `${ctx.prefix}%`));
+  await ctx.cleanup();
 };
 
 const seedFlightsFixtureData = async () => {
@@ -362,36 +299,7 @@ const seedFlightsFixtureData = async () => {
 
 describe("Flights API", () => {
   beforeAll(async () => {
-    authSpy.mockImplementation(async (input) => {
-      const headers = (input as { headers?: Headers }).headers;
-      const userId = headers?.get("x-test-user-id");
-
-      if (!userId) {
-        return null;
-      }
-
-      return {
-        user: {
-          id: userId,
-          name: "Test User",
-          email: `${userId}@example.test`,
-          emailVerified: true,
-          image: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        session: {
-          id: `${ctx.prefix}session_${userId}`,
-          expiresAt: new Date(Date.now() + 3_600_000),
-          token: `${ctx.prefix}token_${userId}`,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          ipAddress: null,
-          userAgent: null,
-          userId,
-        },
-      } as Awaited<ReturnType<typeof auth.api.getSession>>;
-    });
+    authMock.enable();
   });
 
   beforeEach(async () => {
@@ -401,7 +309,7 @@ describe("Flights API", () => {
 
   afterAll(async () => {
     await cleanupFlightsFixtureData();
-    authSpy.mockRestore();
+    authMock.restore();
   });
 
   describe("GET /api/flights/search", () => {

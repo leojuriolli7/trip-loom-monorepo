@@ -209,7 +209,6 @@ Uses [Drizzle ORM](https://orm.drizzle.team) with PostgreSQL.
 ```bash
 pnpm db:generate  # Generate migrations from schema changes
 pnpm db:migrate   # Apply migrations to database
-pnpm db:push      # Push schema directly (dev only)
 pnpm db:studio    # Open Drizzle Studio GUI
 ```
 
@@ -227,14 +226,27 @@ How it works:
 - Creates/recreates an isolated test database (`<DATABASE_URL db name>_test`)
 - Runs `drizzle-kit migrate` against that test database
 - Runs `vitest` against that test database
+- Refuses to run if `DATABASE_URL` is not a `*_test` database (test setup guard)
 
 This keeps test runs independent from your main seeded/dev database.
 
-Optional override:
+### Test Harness (Recommended)
 
-```bash
-TEST_DATABASE_NAME=triploom_api_ci pnpm test:api
-```
+Use shared helpers from `src/__tests__/harness` when writing new API tests:
+
+- `createTestContext(name)`:
+  - Generates unique test ID prefix
+  - Cleans context-owned data (including user-owned cascading rows)
+  - Provides deterministic timestamp helpers
+- `createTestApp()`:
+  - Builds an Elysia app with the same error mapping used in production
+- `createJsonRequester(app)`:
+  - Standard request helper for GET/POST/PUT/PATCH/DELETE
+  - Supports auth header injection
+- `createHeaderAuthMock(prefix)`:
+  - Header-driven auth mocking via `x-test-user-id`
+
+This keeps new tests short and consistent while preserving isolation.
 
 ## Adding a Standalone Server
 

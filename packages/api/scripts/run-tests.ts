@@ -20,6 +20,16 @@ const withDatabaseName = (
   return parsed.toString();
 };
 
+const isLocalDatabaseHost = (databaseUrl: string): boolean => {
+  const host = new URL(databaseUrl).hostname.toLowerCase();
+  return (
+    host === "localhost" ||
+    host === "127.0.0.1" ||
+    host === "::1" ||
+    host === "postgres"
+  );
+};
+
 const quoteIdentifier = (value: string): string =>
   `"${value.replace(/"/g, '""')}"`;
 const quoteLiteral = (value: string): string =>
@@ -75,18 +85,34 @@ const run = async () => {
   }
 
   const sourceDatabaseName = getDatabaseNameFromUrl(baseDatabaseUrl);
-  const testDatabaseName =
-    process.env.TEST_DATABASE_NAME?.trim() || `${sourceDatabaseName}_test`;
+  const testDatabaseName = `${sourceDatabaseName}_test`;
+
+  if (!isLocalDatabaseHost(baseDatabaseUrl)) {
+    throw new Error(
+      "Refusing to run tests on non-local DATABASE_URL host.",
+    );
+  }
+
+  if (sourceDatabaseName === testDatabaseName) {
+    throw new Error(
+      "Source database and test database names must differ. Refusing to continue.",
+    );
+  }
+
   const testDatabaseUrl = withDatabaseName(baseDatabaseUrl, testDatabaseName);
 
   await recreateTestDatabase(baseDatabaseUrl, testDatabaseName);
 
   runOrExit("pnpm", ["exec", "drizzle-kit", "migrate"], {
     DATABASE_URL: testDatabaseUrl,
+    NODE_ENV: "test",
+    TZ: "UTC",
   });
 
   runOrExit("pnpm", ["exec", "vitest", "run"], {
     DATABASE_URL: testDatabaseUrl,
+    NODE_ENV: "test",
+    TZ: "UTC",
   });
 };
 

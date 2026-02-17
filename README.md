@@ -119,4 +119,5 @@ These can come later, after concrete functionality in the app has been achieved.
 - Run API tests from monorepo root with `pnpm test:api`.
 - API tests use an isolated database, not your main dev database.
 - The test runner creates and recreates `<DATABASE_URL db name>_test` before running migrations + Vitest.
-- Override the test DB name with `TEST_DATABASE_NAME` when needed.
+- Tests fail fast if `DATABASE_URL` does not point to a `*_test` database.
+- Shared API test harness lives in `packages/api/src/__tests__/harness` (`createTestContext`, `createTestApp`, `createJsonRequester`, `createHeaderAuthMock`).

@@ -1,7 +1,10 @@
 import { describe, expect, it, beforeAll, afterAll } from "vitest";
-import { Elysia } from "elysia";
 import { hotelRoutes } from "../routes/hotels";
-import { createTestContext } from "./utils/test-db";
+import {
+  createJsonRequester,
+  createTestApp,
+  createTestContext,
+} from "./harness";
 import {
   createTestDestinations,
   createTestHotels,
@@ -12,21 +15,16 @@ const ctx = createTestContext("hotel");
 const TEST_REGION = "North Africa" as const;
 const testDestinations = createTestDestinations(ctx.prefix, TEST_REGION);
 const testHotels = createTestHotels(ctx.prefix, testDestinations);
-const app = new Elysia().use(hotelRoutes);
+const app = createTestApp().use(hotelRoutes);
+const request = createJsonRequester(app);
 
 // Convenience references
 const tokyoId = testDestinations[0].id;
 
-// Helper for making requests
-const get = async (path: string) => {
-  const res = await app.handle(new Request(`http://localhost${path}`));
-  return { res, body: await res.json() };
-};
-
 describe("Hotels API", () => {
   beforeAll(async () => {
     await ctx.cleanup();
-    await ctx.seed(testDestinations, testHotels);
+    await ctx.seedDestinationsAndHotels(testDestinations, testHotels);
   });
 
   afterAll(async () => {
@@ -35,7 +33,7 @@ describe("Hotels API", () => {
 
   describe("GET /api/hotels", () => {
     it("should return paginated list", async () => {
-      const { res, body } = await get(`/api/hotels?destinationId=${tokyoId}`);
+      const { res, body } = await request.get(`/api/hotels?destinationId=${tokyoId}`);
 
       expect(res.status).toBe(200);
       expect(body).toHaveProperty("data");
@@ -46,7 +44,7 @@ describe("Hotels API", () => {
     });
 
     it("should respect limit parameter", async () => {
-      const { res, body } = await get(
+      const { res, body } = await request.get(
         `/api/hotels?destinationId=${tokyoId}&limit=2`,
       );
 
@@ -58,7 +56,7 @@ describe("Hotels API", () => {
 
     it("should paginate correctly with cursor", async () => {
       // Get first page
-      const { body: firstPage } = await get(
+      const { body: firstPage } = await request.get(
         `/api/hotels?destinationId=${tokyoId}&limit=2`,
       );
 
@@ -66,7 +64,7 @@ describe("Hotels API", () => {
       expect(firstPage.nextCursor).not.toBeNull();
 
       // Get second page
-      const { body: secondPage } = await get(
+      const { body: secondPage } = await request.get(
         `/api/hotels?destinationId=${tokyoId}&limit=2&cursor=${firstPage.nextCursor}`,
       );
 
@@ -81,7 +79,7 @@ describe("Hotels API", () => {
     });
 
     it("should filter by destinationId", async () => {
-      const { res, body } = await get(`/api/hotels?destinationId=${tokyoId}`);
+      const { res, body } = await request.get(`/api/hotels?destinationId=${tokyoId}`);
 
       expect(res.status).toBe(200);
       expect(body.data.length).toBe(3); // 3 hotels in Tokyo
@@ -93,7 +91,7 @@ describe("Hotels API", () => {
     });
 
     it("should filter by priceRange", async () => {
-      const { res, body } = await get(
+      const { res, body } = await request.get(
         `/api/hotels?destinationId=${tokyoId}&priceRange=luxury`,
       );
 
@@ -103,7 +101,7 @@ describe("Hotels API", () => {
     });
 
     it("should filter by minStarRating", async () => {
-      const { res, body } = await get(
+      const { res, body } = await request.get(
         `/api/hotels?destinationId=${tokyoId}&minStarRating=4`,
       );
 
@@ -115,7 +113,7 @@ describe("Hotels API", () => {
     });
 
     it("should filter by amenity", async () => {
-      const { res, body } = await get(
+      const { res, body } = await request.get(
         `/api/hotels?destinationId=${tokyoId}&amenity=spa`,
       );
 
@@ -125,7 +123,7 @@ describe("Hotels API", () => {
     });
 
     it("should filter by search term", async () => {
-      const { res, body } = await get(
+      const { res, body } = await request.get(
         `/api/hotels?destinationId=${tokyoId}&search=shibuya`,
       );
 
@@ -137,7 +135,7 @@ describe("Hotels API", () => {
     });
 
     it("should combine multiple filters", async () => {
-      const { res, body } = await get(
+      const { res, body } = await request.get(
         `/api/hotels?destinationId=${tokyoId}&minStarRating=4`,
       );
 
@@ -155,7 +153,7 @@ describe("Hotels API", () => {
   describe("GET /api/hotels/:id", () => {
     it("should return hotel with destination info", async () => {
       const hotelId = testHotels[0].id;
-      const { res, body } = await get(`/api/hotels/${hotelId}`);
+      const { res, body } = await request.get(`/api/hotels/${hotelId}`);
 
       expect(res.status).toBe(200);
       expect(body.id).toBe(hotelId);
@@ -165,7 +163,7 @@ describe("Hotels API", () => {
     });
 
     it("should return 404 for non-existent ID", async () => {
-      const { res, body } = await get("/api/hotels/nonexistent123");
+      const { res, body } = await request.get("/api/hotels/nonexistent123");
 
       expect(res.status).toBe(404);
       expect(body.error).toBe("Not Found");

@@ -29,7 +29,7 @@ packages/api/
 │   │   └── [domain].ts       # e.g., destinations.ts
 │   ├── services/             # Business logic
 │   │   └── [domain].ts       # e.g., destinations.ts
-│   └── __tests__/            # Unit tests (Vitest)
+│   └── __tests__/            # API integration + unit tests (Vitest)
 ├── seeds/                    # Database seeding
 │   ├── data/                 # JSON seed files
 │   ├── seed.ts               # Seed script
@@ -361,8 +361,9 @@ pnpm test:api
 
 - `pnpm test:api` must run against an isolated test database, never the main development database.
 - The API test runner recreates `<DATABASE_URL db name>_test`, applies migrations, then runs Vitest.
-- You can override the test DB name with `TEST_DATABASE_NAME`.
 - Use migrations (`db:migrate`) for deterministic schema behavior.
+- Vitest setup fails fast if `DATABASE_URL` does not point to a `*_test` DB.
+- Non-local test DB hosts are blocked by default.
 
 ## Testing
 
@@ -382,12 +383,15 @@ The test command automatically:
 
 ```
 src/__tests__/
-├── utils/                  # Shared test utilities
-│   ├── index.ts           # Re-exports all utils
-│   └── test-db.ts         # Database context & cleanup
+├── harness/               # Shared test harness helpers
+│   ├── app.ts             # Test app factory with production error mapping
+│   ├── auth.ts            # Header-driven auth mocking
+│   ├── db.ts              # Test DB context + cleanup + deterministic timestamps
+│   ├── http.ts            # Request helper (GET/POST/PUT/PATCH/DELETE)
+│   └── index.ts           # Harness exports
 ├── fixtures/              # Reusable test data factories
-│   ├── index.ts           # Re-exports all fixtures
 │   └── destinations.ts    # Destination & hotel fixtures
+├── setup.ts               # Global Vitest setup (test DB safety guard)
 └── [domain].test.ts       # Domain-specific tests
 ```
 
@@ -397,27 +401,27 @@ Use shared utilities to avoid boilerplate:
 
 ```typescript
 import { describe, expect, it, beforeAll, afterAll } from "vitest";
-import { Elysia } from "elysia";
 import { itemRoutes } from "../routes/items";
-import { createTestContext } from "./utils";
+import {
+  createJsonRequester,
+  createTestApp,
+  createTestContext,
+} from "./harness";
 import { createTestItems } from "./fixtures";
+import { db } from "../db";
+import { item } from "../db/schema";
 
 // 1. Create isolated test context with unique prefix
 const ctx = createTestContext("items");
 const testItems = createTestItems(ctx.prefix);
-const app = new Elysia().use(itemRoutes);
-
-// 2. Local request helper (avoid shared helpers due to Elysia's complex types)
-const get = async (path: string) => {
-  const res = await app.handle(new Request(`http://localhost${path}`));
-  return { res, body: await res.json() };
-};
+const app = createTestApp().use(itemRoutes);
+const request = createJsonRequester(app);
 
 describe("Items API", () => {
   // 3. Setup: cleanup stale data, then seed fresh
   beforeAll(async () => {
     await ctx.cleanup();
-    await ctx.seed(testItems);
+    await db.insert(item).values(testItems);
   });
 
   // 4. Teardown: cleanup after tests
@@ -426,7 +430,7 @@ describe("Items API", () => {
   });
 
   it("should return paginated list", async () => {
-    const { res, body } = await get("/api/items?limit=2");
+    const { res, body } = await request.get("/api/items?limit=2");
 
     expect(res.status).toBe(200);
     expect(body.data.length).toBe(2);
@@ -438,9 +442,20 @@ describe("Items API", () => {
 
 **`createTestContext(name)`** - Creates isolated test environment:
 - `ctx.prefix` - Unique prefix for all IDs (includes timestamp + random suffix)
-- `ctx.cleanup()` - Deletes all data with this prefix
-- `ctx.seed(destinations, hotels)` - Inserts deterministic timestamps for stable pagination/order tests
-- Current cleanup covers `destination` and `hotel`; extend cleanup as new domain tables are added
+- `ctx.cleanup()` - Deletes all context-owned data and user-owned cascading rows
+- `ctx.seedDestinationsAndHotels(destinations, hotels)` - Inserts deterministic timestamps for stable pagination/order tests
+- `ctx.timestamp(index, offsetMs)` - Stable timestamp helper for order-sensitive assertions
+- Extend cleanup rules in `src/__tests__/harness/db.ts` when introducing new tables that cannot be cleaned through existing cascades
+
+**`createTestApp()`**:
+- Creates a test app with production-equivalent HTTP error mapping
+
+**`createJsonRequester(app)`**:
+- Shared request helper with consistent JSON parsing and optional test auth header
+
+**`createHeaderAuthMock(prefix)`**:
+- Enables auth mocking based on `x-test-user-id`
+- Use `enable()` in `beforeAll` and `restore()` in `afterAll`
 
 ### Test Isolation
 
@@ -466,12 +481,12 @@ Add fixture factories to `src/__tests__/fixtures/`:
 
 ```typescript
 import { generateId } from "../../lib/nanoid";
-import type { TestDestination } from "../utils";
+import type { DB_NewDestination } from "../../db/types";
 
 export function createTestDestinations(
   prefix: string,
   region: string
-): TestDestination[] {
+): DB_NewDestination[] {
   return [
     {
       id: `${prefix}${generateId()}`,

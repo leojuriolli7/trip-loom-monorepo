@@ -1,5 +1,4 @@
-import { Elysia } from "elysia";
-import { eq, like } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import {
   afterAll,
   beforeAll,
@@ -7,103 +6,30 @@ import {
   describe,
   expect,
   it,
-  vi,
 } from "vitest";
 import { db } from "../db";
 import { user, userPreference } from "../db/schema";
-import { auth } from "../lib/auth";
 import { generateId } from "../lib/nanoid";
 import { userPreferenceRoutes } from "../routes/user-preferences";
-import { createTestContext } from "./utils/test-db";
+import {
+  createHeaderAuthMock,
+  createJsonRequester,
+  createTestApp,
+  createTestContext,
+} from "./harness";
 
 const ctx = createTestContext("user_pref");
 const primaryUserId = `${ctx.prefix}user_${generateId()}`;
 const secondaryUserId = `${ctx.prefix}user_${generateId()}`;
 
-const app = new Elysia().use(userPreferenceRoutes);
-
-const authSpy = vi.spyOn(auth.api, "getSession");
-
-const requestJson = async ({
-  method,
-  path,
-  userId,
-  body,
-}: {
-  method: "GET" | "PUT";
-  path: string;
-  userId?: string;
-  body?: unknown;
-}) => {
-  const headers = new Headers();
-
-  if (userId) {
-    headers.set("x-test-user-id", userId);
-  }
-
-  if (body !== undefined) {
-    headers.set("content-type", "application/json");
-  }
-
-  const res = await app.handle(
-    new Request(`http://localhost${path}`, {
-      method,
-      headers,
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-    }),
-  );
-  const json = await res.json();
-
-  return { res, body: json };
-};
-
-const cleanupUserPreferences = async () => {
-  await db
-    .delete(userPreference)
-    .where(like(userPreference.userId, `${ctx.prefix}%`));
-};
-
-const cleanupUsers = async () => {
-  await db.delete(user).where(like(user.id, `${ctx.prefix}%`));
-};
+const app = createTestApp().use(userPreferenceRoutes);
+const request = createJsonRequester(app);
+const authMock = createHeaderAuthMock(ctx.prefix);
 
 describe("User Preferences API", () => {
   beforeAll(async () => {
-    authSpy.mockImplementation(async (input) => {
-      const headers = (input as { headers?: Headers }).headers;
-      if (!headers) {
-        return null;
-      }
-      const userId = headers.get("x-test-user-id");
-      if (!userId) {
-        return null;
-      }
-
-      return {
-        user: {
-          id: userId,
-          name: "Test User",
-          email: `${userId}@example.test`,
-          emailVerified: true,
-          image: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        session: {
-          id: `${ctx.prefix}session_${userId}`,
-          expiresAt: new Date(Date.now() + 60 * 60 * 1000),
-          token: `${ctx.prefix}token_${userId}`,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          ipAddress: null,
-          userAgent: null,
-          userId,
-        },
-      } as Awaited<ReturnType<typeof auth.api.getSession>>;
-    });
-
-    await cleanupUserPreferences();
-    await cleanupUsers();
+    authMock.enable();
+    await ctx.cleanup();
 
     await db.insert(user).values([
       {
@@ -122,20 +48,21 @@ describe("User Preferences API", () => {
   });
 
   beforeEach(async () => {
-    await cleanupUserPreferences();
+    await db
+      .delete(userPreference)
+      .where(eq(userPreference.userId, primaryUserId));
+    await db
+      .delete(userPreference)
+      .where(eq(userPreference.userId, secondaryUserId));
   });
 
   afterAll(async () => {
-    await cleanupUserPreferences();
-    await cleanupUsers();
-    authSpy.mockRestore();
+    await ctx.cleanup();
+    authMock.restore();
   });
 
   it("GET /api/user/preferences returns 401 without auth", async () => {
-    const { res, body } = await requestJson({
-      method: "GET",
-      path: "/api/user/preferences",
-    });
+    const { res, body } = await request.get("/api/user/preferences");
 
     expect(res.status).toBe(401);
     expect(body.error).toBe("Unauthorized");
@@ -143,16 +70,8 @@ describe("User Preferences API", () => {
   });
 
   it("GET /api/user/preferences creates defaults for a new user", async () => {
-    const first = await requestJson({
-      method: "GET",
-      path: "/api/user/preferences",
-      userId: primaryUserId,
-    });
-    const second = await requestJson({
-      method: "GET",
-      path: "/api/user/preferences",
-      userId: primaryUserId,
-    });
+    const first = await request.get("/api/user/preferences", primaryUserId);
+    const second = await request.get("/api/user/preferences", primaryUserId);
 
     expect(first.res.status).toBe(200);
     expect(first.body.userId).toBe(primaryUserId);
@@ -174,11 +93,9 @@ describe("User Preferences API", () => {
   });
 
   it("GET /api/user/preferences returns saved preferences", async () => {
-    await requestJson({
-      method: "PUT",
-      path: "/api/user/preferences",
-      userId: primaryUserId,
-      body: {
+    await request.put(
+      "/api/user/preferences",
+      {
         preferredCabinClass: "business",
         budgetRange: "upscale",
         travelInterests: ["food", "culture"],
@@ -186,13 +103,10 @@ describe("User Preferences API", () => {
         dietaryRestrictions: ["vegetarian"],
         accessibilityNeeds: "wheelchair-accessible hotel",
       },
-    });
+      primaryUserId,
+    );
 
-    const { res, body } = await requestJson({
-      method: "GET",
-      path: "/api/user/preferences",
-      userId: primaryUserId,
-    });
+    const { res, body } = await request.get("/api/user/preferences", primaryUserId);
 
     expect(res.status).toBe(200);
     expect(body.preferredCabinClass).toBe("business");
@@ -204,12 +118,8 @@ describe("User Preferences API", () => {
   });
 
   it("PUT /api/user/preferences returns 401 without auth", async () => {
-    const { res, body } = await requestJson({
-      method: "PUT",
-      path: "/api/user/preferences",
-      body: {
-        budgetRange: "moderate",
-      },
+    const { res, body } = await request.put("/api/user/preferences", {
+      budgetRange: "moderate",
     });
 
     expect(res.status).toBe(401);
@@ -217,17 +127,16 @@ describe("User Preferences API", () => {
   });
 
   it("PUT /api/user/preferences creates new preferences", async () => {
-    const { res, body } = await requestJson({
-      method: "PUT",
-      path: "/api/user/preferences",
-      userId: secondaryUserId,
-      body: {
+    const { res, body } = await request.put(
+      "/api/user/preferences",
+      {
         preferredCabinClass: "economy",
         budgetRange: "budget",
         travelInterests: ["beaches", "nature"],
         preferredRegions: ["Southeast Asia"],
       },
-    });
+      secondaryUserId,
+    );
 
     expect(res.status).toBe(200);
     expect(body.userId).toBe(secondaryUserId);
@@ -240,27 +149,25 @@ describe("User Preferences API", () => {
   });
 
   it("PUT /api/user/preferences updates existing preferences", async () => {
-    const first = await requestJson({
-      method: "PUT",
-      path: "/api/user/preferences",
-      userId: primaryUserId,
-      body: {
+    const first = await request.put(
+      "/api/user/preferences",
+      {
         preferredCabinClass: "economy",
         budgetRange: "moderate",
         travelInterests: ["adventure"],
       },
-    });
+      primaryUserId,
+    );
 
-    const second = await requestJson({
-      method: "PUT",
-      path: "/api/user/preferences",
-      userId: primaryUserId,
-      body: {
+    const second = await request.put(
+      "/api/user/preferences",
+      {
         preferredCabinClass: "first",
         budgetRange: "luxury",
         travelInterests: ["art", "wine"],
       },
-    });
+      primaryUserId,
+    );
 
     expect(first.res.status).toBe(200);
     expect(second.res.status).toBe(200);
@@ -271,41 +178,38 @@ describe("User Preferences API", () => {
   });
 
   it("PUT /api/user/preferences validates input schema", async () => {
-    const { res } = await requestJson({
-      method: "PUT",
-      path: "/api/user/preferences",
-      userId: primaryUserId,
-      body: {
+    const { res } = await request.put(
+      "/api/user/preferences",
+      {
         preferredCabinClass: "premium",
         preferredRegions: ["Moon"],
       },
-    });
+      primaryUserId,
+    );
 
     expect([400, 422]).toContain(res.status);
   });
 
   it("PUT /api/user/preferences supports partial updates", async () => {
-    const first = await requestJson({
-      method: "PUT",
-      path: "/api/user/preferences",
-      userId: primaryUserId,
-      body: {
+    const first = await request.put(
+      "/api/user/preferences",
+      {
         preferredCabinClass: "business",
         budgetRange: "upscale",
         travelInterests: ["food"],
         preferredRegions: ["Europe"],
         dietaryRestrictions: ["vegan"],
       },
-    });
+      primaryUserId,
+    );
 
-    const second = await requestJson({
-      method: "PUT",
-      path: "/api/user/preferences",
-      userId: primaryUserId,
-      body: {
+    const second = await request.put(
+      "/api/user/preferences",
+      {
         budgetRange: "luxury",
       },
-    });
+      primaryUserId,
+    );
 
     expect(first.res.status).toBe(200);
     expect(second.res.status).toBe(200);
