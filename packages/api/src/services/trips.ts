@@ -45,10 +45,10 @@ import {
 } from "../lib/pagination";
 import {
   mapTripWithDestination,
-  paymentSelectFields,
   tripDestinationSelectFields,
   tripSelectFields,
 } from "../mappers/trips";
+import { paymentSelectFields } from "../mappers/payments";
 import { flightBookingSelectFields } from "../mappers/flights";
 import {
   hotelBookingSelectFields,

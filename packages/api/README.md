@@ -14,6 +14,15 @@ Think of this package as an **engine**, not a car:
 
 The API package **defines** the application logic but doesn't **run** anything by itself. Consumers mount it wherever they need to deploy.
 
+## Domain Docs
+
+Cross-domain flow documentation lives in `packages/api/docs`:
+
+- `docs/trip-lifecycle.md`
+- `docs/booking-payment-flow.md`
+- `docs/cancellation-refund-policy.md`
+- `docs/itinerary-lifecycle.md`
+
 ## URL Structure
 
 | Path | Description |
@@ -62,6 +71,7 @@ import { tripStatusValues } from "@trip-loom/api/dto";
 
 ```
 src/
+├── docs/                   # Domain and cross-domain behavior docs
 ├── index.ts                # Main Elysia app, exports `app` and `type App`
 ├── db/
 │   ├── index.ts            # Database connection (Drizzle + Postgres)
@@ -195,6 +205,8 @@ This package requires the following environment variables (provided by the app t
 | `DATABASE_URL` | Yes | PostgreSQL connection string |
 | `BETTER_AUTH_SECRET` | Yes | Auth encryption secret (min 32 chars). Generate: `openssl rand -base64 32` |
 | `BETTER_AUTH_URL` | Yes | Base URL for auth (e.g., `http://localhost:3000`) |
+| `STRIPE_SECRET_KEY` | Yes (payments) | Stripe secret key for server-side payment operations |
+| `STRIPE_WEBHOOK_SECRET` | Yes (payments) | Stripe webhook signing secret |
 | `TRUSTED_ORIGINS` | Prod | Comma-separated list of trusted origins |
 | `CORS_ORIGINS` | Prod | Comma-separated list of CORS origins |
 

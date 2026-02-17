@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-02-17T11:55:21.052Z",
-  "updatedAt": "2026-02-17T16:32:30.299Z",
+  "updatedAt": "2026-02-17T17:02:10.805Z",
   "batchSize": 120,
   "countries": {
     "AD": {
@@ -96,12 +96,30 @@
     },
     "AU": {
       "totalDestinations": 1493,
-      "nextOffset": 1320,
-      "completedBatches": 11,
+      "nextOffset": 1493,
+      "completedBatches": 13,
       "failedBatches": 0,
-      "done": false,
+      "done": true,
       "lastError": null,
-      "updatedAt": "2026-02-17T16:32:30.299Z"
+      "updatedAt": "2026-02-17T17:00:04.601Z"
+    },
+    "AW": {
+      "totalDestinations": 10,
+      "nextOffset": 10,
+      "completedBatches": 1,
+      "failedBatches": 0,
+      "done": true,
+      "lastError": null,
+      "updatedAt": "2026-02-17T17:01:39.359Z"
+    },
+    "AX": {
+      "totalDestinations": 3,
+      "nextOffset": 3,
+      "completedBatches": 1,
+      "failedBatches": 0,
+      "done": true,
+      "lastError": null,
+      "updatedAt": "2026-02-17T17:02:10.805Z"
     }
   }
 }

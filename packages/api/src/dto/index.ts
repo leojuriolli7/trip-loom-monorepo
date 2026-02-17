@@ -76,8 +76,19 @@ export {
 
 export {
   paymentStatusValues,
+  paymentBookingTypeValues,
+  paymentBookingTypeSchema,
   paymentSchema,
+  createPaymentIntentInputSchema,
+  paymentIntentResponseSchema,
+  confirmPaymentInputSchema,
+  refundPaymentInputSchema,
+  stripeWebhookResponseSchema,
   type PaymentDTO,
+  type CreatePaymentIntentInput,
+  type PaymentIntentResponse,
+  type ConfirmPaymentInput,
+  type RefundPaymentInput,
 } from "./payments";
 
 export {

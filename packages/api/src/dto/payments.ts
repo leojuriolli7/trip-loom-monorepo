@@ -2,6 +2,8 @@ import { z } from "zod";
 import { paymentStatusEnum } from "../db/schema";
 
 export const paymentStatusValues = paymentStatusEnum.enumValues;
+export const paymentBookingTypeValues = ["flight", "hotel"] as const;
+export const paymentBookingTypeSchema = z.enum(paymentBookingTypeValues);
 
 export const paymentSchema = z.object({
   id: z.string(),
@@ -19,3 +21,43 @@ export const paymentSchema = z.object({
 });
 
 export type PaymentDTO = z.infer<typeof paymentSchema>;
+
+export const createPaymentIntentInputSchema = z.object({
+  tripId: z.string().min(1),
+  amountInCents: z.number().int().positive(),
+  currency: z.string().trim().length(3).default("usd"),
+  description: z.string().trim().min(1).max(500).optional(),
+  bookingType: paymentBookingTypeSchema,
+  bookingId: z.string().min(1),
+});
+
+export type CreatePaymentIntentInput = z.infer<
+  typeof createPaymentIntentInputSchema
+>;
+
+export const paymentIntentResponseSchema = z.object({
+  clientSecret: z.string(),
+  paymentId: z.string(),
+  amountInCents: z.number().int().positive(),
+  currency: z.string(),
+});
+
+export type PaymentIntentResponse = z.infer<typeof paymentIntentResponseSchema>;
+
+export const confirmPaymentInputSchema = z.object({
+  paymentId: z.string().min(1),
+  paymentIntentId: z.string().min(1),
+});
+
+export type ConfirmPaymentInput = z.infer<typeof confirmPaymentInputSchema>;
+
+export const refundPaymentInputSchema = z.object({
+  amountInCents: z.number().int().positive().optional(),
+  reason: z.string().trim().min(1).max(120).optional(),
+});
+
+export type RefundPaymentInput = z.infer<typeof refundPaymentInputSchema>;
+
+export const stripeWebhookResponseSchema = z.object({
+  received: z.literal(true),
+});
