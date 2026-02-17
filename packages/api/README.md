@@ -213,6 +213,29 @@ pnpm db:push      # Push schema directly (dev only)
 pnpm db:studio    # Open Drizzle Studio GUI
 ```
 
+## Testing
+
+Run tests from the monorepo root:
+
+```bash
+pnpm test:api
+```
+
+How it works:
+
+- Starts Docker Postgres (`pnpm db:up`)
+- Creates/recreates an isolated test database (`<DATABASE_URL db name>_test`)
+- Runs `drizzle-kit migrate` against that test database
+- Runs `vitest` against that test database
+
+This keeps test runs independent from your main seeded/dev database.
+
+Optional override:
+
+```bash
+TEST_DATABASE_NAME=triploom_api_ci pnpm test:api
+```
+
 ## Adding a Standalone Server
 
 If you later need to deploy the API separately (e.g., on a VPS), create `apps/backend`:

@@ -10,10 +10,9 @@ dist
 !.env.example
 
 # Drizzle
-drizzle/
+# Keep package migrations tracked in git (packages/api/drizzle/*).
 
-# for now, ignore seed files
-# packages/api/seeds/*
+# don't commit plans
 plans/*
 
 # source of data for destinations

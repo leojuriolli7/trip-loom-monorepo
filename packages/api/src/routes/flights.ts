@@ -19,13 +19,13 @@ import {
   updateFlightBooking,
 } from "../services/flights";
 
-const tripIdParamsSchema = z.object({
-  tripId: z.string().min(1),
+const tripParamsSchema = z.object({
+  id: z.string().min(1),
 });
 
 const bookingParamsSchema = z.object({
-  tripId: z.string().min(1),
   id: z.string().min(1),
+  flightId: z.string().min(1),
 });
 
 export const flightRoutes = new Elysia({
@@ -46,9 +46,9 @@ export const flightRoutes = new Elysia({
     },
   )
   .get(
-    "/api/trips/:tripId/flights",
+    "/api/trips/:id/flights",
     async ({ user, params, status }) => {
-      const result = await listFlightBookings(user.id, params.tripId);
+      const result = await listFlightBookings(user.id, params.id);
       if (!result) {
         return status(404, {
           error: "Not Found",
@@ -61,7 +61,7 @@ export const flightRoutes = new Elysia({
     },
     {
       auth: true,
-      params: tripIdParamsSchema,
+      params: tripParamsSchema,
       response: {
         200: z.array(flightBookingSchema),
         401: errorResponseSchema,
@@ -70,9 +70,9 @@ export const flightRoutes = new Elysia({
     },
   )
   .post(
-    "/api/trips/:tripId/flights",
+    "/api/trips/:id/flights",
     async ({ user, params, body, status }) => {
-      const result = await createFlightBooking(user.id, params.tripId, body);
+      const result = await createFlightBooking(user.id, params.id, body);
       if (!result) {
         return status(404, {
           error: "Not Found",
@@ -85,7 +85,7 @@ export const flightRoutes = new Elysia({
     },
     {
       auth: true,
-      params: tripIdParamsSchema,
+      params: tripParamsSchema,
       body: createFlightBookingInputSchema,
       response: {
         201: flightBookingSchema,
@@ -96,9 +96,9 @@ export const flightRoutes = new Elysia({
     },
   )
   .get(
-    "/api/trips/:tripId/flights/:id",
+    "/api/trips/:id/flights/:flightId",
     async ({ user, params, status }) => {
-      const result = await getFlightBooking(user.id, params.tripId, params.id);
+      const result = await getFlightBooking(user.id, params.id, params.flightId);
       if (!result) {
         return status(404, {
           error: "Not Found",
@@ -120,12 +120,12 @@ export const flightRoutes = new Elysia({
     },
   )
   .patch(
-    "/api/trips/:tripId/flights/:id",
+    "/api/trips/:id/flights/:flightId",
     async ({ user, params, body, status }) => {
       const result = await updateFlightBooking(
         user.id,
-        params.tripId,
         params.id,
+        params.flightId,
         body,
       );
 
@@ -151,9 +151,9 @@ export const flightRoutes = new Elysia({
     },
   )
   .delete(
-    "/api/trips/:tripId/flights/:id",
+    "/api/trips/:id/flights/:flightId",
     async ({ user, params, status }) => {
-      const success = await cancelFlightBooking(user.id, params.tripId, params.id);
+      const success = await cancelFlightBooking(user.id, params.id, params.flightId);
       if (!success) {
         return status(404, {
           error: "Not Found",

@@ -1,0 +1,4 @@
+ALTER TABLE "flight_booking" ADD CONSTRAINT "flight_booking_departure_airport_code_airport_code_fk" FOREIGN KEY ("departure_airport_code") REFERENCES "public"."airport"("code") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "flight_booking" ADD CONSTRAINT "flight_booking_arrival_airport_code_airport_code_fk" FOREIGN KEY ("arrival_airport_code") REFERENCES "public"."airport"("code") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "flight_booking_departure_airport_code_idx" ON "flight_booking" USING btree ("departure_airport_code");--> statement-breakpoint
+CREATE INDEX "flight_booking_arrival_airport_code_idx" ON "flight_booking" USING btree ("arrival_airport_code");

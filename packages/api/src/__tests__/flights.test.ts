@@ -10,7 +10,7 @@ import {
   vi,
 } from "vitest";
 import { db } from "../db";
-import { airport, flightBooking, trip, user } from "../db/schema";
+import { airport, flightBooking, itinerary, trip, user } from "../db/schema";
 import {
   BadRequestError,
   ConflictError,
@@ -610,7 +610,7 @@ describe("Flights API", () => {
       expect(draftTripRows[0]?.status).toBe("upcoming");
     });
 
-    it("GET /api/trips/:tripId/flights lists only trip bookings", async () => {
+    it("GET /api/trips/:id/flights lists only trip bookings", async () => {
       const { res, body } = await requestJson({
         method: "GET",
         path: `/api/trips/${seed.upcomingTripId}/flights`,
@@ -623,7 +623,7 @@ describe("Flights API", () => {
       expect(body[0].tripId).toBe(seed.upcomingTripId);
     });
 
-    it("GET /api/trips/:tripId/flights/:id returns booking detail with seat map", async () => {
+    it("GET /api/trips/:id/flights/:flightId returns booking detail with seat map", async () => {
       const { res, body } = await requestJson({
         method: "GET",
         path: `/api/trips/${seed.upcomingTripId}/flights/${seed.primaryBookingId}`,
@@ -707,6 +707,48 @@ describe("Flights API", () => {
         .from(trip)
         .where(eq(trip.id, seed.draftTripId));
       expect(tripRows[0]?.status).toBe("draft");
+    });
+
+    it("DELETE keeps trip upcoming when itinerary still exists", async () => {
+      const created = await requestJson({
+        method: "POST",
+        path: `/api/trips/${seed.draftTripId}/flights`,
+        userId: seed.primaryUserId,
+        body: {
+          type: "outbound",
+          flightNumber: "NO221",
+          airline: "North Orbit",
+          departureAirportCode: "JFK",
+          departureCity: "New York",
+          departureTime: "2026-10-12T12:00:00.000Z",
+          arrivalAirportCode: "LAX",
+          arrivalCity: "Los Angeles",
+          arrivalTime: "2026-10-12T18:05:00.000Z",
+          durationMinutes: 365,
+          cabinClass: "economy",
+          priceInCents: 41_000,
+        },
+      });
+      expect(created.res.status).toBe(201);
+
+      await db.insert(itinerary).values({
+        id: `${ctx.prefix}draft_trip_itinerary`,
+        tripId: seed.draftTripId,
+      });
+
+      const deleted = await requestJson({
+        method: "DELETE",
+        path: `/api/trips/${seed.draftTripId}/flights/${created.body.id}`,
+        userId: seed.primaryUserId,
+      });
+
+      expect(deleted.res.status).toBe(204);
+
+      const tripRows = await db
+        .select({ status: trip.status })
+        .from(trip)
+        .where(eq(trip.id, seed.draftTripId));
+      expect(tripRows[0]?.status).toBe("upcoming");
     });
 
     it("cannot access another user's trip bookings", async () => {

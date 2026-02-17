@@ -245,7 +245,7 @@ export const destination = pgTable(
     index("destination_country_code_idx").on(table.countryCode),
     index("destination_region_idx").on(table.region),
     index("destination_coordinates_idx").on(table.latitude, table.longitude),
-    // GIN index for full-text search (added in migration SQL)
+    index("destination_search_vector_idx").using("gin", table.searchVector),
   ],
 );
 
@@ -282,6 +282,7 @@ export const hotel = pgTable(
     index("hotel_price_range_idx").on(table.priceRange),
     index("hotel_star_rating_idx").on(table.starRating),
     index("hotel_source_idx").on(table.source),
+    index("hotel_search_vector_idx").using("gin", table.searchVector),
     unique("hotel_source_source_id_unique").on(table.source, table.sourceId),
     check(
       "hotel_star_rating_check",
@@ -291,7 +292,6 @@ export const hotel = pgTable(
       "hotel_avg_price_non_negative",
       sql`${table.avgPricePerNightInCents} >= 0`,
     ),
-    // GIN index for full-text search (added in migration SQL)
   ],
 );
 

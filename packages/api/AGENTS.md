@@ -334,8 +334,6 @@ pnpm db:generate
 # Apply pending migrations
 pnpm db:migrate
 
-# Push schema directly (for development, bypasses migrations)
-pnpm db:push
 
 # Open Drizzle Studio to inspect/manage database
 pnpm db:studio
@@ -359,6 +357,13 @@ pnpm db:seed:validate
 pnpm test:api
 ```
 
+### Test Database Isolation (Required)
+
+- `pnpm test:api` must run against an isolated test database, never the main development database.
+- The API test runner recreates `<DATABASE_URL db name>_test`, applies migrations, then runs Vitest.
+- You can override the test DB name with `TEST_DATABASE_NAME`.
+- Use migrations (`db:migrate`) for deterministic schema behavior.
+
 ## Testing
 
 Tests use **Vitest** and run against a real database:
@@ -369,8 +374,9 @@ pnpm test:api
 
 The test command automatically:
 1. Starts the database container (`pnpm db:up`)
-2. Pushes the schema (`pnpm db:push`)
-3. Runs Vitest
+2. Recreates an isolated test database (`<DATABASE_URL db name>_test`)
+3. Applies migrations (`drizzle-kit migrate`)
+4. Runs Vitest against the test database
 
 ### Test File Structure
 

@@ -1,0 +1,6 @@
+CREATE TYPE "public"."region" AS ENUM('Europe', 'East Asia', 'Southeast Asia', 'South Asia', 'North America', 'South America', 'Central America', 'Caribbean', 'Middle East', 'North Africa', 'Sub-Saharan Africa', 'Oceania', 'Central Asia');--> statement-breakpoint
+CREATE TYPE "public"."travel_interest" AS ENUM('beaches', 'culture', 'food', 'nightlife', 'adventure', 'history', 'nature', 'shopping', 'relaxation', 'architecture', 'wildlife', 'mountains', 'islands', 'temples', 'art', 'wine', 'skiing', 'diving', 'hiking', 'photography');--> statement-breakpoint
+ALTER TABLE "user_preference" ALTER COLUMN "travel_interests" SET DEFAULT '{}'::"public"."travel_interest"[];--> statement-breakpoint
+ALTER TABLE "user_preference" ALTER COLUMN "travel_interests" SET DATA TYPE "public"."travel_interest"[] USING "travel_interests"::"public"."travel_interest"[];--> statement-breakpoint
+ALTER TABLE "user_preference" ALTER COLUMN "preferred_regions" SET DEFAULT '{}'::"public"."region"[];--> statement-breakpoint
+ALTER TABLE "user_preference" ALTER COLUMN "preferred_regions" SET DATA TYPE "public"."region"[] USING "preferred_regions"::"public"."region"[];

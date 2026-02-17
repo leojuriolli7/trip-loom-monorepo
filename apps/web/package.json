@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test:e2e": "cd ../.. && pnpm db:up && pnpm db:push && cd apps/web && playwright test",
-    "test:e2e:ui": "cd ../.. && pnpm db:up && pnpm db:push && cd apps/web && playwright test --ui"
+    "test:e2e": "cd ../.. && pnpm db:up && pnpm db:migrate && cd apps/web && playwright test",
+    "test:e2e:ui": "cd ../.. && pnpm db:up && pnpm db:migrate && cd apps/web && playwright test --ui"
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",

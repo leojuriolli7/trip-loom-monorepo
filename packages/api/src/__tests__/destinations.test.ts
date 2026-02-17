@@ -12,6 +12,7 @@ const ctx = createTestContext("dest");
 const TEST_REGION = "North America" as const;
 const testDestinations = createTestDestinations(ctx.prefix, TEST_REGION);
 const testHotels = createTestHotelsForTokyo(ctx.prefix, testDestinations[0].id);
+const TEST_COUNTRY = testDestinations[0].country;
 const app = new Elysia().use(destinationRoutes);
 
 // Helper for making requests
@@ -32,9 +33,7 @@ describe("Destinations API", () => {
 
   describe("GET /api/destinations", () => {
     it("should return paginated list", async () => {
-      const { res, body } = await get(
-        `/api/destinations?region=${TEST_REGION}`,
-      );
+      const { res, body } = await get(`/api/destinations?country=${TEST_COUNTRY}`);
 
       expect(res.status).toBe(200);
       expect(body).toHaveProperty("data");
@@ -46,7 +45,7 @@ describe("Destinations API", () => {
 
     it("should respect limit parameter", async () => {
       const { res, body } = await get(
-        `/api/destinations?region=${TEST_REGION}&limit=2`,
+        `/api/destinations?country=${TEST_COUNTRY}&limit=2`,
       );
 
       expect(res.status).toBe(200);
@@ -58,7 +57,7 @@ describe("Destinations API", () => {
     it("should paginate correctly with cursor", async () => {
       // Get first page
       const { body: firstPage } = await get(
-        `/api/destinations?region=${TEST_REGION}&limit=2`,
+        `/api/destinations?country=${TEST_COUNTRY}&limit=2`,
       );
 
       expect(firstPage.data.length).toBe(2);
@@ -66,7 +65,7 @@ describe("Destinations API", () => {
 
       // Get second page
       const { body: secondPage } = await get(
-        `/api/destinations?region=${TEST_REGION}&limit=2&cursor=${firstPage.nextCursor}`,
+        `/api/destinations?country=${TEST_COUNTRY}&limit=2&cursor=${firstPage.nextCursor}`,
       );
 
       expect(secondPage.data.length).toBe(1);
@@ -81,7 +80,7 @@ describe("Destinations API", () => {
 
     it("should filter by search term", async () => {
       const { res, body } = await get(
-        `/api/destinations?region=${TEST_REGION}&search=testtokyo`,
+        `/api/destinations?country=${TEST_COUNTRY}&search=testtokyo`,
       );
 
       expect(res.status).toBe(200);
@@ -95,19 +94,22 @@ describe("Destinations API", () => {
 
     it("should filter by region", async () => {
       const { res, body } = await get(
-        `/api/destinations?region=${TEST_REGION}`,
+        `/api/destinations?region=${TEST_REGION}&country=${TEST_COUNTRY}`,
       );
 
       expect(res.status).toBe(200);
       expect(body.data.length).toBe(3);
       expect(
-        body.data.every((d: { region: string }) => d.region === TEST_REGION),
+        body.data.every(
+          (d: { region: string; country: string }) =>
+            d.region === TEST_REGION && d.country === TEST_COUNTRY,
+        ),
       ).toBe(true);
     });
 
     it("should filter by highlight tag", async () => {
       const { res, body } = await get(
-        `/api/destinations?region=${TEST_REGION}&highlight=beaches`,
+        `/api/destinations?region=${TEST_REGION}&country=${TEST_COUNTRY}&highlight=beaches`,
       );
 
       expect(res.status).toBe(200);

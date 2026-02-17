@@ -161,7 +161,7 @@ describe("Hotels API", () => {
       expect(body.id).toBe(hotelId);
       expect(body.name).toBe("Hotel Sakura");
       expect(body.destinationName).toBe("TestTokyo");
-      expect(body.destinationCountry).toBe("Japan");
+      expect(body.destinationCountry).toBe(testDestinations[0].country);
     });
 
     it("should return 404 for non-existent ID", async () => {

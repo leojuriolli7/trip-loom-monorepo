@@ -13,12 +13,15 @@ export function createTestDestinations(
   prefix: string,
   region: (typeof regionValues)[number],
 ): DB_NewDestination[] {
+  const sharedCountry = `TestCountry_${prefix}`;
+  const sharedCountryCode = "TS";
+
   return [
     {
       id: `${prefix}${generateId()}`,
       name: "TestTokyo",
-      country: "Japan",
-      countryCode: "JP",
+      country: sharedCountry,
+      countryCode: sharedCountryCode,
       region,
       timezone: "Asia/Tokyo",
       imageUrl: null,
@@ -29,8 +32,8 @@ export function createTestDestinations(
     {
       id: `${prefix}${generateId()}`,
       name: "TestParis",
-      country: "France",
-      countryCode: "FR",
+      country: sharedCountry,
+      countryCode: sharedCountryCode,
       region,
       timezone: "Europe/Paris",
       imageUrl: null,
@@ -41,8 +44,8 @@ export function createTestDestinations(
     {
       id: `${prefix}${generateId()}`,
       name: "TestBali",
-      country: "Indonesia",
-      countryCode: "ID",
+      country: sharedCountry,
+      countryCode: sharedCountryCode,
       region,
       timezone: "Asia/Makassar",
       imageUrl: null,

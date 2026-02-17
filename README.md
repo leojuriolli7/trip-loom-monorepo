@@ -113,3 +113,10 @@ We still need to implement in our authentication flow:
 - E-mail verification
 
 These can come later, after concrete functionality in the app has been achieved.
+
+## Testing Notes
+
+- Run API tests from monorepo root with `pnpm test:api`.
+- API tests use an isolated database, not your main dev database.
+- The test runner creates and recreates `<DATABASE_URL db name>_test` before running migrations + Vitest.
+- Override the test DB name with `TEST_DATABASE_NAME` when needed.

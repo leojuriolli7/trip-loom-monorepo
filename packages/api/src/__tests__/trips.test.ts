@@ -23,12 +23,38 @@ import {
   trip,
   user,
 } from "../db/schema";
+import {
+  BadRequestError,
+  ConflictError,
+  ForbiddenError,
+  NotFoundError,
+} from "../errors";
 import { auth } from "../lib/auth";
 import { tripRoutes } from "../routes/trips";
 import { createTestContext } from "./utils/test-db";
 
 const ctx = createTestContext("trip");
-const app = new Elysia().use(tripRoutes);
+const app = new Elysia()
+  .error({
+    BadRequestError,
+    NotFoundError,
+    ForbiddenError,
+    ConflictError,
+  })
+  .onError(({ code, error, status }) => {
+    switch (code) {
+      case "BadRequestError":
+      case "NotFoundError":
+      case "ForbiddenError":
+      case "ConflictError":
+        return status(error.status, {
+          error: error.error,
+          message: error.message,
+          statusCode: error.status,
+        });
+    }
+  })
+  .use(tripRoutes);
 const authSpy = vi.spyOn(auth.api, "getSession");
 
 type SeedData = {
@@ -676,6 +702,79 @@ describe("Trips API", () => {
     expect(body.startDate).toBe(startDate);
     expect(body.endDate).toBe(endDate);
     expect(body.status).toBe("upcoming");
+  });
+
+  it("PATCH /api/trips/:id rejects non-draft status when dates are missing", async () => {
+    const { res, body } = await requestJson({
+      method: "PATCH",
+      path: `/api/trips/${seed.upcomingTripId}`,
+      userId: seed.primaryUserId,
+      body: {
+        startDate: null,
+        status: "upcoming",
+      },
+    });
+
+    expect(res.status).toBe(400);
+    expect(body.error).toBe("Bad Request");
+    expect(body.message).toBe(
+      "upcoming/current/past trips require both startDate and endDate",
+    );
+  });
+
+  it("PATCH /api/trips/:id rejects non-draft status when travel plan is missing", async () => {
+    const startDate = dateWithOffset(21);
+    const endDate = dateWithOffset(26);
+
+    const { res, body } = await requestJson({
+      method: "PATCH",
+      path: `/api/trips/${seed.draftTripId}`,
+      userId: seed.primaryUserId,
+      body: {
+        startDate,
+        endDate,
+        status: "upcoming",
+      },
+    });
+
+    expect(res.status).toBe(400);
+    expect(body.error).toBe("Bad Request");
+    expect(body.message).toBe(
+      "upcoming/current/past trips require at least one booking or itinerary",
+    );
+  });
+
+  it("PATCH /api/trips/:id rejects status/date mismatch", async () => {
+    const { res, body } = await requestJson({
+      method: "PATCH",
+      path: `/api/trips/${seed.upcomingTripId}`,
+      userId: seed.primaryUserId,
+      body: {
+        status: "past",
+      },
+    });
+
+    expect(res.status).toBe(400);
+    expect(body.error).toBe("Bad Request");
+    expect(body.message).toContain("Status must match dates.");
+    expect(body.message).toContain("Expected 'upcoming'");
+  });
+
+  it("PATCH /api/trips/:id rejects moving to draft when travel plan exists", async () => {
+    const { res, body } = await requestJson({
+      method: "PATCH",
+      path: `/api/trips/${seed.upcomingTripId}`,
+      userId: seed.primaryUserId,
+      body: {
+        status: "draft",
+      },
+    });
+
+    expect(res.status).toBe(400);
+    expect(body.error).toBe("Bad Request");
+    expect(body.message).toBe(
+      "Trips with bookings or itinerary cannot be set back to draft",
+    );
   });
 
   it("DELETE /api/trips/:id hard deletes trip and related rows", async () => {
