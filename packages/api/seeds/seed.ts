@@ -13,6 +13,8 @@ const args = process.argv.slice(2);
 const isClean = args.includes("--clean");
 const isValidateOnly = args.includes("--validate-only");
 const AIRPORT_BATCH_SIZE = 500;
+const DESTINATION_BATCH_SIZE = 500;
+const HOTEL_BATCH_SIZE = 500;
 
 async function seed() {
   console.log("Validating seed data...");
@@ -62,17 +64,31 @@ async function seed() {
   // Insert destinations
   if (validated.destinations.length > 0) {
     console.log("Inserting destinations...");
-    await db
-      .insert(destination)
-      .values(validated.destinations)
-      .onConflictDoNothing();
+    for (
+      let index = 0;
+      index < validated.destinations.length;
+      index += DESTINATION_BATCH_SIZE
+    ) {
+      const batch = validated.destinations.slice(
+        index,
+        index + DESTINATION_BATCH_SIZE,
+      );
+      await db.insert(destination).values(batch).onConflictDoNothing();
+    }
     console.log(`Inserted ${validated.destinations.length} destinations.`);
   }
 
   // Insert hotels
   if (validated.hotels.length > 0) {
     console.log("Inserting hotels...");
-    await db.insert(hotel).values(validated.hotels).onConflictDoNothing();
+    for (
+      let index = 0;
+      index < validated.hotels.length;
+      index += HOTEL_BATCH_SIZE
+    ) {
+      const batch = validated.hotels.slice(index, index + HOTEL_BATCH_SIZE);
+      await db.insert(hotel).values(batch).onConflictDoNothing();
+    }
     console.log(`Inserted ${validated.hotels.length} hotels.`);
   }
 

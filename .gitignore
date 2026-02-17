@@ -15,3 +15,6 @@ drizzle/
 # for now, ignore seed files
 # packages/api/seeds/*
 plans/*
+
+# source of data for destinations
+packages/api/seeds/sources/geonames/*

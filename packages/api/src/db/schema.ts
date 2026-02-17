@@ -230,6 +230,8 @@ export const destination = pgTable(
     countryCode: text("country_code").notNull(), // ISO 3166-1 alpha-2
     region: regionEnum("region"), // e.g., "Caribbean", "Southeast Asia"
     timezone: text("timezone").notNull(), // IANA timezone
+    latitude: real("latitude"),
+    longitude: real("longitude"),
     imageUrl: text("image_url"),
     description: text("description"),
     highlights: travelInterestEnum("highlights").array(), // e.g., ["beaches", "nightlife"]
@@ -242,6 +244,7 @@ export const destination = pgTable(
   (table) => [
     index("destination_country_code_idx").on(table.countryCode),
     index("destination_region_idx").on(table.region),
+    index("destination_coordinates_idx").on(table.latitude, table.longitude),
     // GIN index for full-text search (added in migration SQL)
   ],
 );
@@ -262,6 +265,8 @@ export const hotel = pgTable(
     latitude: real("latitude"),
     longitude: real("longitude"),
     imageUrl: text("image_url"),
+    source: text("source"),
+    sourceId: text("source_id"),
     starRating: integer("star_rating").notNull(), // 1-5
     amenities: amenityEnum("amenities").array().notNull(), // e.g., ["pool", "spa"]
     priceRange: priceRangeEnum("price_range").notNull(),
@@ -276,6 +281,8 @@ export const hotel = pgTable(
     index("hotel_destination_id_idx").on(table.destinationId),
     index("hotel_price_range_idx").on(table.priceRange),
     index("hotel_star_rating_idx").on(table.starRating),
+    index("hotel_source_idx").on(table.source),
+    unique("hotel_source_source_id_unique").on(table.source, table.sourceId),
     check(
       "hotel_star_rating_check",
       sql`${table.starRating} >= 1 AND ${table.starRating} <= 5`,
