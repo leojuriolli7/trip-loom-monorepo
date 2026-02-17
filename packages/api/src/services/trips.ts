@@ -6,7 +6,6 @@ import {
   ilike,
   inArray,
   or,
-  sql,
   type SQL,
 } from "drizzle-orm";
 import { db } from "../db";
@@ -35,6 +34,7 @@ import type {
 } from "../dto/trips";
 import { isValidDateRange } from "../lib/date-range";
 import { resolveTripStatus } from "../lib/trips/rules";
+import { hasTripTravelPlan } from "../lib/trips/travel-plan";
 import { BadRequestError } from "../errors";
 import { generateId } from "../lib/nanoid";
 import {
@@ -44,7 +44,6 @@ import {
   paginationOrderBy,
 } from "../lib/pagination";
 import {
-  flightBookingSelectFields,
   hotelBookingSelectFields,
   hotelSummarySelectFields,
   itineraryActivitySelectFields,
@@ -55,6 +54,7 @@ import {
   tripDestinationSelectFields,
   tripSelectFields,
 } from "../mappers/trips";
+import { flightBookingSelectFields } from "../mappers/flights";
 
 const buildTripSearchCondition = (
   search: string | undefined,
@@ -112,30 +112,6 @@ const getTripWithDestinationById = async (
   }
 
   return mapTripWithDestination(rows[0]);
-};
-
-const hasTripTravelPlan = async (tripId: string): Promise<boolean> => {
-  const [flightCountRows, hotelCountRows, itineraryCountRows] =
-    await Promise.all([
-      db
-        .select({ count: sql<number>`COUNT(*)::int` })
-        .from(flightBooking)
-        .where(eq(flightBooking.tripId, tripId)),
-      db
-        .select({ count: sql<number>`COUNT(*)::int` })
-        .from(hotelBooking)
-        .where(eq(hotelBooking.tripId, tripId)),
-      db
-        .select({ count: sql<number>`COUNT(*)::int` })
-        .from(itinerary)
-        .where(eq(itinerary.tripId, tripId)),
-    ]);
-
-  const flightCount = flightCountRows[0]?.count ?? 0;
-  const hotelCount = hotelCountRows[0]?.count ?? 0;
-  const itineraryCount = itineraryCountRows[0]?.count ?? 0;
-
-  return flightCount > 0 || hotelCount > 0 || itineraryCount > 0;
 };
 
 export async function listTrips(

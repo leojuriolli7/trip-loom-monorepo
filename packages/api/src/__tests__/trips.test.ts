@@ -11,6 +11,7 @@ import {
 } from "vitest";
 import { db } from "../db";
 import {
+  airport,
   destination,
   flightBooking,
   hotel,
@@ -131,6 +132,41 @@ const seedTripsFixtureData = async () => {
   const upcomingEndDate = dateWithOffset(52);
   const pastStartDate = dateWithOffset(-40);
   const pastEndDate = dateWithOffset(-33);
+
+  const requiredAirports = [
+    {
+      code: "JFK",
+      icao: "KJFK",
+      name: "John F. Kennedy International Airport",
+      city: "New York",
+      countryCode: "TS",
+      continent: "NA",
+      timezone: "America/New_York",
+      latitude: 40.6413,
+      longitude: -73.7781,
+      airportType: "large_airport",
+      scheduledService: true,
+    },
+    {
+      code: "CDG",
+      icao: "LFPG",
+      name: "Paris Charles de Gaulle Airport",
+      city: "Paris",
+      countryCode: "TS",
+      continent: "EU",
+      timezone: "Europe/Paris",
+      latitude: 49.0097,
+      longitude: 2.5479,
+      airportType: "large_airport",
+      scheduledService: true,
+    },
+  ] as const;
+
+  await Promise.all(
+    requiredAirports.map((row) =>
+      db.insert(airport).values(row).onConflictDoNothing(),
+    ),
+  );
 
   await db.insert(user).values([
     {

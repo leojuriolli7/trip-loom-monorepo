@@ -12,7 +12,7 @@ import {
   check,
   customType,
 } from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 // =============================================================================
 // Custom Types
@@ -184,6 +184,38 @@ export const verification = pgTable("verification", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+// =============================================================================
+// Airport
+// =============================================================================
+
+export const airport = pgTable(
+  "airport",
+  {
+    code: text("code").primaryKey(), // IATA/ICAO code, e.g. "JFK" or "KJFK"
+    icao: text("icao"),
+    name: text("name").notNull(),
+    city: text("city"),
+    countryCode: text("country_code").notNull(), // ISO 3166-1 alpha-2
+    continent: text("continent"),
+    timezone: text("timezone").notNull(), // IANA timezone
+    latitude: real("latitude"),
+    longitude: real("longitude"),
+    elevationFt: integer("elevation_ft"),
+    airportType: text("airport_type"),
+    scheduledService: boolean("scheduled_service").notNull().default(false),
+    runwayLength: integer("runway_length"),
+    wikipedia: text("wikipedia"),
+    website: text("website"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("airport_country_code_idx").on(table.countryCode),
+    index("airport_continent_idx").on(table.continent),
+    index("airport_timezone_idx").on(table.timezone),
+  ],
+);
 
 // =============================================================================
 // Destination
@@ -384,12 +416,16 @@ export const flightBooking = pgTable(
     type: flightTypeEnum("type").notNull(),
     flightNumber: text("flight_number").notNull(),
     airline: text("airline").notNull(),
-    departureAirportCode: text("departure_airport_code").notNull(),
+    departureAirportCode: text("departure_airport_code")
+      .notNull()
+      .references(() => airport.code, { onDelete: "restrict" }),
     departureCity: text("departure_city").notNull(),
     departureTime: timestamp("departure_time", {
       withTimezone: true,
     }).notNull(),
-    arrivalAirportCode: text("arrival_airport_code").notNull(),
+    arrivalAirportCode: text("arrival_airport_code")
+      .notNull()
+      .references(() => airport.code, { onDelete: "restrict" }),
     arrivalCity: text("arrival_city").notNull(),
     arrivalTime: timestamp("arrival_time", { withTimezone: true }).notNull(),
     durationMinutes: integer("duration_minutes").notNull(),
@@ -402,6 +438,12 @@ export const flightBooking = pgTable(
   },
   (table) => [
     index("flight_booking_trip_id_idx").on(table.tripId),
+    index("flight_booking_departure_airport_code_idx").on(
+      table.departureAirportCode,
+    ),
+    index("flight_booking_arrival_airport_code_idx").on(
+      table.arrivalAirportCode,
+    ),
     check("flight_booking_price_non_negative", sql`${table.priceInCents} >= 0`),
     check(
       "flight_booking_duration_positive",
@@ -539,4 +581,153 @@ export const itineraryActivity = pgTable(
       sql`${table.estimatedCostInCents} IS NULL OR ${table.estimatedCostInCents} >= 0`,
     ),
   ],
+);
+
+// =============================================================================
+// Relations
+// =============================================================================
+
+export const userRelations = relations(user, ({ many, one }) => ({
+  sessions: many(session),
+  accounts: many(account),
+  trips: many(trip),
+  preference: one(userPreference, {
+    fields: [user.id],
+    references: [userPreference.userId],
+  }),
+}));
+
+export const sessionRelations = relations(session, ({ one }) => ({
+  user: one(user, {
+    fields: [session.userId],
+    references: [user.id],
+  }),
+}));
+
+export const accountRelations = relations(account, ({ one }) => ({
+  user: one(user, {
+    fields: [account.userId],
+    references: [user.id],
+  }),
+}));
+
+export const airportRelations = relations(airport, ({ many }) => ({
+  departingFlights: many(flightBooking, {
+    relationName: "flightDepartureAirport",
+  }),
+  arrivingFlights: many(flightBooking, {
+    relationName: "flightArrivalAirport",
+  }),
+}));
+
+export const destinationRelations = relations(destination, ({ many }) => ({
+  hotels: many(hotel),
+  trips: many(trip),
+}));
+
+export const hotelRelations = relations(hotel, ({ one, many }) => ({
+  destination: one(destination, {
+    fields: [hotel.destinationId],
+    references: [destination.id],
+  }),
+  bookings: many(hotelBooking),
+}));
+
+export const tripRelations = relations(trip, ({ one, many }) => ({
+  user: one(user, {
+    fields: [trip.userId],
+    references: [user.id],
+  }),
+  destination: one(destination, {
+    fields: [trip.destinationId],
+    references: [destination.id],
+  }),
+  flightBookings: many(flightBooking),
+  hotelBookings: many(hotelBooking),
+  payments: many(payment),
+  itinerary: one(itinerary, {
+    fields: [trip.id],
+    references: [itinerary.tripId],
+  }),
+}));
+
+export const userPreferenceRelations = relations(userPreference, ({ one }) => ({
+  user: one(user, {
+    fields: [userPreference.userId],
+    references: [user.id],
+  }),
+}));
+
+export const paymentRelations = relations(payment, ({ one, many }) => ({
+  trip: one(trip, {
+    fields: [payment.tripId],
+    references: [trip.id],
+  }),
+  flightBookings: many(flightBooking),
+  hotelBookings: many(hotelBooking),
+}));
+
+export const flightBookingRelations = relations(flightBooking, ({ one }) => ({
+  trip: one(trip, {
+    fields: [flightBooking.tripId],
+    references: [trip.id],
+  }),
+  payment: one(payment, {
+    fields: [flightBooking.paymentId],
+    references: [payment.id],
+  }),
+  departureAirport: one(airport, {
+    relationName: "flightDepartureAirport",
+    fields: [flightBooking.departureAirportCode],
+    references: [airport.code],
+  }),
+  arrivalAirport: one(airport, {
+    relationName: "flightArrivalAirport",
+    fields: [flightBooking.arrivalAirportCode],
+    references: [airport.code],
+  }),
+}));
+
+export const hotelBookingRelations = relations(hotelBooking, ({ one }) => ({
+  trip: one(trip, {
+    fields: [hotelBooking.tripId],
+    references: [trip.id],
+  }),
+  hotel: one(hotel, {
+    fields: [hotelBooking.hotelId],
+    references: [hotel.id],
+  }),
+  payment: one(payment, {
+    fields: [hotelBooking.paymentId],
+    references: [payment.id],
+  }),
+}));
+
+export const itineraryRelations = relations(itinerary, ({ one, many }) => ({
+  trip: one(trip, {
+    fields: [itinerary.tripId],
+    references: [trip.id],
+  }),
+  days: many(itineraryDay),
+}));
+
+export const itineraryDayRelations = relations(
+  itineraryDay,
+  ({ one, many }) => ({
+    itinerary: one(itinerary, {
+      fields: [itineraryDay.itineraryId],
+      references: [itinerary.id],
+    }),
+    activities: many(itineraryActivity),
+  }),
+);
+
+export const itineraryActivityRelations = relations(
+  itineraryActivity,
+  ({ one }) => ({
+    day: one(itineraryDay, {
+      fields: [itineraryActivity.itineraryDayId],
+      references: [itineraryDay.id],
+    }),
+  }),
 );

@@ -3,7 +3,7 @@ import { tripStatusEnum } from "../db/schema";
 import { isValidDateRange } from "../lib/date-range";
 import { paginationQuerySchema } from "../lib/pagination";
 import { destinationSchema } from "./destinations";
-import { flightBookingSchema, type FlightBookingDTO } from "./flight-bookings";
+import { flightBookingSchema, type FlightBookingDTO } from "./flights";
 import { hotelBookingSchema, type HotelBookingDTO } from "./hotel-bookings";
 import {
   itineraryDetailSchema,

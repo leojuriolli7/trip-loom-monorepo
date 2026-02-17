@@ -37,9 +37,27 @@ export {
   flightBookingStatusValues,
   flightTypeValues,
   flightBookingCabinClassValues,
+  airportSummarySchema,
+  flightSeatSchema,
+  flightSeatRowSchema,
+  flightSeatMapSchema,
+  flightSearchSchema,
+  flightOptionSchema,
   flightBookingSchema,
+  flightBookingDetailSchema,
+  createFlightBookingInputSchema,
+  updateFlightBookingInputSchema,
+  type AirportSummaryDTO,
+  type FlightSeat,
+  type FlightSeatRow,
+  type FlightSeatMap,
+  type FlightSearchQuery,
+  type FlightOptionDTO,
   type FlightBookingDTO,
-} from "./flight-bookings";
+  type FlightBookingDetailDTO,
+  type CreateFlightBookingInput,
+  type UpdateFlightBookingInput,
+} from "./flights";
 
 export {
   hotelBookingStatusValues,

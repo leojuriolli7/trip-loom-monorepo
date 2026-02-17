@@ -5,6 +5,9 @@ import * as schema from "./schema";
 export type DB_Destination = InferSelectModel<typeof schema.destination>;
 export type DB_NewDestination = InferInsertModel<typeof schema.destination>;
 
+export type DB_Airport = InferSelectModel<typeof schema.airport>;
+export type DB_NewAirport = InferInsertModel<typeof schema.airport>;
+
 export type DB_Hotel = InferSelectModel<typeof schema.hotel>;
 export type DB_NewHotel = InferInsertModel<typeof schema.hotel>;
 
