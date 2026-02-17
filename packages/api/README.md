@@ -49,34 +49,35 @@ export const GET = app.handle;
 export const POST = app.handle;
 ```
 
-### `@trip-loom/api/client`
+### `@trip-loom/api/dto`
 
-Type-safe Eden client for consuming the API from anywhere.
+Shared API DTOs and enum values for consumers (frontend, MCP server, etc).
 
 ```typescript
-import { createApiClient } from "@trip-loom/api/client";
-
-const api = createApiClient("http://localhost:3000");
-
-// Fully typed - TypeScript knows the response shape
-const { data, error } = await api.api.health.get();
+import type { TripWithDestinationDTO } from "@trip-loom/api/dto";
+import { tripStatusValues } from "@trip-loom/api/dto";
 ```
 
 ## Structure
 
 ```
 src/
-├── index.ts      # Main Elysia app, exports `app` and `type App`
-├── client.ts     # Eden client factory, exports `createApiClient`
-├── env.d.ts      # Environment variable type definitions
+├── index.ts                # Main Elysia app, exports `app` and `type App`
 ├── db/
-│   ├── index.ts  # Database connection (Drizzle + Postgres)
-│   └── schema.ts # Drizzle schema (includes Better Auth tables)
-├── lib/
-│   └── auth.ts   # Better Auth configuration
-└── routes/       # Route modules
-    ├── auth.ts   # Authentication routes (Better Auth)
-    └── health.ts # Health check endpoint
+│   ├── index.ts            # Database connection (Drizzle + Postgres)
+│   └── schema.ts           # Drizzle schema (includes Better Auth tables)
+├── dto/                    # API contracts (zod schemas + TS types)
+├── mappers/                # Select field sets + row-to-DTO mappers
+├── services/               # DB orchestration and business logic
+├── routes/                 # Route modules
+├── errors/
+│   └── http-errors.ts      # Shared custom HTTP errors
+└── lib/
+    ├── auth.ts             # Better Auth configuration
+    ├── auth-plugin.ts      # Auth macro plugin (`auth: true`)
+    ├── pagination.ts       # Cursor pagination helpers
+    ├── date-range.ts       # Shared date-range validation helper
+    └── [domain]/           # Domain rules (eg. `lib/trips/rules.ts`)
 ```
 
 ## Adding Routes
@@ -97,12 +98,54 @@ Then register in `src/index.ts`:
 
 ```typescript
 import { tripsRoutes } from "./routes/trips";
+import { auth } from "./lib/auth";
 
 export const app = new Elysia({ name: "api" })
-  .use(authRoutes)
+  .mount(auth.handler)
   .use(healthRoutes)
   .use(tripsRoutes); // Add new routes here
 ```
+
+## Error Handling Conventions
+
+Business-rule failures should be thrown from services/domain helpers using shared custom HTTP errors.
+
+```typescript
+import { BadRequestError } from "../errors";
+
+if (!isValidDateRange(startDate, endDate)) {
+  throw new BadRequestError("startDate must be before or equal to endDate");
+}
+```
+
+These errors are registered once in `src/index.ts` and formatted in a single app-level `onError` handler.
+
+```typescript
+import {
+  BadRequestError,
+  NotFoundError,
+  ForbiddenError,
+  ConflictError,
+} from "./errors";
+
+export const app = new Elysia({ name: "api" })
+  .error({ BadRequestError, NotFoundError, ForbiddenError, ConflictError })
+  .onError(({ code, error, status }) => {
+    switch (code) {
+      case "BadRequestError":
+      case "NotFoundError":
+      case "ForbiddenError":
+      case "ConflictError":
+        return status(error.status, {
+          error: error.error,
+          message: error.message,
+          statusCode: error.status,
+        });
+    }
+  });
+```
+
+This keeps route modules thin and avoids repetitive per-route `try/catch` blocks for expected domain errors.
 
 ## Authentication
 

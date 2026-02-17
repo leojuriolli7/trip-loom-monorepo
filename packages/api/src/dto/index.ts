@@ -32,3 +32,51 @@ export {
   type HotelDTO,
   type HotelQuery,
 } from "./hotels";
+
+export {
+  flightBookingStatusValues,
+  flightTypeValues,
+  flightBookingCabinClassValues,
+  flightBookingSchema,
+  type FlightBookingDTO,
+} from "./flight-bookings";
+
+export {
+  hotelBookingStatusValues,
+  hotelBookingSchema,
+  type HotelBookingDTO,
+} from "./hotel-bookings";
+
+export {
+  itineraryActivitySchema,
+  itineraryDaySchema,
+  itineraryDetailSchema,
+  type ItineraryActivityDTO,
+  type ItineraryDayDTO,
+  type ItineraryDetailDTO,
+} from "./itineraries";
+
+export {
+  paymentStatusValues,
+  paymentSchema,
+  type PaymentDTO,
+} from "./payments";
+
+export {
+  tripStatusValues,
+  tripSchema,
+  tripWithDestinationSchema,
+  tripDetailSchema,
+  createTripInputSchema,
+  updateTripInputSchema,
+  tripQuerySchema,
+  type TripDTO,
+  type TripWithDestinationDTO,
+  type TripFlightBookingDTO,
+  type TripHotelBookingDTO,
+  type TripPaymentDTO,
+  type TripDetailDTO,
+  type CreateTripInput,
+  type UpdateTripInput,
+  type TripQuery,
+} from "./trips";

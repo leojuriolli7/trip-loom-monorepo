@@ -8,6 +8,8 @@ This is the backend API for TripLoom, built with **Elysia** (TypeScript web fram
 packages/api/
 ├── src/
 │   ├── index.ts              # Main app entry, registers all routes
+│   ├── errors/               # Custom HTTP error classes
+│   │   └── http-errors.ts
 │   ├── db/
 │   │   ├── index.ts          # Database connection
 │   │   └── schema.ts         # Drizzle schema definitions
@@ -17,10 +19,12 @@ packages/api/
 │   ├── lib/
 │   │   ├── auth.ts           # Better Auth configuration
 │   │   ├── auth-plugin.ts    # Elysia auth plugin with macros
+│   │   ├── date-range.ts     # Shared date range validation helpers
 │   │   ├── nanoid.ts         # ID generation
 │   │   ├── pagination.ts     # Pagination helpers and query builders
+│   │   └── [domain]/         # Domain rules and pure business helpers
 │   ├── mappers/              # Field projections for queries
-│   │   └── [domain].ts       # e.g., destinationSelectFields
+│   │   └── [domain].ts       # e.g., destinationSelectFields + row-to-DTO mappers
 │   ├── routes/               # Elysia route handlers
 │   │   └── [domain].ts       # e.g., destinations.ts
 │   ├── services/             # Business logic
@@ -166,6 +170,30 @@ export const itemRoutes = new Elysia({
   });
 ```
 
+### 4.1 Error Handling Pattern (Required)
+
+Use custom HTTP errors from `src/errors/http-errors.ts` for business-rule failures in services and domain-rule helpers.
+
+```typescript
+import { BadRequestError } from "../errors/http-errors";
+
+if (!isValidDateRange(startDate, endDate)) {
+  throw new BadRequestError("startDate must be before or equal to endDate");
+}
+```
+
+Register custom errors once in `src/index.ts` using `.error(...)` + `.onError(...)` and return the standardized shape:
+
+```typescript
+{
+  error: string;
+  message: string;
+  statusCode: number;
+}
+```
+
+Routes should stay thin and avoid local `try/catch` for expected business errors.
+
 ### 5. Register Routes (`src/index.ts`)
 
 ```typescript
@@ -210,24 +238,24 @@ describe("Items API", () => {
 ## Authentication
 
 Use split auth plugins:
-- `authHandlerPlugin` at app root (mounts Better Auth HTTP handlers)
-- `authMacroPlugin` in protected route modules (enables `{ auth: true }` and typed `user/session`)
+- `auth.handler` mounted at app root (mounts Better Auth HTTP handlers)
+- `requireAuthMacro` in protected route modules (enables `{ auth: true }` and typed `user/session`)
 
 ```typescript
 // src/index.ts (root app)
-import { authHandlerPlugin } from "./lib/auth-plugin";
+import { auth } from "./lib/auth";
 
 export const app = new Elysia({ name: "api" })
-  .use(authHandlerPlugin)
+  .mount(auth.handler)
   .use(tripRoutes);
 ```
 
 ```typescript
 // src/routes/trips.ts (protected module)
-import { authMacroPlugin } from "../lib/auth-plugin";
+import { requireAuthMacro } from "../lib/auth-plugin";
 
 export const tripRoutes = new Elysia({ name: "trips", prefix: "/api/trips" })
-  .use(authMacroPlugin)
+  .use(requireAuthMacro)
   // Public route (no auth)
   .get("/featured", () => getFeaturedTrips())
   // Protected route - just add { auth: true }
@@ -279,6 +307,12 @@ Response shape:
 
 ### `mappers/[domain].ts`
 - Define `*SelectFields` constants to avoid duplicating field lists
+- For complex domains, also keep row-to-DTO mapping helpers here (not in service files)
+
+### `errors/http-errors.ts`
+- Shared typed HTTP errors (`BadRequestError`, `NotFoundError`, etc.)
+- Services and domain-rule helpers throw these for business-rule failures
+- `src/index.ts` has the single `.onError(...)` mapping for response formatting
 
 ## Consistency Rules
 
@@ -446,10 +480,10 @@ export function createTestDestinations(
 ## Best Practices
 
 1. **Always extend shared schemas** - Never duplicate pagination fields
-2. **Always use mappers** - Define `*SelectFields` for consistency
+2. **Always use mappers** - Define `*SelectFields` (and row mappers for complex domains) for consistency
 3. **Always use shared helpers** - `combineConditions`, `buildCursorCondition`, etc.
 4. **Always define response schemas** - Both list and detail endpoints
-5. **Use `status()` for errors** - Better type inference than `set.status`
+5. **Throw custom HTTP errors in services/domain rules** - Keep HTTP error formatting centralized in app-level `onError`
 6. **Keep services DB-focused** - Business logic in services, HTTP in routes
 7. **Test all endpoints** - Pagination, filters, 404s, auth
 8. **Keep exports minimal** - If a symbol is unused, remove it
