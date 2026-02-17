@@ -185,15 +185,19 @@ export async function getFlightBooking(
     return null;
   }
 
-  const booking = await getFlightBookingById(tripId, bookingId);
-  if (!booking) {
+  const bookingWithAirports = await db.query.flightBooking.findFirst({
+    where: and(eq(flightBooking.tripId, tripId), eq(flightBooking.id, bookingId)),
+    with: {
+      departureAirport: true,
+      arrivalAirport: true,
+    },
+  });
+
+  if (!bookingWithAirports) {
     return null;
   }
 
-  const [departureAirport, arrivalAirport] = await Promise.all([
-    getAirportByCode(booking.departureAirportCode),
-    getAirportByCode(booking.arrivalAirportCode),
-  ]);
+  const { departureAirport, arrivalAirport, ...booking } = bookingWithAirports;
 
   const seatMapData = generateSeatMapForFlight({
     seedKey: buildSeatMapSeedKey({

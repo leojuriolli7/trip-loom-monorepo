@@ -1,6 +1,6 @@
-import { eq, sql, arrayContains, gte } from "drizzle-orm";
+import { eq, arrayContains, gte } from "drizzle-orm";
 import { db } from "../db";
-import { hotel, destination } from "../db/schema";
+import { hotel } from "../db/schema";
 import type {
   HotelDTO,
   HotelQuery,
@@ -48,20 +48,27 @@ export async function listHotels(
 export async function getHotelById(
   id: string
 ): Promise<HotelWithDestinationDTO | null> {
-  const results = await db
-    .select({
-      ...hotelSelectFields,
-      destinationName: destination.name,
-      destinationCountry: destination.country,
-    })
-    .from(hotel)
-    .innerJoin(destination, eq(hotel.destinationId, destination.id))
-    .where(eq(hotel.id, id))
-    .limit(1);
+  const result = await db.query.hotel.findFirst({
+    where: eq(hotel.id, id),
+    with: {
+      destination: {
+        columns: {
+          name: true,
+          country: true,
+        },
+      },
+    },
+  });
 
-  if (results.length === 0) {
+  if (!result || !result.destination) {
     return null;
   }
 
-  return results[0];
+  const { destination: hotelDestination, ...hotelRow } = result;
+
+  return {
+    ...hotelRow,
+    destinationName: hotelDestination.name,
+    destinationCountry: hotelDestination.country,
+  };
 }
