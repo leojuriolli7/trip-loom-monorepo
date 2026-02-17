@@ -615,6 +615,23 @@ describe("Trips API", () => {
     );
   });
 
+  it("PATCH /api/trips/:id rejects clearing a required date even when status is omitted", async () => {
+    const { res, body } = await requestJson({
+      method: "PATCH",
+      path: `/api/trips/${seed.upcomingTripId}`,
+      userId: seed.primaryUserId,
+      body: {
+        startDate: null,
+      },
+    });
+
+    expect(res.status).toBe(400);
+    expect(body.error).toBe("Bad Request");
+    expect(body.message).toBe(
+      "upcoming/current/past trips require both startDate and endDate",
+    );
+  });
+
   it("PATCH /api/trips/:id rejects non-draft status when travel plan is missing", async () => {
     const startDate = dateWithOffset(21);
     const endDate = dateWithOffset(26);

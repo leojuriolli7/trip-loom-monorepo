@@ -632,6 +632,40 @@ describe("Hotel Bookings API", () => {
       expect([400, 422]).toContain(res.status);
     });
 
+    it("rejects update when only checkInDate is changed beyond current checkOutDate", async () => {
+      const { res, body } = await requestJson({
+        method: "PATCH",
+        path: `/api/trips/${seed.upcomingTripId}/hotels/${seed.primaryBookingId}`,
+        userId: seed.primaryUserId,
+        body: {
+          checkInDate: dateWithOffset(44),
+        },
+      });
+
+      expect(res.status).toBe(400);
+      expect(body).toMatchObject({
+        error: "Bad Request",
+        message: "checkOutDate must be after checkInDate",
+      });
+    });
+
+    it("rejects update when only checkOutDate is changed before current checkInDate", async () => {
+      const { res, body } = await requestJson({
+        method: "PATCH",
+        path: `/api/trips/${seed.upcomingTripId}/hotels/${seed.primaryBookingId}`,
+        userId: seed.primaryUserId,
+        body: {
+          checkOutDate: dateWithOffset(39),
+        },
+      });
+
+      expect(res.status).toBe(400);
+      expect(body).toMatchObject({
+        error: "Bad Request",
+        message: "checkOutDate must be after checkInDate",
+      });
+    });
+
     it("returns 404 for non-existent booking", async () => {
       const { res, body } = await requestJson({
         method: "PATCH",

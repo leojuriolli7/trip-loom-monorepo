@@ -84,4 +84,16 @@ describe("Trip status rules", () => {
       }),
     ).toThrowError("startDate must be before or equal to endDate");
   });
+
+  it("derived statuses cannot remain without both start and end dates", () => {
+    expect(() =>
+      resolveTripStatus({
+        currentStatus: "upcoming",
+        requestedStatus: undefined,
+        startDate: null,
+        endDate: "2026-03-01",
+        hasTravelPlan: true,
+      }),
+    ).toThrowError("upcoming/current/past trips require both startDate and endDate");
+  });
 });

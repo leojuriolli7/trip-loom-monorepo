@@ -110,6 +110,17 @@ const getActivityMeta = async (
   return rows[0] ?? null;
 };
 
+const isUniqueViolationError = (
+  error: unknown,
+): error is { code: string; constraint_name?: string; constraint?: string } => {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const value = error as { code?: unknown };
+  return value.code === "23505";
+};
+
 // =============================================================================
 // Itinerary Operations
 // =============================================================================
@@ -145,48 +156,103 @@ export async function createItinerary(
     return null;
   }
 
-  // Check if itinerary already exists (1:1 relationship)
-  const existing = await getItineraryMeta(tripId);
-  if (existing) {
-    throw new ConflictError("Itinerary already exists for this trip");
+  // First, ensure no duplicate day numbers were sent:
+  const dayNumbers = new Set<number>();
+
+  for (const day of input.days) {
+    if (dayNumbers.has(day.dayNumber)) {
+      throw new ConflictError(
+        "Itinerary payload has duplicate dayNumber or duplicate activity orderIndex",
+      );
+    }
+
+    dayNumbers.add(day.dayNumber);
+
+    const activityOrderIndexes = new Set<number>();
+    for (const activity of day.activities) {
+      if (activityOrderIndexes.has(activity.orderIndex)) {
+        throw new ConflictError(
+          "Itinerary payload has duplicate dayNumber or duplicate activity orderIndex",
+        );
+      }
+
+      activityOrderIndexes.add(activity.orderIndex);
+    }
   }
 
-  const itineraryId = generateId();
+  try {
+    await db.transaction(async (tx) => {
+      // Check if itinerary already exists (1:1 relationship)
+      const existing = await tx
+        .select({ id: itinerary.id })
+        .from(itinerary)
+        .where(eq(itinerary.tripId, tripId))
+        .limit(1);
 
-  // Create itinerary
-  await db.insert(itinerary).values({
-    id: itineraryId,
-    tripId,
-  });
+      if (existing.length > 0) {
+        throw new ConflictError("Itinerary already exists for this trip");
+      }
 
-  // Create days and activities if provided
-  for (const dayInput of input.days) {
-    const dayId = generateId();
-
-    await db.insert(itineraryDay).values({
-      id: dayId,
-      itineraryId,
-      dayNumber: dayInput.dayNumber,
-      date: dayInput.date,
-      title: dayInput.title ?? null,
-      notes: dayInput.notes ?? null,
-    });
-
-    // Create activities for this day
-    for (const activityInput of dayInput.activities) {
-      await db.insert(itineraryActivity).values({
-        id: generateId(),
-        itineraryDayId: dayId,
-        orderIndex: activityInput.orderIndex,
-        title: activityInput.title,
-        description: activityInput.description ?? null,
-        startTime: activityInput.startTime ?? null,
-        endTime: activityInput.endTime ?? null,
-        location: activityInput.location ?? null,
-        locationUrl: activityInput.locationUrl ?? null,
-        estimatedCostInCents: activityInput.estimatedCostInCents ?? null,
+      const itineraryId = generateId();
+      await tx.insert(itinerary).values({
+        id: itineraryId,
+        tripId,
       });
+
+      // Create days and activities if provided
+      for (const dayInput of input.days) {
+        const dayId = generateId();
+
+        await tx.insert(itineraryDay).values({
+          id: dayId,
+          itineraryId,
+          dayNumber: dayInput.dayNumber,
+          date: dayInput.date,
+          title: dayInput.title ?? null,
+          notes: dayInput.notes ?? null,
+        });
+
+        if (dayInput.activities.length > 0) {
+          await tx.insert(itineraryActivity).values(
+            dayInput.activities.map((activityInput) => ({
+              id: generateId(),
+              itineraryDayId: dayId,
+              orderIndex: activityInput.orderIndex,
+              title: activityInput.title,
+              description: activityInput.description ?? null,
+              startTime: activityInput.startTime ?? null,
+              endTime: activityInput.endTime ?? null,
+              location: activityInput.location ?? null,
+              locationUrl: activityInput.locationUrl ?? null,
+              estimatedCostInCents: activityInput.estimatedCostInCents ?? null,
+            })),
+          );
+        }
+      }
+    });
+  } catch (error) {
+    if (error instanceof ConflictError) {
+      throw error;
     }
+
+    if (isUniqueViolationError(error)) {
+      const constraint = error.constraint_name ?? error.constraint;
+
+      if (constraint === "itinerary_trip_id_unique") {
+        throw new ConflictError("Itinerary already exists for this trip");
+      }
+
+      if (
+        constraint === "itinerary_day_unique" ||
+        constraint === "itinerary_activity_order_unique"
+      ) {
+        throw new ConflictError(
+          "Itinerary payload has duplicate dayNumber or duplicate activity orderIndex",
+        );
+      }
+    }
+
+    throw error;
   }
 
   // Refresh trip status (may transition draft -> upcoming if dates are set)

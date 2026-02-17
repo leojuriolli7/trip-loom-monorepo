@@ -545,6 +545,39 @@ describe("Itineraries API", () => {
       });
     });
 
+    it("rolls back itinerary creation when nested day numbers conflict", async () => {
+      const { res, body } = await requestJson({
+        method: "POST",
+        path: `/api/trips/${seed.tripWithoutItineraryId}/itinerary`,
+        userId: seed.primaryUserId,
+        body: {
+          days: [
+            {
+              dayNumber: 1,
+              date: dateWithOffset(40),
+            },
+            {
+              dayNumber: 1,
+              date: dateWithOffset(41),
+            },
+          ],
+        },
+      });
+
+      expect(res.status).toBe(409);
+      expect(body).toMatchObject({
+        error: "Conflict",
+        message:
+          "Itinerary payload has duplicate dayNumber or duplicate activity orderIndex",
+      });
+
+      const itineraryRows = await db
+        .select({ id: itinerary.id })
+        .from(itinerary)
+        .where(eq(itinerary.tripId, seed.tripWithoutItineraryId));
+      expect(itineraryRows).toHaveLength(0);
+    });
+
     it("returns 404 for non-existent trip", async () => {
       const { res, body } = await requestJson({
         method: "POST",

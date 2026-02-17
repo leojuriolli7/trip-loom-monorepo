@@ -7,7 +7,8 @@ import type {
   HotelSummaryDTO,
   UpdateHotelBookingInput,
 } from "../dto/hotel-bookings";
-import { NotFoundError } from "../errors";
+import { BadRequestError, NotFoundError } from "../errors";
+import { isValidDateRange } from "../lib/date-range";
 import { generateId } from "../lib/nanoid";
 import { getOwnedTripMeta, refreshTripStatus } from "../lib/trips/ownership";
 import { hotelSummarySelectFields } from "../mappers/hotel-bookings";
@@ -213,6 +214,13 @@ export async function updateHotelBooking(
   const finalCheckOutDate = input.checkOutDate ?? existing.checkOutDate;
   const finalPricePerNight =
     input.pricePerNightInCents ?? existing.pricePerNightInCents;
+
+  if (
+    !isValidDateRange(finalCheckInDate, finalCheckOutDate) ||
+    finalCheckInDate === finalCheckOutDate
+  ) {
+    throw new BadRequestError("checkOutDate must be after checkInDate");
+  }
 
   // Check if we need to recalculate nights and total
   const datesChanged =

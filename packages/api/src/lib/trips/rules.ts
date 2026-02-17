@@ -4,6 +4,7 @@ import { BadRequestError } from "../../errors";
 
 export type TripStatus = (typeof tripStatusEnum.enumValues)[number];
 type TripDerivedStatus = "upcoming" | "current" | "past";
+const derivedTripStatuses = new Set<TripStatus>(["upcoming", "current", "past"]);
 
 const deriveTripStatusFromDates = (
   startDate: string,
@@ -77,6 +78,12 @@ export const resolveTripStatus = ({
 
   if (currentStatus === "cancelled") {
     return currentStatus;
+  }
+
+  if (derivedTripStatuses.has(currentStatus) && (!startDate || !endDate)) {
+    throw new BadRequestError(
+      "upcoming/current/past trips require both startDate and endDate",
+    );
   }
 
   if (!startDate || !endDate || !hasTravelPlan) {
