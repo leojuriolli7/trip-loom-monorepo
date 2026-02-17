@@ -20,6 +20,9 @@ export const hotelQueries = {
     const { cursor: _cursor, ...queryWithoutCursor } = query;
 
     return infiniteQueryOptions({
+      select(data) {
+        return data?.pages.flatMap((page) => page.data) || [];
+      },
       queryKey: KEYS.list(queryWithoutCursor),
       initialPageParam: query.cursor,
       getNextPageParam: (lastPage: PaginatedResponse<HotelDTO>) =>

@@ -30,12 +30,12 @@ interface AirplaneSeatViewProps {
    * Called when user confirms seat selection.
    * TODO: Will trigger AI booking flow
    */
-  onConfirm?: (seatId: string, seatPriceInCents: number) => void;
+  onConfirm: (seatId: string, seatPriceInCents: number) => void;
   /**
    * Called when user cancels seat selection.
    * TODO: Will close the seat picker widget
    */
-  onCancel?: () => void;
+  onCancel: () => void;
   /**
    * Called when user wants to request changes.
    * TODO: Will send message to AI for different options

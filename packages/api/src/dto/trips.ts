@@ -15,6 +15,8 @@ import { paymentSchema, type PaymentDTO } from "./payments";
 
 export const tripStatusValues = tripStatusEnum.enumValues;
 
+export type TripStatusValues = (typeof tripStatusValues)[number];
+
 const isoDateSchema = z.string().date();
 
 const destinationSummarySchema = destinationSchema
@@ -68,13 +70,10 @@ export const createTripInputSchema = z
     startDate: isoDateSchema.nullable().optional(),
     endDate: isoDateSchema.nullable().optional(),
   })
-  .refine(
-    (value) => isValidDateRange(value.startDate, value.endDate),
-    {
-      message: "startDate must be before or equal to endDate",
-      path: ["endDate"],
-    },
-  );
+  .refine((value) => isValidDateRange(value.startDate, value.endDate), {
+    message: "startDate must be before or equal to endDate",
+    path: ["endDate"],
+  });
 
 export type CreateTripInput = z.infer<typeof createTripInputSchema>;
 
@@ -86,13 +85,10 @@ export const updateTripInputSchema = z
     startDate: isoDateSchema.nullable().optional(),
     endDate: isoDateSchema.nullable().optional(),
   })
-  .refine(
-    (value) => isValidDateRange(value.startDate, value.endDate),
-    {
-      message: "startDate must be before or equal to endDate",
-      path: ["endDate"],
-    },
-  );
+  .refine((value) => isValidDateRange(value.startDate, value.endDate), {
+    message: "startDate must be before or equal to endDate",
+    path: ["endDate"],
+  });
 
 export type UpdateTripInput = z.infer<typeof updateTripInputSchema>;
 

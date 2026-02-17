@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/field";
 import { authClient } from "@/lib/api/auth-client";
 import { Spinner } from "@/components/ui/spinner";
+import { useQueryClient } from "@tanstack/react-query";
+import { userPreferencesQueries } from "@/lib/api/react-query/user-preferences";
 
 const signInSchema = z.object({
   email: z.email("Invalid e-mail address").min(1, "Email is required"),
@@ -35,6 +37,8 @@ export function SignInForm() {
     },
   });
 
+  const queryClient = useQueryClient();
+
   async function onSubmit(data: SignInFormData) {
     try {
       const { error } = await authClient.signIn.email({
@@ -46,6 +50,15 @@ export function SignInForm() {
         toast.error(error.message || "Invalid credentials");
         return;
       }
+
+      /**
+       * Optimization: Prefetch the data the user might need as soon as they login.
+       * For example: immediately prefetch user preferences.
+       * Later on, we can prefetch more stuff, like past trips and top trips.
+       */
+      void queryClient.prefetchQuery(
+        userPreferencesQueries.getUserPreferences(),
+      );
 
       toast.success("Welcome back!");
       router.push("/");

@@ -102,9 +102,7 @@ export function CreateTripStep() {
         <form onSubmit={handleSubmit}>
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="trip-title">
-                Trip Title (Optional)
-              </FieldLabel>
+              <FieldLabel htmlFor="trip-title">Trip Title</FieldLabel>
               <Input
                 id="trip-title"
                 type="text"

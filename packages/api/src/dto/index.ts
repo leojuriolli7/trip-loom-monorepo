@@ -124,4 +124,5 @@ export {
   type CreateTripInput,
   type UpdateTripInput,
   type TripQuery,
+  type TripStatusValues,
 } from "./trips";

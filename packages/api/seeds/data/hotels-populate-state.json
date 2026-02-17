@@ -1,7 +1,7 @@
 {
   "version": 1,
   "createdAt": "2026-02-17T11:55:21.052Z",
-  "updatedAt": "2026-02-17T20:33:23.093Z",
+  "updatedAt": "2026-02-17T22:42:31.100Z",
   "batchSize": 120,
   "countries": {
     "AD": {
@@ -201,6 +201,69 @@
       "done": true,
       "lastError": null,
       "updatedAt": "2026-02-17T20:33:23.093Z"
+    },
+    "BJ": {
+      "totalDestinations": 76,
+      "nextOffset": 76,
+      "completedBatches": 1,
+      "failedBatches": 0,
+      "done": true,
+      "lastError": null,
+      "updatedAt": "2026-02-17T20:40:48.989Z"
+    },
+    "BL": {
+      "totalDestinations": 1,
+      "nextOffset": 1,
+      "completedBatches": 1,
+      "failedBatches": 0,
+      "done": true,
+      "lastError": null,
+      "updatedAt": "2026-02-17T20:41:11.584Z"
+    },
+    "BM": {
+      "totalDestinations": 9,
+      "nextOffset": 9,
+      "completedBatches": 1,
+      "failedBatches": 0,
+      "done": true,
+      "lastError": null,
+      "updatedAt": "2026-02-17T20:42:11.764Z"
+    },
+    "BN": {
+      "totalDestinations": 27,
+      "nextOffset": 27,
+      "completedBatches": 1,
+      "failedBatches": 0,
+      "done": true,
+      "lastError": null,
+      "updatedAt": "2026-02-17T20:46:08.661Z"
+    },
+    "BO": {
+      "totalDestinations": 73,
+      "nextOffset": 73,
+      "completedBatches": 1,
+      "failedBatches": 0,
+      "done": true,
+      "lastError": null,
+      "updatedAt": "2026-02-17T20:58:43.286Z"
+    },
+    "BQ": {
+      "totalDestinations": 1,
+      "nextOffset": 1,
+      "completedBatches": 1,
+      "failedBatches": 0,
+      "done": true,
+      "lastError": null,
+      "updatedAt": "2026-02-17T20:59:01.564Z"
+    },
+    "BR": {
+      "totalDestinations": 4409,
+      "nextOffset": 240,
+      "completedBatches": 2,
+      "failedBatches": 1,
+      "done": false,
+      "lastError": "Generator exited with code 1",
+      "updatedAt": "2026-02-17T22:42:31.100Z"
     }
   }
 }

@@ -111,6 +111,10 @@ Client examples: https://modelcontextprotocol.io/clients
   However, the hotels database is not working properly, eg: Park Hyatt in Sydney is marked as a hotel from the destination "Wollstonecraft" instead.
 
   Likely better approach: Similarly to flights, generate hotel options on-the-fly. 
+  
+2. About trips DTO (`listTrips`): Trip with destination must return trip image url + destination image url. 
+  Also must return boolean of `flights`, `itinerary` and `hotel`. 
+  Also must return destination always (no `null`)
 
 ### 6. For later
 
