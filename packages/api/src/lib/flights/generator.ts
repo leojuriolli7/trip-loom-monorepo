@@ -23,11 +23,7 @@ const CABIN_MULTIPLIER: Record<CabinClass, number> = {
 };
 
 const CABIN_LAYOUTS: Record<CabinClass, number[][]> = {
-  economy: [
-    [3, 3],
-    [2, 3, 2],
-    [3, 4, 3],
-  ],
+  economy: [[3, 3]],
   business: [
     [2, 2],
     [1, 2, 1],

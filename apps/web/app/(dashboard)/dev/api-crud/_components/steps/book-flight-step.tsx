@@ -10,7 +10,7 @@ import {
   type FlightOptionDTO,
   type FlightSeat,
 } from "@trip-loom/api/dto";
-import { PlaneIcon, ClockIcon, CheckIcon } from "lucide-react";
+import { PlaneIcon, ClockIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { AirplaneSeatView } from "@/components/tools-ui/airplane-seat-view";
 import { flightQueries } from "@/lib/api/react-query/flights";
 import { useWizard } from "../wizard-context";
 
@@ -47,7 +48,7 @@ type BookFlightStepProps = {
   flightType: "outbound" | "return";
 };
 
-type Step = "search" | "select-seat" | "confirm";
+type Step = "search" | "select-seat";
 
 export function BookFlightStep({ flightType }: BookFlightStepProps) {
   const { trip, destination, setOutboundFlight, setReturnFlight, nextStep } =
@@ -85,9 +86,6 @@ export function BookFlightStep({ flightType }: BookFlightStepProps) {
   });
   const [selectedFlight, setSelectedFlight] =
     React.useState<FlightOptionDTO | null>(null);
-  const [selectedSeat, setSelectedSeat] = React.useState<FlightSeat | null>(
-    null,
-  );
   const [hasSearched, setHasSearched] = React.useState(false);
 
   // Search flights query
@@ -110,23 +108,21 @@ export function BookFlightStep({ flightType }: BookFlightStepProps) {
     e.preventDefault();
     setHasSearched(true);
     setSelectedFlight(null);
-    setSelectedSeat(null);
     setCurrentStep("search");
   };
 
   const handleSelectFlight = (flight: FlightOptionDTO) => {
     setSelectedFlight(flight);
-    setSelectedSeat(null);
     setCurrentStep("select-seat");
   };
 
-  const handleSelectSeat = (seat: FlightSeat) => {
-    if (seat.isBooked) return;
-    setSelectedSeat(seat);
-  };
+  const handleBook = async (selectedSeat: FlightSeat) => {
+    if (selectedSeat.isBooked) {
+      toast.error("Selected seat is already booked");
+      return;
+    }
 
-  const handleBook = async () => {
-    if (!trip || !selectedFlight || !selectedSeat) {
+    if (!trip || !selectedFlight) {
       toast.error("Please select a flight and seat");
       return;
     }
@@ -274,16 +270,18 @@ export function BookFlightStep({ flightType }: BookFlightStepProps) {
               {flightDate ? format(new Date(flightDate), "PPP") : "Not set"}
             </div>
 
-            <Button type="submit" disabled={searchQuery.isFetching}>
-              {searchQuery.isFetching ? (
-                <>
-                  <Spinner />
-                  Searching...
-                </>
-              ) : (
-                "Search Flights"
-              )}
-            </Button>
+            {currentStep === "search" && (
+              <Button type="submit" disabled={searchQuery.isFetching}>
+                {searchQuery.isFetching ? (
+                  <>
+                    <Spinner />
+                    Searching...
+                  </>
+                ) : (
+                  "Search Flights"
+                )}
+              </Button>
+            )}
           </FieldGroup>
         </form>
 
@@ -391,141 +389,32 @@ export function BookFlightStep({ flightType }: BookFlightStepProps) {
         )}
 
         {/* Seat Selection */}
-        {/* TODO: Use airplane-seat-view instead. */}
         {currentStep === "select-seat" && selectedFlight && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-medium">Select Your Seat</h3>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setCurrentStep("search")}
-              >
-                Back to flights
-              </Button>
+            <div className="flex justify-center">
+              <AirplaneSeatView
+                key={selectedFlight.id}
+                title="Select Your Seat"
+                flight={selectedFlight}
+                onConfirm={(seatId) => {
+                  if (createFlightMutation.isPending) {
+                    return;
+                  }
+
+                  const seat = selectedFlight.seatMap
+                    .flatMap((row) => row.sections.flat())
+                    .find((rowSeat) => rowSeat.id === seatId);
+
+                  if (!seat) {
+                    toast.error("Unable to find selected seat");
+                    return;
+                  }
+
+                  void handleBook(seat);
+                }}
+                onCancel={() => setCurrentStep("search")}
+              />
             </div>
-
-            {/* Selected Flight Summary */}
-            <div className="rounded-lg border border-border bg-muted/30 p-3">
-              <div className="flex items-center gap-2 text-sm">
-                <span className="font-medium">
-                  {selectedFlight.flightNumber}
-                </span>
-                <span className="text-muted-foreground">•</span>
-                <span>
-                  {selectedFlight.departureAirportCode} →{" "}
-                  {selectedFlight.arrivalAirportCode}
-                </span>
-                <span className="text-muted-foreground">•</span>
-                <span>{formatDuration(selectedFlight.durationMinutes)}</span>
-              </div>
-            </div>
-
-            {/* Seat Map Legend */}
-            <div className="flex items-center gap-4 text-xs">
-              <div className="flex items-center gap-1">
-                <div className="size-4 rounded border border-primary bg-primary/10" />
-                <span>Available</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="size-4 rounded border border-muted-foreground bg-muted" />
-                <span>Booked</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="size-4 rounded border-2 border-primary bg-primary" />
-                <span>Selected</span>
-              </div>
-            </div>
-
-            {/* Seat Map */}
-            <div className="rounded-xl border border-border bg-card p-4 overflow-x-auto">
-              <div className="min-w-fit space-y-2">
-                {selectedFlight.seatMap.map((row) => (
-                  <div key={row.rowNumber} className="flex items-center gap-2">
-                    <span className="w-6 text-xs text-muted-foreground text-right">
-                      {row.rowNumber}
-                    </span>
-                    <div className="flex items-center gap-1">
-                      {row.sections.map((section, sectionIndex) => (
-                        <React.Fragment key={sectionIndex}>
-                          {sectionIndex > 0 && <div className="w-4" />}
-                          {section.map((seat) => (
-                            <button
-                              key={seat.id}
-                              type="button"
-                              onClick={() => handleSelectSeat(seat)}
-                              disabled={seat.isBooked}
-                              className={cn(
-                                "size-8 rounded text-xs font-medium transition-colors",
-                                seat.isBooked
-                                  ? "cursor-not-allowed border border-muted-foreground bg-muted text-muted-foreground"
-                                  : selectedSeat?.id === seat.id
-                                    ? "border-2 border-primary bg-primary text-primary-foreground"
-                                    : "border border-primary bg-primary/10 text-primary hover:bg-primary/20",
-                              )}
-                              title={
-                                seat.isBooked
-                                  ? `Seat ${seat.id} - Booked`
-                                  : `Seat ${seat.id} - ${formatPrice(seat.priceInCents)}`
-                              }
-                            >
-                              {seat.id.replace(String(row.rowNumber), "")}
-                            </button>
-                          ))}
-                        </React.Fragment>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Selected Seat Info */}
-            {selectedSeat && (
-              <div className="rounded-lg border border-primary bg-primary/5 p-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <CheckIcon className="size-4 text-primary" />
-                      <span className="font-medium">
-                        Seat {selectedSeat.id}
-                      </span>
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      Seat selection fee:{" "}
-                      {formatPrice(selectedSeat.priceInCents)}
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm text-muted-foreground">Total</div>
-                    <div className="font-bold">
-                      {formatPrice(
-                        selectedFlight.priceInCents + selectedSeat.priceInCents,
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Book Button */}
-            <Button
-              onClick={handleBook}
-              className="w-full"
-              disabled={!selectedSeat || createFlightMutation.isPending}
-            >
-              {createFlightMutation.isPending ? (
-                <>
-                  <Spinner />
-                  Booking Flight...
-                </>
-              ) : selectedSeat ? (
-                `Book Flight - ${formatPrice(selectedFlight.priceInCents + selectedSeat.priceInCents)}`
-              ) : (
-                "Select a Seat to Continue"
-              )}
-            </Button>
           </div>
         )}
       </CardContent>

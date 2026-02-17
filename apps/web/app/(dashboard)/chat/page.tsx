@@ -105,7 +105,6 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { AirplaneSeatView } from "@/components/tools-ui/airplane-seat-view";
-import { MOCK_SEAT_ROWS } from "@/components/tools-ui/airplane-seat-view/_mocks";
 import {
   currentTrips,
   drafts,
@@ -282,17 +281,12 @@ export default function ChatPage() {
                     {msg.widget?.type === "seat-picker" && (
                       <div className="mt-4">
                         <AirplaneSeatView
-                          rows={MOCK_SEAT_ROWS}
-                          initialSelectedSeatId={
-                            msg.widget.data.initialSelectedSeatId
-                          }
-                          cabinClass={msg.widget.data.cabinClass}
-                          flightNumber={msg.widget.data.flightNumber}
-                          flightInfo={msg.widget.data.flightInfo}
-                          onConfirm={(seatId, price) => {
+                          title="Flight Suggestion"
+                          flight={msg.widget.data.flight}
+                          onConfirm={(seatId, seatPriceInCents) => {
                             // TODO: Will trigger AI booking flow
                             console.log(
-                              `Confirmed seat ${seatId} for $${price}`,
+                              `Confirmed seat ${seatId} for $${seatPriceInCents / 100}`,
                             );
                           }}
                           onCancel={() => {

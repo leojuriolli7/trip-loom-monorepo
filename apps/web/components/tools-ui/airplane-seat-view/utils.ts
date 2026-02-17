@@ -1,12 +1,20 @@
-import type { SeatRow, PriceTier, PriceStats } from "./types";
+import type { FlightSeatMap } from "@trip-loom/api/dto";
 
-export function calculatePriceTiers(rows: SeatRow[]): PriceStats {
+export type PriceTier = "cheap" | "medium" | "expensive";
+
+export interface PriceStats {
+  avg: number;
+  min: number;
+  max: number;
+}
+
+export function calculatePriceTiers(seatMap: FlightSeatMap): PriceStats {
   const prices: number[] = [];
-  rows.forEach((row) => {
+  seatMap.forEach((row) => {
     row.sections.forEach((section) => {
       section.forEach((seat) => {
         if (!seat.isBooked) {
-          prices.push(seat.price);
+          prices.push(seat.priceInCents);
         }
       });
     });

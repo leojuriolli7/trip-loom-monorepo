@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import { format } from "date-fns";
+import type { FlightOptionDTO, FlightSeat } from "@trip-loom/api/dto";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRightIcon,
@@ -9,27 +11,26 @@ import {
   PlaneIcon,
 } from "lucide-react";
 
-import type { FlightInfo, Seat, SeatRow } from "./types";
 import { calculatePriceTiers, getPriceTier } from "./utils";
 import { SeatButton } from "./seat-button";
 import { cn } from "@/lib/utils";
 
+const CABIN_CLASS_LABELS: Record<FlightOptionDTO["cabinClass"], string> = {
+  economy: "Economy",
+  business: "Business",
+  first: "First Class",
+};
+
 interface AirplaneSeatViewProps {
-  /** Array of seat rows defining the plane layout */
-  rows: SeatRow[];
-  /** Initially selected seat ID */
-  initialSelectedSeatId: string;
-  /** Cabin class label (e.g., "Business", "Economy") */
-  cabinClass: string;
-  /** Flight number for display */
-  flightNumber: string;
-  /** Flight route and time information */
-  flightInfo: FlightInfo;
+  /** Header title */
+  title?: string;
+  /** Flight option DTO from API */
+  flight: FlightOptionDTO;
   /**
    * Called when user confirms seat selection.
    * TODO: Will trigger AI booking flow
    */
-  onConfirm?: (seatId: string, price: number) => void;
+  onConfirm?: (seatId: string, seatPriceInCents: number) => void;
   /**
    * Called when user cancels seat selection.
    * TODO: Will close the seat picker widget
@@ -43,32 +44,62 @@ interface AirplaneSeatViewProps {
 }
 
 export function AirplaneSeatView({
-  rows,
-  initialSelectedSeatId,
-  cabinClass,
-  flightNumber,
-  flightInfo,
+  title = "Flight Suggestion",
+  flight,
   onConfirm,
   onCancel,
   onRequestChanges,
 }: AirplaneSeatViewProps) {
+  const seatMap = flight.seatMap;
+
+  const flightInfo = React.useMemo(() => {
+    const hours = Math.floor(flight.durationMinutes / 60);
+    const minutes = flight.durationMinutes % 60;
+
+    return {
+      departureTime: format(new Date(flight.departureTime), "HH:mm"),
+      fromCode: flight.departureAirportCode,
+      fromCity: flight.departureCity,
+      duration: `${hours}h ${minutes}m`,
+      arrivalTime: format(new Date(flight.arrivalTime), "HH:mm"),
+      toCode: flight.arrivalAirportCode,
+      toCity: flight.arrivalCity,
+      cabinClass: CABIN_CLASS_LABELS[flight.cabinClass],
+      flightNumber: flight.flightNumber,
+    };
+  }, [flight]);
+
   // State for selected seat
   const [selectedSeatId, setSelectedSeatId] = React.useState<string | null>(
-    initialSelectedSeatId ?? null,
+    flight.suggestedSeatId ?? null,
   );
+
+  React.useEffect(() => {
+    setSelectedSeatId(flight.suggestedSeatId ?? null);
+  }, [flight.id, flight.suggestedSeatId]);
 
   // State for "request changes" input
   const [showChangeInput, setShowChangeInput] = React.useState(false);
   const [changeMessage, setChangeMessage] = React.useState("");
   const changeInputRef = React.useRef<HTMLInputElement>(null);
 
+  React.useEffect(() => {
+    if (!onRequestChanges) {
+      setShowChangeInput(false);
+      setChangeMessage("");
+    }
+  }, [onRequestChanges]);
+
   // Calculate price statistics for color coding
-  const priceStats = React.useMemo(() => calculatePriceTiers(rows), [rows]);
+  const priceStats = React.useMemo(
+    () => calculatePriceTiers(seatMap),
+    [seatMap],
+  );
 
   // Find selected seat data
   const selectedSeat = React.useMemo(() => {
     if (!selectedSeatId) return null;
-    for (const row of rows) {
+    for (const row of seatMap) {
       for (const section of row.sections) {
         for (const seat of section) {
           if (seat.id === selectedSeatId) return seat;
@@ -76,17 +107,17 @@ export function AirplaneSeatView({
       }
     }
     return null;
-  }, [rows, selectedSeatId]);
+  }, [seatMap, selectedSeatId]);
 
   // Handlers
-  const handleSeatSelect = React.useCallback((seat: Seat) => {
+  const handleSeatSelect = React.useCallback((seat: FlightSeat) => {
     setSelectedSeatId(seat.id);
   }, []);
 
   const handleConfirm = React.useCallback(() => {
     if (selectedSeat && onConfirm) {
       // TODO: This will trigger the AI booking flow
-      onConfirm(selectedSeat.id, selectedSeat.price);
+      onConfirm(selectedSeat.id, selectedSeat.priceInCents);
     }
   }, [selectedSeat, onConfirm]);
 
@@ -127,18 +158,26 @@ export function AirplaneSeatView({
 
   // Generate column headers from first row
   const columnHeaders = React.useMemo(() => {
-    if (rows.length === 0) return [];
-    const firstRow = rows[0];
+    if (seatMap.length === 0) return [];
+    const firstRow = seatMap[0];
     return firstRow.sections.map((section) =>
       section.map((seat) => seat.id.replace(/[0-9]/g, "")),
     );
-  }, [rows]);
+  }, [seatMap]);
+
+  const selectedSeatPriceLabel = React.useMemo(() => {
+    if (!selectedSeat) return "$0.00";
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(selectedSeat.priceInCents / 100);
+  }, [selectedSeat]);
 
   return (
-    <div className="flex w-full max-w-sm flex-col overflow-hidden rounded-2xl border border-border/60 bg-card">
+    <div className="flex w-full max-w-md flex-col overflow-hidden rounded-2xl border border-border/60 bg-card">
       <div className="bg-foreground px-4 py-4 text-background dark:bg-card dark:text-foreground">
         <h3 className="text-center text-lg font-bold tracking-tight">
-          Flight Suggestion
+          {title}
         </h3>
 
         <div className="mt-3 flex items-center justify-center gap-4 text-xs">
@@ -197,7 +236,7 @@ export function AirplaneSeatView({
           </div>
 
           <div className="flex flex-col gap-2">
-            {rows.map((row) => (
+            {seatMap.map((row) => (
               <div
                 key={row.rowNumber}
                 className="flex items-center justify-center gap-0"
@@ -222,7 +261,10 @@ export function AirplaneSeatView({
                             key={seat.id}
                             seat={seat}
                             isSelected={seat.id === selectedSeatId}
-                            priceTier={getPriceTier(seat.price, priceStats)}
+                            priceTier={getPriceTier(
+                              seat.priceInCents,
+                              priceStats,
+                            )}
                             onSelect={handleSeatSelect}
                           />
                         ))}
@@ -289,7 +331,7 @@ export function AirplaneSeatView({
         <div className="mb-4 flex items-center justify-between text-sm">
           <div>
             <span className="text-xs text-muted-foreground">Cabin Class</span>
-            <p className="font-semibold">{cabinClass}</p>
+            <p className="font-semibold">{flightInfo.cabinClass}</p>
           </div>
           <div className="text-center">
             <span className="text-xs text-muted-foreground">Selected Seat</span>
@@ -297,18 +339,18 @@ export function AirplaneSeatView({
           </div>
           <div className="text-center">
             <span className="text-xs text-muted-foreground">Flight No</span>
-            <p className="font-semibold">{flightNumber}</p>
+            <p className="font-semibold">{flightInfo.flightNumber}</p>
           </div>
 
           <div className="text-right">
             <span className="text-xs text-muted-foreground">Total Price</span>
             <p className="font-semibold text-primary">
-              {selectedSeat ? `$${selectedSeat.price}` : "$0"}
+              {selectedSeatPriceLabel}
             </p>
           </div>
         </div>
 
-        {showChangeInput && (
+        {onRequestChanges && showChangeInput && (
           <div className="mb-4 flex gap-2 items-center">
             <input
               ref={changeInputRef}
@@ -338,15 +380,17 @@ export function AirplaneSeatView({
               <Button variant="ghost" size="sm" onClick={handleCancel}>
                 Cancel
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleRequestChanges}
-                className="gap-1.5"
-              >
-                <MessageSquareIcon className="size-3.5" />
-                Request changes
-              </Button>
+              {onRequestChanges && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRequestChanges}
+                  className="gap-1.5"
+                >
+                  <MessageSquareIcon className="size-3.5" />
+                  Request changes
+                </Button>
+              )}
               <Button
                 size="sm"
                 onClick={handleConfirm}

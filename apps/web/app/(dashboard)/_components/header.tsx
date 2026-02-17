@@ -3,8 +3,11 @@
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/user-avatar";
+import { BookCheckIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+
+const isDevEnv = process.env.NODE_ENV === "development";
 
 export function Header() {
   return (
@@ -18,6 +21,15 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-3">
+          {isDevEnv && (
+            <Link href="/dev/api-crud">
+              <Button variant="outline">
+                <BookCheckIcon />
+                API Dev Page
+              </Button>
+            </Link>
+          )}
+
           <Link href="/chat">
             <Button>Plan a Trip</Button>
           </Link>

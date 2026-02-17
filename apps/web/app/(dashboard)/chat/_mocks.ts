@@ -1,3 +1,6 @@
+import type { FlightOptionDTO } from "@trip-loom/api/dto";
+import { MOCK_SEAT_MAP } from "@/components/tools-ui/airplane-seat-view/_mocks";
+
 // Mock data for sidebar
 export const drafts = [
   {
@@ -47,17 +50,11 @@ export const pastTrips = [
   },
 ];
 
-import type { FlightInfo, SeatRow } from "@/components/tools-ui/airplane-seat-view/types";
-
 // Mock conversation messages
 export type MessageWidget = {
   type: "seat-picker";
   data: {
-    rows: SeatRow[];
-    initialSelectedSeatId: string;
-    cabinClass: string;
-    flightNumber: string;
-    flightInfo: FlightInfo;
+    flight: FlightOptionDTO;
   };
 };
 
@@ -113,18 +110,40 @@ I've pre-selected seat 3C for you - it's a window seat with extra legroom. You c
     widget: {
       type: "seat-picker",
       data: {
-        rows: [], // Will use MOCK_SEAT_ROWS from the component
-        initialSelectedSeatId: "3C",
-        cabinClass: "Business",
-        flightNumber: "DL1842",
-        flightInfo: {
-          fromCode: "JFK",
-          fromCity: "New York",
-          departureTime: "18:30",
-          toCode: "JTR",
-          toCity: "Santorini",
-          arrivalTime: "12:45+1",
-          duration: "10h 15m",
+        flight: {
+          id: "chat-flight-1",
+          flightNumber: "DL1842",
+          airline: "Delta Airlines",
+          departureAirportCode: "JFK",
+          departureCity: "New York",
+          departureAirport: {
+            code: "JFK",
+            name: "John F. Kennedy International Airport",
+            city: "New York",
+            countryCode: "US",
+            timezone: "America/New_York",
+            latitude: 40.6413,
+            longitude: -73.7781,
+          },
+          departureTime: "2026-07-15T18:30:00.000Z",
+          arrivalAirportCode: "JTR",
+          arrivalCity: "Santorini",
+          arrivalAirport: {
+            code: "JTR",
+            name: "Santorini International Airport",
+            city: "Santorini",
+            countryCode: "GR",
+            timezone: "Europe/Athens",
+            latitude: 36.3992,
+            longitude: 25.4793,
+          },
+          arrivalTime: "2026-07-16T04:45:00.000Z",
+          durationMinutes: 615,
+          cabinClass: "business",
+          priceInCents: 124_500,
+          availableSeats: 48,
+          seatMap: MOCK_SEAT_MAP,
+          suggestedSeatId: "3C",
         },
       },
     },
