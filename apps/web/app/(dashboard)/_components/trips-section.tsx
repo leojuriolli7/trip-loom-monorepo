@@ -15,19 +15,19 @@ import type { TripStatusValues } from "@trip-loom/api/dto";
 import { tripQueries } from "@/lib/api/react-query/trips";
 import { Spinner } from "@/components/ui/spinner";
 
-interface TripsCarouselProps {
+interface TripsSectionProps {
   title: string;
   status: TripStatusValues;
   emptyMessage?: string;
   emptyMessageIcon?: string;
 }
 
-export function TripsCarousel({
+export function TripsSection({
   title,
   status,
   emptyMessage = "No trips yet",
   emptyMessageIcon = "/colliseum.png",
-}: TripsCarouselProps) {
+}: TripsSectionProps) {
   const { data: trips = [], status: queryStatus } = useInfiniteQuery(
     tripQueries.listTrips({
       status,
@@ -89,7 +89,9 @@ export function TripsCarousel({
                   key={trip.id}
                   className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3"
                 >
-                  <TripCard trip={trip} />
+                  <Link href={`/chat/${trip.id}`}>
+                    <TripCard trip={trip} />
+                  </Link>
                 </CarouselItem>
               ))}
             </CarouselContent>

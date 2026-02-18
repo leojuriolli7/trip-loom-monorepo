@@ -9,17 +9,17 @@ import {
 } from "@/components/ui/carousel";
 import { DestinationCard, type Destination } from "./destination-card";
 
-interface DestinationsCarouselProps {
+interface DestinationsSectionProps {
   title: string;
   subtitle?: string;
   destinations: Destination[];
 }
 
-export function DestinationsCarousel({
+export function DestinationsSection({
   title,
   subtitle,
   destinations,
-}: DestinationsCarouselProps) {
+}: DestinationsSectionProps) {
   return (
     <section className="mx-auto max-w-5xl px-6 lg:px-8">
       <div className="mb-6">
