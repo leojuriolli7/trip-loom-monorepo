@@ -8,55 +8,53 @@ import {
   MapIcon,
 } from "lucide-react";
 import Image from "next/image";
-
-export interface Trip {
-  id: string;
-  // TODO: Destination will be a complete object and separate DB entity
-  destination: string;
-  country: string; // Same for country maybe
-  imageUrl: string;
-  startDate: string;
-  endDate: string;
-  // TODO: Real app will have cancelled (But not implemented yet)
-  status: "upcoming" | "past" | "ongoing";
-  // TODO: In the real app, will differentiate inbound, outbound and both (Can book just one or both or none)
-  hasFlights?: boolean;
-  hasHotel?: boolean;
-  hasItinerary?: boolean;
-}
+import type { TripWithDestinationDTO } from "@trip-loom/api/dto";
+import { useMemo } from "react";
+import { format } from "date-fns";
 
 interface TripCardProps {
-  trip: Trip;
+  trip: TripWithDestinationDTO;
 }
 
 export function TripCard({ trip }: TripCardProps) {
-  const formatDateRange = (start: string, end: string) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    const options: Intl.DateTimeFormatOptions = {
-      month: "short",
-      day: "numeric",
-    };
+  const destinationName =
+    trip.destination?.name ?? trip.title ?? "Destination pending";
 
-    if (startDate.getFullYear() !== endDate.getFullYear()) {
-      return `${startDate.toLocaleDateString("en-US", { ...options, year: "numeric" })} - ${endDate.toLocaleDateString("en-US", { ...options, year: "numeric" })}`;
+  const destinationCountry = trip.destination?.country ?? "Country pending";
+
+  /**
+   * Formats date string to `Jan 3 - Feb 4` or `Dec 14 - Jan 24 2027`
+   */
+  const dateRange = useMemo(() => {
+    const startDate = trip?.startDate;
+    const endDate = trip?.endDate;
+
+    if (!startDate || !endDate) {
+      return "Dates pending";
     }
 
-    return `${startDate.toLocaleDateString("en-US", options)} - ${endDate.toLocaleDateString("en-US", { ...options, year: "numeric" })}`;
-  };
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (start.getFullYear() !== end.getFullYear()) {
+      return `${format(start, "MMM d, yyyy")} - ${format(end, "MMM d, yyyy")}`;
+    }
+
+    return `${format(start, "MMM d")} - ${format(endDate, "MMM d, yyyy")}`;
+  }, [trip]);
 
   return (
     <Card className="group cursor-pointer overflow-hidden border-border/60 p-0 transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5">
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <div className="relative aspect-4/3 overflow-hidden">
         <Image
-          src={trip.imageUrl}
-          alt={trip.destination}
+          src={trip.destination?.imageUrl ?? "/placeholder.png"}
+          alt={destinationName}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
 
-        {trip.status === "ongoing" && (
+        {trip.status === "current" && (
           <Badge className="absolute right-3 top-3 border-0 bg-primary font-medium text-primary-foreground shadow-lg">
             Ongoing
           </Badge>
@@ -64,21 +62,19 @@ export function TripCard({ trip }: TripCardProps) {
 
         <div className="absolute inset-x-0 bottom-0 p-4">
           <h3 className="text-xl font-semibold tracking-tight text-white drop-shadow-sm">
-            {trip.destination}
+            {destinationName}
           </h3>
           <div className="mt-1 flex items-center gap-1.5 text-white/85">
             <MapPinIcon className="size-3.5" />
-            <span className="text-sm font-medium">{trip.country}</span>
+            <span className="text-sm font-medium">{destinationCountry}</span>
           </div>
         </div>
       </div>
 
-      <CardContent className="p-4">
+      <CardContent className="p-4 pt-0">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <CalendarIcon className="size-4" />
-          <span className="font-medium">
-            {formatDateRange(trip.startDate, trip.endDate)}
-          </span>
+          <span className="font-medium">{dateRange}</span>
         </div>
 
         <div className="mt-3 flex flex-wrap gap-2">

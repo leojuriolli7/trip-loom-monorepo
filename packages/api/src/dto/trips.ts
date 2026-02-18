@@ -29,6 +29,8 @@ const destinationSummarySchema = destinationSchema
   })
   .nullable();
 
+export type DestinationSummaryDTO = z.infer<typeof destinationSummarySchema>;
+
 export const tripSchema = z.object({
   id: z.string(),
   userId: z.string(),
@@ -45,6 +47,9 @@ export type TripDTO = z.infer<typeof tripSchema>;
 
 export const tripWithDestinationSchema = tripSchema.extend({
   destination: destinationSummarySchema,
+  hasFlights: z.boolean(),
+  hasHotel: z.boolean(),
+  hasItinerary: z.boolean(),
 });
 
 export type TripWithDestinationDTO = z.infer<typeof tripWithDestinationSchema>;

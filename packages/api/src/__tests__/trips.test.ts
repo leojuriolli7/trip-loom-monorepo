@@ -444,6 +444,23 @@ describe("Trips API", () => {
       ]),
     );
     expect(ids).not.toContain(seed.secondaryUserTripId);
+
+    const rows = body.data as Array<{
+      id: string;
+      hasFlights: boolean;
+      hasHotel: boolean;
+      hasItinerary: boolean;
+    }>;
+
+    const upcomingRow = rows.find((row) => row.id === seed.upcomingTripId);
+    const draftRow = rows.find((row) => row.id === seed.draftTripId);
+
+    expect(upcomingRow?.hasFlights).toBe(true);
+    expect(upcomingRow?.hasHotel).toBe(true);
+    expect(upcomingRow?.hasItinerary).toBe(true);
+    expect(draftRow?.hasFlights).toBe(false);
+    expect(draftRow?.hasHotel).toBe(false);
+    expect(draftRow?.hasItinerary).toBe(false);
   });
 
   it("GET /api/trips supports status filtering", async () => {
@@ -503,6 +520,10 @@ describe("Trips API", () => {
     expect(body.hotelBookings[0].hotel.id).toBe(seed.hotelParisId);
     expect(body.payments).toHaveLength(1);
     expect(body.payments[0].id).toBe(seed.upcomingTripPaymentId);
+    expect(body.destination?.imageUrl).toBeNull();
+    expect(body.hasFlights).toBe(true);
+    expect(body.hasHotel).toBe(true);
+    expect(body.hasItinerary).toBe(true);
     expect(body.itinerary).not.toBeNull();
     expect(body.itinerary.id).toBe(seed.upcomingTripItineraryId);
     expect(body.itinerary.days).toHaveLength(2);
@@ -536,6 +557,9 @@ describe("Trips API", () => {
     expect(body.status).toBe("draft");
     expect(body.title).toBe("Brand New Draft");
     expect(body.destination).toBeNull();
+    expect(body.hasFlights).toBe(false);
+    expect(body.hasHotel).toBe(false);
+    expect(body.hasItinerary).toBe(false);
   });
 
   it("POST /api/trips with destinationId links destination", async () => {

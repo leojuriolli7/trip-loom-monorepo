@@ -38,6 +38,20 @@ When adding new API communication, follow the same integration pattern used in `
 
 We standardize React Query around domain files in `lib/api/react-query/*` with query/mutation option factories and typed keys.
 
+### Hook Result Destructuring (Required)
+
+When consuming query hooks in components, destructure the returned fields directly instead of storing the full query object.
+
+```tsx
+const { data: trips = [], isPending, isError } = useQuery(...);
+```
+
+Avoid patterns like:
+
+```tsx
+const tripsQuery = useQuery(...);
+```
+
 ### Domains
 
 - Create one domain file per API area (`trips.ts`, `flights.ts`, `user-preferences.ts`, etc.).

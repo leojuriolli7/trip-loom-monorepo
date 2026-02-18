@@ -1,4 +1,7 @@
 import { treaty } from "@elysiajs/eden";
 import type { App } from "@trip-loom/api";
 
-export const apiClient = treaty<App>(process.env.NEXT_PUBLIC_API_BASE_URL);
+export const apiClient = treaty<App>(process.env.NEXT_PUBLIC_API_BASE_URL, {
+  // Date strings will not be converted to Date objects, preserving the Typescript type of "string"
+  parseDate: false,
+});

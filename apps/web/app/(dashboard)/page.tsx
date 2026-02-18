@@ -4,7 +4,7 @@ import { HomeChatInput } from "./_components/home-chat-input";
 import { TripsCarousel } from "./_components/trips-carousel";
 import { DestinationsCarousel } from "./_components/destinations-carousel";
 
-import { pastTrips, suggestedDestinations, upcomingTrips } from "./_mocks";
+import { suggestedDestinations } from "./_mocks";
 import { auth } from "@trip-loom/api/auth";
 import { headers } from "next/headers";
 import { unauthorized } from "next/navigation";
@@ -35,7 +35,7 @@ export default async function Page() {
             */}
           <TripsCarousel
             title="Upcoming trips"
-            trips={upcomingTrips}
+            status="upcoming"
             emptyMessage="You don't have any trips coming up"
             emptyMessageIcon="/colliseum.png"
           />
@@ -45,7 +45,7 @@ export default async function Page() {
             */}
           <TripsCarousel
             title="Past trips"
-            trips={pastTrips}
+            status="past"
             emptyMessage="You haven't taken any trips yet"
             emptyMessageIcon="/pyramid.png"
           />

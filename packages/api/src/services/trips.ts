@@ -6,6 +6,7 @@ import {
   ilike,
   inArray,
   or,
+  sql,
   type SQL,
 } from "drizzle-orm";
 import { db } from "../db";
@@ -75,6 +76,26 @@ const buildTripSearchCondition = (
   );
 };
 
+const tripWithDestinationSelectFields = {
+  ...tripSelectFields,
+  destination: tripDestinationSelectFields,
+  hasFlights: sql<boolean>`exists (
+    select 1
+    from flight_booking
+    where flight_booking.trip_id = ${trip.id}
+  )`,
+  hasHotel: sql<boolean>`exists (
+    select 1
+    from hotel_booking
+    where hotel_booking.trip_id = ${trip.id}
+  )`,
+  hasItinerary: sql<boolean>`exists (
+    select 1
+    from itinerary
+    where itinerary.trip_id = ${trip.id}
+  )`,
+} as const;
+
 const destinationExists = async (destinationId: string): Promise<boolean> => {
   const rows = await db
     .select({ id: destination.id })
@@ -102,10 +123,7 @@ const getTripWithDestinationById = async (
   tripId: string,
 ): Promise<TripWithDestinationDTO | null> => {
   const rows = await db
-    .select({
-      ...tripSelectFields,
-      destination: tripDestinationSelectFields,
-    })
+    .select(tripWithDestinationSelectFields)
     .from(trip)
     .leftJoin(destination, eq(trip.destinationId, destination.id))
     .where(and(eq(trip.id, tripId), eq(trip.userId, userId)))
@@ -133,10 +151,7 @@ export async function listTrips(
   );
 
   const rows = await db
-    .select({
-      ...tripSelectFields,
-      destination: tripDestinationSelectFields,
-    })
+    .select(tripWithDestinationSelectFields)
     .from(trip)
     .leftJoin(destination, eq(trip.destinationId, destination.id))
     .where(whereCondition)

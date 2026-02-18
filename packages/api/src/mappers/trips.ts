@@ -29,8 +29,11 @@ type DestinationSummaryRow = {
   imageUrl: string | null;
 } | null;
 
-export type TripWithDestinationRow = typeof trip.$inferSelect & {
+type TripWithDestinationRow = typeof trip.$inferSelect & {
   destination: DestinationSummaryRow;
+  hasFlights: boolean;
+  hasHotel: boolean;
+  hasItinerary: boolean;
 };
 
 const mapTripDestination = (

@@ -26,14 +26,14 @@ interface DestinationCardProps {
 export function DestinationCard({ destination }: DestinationCardProps) {
   return (
     <Card className="group cursor-pointer overflow-hidden border-border/60 p-0 transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5">
-      <div className="relative aspect-[3/4] overflow-hidden">
+      <div className="relative aspect-3/4 overflow-hidden">
         <Image
           src={destination.imageUrl}
           alt={destination.name}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-black/10" />
 
         <div className="absolute inset-0 flex flex-col justify-end p-4">
           <CardHeader className="gap-1 p-0">
