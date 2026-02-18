@@ -106,15 +106,13 @@ Client examples: https://modelcontextprotocol.io/clients
 
 ### 5. Immediate TODOs
 
-- The destination database is fine, it works and has many destinations.
+- The destination and hotels database needs tuning: it works and has many destinations, but:
 
-  However, the hotels database is not working properly, eg: Park Hyatt in Sydney is marked as a hotel from the destination "Wollstonecraft" instead.
+  1. Hotels database is not working properly, eg: Park Hyatt in Sydney is marked as a hotel from the destination "Wollstonecraft" instead.
+  2. Destinations database has many locations, but all of them have no imageUrl (because of the source having no images).
 
-  Likely better approach: Slim down number of destination and work with smaller AI model to generate high-quality hotels for each location based on real hotels on the region.
-  Then, could likely also simplify connection between hotels and destinations in DB.
+  Likely better approach: Slim down number of destinations and work with smaller AI model to generate high-quality hotels for each location based on real hotels on the region.
 
-- Complete DB schema review for best practices and performance.
-- Complete API review for best practices, performance, code quality, maintanability and scalability, testing practices...
 - Implement MCP Server
 - Implement AI agents
 - Implement AI frontend experience

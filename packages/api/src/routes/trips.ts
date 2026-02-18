@@ -65,14 +65,15 @@ export const tripRoutes = new Elysia({
   )
   .post(
     "/",
-    async ({ user, body }) => {
-      return createTrip(user.id, body);
+    async ({ user, body, status }) => {
+      const trip = await createTrip(user.id, body);
+      return status(201, trip);
     },
     {
       auth: true,
       body: createTripInputSchema,
       response: {
-        200: tripWithDestinationSchema,
+        201: tripWithDestinationSchema,
         400: errorResponseSchema,
         401: errorResponseSchema,
       },

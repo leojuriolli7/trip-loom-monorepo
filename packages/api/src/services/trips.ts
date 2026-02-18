@@ -1,31 +1,14 @@
-import {
-  and,
-  asc,
-  desc,
-  eq,
-  ilike,
-  inArray,
-  or,
-  sql,
-  type SQL,
-} from "drizzle-orm";
+import { and, asc, desc, eq, ilike, or, sql, type SQL } from "drizzle-orm";
 import { db } from "../db";
 import {
   destination,
   flightBooking,
   hotel,
   hotelBooking,
-  itinerary,
-  itineraryActivity,
-  itineraryDay,
   payment,
   trip,
 } from "../db/schema";
 import type { PaginatedResponse } from "../dto/common";
-import type {
-  ItineraryActivityDTO,
-  ItineraryDetailDTO,
-} from "../dto/itineraries";
 import type {
   CreateTripInput,
   TripDetailDTO,
@@ -55,11 +38,7 @@ import {
   hotelBookingSelectFields,
   hotelSummarySelectFields,
 } from "../mappers/hotel-bookings";
-import {
-  itineraryActivitySelectFields,
-  itineraryDaySelectFields,
-  itinerarySelectFields,
-} from "../mappers/itineraries";
+import { getItineraryDetailsByTripId } from "./itineraries";
 
 const buildTripSearchCondition = (
   search: string | undefined,
@@ -173,7 +152,10 @@ export async function getTripById(
     return null;
   }
 
-  const [flightBookings, hotelBookingsWithHotel, payments, itineraryRows] =
+  // Fetch all related data in parallel:
+  // - Flight bookings, hotel bookings, payments: 3 queries
+  // - Itinerary with days and activities: 1 relational query (replaces 3 separate queries)
+  const [flightBookings, hotelBookingsWithHotel, payments, itineraryDetails] =
     await Promise.all([
       db
         .select(flightBookingSelectFields)
@@ -202,53 +184,8 @@ export async function getTripById(
         .from(payment)
         .where(eq(payment.tripId, tripId))
         .orderBy(desc(payment.createdAt), desc(payment.id)),
-      db
-        .select(itinerarySelectFields)
-        .from(itinerary)
-        .where(eq(itinerary.tripId, tripId))
-        .limit(1),
+      getItineraryDetailsByTripId(tripId),
     ]);
-
-  let itineraryDetails: ItineraryDetailDTO | null = null;
-
-  if (itineraryRows.length > 0) {
-    const itineraryRow = itineraryRows[0];
-
-    const dayRows = await db
-      .select(itineraryDaySelectFields)
-      .from(itineraryDay)
-      .where(eq(itineraryDay.itineraryId, itineraryRow.id))
-      .orderBy(asc(itineraryDay.dayNumber), asc(itineraryDay.createdAt));
-
-    let activityRows: ItineraryActivityDTO[] = [];
-    if (dayRows.length > 0) {
-      const dayIds = dayRows.map((day) => day.id);
-      activityRows = await db
-        .select(itineraryActivitySelectFields)
-        .from(itineraryActivity)
-        .where(inArray(itineraryActivity.itineraryDayId, dayIds))
-        .orderBy(
-          asc(itineraryActivity.itineraryDayId),
-          asc(itineraryActivity.orderIndex),
-          asc(itineraryActivity.createdAt),
-        );
-    }
-
-    const activitiesByDayId = new Map<string, ItineraryActivityDTO[]>();
-    for (const activity of activityRows) {
-      const existing = activitiesByDayId.get(activity.itineraryDayId) ?? [];
-      existing.push(activity);
-      activitiesByDayId.set(activity.itineraryDayId, existing);
-    }
-
-    itineraryDetails = {
-      ...itineraryRow,
-      days: dayRows.map((day) => ({
-        ...day,
-        activities: activitiesByDayId.get(day.id) ?? [],
-      })),
-    };
-  }
 
   return {
     ...baseTrip,

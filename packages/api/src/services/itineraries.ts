@@ -1,6 +1,7 @@
 import { and, asc, eq, gt, sql } from "drizzle-orm";
 import { db } from "../db";
 import { itinerary, itineraryActivity, itineraryDay } from "../db/schema";
+import type { DB_NewItineraryActivity, DB_NewItineraryDay } from "../db/types";
 import type {
   CreateActivityInput,
   CreateDayInput,
@@ -20,10 +21,11 @@ import {
 /**
  * Fetches the full itinerary with days and activities for a trip.
  * Days are sorted by dayNumber, activities by orderIndex.
+ * Does NOT verify trip ownership - caller must ensure authorization.
  */
-const getItineraryForTrip = async (
+export async function getItineraryDetailsByTripId(
   tripId: string,
-): Promise<ItineraryDetailDTO | null> => {
+): Promise<ItineraryDetailDTO | null> {
   const row = await db.query.itinerary.findFirst({
     where: eq(itinerary.tripId, tripId),
     with: {
@@ -45,7 +47,7 @@ const getItineraryForTrip = async (
   }
 
   return row;
-};
+}
 
 /**
  * Verifies that an itinerary exists for a trip.
@@ -138,7 +140,7 @@ export async function getItinerary(
     return null;
   }
 
-  return getItineraryForTrip(tripId);
+  return getItineraryDetailsByTripId(tripId);
 }
 
 /**
@@ -199,11 +201,14 @@ export async function createItinerary(
         tripId,
       });
 
-      // Create days and activities if provided
+      // Pre-generate all IDs and build batch insert arrays
+      const dayRows: DB_NewItineraryDay[] = [];
+      const activityRows: DB_NewItineraryActivity[] = [];
+
       for (const dayInput of input.days) {
         const dayId = generateId();
 
-        await tx.insert(itineraryDay).values({
+        dayRows.push({
           id: dayId,
           itineraryId,
           dayNumber: dayInput.dayNumber,
@@ -212,22 +217,30 @@ export async function createItinerary(
           notes: dayInput.notes ?? null,
         });
 
-        if (dayInput.activities.length > 0) {
-          await tx.insert(itineraryActivity).values(
-            dayInput.activities.map((activityInput) => ({
-              id: generateId(),
-              itineraryDayId: dayId,
-              orderIndex: activityInput.orderIndex,
-              title: activityInput.title,
-              description: activityInput.description ?? null,
-              startTime: activityInput.startTime ?? null,
-              endTime: activityInput.endTime ?? null,
-              location: activityInput.location ?? null,
-              locationUrl: activityInput.locationUrl ?? null,
-              estimatedCostInCents: activityInput.estimatedCostInCents ?? null,
-            })),
-          );
+        for (const activityInput of dayInput.activities) {
+          activityRows.push({
+            id: generateId(),
+            itineraryDayId: dayId,
+            orderIndex: activityInput.orderIndex,
+            title: activityInput.title,
+            description: activityInput.description ?? null,
+            startTime: activityInput.startTime ?? null,
+            endTime: activityInput.endTime ?? null,
+            location: activityInput.location ?? null,
+            locationUrl: activityInput.locationUrl ?? null,
+            estimatedCostInCents: activityInput.estimatedCostInCents ?? null,
+          });
         }
+      }
+
+      // Batch insert all days in one query
+      if (dayRows.length > 0) {
+        await tx.insert(itineraryDay).values(dayRows);
+      }
+
+      // Batch insert all activities in one query
+      if (activityRows.length > 0) {
+        await tx.insert(itineraryActivity).values(activityRows);
       }
     });
   } catch (error) {
@@ -258,7 +271,7 @@ export async function createItinerary(
   // Refresh trip status (may transition draft -> upcoming if dates are set)
   await refreshTripStatus(tripMeta);
 
-  return getItineraryForTrip(tripId);
+  return getItineraryDetailsByTripId(tripId);
 }
 
 /**
@@ -321,7 +334,7 @@ export async function addDay(
     notes: input.notes ?? null,
   });
 
-  return getItineraryForTrip(tripId);
+  return getItineraryDetailsByTripId(tripId);
 }
 
 /**
@@ -366,7 +379,7 @@ export async function updateDay(
     .set(updateData)
     .where(eq(itineraryDay.id, dayId));
 
-  return getItineraryForTrip(tripId);
+  return getItineraryDetailsByTripId(tripId);
 }
 
 /**
@@ -415,7 +428,7 @@ export async function deleteDay(
       );
   }
 
-  return getItineraryForTrip(tripId);
+  return getItineraryDetailsByTripId(tripId);
 }
 
 // =============================================================================
@@ -455,7 +468,7 @@ export async function addActivity(
     estimatedCostInCents: input.estimatedCostInCents ?? null,
   });
 
-  return getItineraryForTrip(tripId);
+  return getItineraryDetailsByTripId(tripId);
 }
 
 /**
@@ -513,7 +526,7 @@ export async function updateActivity(
     .set(updateData)
     .where(eq(itineraryActivity.id, activityId));
 
-  return getItineraryForTrip(tripId);
+  return getItineraryDetailsByTripId(tripId);
 }
 
 /**
@@ -565,5 +578,5 @@ export async function deleteActivity(
       );
   }
 
-  return getItineraryForTrip(tripId);
+  return getItineraryDetailsByTripId(tripId);
 }

@@ -64,6 +64,13 @@
       "when": 1771379972256,
       "tag": "0008_tearful_famine",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1771418349876,
+      "tag": "0009_tearful_black_tarantula",
+      "breakpoints": true
     }
   ]
 }

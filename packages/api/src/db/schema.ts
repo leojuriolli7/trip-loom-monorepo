@@ -142,7 +142,11 @@ export const user = pgTable("user", {
   emailVerified: boolean("email_verified").notNull().default(false),
   image: text("image"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .$onUpdate(() => new Date()),
 });
 
 export const session = pgTable("session", {
@@ -150,7 +154,10 @@ export const session = pgTable("session", {
   expiresAt: timestamp("expires_at").notNull(),
   token: text("token").notNull().unique(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
   ipAddress: text("ip_address"),
   userAgent: text("user_agent"),
   userId: text("user_id")
@@ -173,7 +180,10 @@ export const account = pgTable("account", {
   scope: text("scope"),
   password: text("password"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
 
 export const verification = pgTable("verification", {
@@ -182,7 +192,10 @@ export const verification = pgTable("verification", {
   value: text("value").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
 
 // =============================================================================
@@ -208,7 +221,10 @@ export const airport = pgTable(
     wikipedia: text("wikipedia"),
     website: text("website"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (table) => [
     index("airport_country_code_idx").on(table.countryCode),
@@ -239,7 +255,10 @@ export const destination = pgTable(
     // Full-text search vector - maintained by trigger
     searchVector: tsvector("search_vector"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (table) => [
     index("destination_country_code_idx").on(table.countryCode),
@@ -276,7 +295,10 @@ export const hotel = pgTable(
     // Full-text search vector - maintained by trigger
     searchVector: tsvector("search_vector"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (table) => [
     index("hotel_destination_id_idx").on(table.destinationId),
@@ -315,11 +337,16 @@ export const trip = pgTable(
     startDate: date("start_date"),
     endDate: date("end_date"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (table) => [
     index("trip_user_id_idx").on(table.userId),
     index("trip_status_idx").on(table.status),
+    index("trip_user_id_status_idx").on(table.userId, table.status),
+    index("trip_user_id_created_at_idx").on(table.userId, table.createdAt),
     check(
       "trip_dates_check",
       sql`${table.endDate} IS NULL OR ${table.startDate} IS NULL OR ${table.startDate} <= ${table.endDate}`,
@@ -354,7 +381,10 @@ export const userPreference = pgTable(
       .default([]),
     accessibilityNeeds: text("accessibility_needs"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (table) => [unique("user_preference_user_id_unique").on(table.userId)],
 );
@@ -381,7 +411,10 @@ export const payment = pgTable(
       .default(0),
     metadata: text("metadata"), // JSON string for additional Stripe metadata
     createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (table) => [
     index("payment_trip_id_idx").on(table.tripId),
@@ -442,10 +475,14 @@ export const flightBooking = pgTable(
     priceInCents: integer("price_in_cents").notNull(),
     status: bookingStatusEnum("status").notNull().default("pending"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (table) => [
     index("flight_booking_trip_id_idx").on(table.tripId),
+    index("flight_booking_payment_id_idx").on(table.paymentId),
     index("flight_booking_departure_airport_code_idx").on(
       table.departureAirportCode,
     ),
@@ -485,10 +522,15 @@ export const hotelBooking = pgTable(
     totalPriceInCents: integer("total_price_in_cents").notNull(),
     status: bookingStatusEnum("status").notNull().default("pending"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (table) => [
     index("hotel_booking_trip_id_idx").on(table.tripId),
+    index("hotel_booking_hotel_id_idx").on(table.hotelId),
+    index("hotel_booking_payment_id_idx").on(table.paymentId),
     check(
       "hotel_booking_dates_check",
       sql`${table.checkOutDate} > ${table.checkInDate}`,
@@ -517,7 +559,10 @@ export const itinerary = pgTable(
       .notNull()
       .references(() => trip.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (table) => [
     // One itinerary per trip (1:1)
@@ -541,7 +586,10 @@ export const itineraryDay = pgTable(
     title: text("title"),
     notes: text("notes"), // Markdown supported
     createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (table) => [
     index("itinerary_day_itinerary_id_idx").on(table.itineraryId),
@@ -571,7 +619,10 @@ export const itineraryActivity = pgTable(
     locationUrl: text("location_url"), // Google Maps link
     estimatedCostInCents: integer("estimated_cost_in_cents"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (table) => [
     index("itinerary_activity_day_id_idx").on(table.itineraryDayId),

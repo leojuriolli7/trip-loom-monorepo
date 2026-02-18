@@ -313,10 +313,12 @@ describe("Flights API", () => {
       const first = await requestJson({
         method: "GET",
         path,
+        userId: seed.primaryUserId,
       });
       const second = await requestJson({
         method: "GET",
         path,
+        userId: seed.primaryUserId,
       });
 
       expect(first.res.status).toBe(200);
@@ -380,10 +382,12 @@ describe("Flights API", () => {
       const economy = await requestJson({
         method: "GET",
         path: "/api/flights/search?from=JFK&to=LAX&date=2026-09-20&cabinClass=economy&passengers=1",
+        userId: seed.primaryUserId,
       });
       const firstClass = await requestJson({
         method: "GET",
         path: "/api/flights/search?from=JFK&to=LAX&date=2026-09-20&cabinClass=first&passengers=1",
+        userId: seed.primaryUserId,
       });
 
       expect(economy.res.status).toBe(200);
@@ -403,6 +407,7 @@ describe("Flights API", () => {
       const { res } = await requestJson({
         method: "GET",
         path: "/api/flights/search?from=JF&to=LAX&date=2026-09-20",
+        userId: seed.primaryUserId,
       });
 
       expect([400, 422]).toContain(res.status);
@@ -412,6 +417,7 @@ describe("Flights API", () => {
       const { res, body } = await requestJson({
         method: "GET",
         path: "/api/flights/search?from=ZZZ&to=LAX&date=2026-09-20",
+        userId: seed.primaryUserId,
       });
 
       expect(res.status).toBe(400);

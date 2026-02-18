@@ -138,6 +138,7 @@ import { z } from "zod";
 import { listItems, getItemById } from "../services/items";
 import { itemQuerySchema, itemSchema, itemWithStatsSchema } from "../dto/items";
 import { errorResponseSchema, paginatedResponseSchema } from "../dto/common";
+import { NotFoundError } from "../errors";
 
 export const itemRoutes = new Elysia({
   name: "items",
@@ -150,15 +151,11 @@ export const itemRoutes = new Elysia({
       200: paginatedResponseSchema(itemSchema),
     },
   })
-  // Detail endpoint
-  .get("/:id", async ({ params, status }) => {
+  // Detail endpoint - throw errors instead of inline status
+  .get("/:id", async ({ params }) => {
     const result = await getItemById(params.id);
     if (!result) {
-      return status(404, {
-        error: "Not Found",
-        message: "Item not found",
-        statusCode: 404,
-      });
+      throw new NotFoundError("Item not found");
     }
     return result;
   }, {
@@ -172,17 +169,29 @@ export const itemRoutes = new Elysia({
 
 ### 4.1 Error Handling Pattern (Required)
 
-Use custom HTTP errors from `src/errors/http-errors.ts` for business-rule failures in services and domain-rule helpers.
+**Always throw custom errors** from `src/errors/http-errors.ts` instead of using inline `status()` calls. This keeps routes thin and error formatting centralized.
 
 ```typescript
-import { BadRequestError } from "../errors/http-errors";
+// Good: Throw custom errors (in services)
+import { NotFoundError, BadRequestError } from "../errors";
+
+if (!result) {
+  throw new NotFoundError("Item not found");
+}
 
 if (!isValidDateRange(startDate, endDate)) {
   throw new BadRequestError("startDate must be before or equal to endDate");
 }
+
+// Bad: Inline status calls in services
+return status(404, {
+  error: "Not Found",
+  message: "Item not found",
+  statusCode: 404,
+});
 ```
 
-Register custom errors once in `src/index.ts` using `.error(...)` + `.onError(...)` and return the standardized shape:
+Custom errors are registered once in `src/index.ts` using `.error(...)` + `.onError(...)` and automatically formatted to the standardized shape:
 
 ```typescript
 {
@@ -264,6 +273,15 @@ export const tripRoutes = new Elysia({ name: "trips", prefix: "/api/trips" })
   }, { auth: true, query: tripQuerySchema })
 ```
 
+**Why `requireAuthMacro` + `auth: true`?**
+
+Elysia macros require redeclaration in each route module for TypeScript to infer the injected context types (`user`, `session`). The macro defines the behavior, and `auth: true` activates it per-route:
+
+- `requireAuthMacro` registers the macro and makes `{ auth: true }` available
+- `auth: true` on a route enables the macro, returning 401 if unauthenticated
+- Without `auth: true`, the route is public (macro runs but doesn't enforce auth)
+- Without `.use(requireAuthMacro)`, TypeScript won't recognize `{ auth: true }` or type `user`/`session`
+
 The `auth: true` macro:
 - Returns 401 if not authenticated
 - Injects `user` and `session` into the handler context
@@ -320,6 +338,18 @@ Response shape:
 2. **Do not duplicate pagination types** in `lib/` or domain files
 3. **Do not export unused helpers/types** - remove dead exports instead of leaving placeholders
 4. **Prefer shared helpers** over per-route custom pagination/search logic
+5. **Derive types from Drizzle or DTOs** - Never redeclare inline types. Use `DB_New*` types from `db/types.ts` for insert operations and DTO types from `dto/` for API contracts:
+
+```typescript
+// Good: Derive from Drizzle types
+import type { DB_NewItineraryDay, DB_NewItineraryActivity } from "../db/types";
+
+const dayRows: DB_NewItineraryDay[] = [];
+const activityRows: DB_NewItineraryActivity[] = [];
+
+// Bad: Inline type declarations
+const dayRows: { id: string; itineraryId: string; ... }[] = [];
+```
 
 ## Database Operations
 

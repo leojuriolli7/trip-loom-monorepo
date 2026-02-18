@@ -39,10 +39,12 @@ export const flightRoutes = new Elysia({
       return searchFlights(query);
     },
     {
+      auth: true,
       query: flightSearchSchema,
       response: {
         200: z.array(flightOptionSchema),
         400: errorResponseSchema,
+        401: errorResponseSchema,
       },
     },
   )

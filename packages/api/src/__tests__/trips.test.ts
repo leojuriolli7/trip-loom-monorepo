@@ -552,7 +552,7 @@ describe("Trips API", () => {
       },
     });
 
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(201);
     expect(body.userId).toBe(seed.primaryUserId);
     expect(body.status).toBe("draft");
     expect(body.title).toBe("Brand New Draft");
@@ -573,7 +573,7 @@ describe("Trips API", () => {
       },
     });
 
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(201);
     expect(body.destinationId).toBe(seed.destinationTokyoId);
     expect(body.destination.id).toBe(seed.destinationTokyoId);
     expect(body.destination.name).toBe("TestTokyo");
