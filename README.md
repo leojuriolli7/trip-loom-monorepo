@@ -105,7 +105,7 @@ Server to base myself: https://github.com/modelcontextprotocol/servers/blob/main
 Client examples: https://modelcontextprotocol.io/clients
 
 ### 5. Immediate TODOs
-- Add remaining amenities icons and put in external file
+- Improve destination descriptions via AI: More about culture, less about demographics
 - Transfer all images to my own S3 instance, add back `next/image`
 - Add more hotels for each destination using other sources
 - Need to improve average price per night for hotels -- too similar (or add real price for each night, no average, for better payment user experience)

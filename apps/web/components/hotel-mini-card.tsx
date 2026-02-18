@@ -1,64 +1,9 @@
 import Image from "next/image";
-import {
-  StarIcon,
-  WifiIcon,
-  CarIcon,
-  UtensilsIcon,
-  WavesIcon,
-  DumbbellIcon,
-  PawPrintIcon,
-  GlassWaterIcon,
-  BriefcaseIcon,
-  ShirtIcon,
-  AirVentIcon,
-  MountainSnowIcon,
-  BuildingIcon,
-  ConciergeBellIcon,
-  PlaneIcon,
-} from "lucide-react";
-import type { DestinationHotelSummaryDTO } from "@trip-loom/api/dto";
-import { Amenity, PriceRange } from "@trip-loom/api/enums";
 
-// Icons for amenities
-// TODO: add all remaining amenities
-const AMENITY_ICONS: Partial<
-  Record<Amenity, React.ComponentType<{ className?: string }>>
-> = {
-  wifi: WifiIcon,
-  "free-wifi": WifiIcon,
-  pool: WavesIcon,
-  "indoor-pool": WavesIcon,
-  "outdoor-pool": WavesIcon,
-  "heated-pool": WavesIcon,
-  "infinity-pool": WavesIcon,
-  "rooftop-pool": WavesIcon,
-  spa: GlassWaterIcon,
-  gym: DumbbellIcon,
-  "fitness-center": DumbbellIcon,
-  restaurant: UtensilsIcon,
-  bar: GlassWaterIcon,
-  "rooftop-bar": GlassWaterIcon,
-  parking: CarIcon,
-  "free-parking": CarIcon,
-  "airport-shuttle": PlaneIcon,
-  "free-airport-transportation": PlaneIcon,
-  "room-service": ConciergeBellIcon,
-  concierge: ConciergeBellIcon,
-  "beach-access": WavesIcon,
-  beachfront: WavesIcon,
-  "private-beach": WavesIcon,
-  "pet-friendly": PawPrintIcon,
-  "business-center": BriefcaseIcon,
-  "kids-club": StarIcon,
-  laundry: ShirtIcon,
-  "dry-cleaning": ShirtIcon,
-  "air-conditioning": AirVentIcon,
-  balcony: MountainSnowIcon,
-  "private-balcony": MountainSnowIcon,
-  "ocean-view": WavesIcon,
-  "city-view": BuildingIcon,
-  "mountain-view": MountainSnowIcon,
-};
+import type { DestinationHotelSummaryDTO } from "@trip-loom/api/dto";
+import type { PriceRange } from "@trip-loom/api/enums";
+import { amenityIcons } from "@/lib/amenity-icons";
+import { StarIcon, WifiIcon } from "lucide-react";
 
 const PRICE_RANGE_LABELS: Record<PriceRange[number], string> = {
   budget: "$",
@@ -118,7 +63,7 @@ export function HotelMiniCard({ hotel }: HotelMiniCardProps) {
         <div className="flex items-center justify-between">
           <div className="flex gap-1">
             {hotel.amenities.slice(0, 3).map((amenity) => {
-              const Icon = AMENITY_ICONS[amenity] ?? WifiIcon;
+              const Icon = amenityIcons[amenity] ?? WifiIcon;
               return (
                 <div
                   key={amenity}
