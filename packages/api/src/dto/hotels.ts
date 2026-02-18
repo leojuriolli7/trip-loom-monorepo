@@ -1,14 +1,10 @@
 import { z } from "zod";
 import { paginationQuerySchema } from "../lib/pagination";
-import { amenityEnum, priceRangeEnum } from "../db/schema";
+import { amenityValues, priceRangeValues } from "../enums";
 
 // =============================================================================
 // Response Schemas
 // =============================================================================
-
-/** Price range enum values derived from DB schema */
-export const priceRangeValues = priceRangeEnum.enumValues;
-export const amenityValues = amenityEnum.enumValues;
 
 /** What the API returns for a hotel */
 export const hotelSchema = z.object({

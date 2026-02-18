@@ -1,0 +1,1 @@
+CREATE INDEX "destination_highlights_idx" ON "destination" USING gin ("highlights");

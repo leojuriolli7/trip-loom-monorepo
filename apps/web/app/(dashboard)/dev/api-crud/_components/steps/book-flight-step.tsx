@@ -5,11 +5,11 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import {
-  flightBookingCabinClassValues,
   type FlightBookingDTO,
   type FlightOptionDTO,
   type FlightSeat,
 } from "@trip-loom/api/dto";
+import { cabinClassValues } from "@trip-loom/api/enums";
 import { PlaneIcon, ClockIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -36,7 +36,7 @@ import { flightQueries } from "@/lib/api/react-query/flights";
 import { useWizard } from "../wizard-context";
 
 const CABIN_CLASS_LABELS: Record<
-  (typeof flightBookingCabinClassValues)[number],
+  (typeof cabinClassValues)[number],
   string
 > = {
   economy: "Economy",
@@ -82,7 +82,7 @@ export function BookFlightStep({ flightType }: BookFlightStepProps) {
   const [searchParams, setSearchParams] = React.useState({
     from: defaultFrom,
     to: defaultTo,
-    cabinClass: "economy" as (typeof flightBookingCabinClassValues)[number],
+    cabinClass: "economy" as (typeof cabinClassValues)[number],
   });
   const [selectedFlight, setSelectedFlight] =
     React.useState<FlightOptionDTO | null>(null);
@@ -246,8 +246,7 @@ export function BookFlightStep({ flightType }: BookFlightStepProps) {
                   onValueChange={(value) =>
                     setSearchParams((prev) => ({
                       ...prev,
-                      cabinClass:
-                        value as (typeof flightBookingCabinClassValues)[number],
+                      cabinClass: value as (typeof cabinClassValues)[number],
                     }))
                   }
                 >
@@ -255,7 +254,7 @@ export function BookFlightStep({ flightType }: BookFlightStepProps) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {flightBookingCabinClassValues.map((cabin) => (
+                    {cabinClassValues.map((cabin) => (
                       <SelectItem key={cabin} value={cabin}>
                         {CABIN_CLASS_LABELS[cabin]}
                       </SelectItem>

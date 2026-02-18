@@ -9,8 +9,8 @@ import {
   budgetRangeValues,
   travelInterestValues,
   regionValues,
-  type UserPreferenceDTO,
-} from "@trip-loom/api/dto";
+} from "@trip-loom/api/enums";
+import type { UserPreferenceDTO } from "@trip-loom/api/dto";
 
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/use-media-query";

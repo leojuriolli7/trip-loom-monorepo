@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { tripStatusEnum } from "../db/schema";
+import { tripStatusValues } from "../enums";
 import { isValidDateRange } from "../lib/date-range";
 import { paginationQuerySchema } from "../lib/pagination";
 import { destinationSchema } from "./destinations";
@@ -12,10 +12,6 @@ import {
   type ItineraryDetailDTO,
 } from "./itineraries";
 import { paymentSchema, type PaymentDTO } from "./payments";
-
-export const tripStatusValues = tripStatusEnum.enumValues;
-
-export type TripStatusValues = (typeof tripStatusValues)[number];
 
 const isoDateSchema = z.string().date();
 

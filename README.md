@@ -106,15 +106,20 @@ Client examples: https://modelcontextprotocol.io/clients
 
 ### 5. Immediate TODOs
 
-1. The destination database is fine, it works and has many destinations.
+- Implement destination section dialog for more info on each destination + hotels + AI action CTAs
+
+- The destination database is fine, it works and has many destinations.
 
   However, the hotels database is not working properly, eg: Park Hyatt in Sydney is marked as a hotel from the destination "Wollstonecraft" instead.
 
-  Likely better approach: Similarly to flights, generate hotel options on-the-fly. 
-  
-2. About trips DTO (`listTrips`): Trip with destination must return trip image url + destination image url. 
-  Also must return boolean of `flights`, `itinerary` and `hotel`. 
-  Also must return destination always (no `null`)
+  Likely better approach: Slim down number of destination and work with smaller AI model to generate high-quality hotels for each location based on real hotels on the region.
+  Then, could likely also simplify connection between hotels and destinations in DB.
+
+- Complete DB schema review for best practices and performance.
+- Complete API review for best practices, performance, code quality, maintanability and scalability, testing practices...
+- Implement MCP Server
+- Implement AI agents
+- Implement AI frontend experience
 
 ### 6. For later
 

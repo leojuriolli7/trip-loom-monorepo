@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { paginationQuerySchema } from "../lib/pagination";
-import { regionEnum, travelInterestEnum } from "../db/schema";
-
-export const regionValues = regionEnum.enumValues;
-export const travelInterestValues = travelInterestEnum.enumValues;
+import { regionValues, travelInterestValues } from "../enums";
 
 // =============================================================================
 // Response Schemas
@@ -48,3 +45,26 @@ export const destinationQuerySchema = paginationQuerySchema.extend({
 });
 
 export type DestinationQuery = z.infer<typeof destinationQuerySchema>;
+
+// =============================================================================
+// Recommended Destinations
+// =============================================================================
+
+/** Recommended destination with match reason and score */
+export const recommendedDestinationSchema = destinationSchema.extend({
+  matchReason: z.string(),
+  matchScore: z.number(),
+});
+
+export type RecommendedDestinationDTO = z.infer<
+  typeof recommendedDestinationSchema
+>;
+
+/** Query params for recommended endpoint */
+export const recommendedDestinationsQuerySchema = z.object({
+  limit: z.coerce.number().min(1).max(20).default(10),
+});
+
+export type RecommendedDestinationsQuery = z.infer<
+  typeof recommendedDestinationsQuerySchema
+>;

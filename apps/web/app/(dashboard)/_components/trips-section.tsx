@@ -11,13 +11,13 @@ import { TripCard } from "./trip-card";
 import Image from "next/image";
 import Link from "next/link";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import type { TripStatusValues } from "@trip-loom/api/dto";
+import type { TripStatus } from "@trip-loom/api/enums";
 import { tripQueries } from "@/lib/api/react-query/trips";
 import { Spinner } from "@/components/ui/spinner";
 
 interface TripsSectionProps {
   title: string;
-  status: TripStatusValues;
+  status: TripStatus;
   emptyMessage?: string;
   emptyMessageIcon?: string;
 }

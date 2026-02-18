@@ -4,7 +4,6 @@ import { HomeChatInput } from "./_components/home-chat-input";
 import { TripsSection } from "./_components/trips-section";
 import { DestinationsSection } from "./_components/destinations-section";
 
-import { suggestedDestinations } from "./_mocks";
 import { auth } from "@trip-loom/api/auth";
 import { headers } from "next/headers";
 import { unauthorized } from "next/navigation";
@@ -29,10 +28,6 @@ export default async function Page() {
         <div className="space-y-12 pb-16">
           <HomeChatInput />
 
-          {/*
-            TODO: Since trips have been decided as each having 1 chat (Can read more in chat/page.tsx)
-            we should make these redirect to that conversation in /chat.
-            */}
           <TripsSection
             title="Upcoming trips"
             status="upcoming"
@@ -40,9 +35,6 @@ export default async function Page() {
             emptyMessageIcon="/colliseum.png"
           />
 
-          {/*
-            TOOD: Same as above.
-            */}
           <TripsSection
             title="Past trips"
             status="past"
@@ -58,8 +50,7 @@ export default async function Page() {
             */}
           <DestinationsSection
             title="Recommended for you"
-            subtitle="Destinations we think you'll love based on your travel history"
-            destinations={suggestedDestinations}
+            subtitle="Based on your preferences and travel history"
           />
         </div>
       </main>

@@ -64,7 +64,7 @@ Shared API DTOs and enum values for consumers (frontend, MCP server, etc).
 
 ```typescript
 import type { TripWithDestinationDTO } from "@trip-loom/api/dto";
-import { tripStatusValues } from "@trip-loom/api/dto";
+import { tripStatusValues } from "@trip-loom/api/enums";
 ```
 
 ## Structure

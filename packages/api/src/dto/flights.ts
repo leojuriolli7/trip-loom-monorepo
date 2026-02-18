@@ -1,9 +1,9 @@
 import { z } from "zod";
 import {
-  bookingStatusEnum,
-  cabinClassEnum,
-  flightTypeEnum,
-} from "../db/schema";
+  bookingStatusValues,
+  cabinClassValues,
+  flightTypeValues,
+} from "../enums";
 
 const airportCodeSchema = z
   .string()
@@ -15,10 +15,6 @@ const airportCodeSchema = z
   .transform((value) => value.toUpperCase());
 
 const seatNumberSchema = z.string().trim().min(1).max(12);
-
-export const flightBookingStatusValues = bookingStatusEnum.enumValues;
-export const flightTypeValues = flightTypeEnum.enumValues;
-export const flightBookingCabinClassValues = cabinClassEnum.enumValues;
 
 export const airportSummarySchema = z.object({
   code: airportCodeSchema,
@@ -54,7 +50,7 @@ export const flightSearchSchema = z
     from: airportCodeSchema,
     to: airportCodeSchema,
     date: z.string().date(),
-    cabinClass: z.enum(flightBookingCabinClassValues).default("economy"),
+    cabinClass: z.enum(cabinClassValues).default("economy"),
     passengers: z.coerce.number().int().min(1).max(9).default(1),
   })
   .refine((value) => value.from !== value.to, {
@@ -77,7 +73,7 @@ export const flightOptionSchema = z.object({
   arrivalAirport: airportSummarySchema,
   arrivalTime: z.string().datetime(),
   durationMinutes: z.number().int().positive(),
-  cabinClass: z.enum(flightBookingCabinClassValues),
+  cabinClass: z.enum(cabinClassValues),
   priceInCents: z.number().int().min(0),
   availableSeats: z.number().int().nonnegative(),
   seatMap: flightSeatMapSchema,
@@ -101,9 +97,9 @@ export const flightBookingSchema = z.object({
   arrivalTime: z.date(),
   durationMinutes: z.number().int().positive(),
   seatNumber: z.string().nullable(),
-  cabinClass: z.enum(flightBookingCabinClassValues),
+  cabinClass: z.enum(cabinClassValues),
   priceInCents: z.number().int().min(0),
-  status: z.enum(flightBookingStatusValues),
+  status: z.enum(bookingStatusValues),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -131,7 +127,7 @@ export const createFlightBookingInputSchema = z
     arrivalCity: z.string().trim().min(1).max(120).optional(),
     arrivalTime: z.string().datetime(),
     durationMinutes: z.number().int().positive(),
-    cabinClass: z.enum(flightBookingCabinClassValues),
+    cabinClass: z.enum(cabinClassValues),
     priceInCents: z.number().int().min(0),
     seatNumber: seatNumberSchema.nullable().optional(),
   })
@@ -156,7 +152,7 @@ export type CreateFlightBookingInput = z.infer<
 
 export const updateFlightBookingInputSchema = z.object({
   seatNumber: seatNumberSchema.nullable().optional(),
-  status: z.enum(flightBookingStatusValues).optional(),
+  status: z.enum(bookingStatusValues).optional(),
 });
 
 export type UpdateFlightBookingInput = z.infer<

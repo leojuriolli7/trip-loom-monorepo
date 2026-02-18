@@ -1,7 +1,6 @@
 import { z } from "zod";
-import { paymentStatusEnum } from "../db/schema";
+import { paymentStatusValues } from "../enums";
 
-export const paymentStatusValues = paymentStatusEnum.enumValues;
 export const paymentBookingTypeValues = ["flight", "hotel"] as const;
 export const paymentBookingTypeSchema = z.enum(paymentBookingTypeValues);
 

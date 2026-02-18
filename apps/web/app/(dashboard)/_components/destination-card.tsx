@@ -9,18 +9,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { MapPinIcon, SparklesIcon } from "lucide-react";
 import Image from "next/image";
-
-export interface Destination {
-  id: string;
-  name: string;
-  country: string;
-  imageUrl: string;
-  description: string;
-  matchReason?: string;
-}
+import type { RecommendedDestinationDTO } from "@trip-loom/api/dto";
 
 interface DestinationCardProps {
-  destination: Destination;
+  destination: RecommendedDestinationDTO;
 }
 
 export function DestinationCard({ destination }: DestinationCardProps) {
@@ -28,7 +20,7 @@ export function DestinationCard({ destination }: DestinationCardProps) {
     <Card className="group cursor-pointer overflow-hidden border-border/60 p-0 transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5">
       <div className="relative aspect-3/4 overflow-hidden">
         <Image
-          src={destination.imageUrl}
+          src={destination.imageUrl ?? "/placeholder.png"}
           alt={destination.name}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"

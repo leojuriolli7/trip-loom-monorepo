@@ -244,6 +244,7 @@ export const destination = pgTable(
   (table) => [
     index("destination_country_code_idx").on(table.countryCode),
     index("destination_region_idx").on(table.region),
+    index("destination_highlights_idx").using("gin", table.highlights),
     index("destination_coordinates_idx").on(table.latitude, table.longitude),
     index("destination_search_vector_idx").using("gin", table.searchVector),
   ],

@@ -1,24 +1,14 @@
 import { z } from "zod";
 import {
-  cabinClassEnum,
-  priceRangeEnum,
-  travelInterestEnum,
-  regionEnum,
-} from "../db/schema";
-
-// Enum values derived from DB schema
-export const cabinClassValues = cabinClassEnum.enumValues;
-export const budgetRangeValues = priceRangeEnum.enumValues;
-export const travelInterestValues = travelInterestEnum.enumValues;
-export const regionValues = regionEnum.enumValues;
+  budgetRangeValues,
+  cabinClassValues,
+  regionValues,
+  travelInterestValues,
+} from "../enums";
 
 // Zod schemas for enums
 export const travelInterestSchema = z.enum(travelInterestValues);
 export const regionSchema = z.enum(regionValues);
-
-// Types derived from schemas
-export type TravelInterest = z.infer<typeof travelInterestSchema>;
-export type Region = z.infer<typeof regionSchema>;
 
 // Response schema - what the API returns
 export const userPreferenceSchema = z.object({

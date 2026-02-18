@@ -1,10 +1,8 @@
 import { z } from "zod";
-import { bookingStatusEnum } from "../db/schema";
+import { bookingStatusValues } from "../enums";
 import { isValidDateRange } from "../lib/date-range";
 
 const isoDateSchema = z.string().date();
-
-export const hotelBookingStatusValues = bookingStatusEnum.enumValues;
 
 /**
  * Hotel summary embedded in booking responses.
@@ -34,7 +32,7 @@ export const hotelBookingSchema = z.object({
   numberOfNights: z.number().int().positive(),
   pricePerNightInCents: z.number().int().min(0),
   totalPriceInCents: z.number().int().min(0),
-  status: z.enum(hotelBookingStatusValues),
+  status: z.enum(bookingStatusValues),
   createdAt: z.date(),
   updatedAt: z.date(),
   hotel: hotelSummarySchema,
@@ -77,7 +75,7 @@ export const updateHotelBookingInputSchema = z
     checkOutDate: isoDateSchema.optional(),
     roomType: z.string().trim().min(1).max(100).optional(),
     pricePerNightInCents: z.number().int().min(0).optional(),
-    status: z.enum(hotelBookingStatusValues).optional(),
+    status: z.enum(bookingStatusValues).optional(),
   })
   .refine(
     (value) => {

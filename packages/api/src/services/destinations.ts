@@ -1,4 +1,4 @@
-import { eq, sql, arrayContains } from "drizzle-orm";
+import { arrayContains, eq, sql } from "drizzle-orm";
 import { db } from "../db";
 import { destination } from "../db/schema";
 import type {
@@ -7,33 +7,29 @@ import type {
   DestinationWithStatsDTO,
 } from "../dto/destinations";
 import type { PaginatedResponse } from "../dto/common";
+import { recommendationEngine } from "../lib/trips/recommendation-engine";
 import {
-  paginate,
   buildCursorCondition,
   buildSearchCondition,
   combineConditions,
+  paginate,
   paginationOrderBy,
 } from "../lib/pagination";
 import { destinationSelectFields } from "../mappers/destinations";
 
 export async function listDestinations(
-  query: DestinationQuery
+  query: DestinationQuery,
 ): Promise<PaginatedResponse<DestinationDTO>> {
   const { cursor, limit, search, region, country, highlight } = query;
 
-  // Build conditions using shared helpers
   const whereCondition = combineConditions(
-    // Domain-specific filters
     region ? eq(destination.region, region) : undefined,
     country ? eq(destination.country, country) : undefined,
     highlight ? arrayContains(destination.highlights, [highlight]) : undefined,
-    // Full-text search
     buildSearchCondition(destination.searchVector, search),
-    // Cursor pagination
-    buildCursorCondition(cursor, destination.createdAt, destination.id)
+    buildCursorCondition(cursor, destination.createdAt, destination.id),
   );
 
-  // Execute query using shared select fields
   const results = await db
     .select(destinationSelectFields)
     .from(destination)
@@ -45,7 +41,7 @@ export async function listDestinations(
 }
 
 export async function getDestinationById(
-  id: string
+  id: string,
 ): Promise<DestinationWithStatsDTO | null> {
   const results = await db
     .select({
@@ -66,3 +62,6 @@ export async function getDestinationById(
 
   return results[0];
 }
+
+export const getRecommendedDestinations =
+  recommendationEngine.getRecommendedDestinations;

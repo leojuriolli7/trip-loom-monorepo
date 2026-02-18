@@ -1,5 +1,5 @@
 import type { DB_NewDestination, DB_NewHotel } from "../../db/types";
-import { regionValues } from "../../dto/destinations";
+import type { Region } from "../../enums";
 import { generateId } from "../../lib/nanoid";
 
 /**
@@ -11,7 +11,7 @@ import { generateId } from "../../lib/nanoid";
  */
 export function createTestDestinations(
   prefix: string,
-  region: (typeof regionValues)[number],
+  region: Region,
 ): DB_NewDestination[] {
   const sharedCountry = `TestCountry_${prefix}`;
   const sharedCountryCode = "TS";

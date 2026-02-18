@@ -3,13 +3,17 @@ import { z } from "zod";
 import {
   listDestinations,
   getDestinationById,
+  getRecommendedDestinations,
 } from "../services/destinations";
 import {
   destinationQuerySchema,
   destinationSchema,
   destinationWithStatsSchema,
+  recommendedDestinationSchema,
+  recommendedDestinationsQuerySchema,
 } from "../dto/destinations";
 import { errorResponseSchema, paginatedResponseSchema } from "../dto/common";
+import { requireAuthMacro } from "../lib/auth-plugin";
 
 export const destinationRoutes = new Elysia({
   name: "destinations",
@@ -24,6 +28,21 @@ export const destinationRoutes = new Elysia({
       query: destinationQuerySchema,
       response: {
         200: paginatedResponseSchema(destinationSchema),
+      },
+    }
+  )
+  .use(requireAuthMacro)
+  .get(
+    "/recommended",
+    async ({ user, query }) => {
+      return getRecommendedDestinations(user.id, query.limit);
+    },
+    {
+      auth: true,
+      query: recommendedDestinationsQuerySchema,
+      response: {
+        200: z.array(recommendedDestinationSchema),
+        401: errorResponseSchema,
       },
     }
   )

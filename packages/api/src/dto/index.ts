@@ -1,14 +1,8 @@
 export {
-  cabinClassValues,
-  budgetRangeValues,
-  travelInterestValues,
-  regionValues,
   travelInterestSchema,
   regionSchema,
   userPreferenceSchema,
   userPreferenceInputSchema,
-  type TravelInterest,
-  type Region,
   type UserPreferenceDTO,
   type UserPreferenceInput,
 } from "./user-preferences";
@@ -22,8 +16,12 @@ export {
 export {
   destinationSchema,
   destinationQuerySchema,
+  recommendedDestinationSchema,
+  recommendedDestinationsQuerySchema,
   type DestinationDTO,
   type DestinationQuery,
+  type RecommendedDestinationDTO,
+  type RecommendedDestinationsQuery,
 } from "./destinations";
 
 export {
@@ -34,9 +32,6 @@ export {
 } from "./hotels";
 
 export {
-  flightBookingStatusValues,
-  flightTypeValues,
-  flightBookingCabinClassValues,
   airportSummarySchema,
   flightSeatSchema,
   flightSeatRowSchema,
@@ -60,7 +55,6 @@ export {
 } from "./flights";
 
 export {
-  hotelBookingStatusValues,
   hotelSummarySchema,
   hotelBookingSchema,
   createHotelBookingInputSchema,
@@ -91,7 +85,6 @@ export {
 } from "./itineraries";
 
 export {
-  paymentStatusValues,
   paymentBookingTypeValues,
   paymentBookingTypeSchema,
   paymentSchema,
@@ -108,7 +101,6 @@ export {
 } from "./payments";
 
 export {
-  tripStatusValues,
   tripSchema,
   tripWithDestinationSchema,
   tripDetailSchema,
@@ -124,5 +116,4 @@ export {
   type CreateTripInput,
   type UpdateTripInput,
   type TripQuery,
-  type TripStatusValues,
 } from "./trips";
