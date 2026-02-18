@@ -24,6 +24,33 @@ const request = createJsonRequester(app);
 const requestJson = request.requestJson;
 const authMock = createHeaderAuthMock(ctx.prefix);
 
+const getMinimumAvailableSeatPriceInCents = (option: {
+  seatMap: Array<{
+    sections: Array<
+      Array<{
+        priceInCents: number;
+        isBooked: boolean;
+      }>
+    >;
+  }>;
+}): number => {
+  let minimumPrice = Number.POSITIVE_INFINITY;
+
+  for (const row of option.seatMap) {
+    for (const section of row.sections) {
+      for (const seat of section) {
+        if (seat.isBooked) {
+          continue;
+        }
+
+        minimumPrice = Math.min(minimumPrice, seat.priceInCents);
+      }
+    }
+  }
+
+  return Number.isFinite(minimumPrice) ? minimumPrice : 0;
+};
+
 type SeedData = {
   primaryUserId: string;
   secondaryUserId: string;
@@ -327,9 +354,9 @@ describe("Flights API", () => {
       expect(first.body.length).toBeGreaterThanOrEqual(5);
       expect(first.body.length).toBeLessThanOrEqual(10);
 
-      const prices = first.body.map((option: { priceInCents: number }) => option.priceInCents);
-      const sortedPrices = [...prices].sort((a, b) => a - b);
-      expect(prices).toEqual(sortedPrices);
+      const minimumSeatPrices = first.body.map(getMinimumAvailableSeatPriceInCents);
+      const sortedMinimumSeatPrices = [...minimumSeatPrices].sort((a, b) => a - b);
+      expect(minimumSeatPrices).toEqual(sortedMinimumSeatPrices);
 
       const firstOption = first.body[0];
       expect(firstOption).toMatchObject({
@@ -355,6 +382,9 @@ describe("Flights API", () => {
           priceInCents: expect.any(Number),
           isBooked: expect.any(Boolean),
         }),
+      );
+      expect(firstOption.seatMap[0].sections[0][0].priceInCents).toBeGreaterThanOrEqual(
+        7_500,
       );
 
       const availableSeatIds = firstOption.seatMap.flatMap(
@@ -394,10 +424,10 @@ describe("Flights API", () => {
       expect(firstClass.res.status).toBe(200);
 
       const economyMinPrice = Math.min(
-        ...economy.body.map((option: { priceInCents: number }) => option.priceInCents),
+        ...economy.body.map(getMinimumAvailableSeatPriceInCents),
       );
       const firstMinPrice = Math.min(
-        ...firstClass.body.map((option: { priceInCents: number }) => option.priceInCents),
+        ...firstClass.body.map(getMinimumAvailableSeatPriceInCents),
       );
 
       expect(firstMinPrice).toBeGreaterThan(economyMinPrice);

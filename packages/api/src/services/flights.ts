@@ -161,7 +161,7 @@ export async function getFlightBooking(
       cabinClass: booking.cabinClass,
     }),
     cabinClass: booking.cabinClass,
-    baseFlightPriceInCents: booking.priceInCents,
+    baseSeatPriceInCents: booking.priceInCents,
   });
 
   return {

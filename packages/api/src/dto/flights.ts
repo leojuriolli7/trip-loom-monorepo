@@ -74,7 +74,6 @@ export const flightOptionSchema = z.object({
   arrivalTime: z.string().datetime(),
   durationMinutes: z.number().int().positive(),
   cabinClass: z.enum(cabinClassValues),
-  priceInCents: z.number().int().min(0),
   availableSeats: z.number().int().nonnegative(),
   seatMap: flightSeatMapSchema,
   suggestedSeatId: z.string().nullable(),

@@ -140,7 +140,6 @@ I've pre-selected seat 3C for you - it's a window seat with extra legroom. You c
           arrivalTime: "2026-07-16T04:45:00.000Z",
           durationMinutes: 615,
           cabinClass: "business",
-          priceInCents: 124_500,
           availableSeats: 48,
           seatMap: MOCK_SEAT_MAP,
           suggestedSeatId: "3C",

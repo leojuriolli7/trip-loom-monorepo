@@ -50,6 +50,24 @@ type BookFlightStepProps = {
 
 type Step = "search" | "select-seat";
 
+const getMinimumAvailableSeatPriceInCents = (flight: FlightOptionDTO): number => {
+  let minimumPrice = Number.POSITIVE_INFINITY;
+
+  for (const row of flight.seatMap) {
+    for (const section of row.sections) {
+      for (const seat of section) {
+        if (seat.isBooked) {
+          continue;
+        }
+
+        minimumPrice = Math.min(minimumPrice, seat.priceInCents);
+      }
+    }
+  }
+
+  return Number.isFinite(minimumPrice) ? minimumPrice : 0;
+};
+
 export function BookFlightStep({ flightType }: BookFlightStepProps) {
   const { trip, destination, setOutboundFlight, setReturnFlight, nextStep } =
     useWizard();
@@ -142,7 +160,7 @@ export function BookFlightStep({ flightType }: BookFlightStepProps) {
           arrivalTime: selectedFlight.arrivalTime,
           durationMinutes: selectedFlight.durationMinutes,
           cabinClass: selectedFlight.cabinClass,
-          priceInCents: selectedFlight.priceInCents + selectedSeat.priceInCents,
+          priceInCents: selectedSeat.priceInCents,
           seatNumber: selectedSeat.id,
         },
       })
@@ -312,70 +330,69 @@ export function BookFlightStep({ flightType }: BookFlightStepProps) {
                       {searchQuery.data.data.length} flight
                       {searchQuery.data.data.length !== 1 ? "s" : ""} found
                     </h3>
-                    {searchQuery.data.data.map((flight) => (
-                      <button
-                        key={flight.id}
-                        type="button"
-                        onClick={() => handleSelectFlight(flight)}
-                        className={cn(
-                          "w-full rounded-xl border p-4 text-left transition-colors hover:bg-muted/50",
-                          selectedFlight?.id === flight.id
-                            ? "border-primary bg-primary/5"
-                            : "border-border",
-                        )}
-                      >
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <PlaneIcon className="size-4 text-primary" />
-                              <span className="font-medium">
-                                {flight.flightNumber}
-                              </span>
-                              <span className="text-sm text-muted-foreground">
-                                {flight.airline}
-                              </span>
+                    {searchQuery.data.data.map((flight) => {
+                      const minimumSeatPriceInCents =
+                        getMinimumAvailableSeatPriceInCents(flight);
+
+                      return (
+                        <button
+                          key={flight.id}
+                          type="button"
+                          onClick={() => handleSelectFlight(flight)}
+                          className={cn(
+                            "w-full rounded-xl border p-4 text-left transition-colors hover:bg-muted/50",
+                            selectedFlight?.id === flight.id
+                              ? "border-primary bg-primary/5"
+                              : "border-border",
+                          )}
+                        >
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <PlaneIcon className="size-4 text-primary" />
+                                <span className="font-medium">
+                                  {flight.flightNumber}
+                                </span>
+                                <span className="text-sm text-muted-foreground">
+                                  {flight.airline}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-4 text-sm">
+                                <div>
+                                  <div className="font-medium">
+                                    {format(new Date(flight.departureTime), "HH:mm")}
+                                  </div>
+                                  <div className="text-muted-foreground">
+                                    {flight.departureAirportCode}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1 text-muted-foreground">
+                                  <ClockIcon className="size-3" />
+                                  {formatDuration(flight.durationMinutes)}
+                                </div>
+                                <div>
+                                  <div className="font-medium">
+                                    {format(new Date(flight.arrivalTime), "HH:mm")}
+                                  </div>
+                                  <div className="text-muted-foreground">
+                                    {flight.arrivalAirportCode}
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-4 text-sm">
-                              <div>
-                                <div className="font-medium">
-                                  {format(
-                                    new Date(flight.departureTime),
-                                    "HH:mm",
-                                  )}
-                                </div>
-                                <div className="text-muted-foreground">
-                                  {flight.departureAirportCode}
-                                </div>
+                            <div className="text-right">
+                              <div className="font-bold text-lg">
+                                From {formatPrice(minimumSeatPriceInCents)}
                               </div>
-                              <div className="flex items-center gap-1 text-muted-foreground">
-                                <ClockIcon className="size-3" />
-                                {formatDuration(flight.durationMinutes)}
-                              </div>
-                              <div>
-                                <div className="font-medium">
-                                  {format(
-                                    new Date(flight.arrivalTime),
-                                    "HH:mm",
-                                  )}
-                                </div>
-                                <div className="text-muted-foreground">
-                                  {flight.arrivalAirportCode}
-                                </div>
+                              <div className="text-xs text-muted-foreground">
+                                {flight.availableSeats} seat
+                                {flight.availableSeats !== 1 ? "s" : ""} left
                               </div>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <div className="font-bold text-lg">
-                              {formatPrice(flight.priceInCents)}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {flight.availableSeats} seat
-                              {flight.availableSeats !== 1 ? "s" : ""} left
-                            </div>
-                          </div>
-                        </div>
-                      </button>
-                    ))}
+                        </button>
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="py-8 text-center text-muted-foreground">

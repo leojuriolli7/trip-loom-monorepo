@@ -22,6 +22,8 @@ const CABIN_MULTIPLIER: Record<CabinClass, number> = {
   first: 3.2,
 };
 
+const MINIMUM_SEAT_PRICE_IN_CENTS = 7_500;
+
 const CABIN_LAYOUTS: Record<CabinClass, number[][]> = {
   economy: [[3, 3]],
   business: [
@@ -91,14 +93,36 @@ const buildSeatLetters = (layout: number[]): string[][] => {
   );
 };
 
+const getMinimumAvailableSeatPriceInCents = (seatMap: FlightSeatMap): number => {
+  let minimumPrice = Number.POSITIVE_INFINITY;
+
+  for (const row of seatMap) {
+    for (const section of row.sections) {
+      for (const seat of section) {
+        if (seat.isBooked) {
+          continue;
+        }
+
+        minimumPrice = Math.min(minimumPrice, seat.priceInCents);
+      }
+    }
+  }
+
+  if (Number.isFinite(minimumPrice)) {
+    return minimumPrice;
+  }
+
+  return MINIMUM_SEAT_PRICE_IN_CENTS;
+};
+
 export function generateSeatMapForFlight({
   seedKey,
   cabinClass,
-  baseFlightPriceInCents,
+  baseSeatPriceInCents,
 }: {
   seedKey: string;
   cabinClass: CabinClass;
-  baseFlightPriceInCents: number;
+  baseSeatPriceInCents: number;
 }): {
   seatMap: FlightSeatMap;
   availableSeatCount: number;
@@ -111,9 +135,9 @@ export function generateSeatMapForFlight({
 
   const { min, max } = CABIN_ROW_RANGE[cabinClass];
   const totalRows = randomInt(random, min, max);
-  const seatBasePriceInCents = Math.max(
-    800,
-    Math.round(baseFlightPriceInCents * 0.025),
+  const normalizedBaseSeatPriceInCents = Math.max(
+    MINIMUM_SEAT_PRICE_IN_CENTS,
+    Math.round(baseSeatPriceInCents),
   );
 
   const seatMap: FlightSeatMap = [];
@@ -121,14 +145,14 @@ export function generateSeatMapForFlight({
 
   for (let rowNumber = 1; rowNumber <= totalRows; rowNumber += 1) {
     const rowProgress = (rowNumber - 1) / Math.max(totalRows - 1, 1);
-    const rowMultiplier = 1.35 - rowProgress * 0.45;
+    const rowMultiplier = 1.28 - rowProgress * 0.42;
 
     const sections = lettersBySection.map((sectionLetters) =>
       sectionLetters.map((letter) => {
-        const jitter = randomInt(random, -200, 300);
+        const jitter = randomInt(random, -1_600, 2_400);
         const priceInCents = Math.max(
-          500,
-          Math.round(seatBasePriceInCents * rowMultiplier) + jitter,
+          MINIMUM_SEAT_PRICE_IN_CENTS,
+          Math.round(normalizedBaseSeatPriceInCents * rowMultiplier) + jitter,
         );
         const bookedProbability = 0.2 + rowProgress * 0.35;
         const isBooked = random() < bookedProbability;
@@ -210,17 +234,14 @@ export function generateFlightOptions({
       departureTime.getTime() + durationMinutes * 60_000,
     );
 
-    const perPassengerPriceInCents =
-      durationMinutes * 52 + randomInt(random, 3_000, 12_500);
-    const priceInCents = Math.round(
-      perPassengerPriceInCents *
-        CABIN_MULTIPLIER[params.cabinClass] *
-        params.passengers,
+    const baseSeatPriceInCents = Math.round(
+      (durationMinutes * 52 + randomInt(random, 3_000, 12_500)) *
+        CABIN_MULTIPLIER[params.cabinClass],
     );
     const seatMapData = generateSeatMapForFlight({
       seedKey: `${seedKey}|${index + 1}`,
       cabinClass: params.cabinClass,
-      baseFlightPriceInCents: perPassengerPriceInCents,
+      baseSeatPriceInCents,
     });
 
     options.push({
@@ -237,7 +258,6 @@ export function generateFlightOptions({
       arrivalTime: arrivalTime.toISOString(),
       durationMinutes,
       cabinClass: params.cabinClass,
-      priceInCents,
       availableSeats: seatMapData.availableSeatCount,
       seatMap: seatMapData.seatMap,
       suggestedSeatId: seatMapData.suggestedSeatId,
@@ -246,7 +266,8 @@ export function generateFlightOptions({
 
   return options.sort(
     (a, b) =>
-      a.priceInCents - b.priceInCents ||
+      getMinimumAvailableSeatPriceInCents(a.seatMap) -
+        getMinimumAvailableSeatPriceInCents(b.seatMap) ||
       a.departureTime.localeCompare(b.departureTime),
   );
 }
