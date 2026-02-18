@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Card,
   CardContent,
@@ -10,14 +12,39 @@ import { Badge } from "@/components/ui/badge";
 import { MapPinIcon, SparklesIcon } from "lucide-react";
 import Image from "next/image";
 import type { RecommendedDestinationDTO } from "@trip-loom/api/dto";
+import { useQueryClient } from "@tanstack/react-query";
+import { destinationQueries } from "@/lib/api/react-query/destinations";
 
 interface DestinationCardProps {
   destination: RecommendedDestinationDTO;
+  onClick?: () => void;
 }
 
-export function DestinationCard({ destination }: DestinationCardProps) {
+export function DestinationCard({
+  destination,
+  onClick,
+}: DestinationCardProps) {
+  const queryClient = useQueryClient();
+
   return (
-    <Card className="group cursor-pointer overflow-hidden border-border/60 p-0 transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5">
+    <Card
+      className="group cursor-pointer overflow-hidden border-border/60 p-0 transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
+      onClick={onClick}
+      /**
+       * Optimization: Prefetch on hover or when touch starts over a card.
+       */
+      onMouseOver={() => {
+        void queryClient.prefetchQuery(
+          destinationQueries.getDestinationDetail(destination.id),
+        );
+      }}
+      onTouchStart={() => {
+        void queryClient.prefetchQuery(
+          destinationQueries.getDestinationDetail(destination.id),
+        );
+      }}
+      data-testid={`destination-card-${destination.id}`}
+    >
       <div className="relative aspect-3/4 overflow-hidden">
         <Image
           src={destination.imageUrl ?? "/placeholder.png"}

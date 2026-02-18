@@ -42,12 +42,6 @@ export default async function Page() {
             emptyMessageIcon="/pyramid.png"
           />
 
-          {/*
-            TODO: Clicking could open dialog with more information + Actions like:
-            - Ask AI about activies
-            - Ask AI to plan your trip
-            etc...
-            */}
           <DestinationsSection
             title="Recommended for you"
             subtitle="Based on your preferences and travel history"

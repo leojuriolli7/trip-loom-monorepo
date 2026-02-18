@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { paginationQuerySchema } from "../lib/pagination";
-import { regionValues, travelInterestValues } from "../enums";
+import { regionValues, travelInterestValues, amenityValues, priceRangeValues } from "../enums";
 
 // =============================================================================
 // Response Schemas
@@ -32,6 +32,32 @@ export const destinationWithStatsSchema = destinationSchema.extend({
 export type DestinationWithStatsDTO = z.infer<
   typeof destinationWithStatsSchema
 >;
+
+// =============================================================================
+// Hotel Summary (for destination detail view)
+// =============================================================================
+
+/** Lightweight hotel info for destination detail dialog */
+export const destinationHotelSummarySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  imageUrl: z.string().nullable(),
+  starRating: z.number().int().min(1).max(5),
+  priceRange: z.enum(priceRangeValues),
+  avgPricePerNightInCents: z.number().int().min(0),
+  amenities: z.array(z.enum(amenityValues)),
+});
+
+export type DestinationHotelSummaryDTO = z.infer<
+  typeof destinationHotelSummarySchema
+>;
+
+/** Destination detail with top hotels */
+export const destinationDetailSchema = destinationWithStatsSchema.extend({
+  topHotels: z.array(destinationHotelSummarySchema),
+});
+
+export type DestinationDetailDTO = z.infer<typeof destinationDetailSchema>;
 
 // =============================================================================
 // Query Params (extends shared pagination schema)

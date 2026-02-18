@@ -106,8 +106,6 @@ Client examples: https://modelcontextprotocol.io/clients
 
 ### 5. Immediate TODOs
 
-- Implement destination section dialog for more info on each destination + hotels + AI action CTAs
-
 - The destination database is fine, it works and has many destinations.
 
   However, the hotels database is not working properly, eg: Park Hyatt in Sydney is marked as a hotel from the destination "Wollstonecraft" instead.

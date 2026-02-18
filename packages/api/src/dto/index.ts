@@ -16,10 +16,14 @@ export {
 export {
   destinationSchema,
   destinationQuerySchema,
+  destinationDetailSchema,
+  destinationHotelSummarySchema,
   recommendedDestinationSchema,
   recommendedDestinationsQuerySchema,
   type DestinationDTO,
   type DestinationQuery,
+  type DestinationDetailDTO,
+  type DestinationHotelSummaryDTO,
   type RecommendedDestinationDTO,
   type RecommendedDestinationsQuery,
 } from "./destinations";

@@ -11,6 +11,7 @@ const KEYS = {
   list: (query: Omit<DestinationQuery, "cursor">) =>
     [...KEYS.base(), "list", query] as const,
   detail: (id: string) => [...KEYS.base(), "detail", id] as const,
+  fullDetail: (id: string) => [...KEYS.base(), "fullDetail", id] as const,
   recommended: (limit: number) =>
     [...KEYS.base(), "recommended", limit] as const,
 };
@@ -22,6 +23,8 @@ export const destinationQueries = {
     const { cursor: _cursor, ...queryWithoutCursor } = query;
 
     return infiniteQueryOptions({
+      // TODO: eventually write a shared util/helper that writes most of the options here for us,
+      // like select, initialPageparam, getNextPageParam etc... but without loosing on typesafety.
       select(data) {
         return data?.pages.flatMap((page) => page.data) || [];
       },
@@ -51,6 +54,21 @@ export const destinationQueries = {
       queryKey: KEYS.detail(id),
       queryFn: async ({ signal }) =>
         apiClient.api.destinations({ id }).get({ fetch: { signal } }),
+    }),
+  getDestinationDetail: (id: string) =>
+    queryOptions({
+      queryKey: KEYS.fullDetail(id),
+      queryFn: async ({ signal }) => {
+        const result = await apiClient.api
+          .destinations({ id })
+          .detail.get({ fetch: { signal } });
+
+        if (!result.data) {
+          throw new Error("Could not load destination details");
+        }
+
+        return result.data;
+      },
     }),
   listRecommendedDestinations: (limit: number = 10) =>
     queryOptions({

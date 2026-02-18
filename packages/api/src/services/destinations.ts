@@ -1,10 +1,12 @@
-import { arrayContains, eq, sql } from "drizzle-orm";
+import { arrayContains, desc, asc, eq, sql } from "drizzle-orm";
 import { db } from "../db";
-import { destination } from "../db/schema";
+import { destination, hotel } from "../db/schema";
 import type {
   DestinationDTO,
   DestinationQuery,
   DestinationWithStatsDTO,
+  DestinationDetailDTO,
+  DestinationHotelSummaryDTO,
 } from "../dto/destinations";
 import type { PaginatedResponse } from "../dto/common";
 import { recommendationEngine } from "../lib/trips/recommendation-engine";
@@ -61,6 +63,59 @@ export async function getDestinationById(
   }
 
   return results[0];
+}
+
+const TOP_HOTELS_LIMIT = 4;
+
+export async function getDestinationDetail(
+  id: string,
+): Promise<DestinationDetailDTO | null> {
+  const [destinationResult, hotelsResult] = await Promise.all([
+    db
+      .select({
+        ...destinationSelectFields,
+        hotelCount: sql<number>`(
+          SELECT COALESCE(COUNT(*)::int, 0)
+          FROM "hotel"
+          WHERE "hotel"."destination_id" = "destination"."id"
+        )`,
+      })
+      .from(destination)
+      .where(eq(destination.id, id))
+      .limit(1),
+    db
+      .select({
+        id: hotel.id,
+        name: hotel.name,
+        imageUrl: hotel.imageUrl,
+        starRating: hotel.starRating,
+        priceRange: hotel.priceRange,
+        avgPricePerNightInCents: hotel.avgPricePerNightInCents,
+        amenities: hotel.amenities,
+      })
+      .from(hotel)
+      .where(eq(hotel.destinationId, id))
+      .orderBy(
+        desc(hotel.starRating),
+        asc(hotel.avgPricePerNightInCents),
+        asc(hotel.id),
+      )
+      .limit(TOP_HOTELS_LIMIT),
+  ]);
+
+  if (destinationResult.length === 0) {
+    return null;
+  }
+
+  const topHotels: DestinationHotelSummaryDTO[] = hotelsResult.map((h) => ({
+    ...h,
+    amenities: h.amenities.slice(0, 3),
+  }));
+
+  return {
+    ...destinationResult[0],
+    topHotels,
+  };
 }
 
 export const getRecommendedDestinations =

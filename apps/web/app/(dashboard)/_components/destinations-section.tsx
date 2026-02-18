@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import {
   Carousel,
   CarouselContent,
@@ -8,6 +9,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { DestinationCard } from "./destination-card";
+import { DestinationDetailDialog } from "./destination-detail-dialog";
 import { useQuery } from "@tanstack/react-query";
 import { destinationQueries } from "@/lib/api/react-query/destinations";
 import { Spinner } from "@/components/ui/spinner";
@@ -24,9 +26,31 @@ export function DestinationsSection({
   subtitle,
   limit = 10,
 }: DestinationsSectionProps) {
+  const [selectedDestinationId, setSelectedDestinationId] = React.useState<
+    string | null
+  >(null);
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+
   const { data: destinations = [], status } = useQuery(
-    destinationQueries.listRecommendedDestinations(limit)
+    destinationQueries.listRecommendedDestinations(limit),
   );
+
+  const handleDestinationClick = (destinationId: string) => {
+    setSelectedDestinationId(destinationId);
+    setDialogOpen(true);
+  };
+
+  const handleDialogOpenChange = (open: boolean) => {
+    setDialogOpen(open);
+
+    if (!open) {
+      setTimeout(() => {
+        // wait for animation to finish first
+        // TODO: Can be a better way do to this, but it works for now.
+        setSelectedDestinationId(null);
+      }, 300);
+    }
+  };
 
   return (
     <section className="mx-auto max-w-5xl px-6 lg:px-8">
@@ -80,7 +104,10 @@ export function DestinationsSection({
                   key={destination.id}
                   className="basis-full pl-4 sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
                 >
-                  <DestinationCard destination={destination} />
+                  <DestinationCard
+                    destination={destination}
+                    onClick={() => handleDestinationClick(destination.id)}
+                  />
                 </CarouselItem>
               ))}
             </CarouselContent>
@@ -93,6 +120,12 @@ export function DestinationsSection({
           </>
         )}
       </Carousel>
+
+      <DestinationDetailDialog
+        destinationId={selectedDestinationId}
+        open={dialogOpen}
+        onOpenChange={handleDialogOpenChange}
+      />
     </section>
   );
 }
