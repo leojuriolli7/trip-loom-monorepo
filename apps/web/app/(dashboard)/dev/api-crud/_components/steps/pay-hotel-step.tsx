@@ -208,16 +208,18 @@ export function PayHotelStep() {
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <span className="font-medium">{hotelBooking.hotel.name}</span>
-                  <div className="flex">
-                    {Array.from({ length: hotelBooking.hotel.starRating }).map(
-                      (_, i) => (
-                        <StarIcon
-                          key={i}
-                          className="size-3 fill-yellow-400 text-yellow-400"
-                        />
-                      ),
-                    )}
-                  </div>
+                  {hotelBooking.hotel.starRating && (
+                    <div className="flex">
+                      {Array.from({ length: hotelBooking.hotel.starRating }).map(
+                        (_, i) => (
+                          <StarIcon
+                            key={i}
+                            className="size-3 fill-yellow-400 text-yellow-400"
+                          />
+                        ),
+                      )}
+                    </div>
+                  )}
                 </div>
                 <p className="text-sm text-muted-foreground">
                   {hotelBooking.roomType}

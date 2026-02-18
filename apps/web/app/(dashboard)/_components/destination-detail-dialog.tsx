@@ -83,12 +83,15 @@ function DestinationDetailContent({
   return (
     <>
       <div className="relative aspect-video w-full shrink-0 overflow-hidden">
-        <Image
+        {/* TODO: Add next/image back after images are on my CDN */}
+        <img
           src={data.imageUrl ?? "/placeholder.png"}
           alt={data.name}
-          fill
+          // fill
           className="object-cover"
-          priority
+          // priority
+          fetchPriority="high"
+          loading="eager"
         />
         <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/50 to-black/20" />
 

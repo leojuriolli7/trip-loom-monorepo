@@ -17,3 +17,15 @@ plans/*
 
 # source of data for destinations
 packages/api/seeds/sources/geonames/*
+
+# Seed generator intermediate files (destinations)
+packages/api/seeds/generators/destinations/master-cities.json
+packages/api/seeds/generators/destinations/.enrichment-progress.json
+
+# Seed generator intermediate files (hotels)
+packages/api/seeds/generators/hotels/raw-hotels-search.json
+packages/api/seeds/generators/hotels/raw-hotels-details.json
+packages/api/seeds/generators/hotels/.search-progress.json
+packages/api/seeds/generators/hotels/.enrich-progress.json
+packages/api/seeds/generators/hotels/discovered-amenities.json
+packages/api/seeds/generators/hotels/data-analysis.json

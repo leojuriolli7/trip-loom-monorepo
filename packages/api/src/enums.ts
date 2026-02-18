@@ -3,6 +3,7 @@ import {
   bookingStatusEnum,
   cabinClassEnum,
   flightTypeEnum,
+  hotelStyleEnum,
   paymentStatusEnum,
   priceRangeEnum,
   regionEnum,
@@ -40,3 +41,6 @@ export type Amenity = (typeof amenityValues)[number];
 
 export const regionValues = regionEnum.enumValues;
 export type Region = (typeof regionValues)[number];
+
+export const hotelStyleValues = hotelStyleEnum.enumValues;
+export type HotelStyle = (typeof hotelStyleValues)[number];

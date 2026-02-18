@@ -149,23 +149,27 @@ export function BookHotelStep() {
                         <span className="font-medium truncate">
                           {hotel.name}
                         </span>
-                        <div className="flex shrink-0">
-                          {Array.from({ length: hotel.starRating }).map(
-                            (_, i) => (
-                              <StarIcon
-                                key={i}
-                                className="size-3 fill-yellow-400 text-yellow-400"
-                              />
-                            ),
-                          )}
-                        </div>
+                        {hotel.starRating && (
+                          <div className="flex shrink-0">
+                            {Array.from({ length: hotel.starRating }).map(
+                              (_, i) => (
+                                <StarIcon
+                                  key={i}
+                                  className="size-3 fill-yellow-400 text-yellow-400"
+                                />
+                              ),
+                            )}
+                          </div>
+                        )}
                       </div>
                       <div className="text-xs text-muted-foreground truncate">
                         {hotel.address}
                       </div>
-                      <div className="text-xs font-medium text-primary">
-                        {formatPrice(hotel.avgPricePerNightInCents)}/night
-                      </div>
+                      {hotel.avgPricePerNightInCents && (
+                        <div className="text-xs font-medium text-primary">
+                          {formatPrice(hotel.avgPricePerNightInCents)}/night
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -173,7 +177,7 @@ export function BookHotelStep() {
                 selectedId={selectedHotel?.id ?? null}
                 onSelect={(hotel) => {
                   setSelectedHotel(hotel);
-                  setPricePerNight(hotel.avgPricePerNightInCents);
+                  setPricePerNight(hotel.avgPricePerNightInCents ?? 0);
                 }}
                 placeholder="Search hotels..."
                 emptyMessage="No hotels found in this destination"
@@ -194,16 +198,18 @@ export function BookHotelStep() {
                     <div>
                       <div className="flex items-center gap-2">
                         <h4 className="font-medium">{selectedHotel.name}</h4>
-                        <div className="flex">
-                          {Array.from({ length: selectedHotel.starRating }).map(
-                            (_, i) => (
-                              <StarIcon
-                                key={i}
-                                className="size-3 fill-yellow-400 text-yellow-400"
-                              />
-                            ),
-                          )}
-                        </div>
+                        {selectedHotel.starRating && (
+                          <div className="flex">
+                            {Array.from({ length: selectedHotel.starRating }).map(
+                              (_, i) => (
+                                <StarIcon
+                                  key={i}
+                                  className="size-3 fill-yellow-400 text-yellow-400"
+                                />
+                              ),
+                            )}
+                          </div>
+                        )}
                       </div>
                       <p className="text-sm text-muted-foreground">
                         {selectedHotel.address}

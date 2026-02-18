@@ -11,6 +11,7 @@ import {
   unique,
   check,
   customType,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 
@@ -55,10 +56,10 @@ export const bookingStatusEnum = pgEnum("booking_status", [
 ]);
 
 export const priceRangeEnum = pgEnum("price_range", [
-  "budget",
-  "moderate",
-  "upscale",
-  "luxury",
+  "budget", // $
+  "moderate", // $$ - $$$
+  "upscale", // $$$$
+  "luxury", // $$$$+
 ]);
 
 export const paymentStatusEnum = pgEnum("payment_status", [
@@ -94,25 +95,105 @@ export const travelInterestEnum = pgEnum("travel_interest", [
 ]);
 
 export const amenityEnum = pgEnum("amenity", [
+  // Core amenities
   "wifi",
+  "free-wifi",
   "pool",
+  "indoor-pool",
+  "outdoor-pool",
+  "heated-pool",
+  "infinity-pool",
+  "rooftop-pool",
   "spa",
+  "sauna",
+  "steam-room",
+  "hot-tub",
   "gym",
+  "fitness-center",
   "restaurant",
   "bar",
+  "rooftop-bar",
+  "coffee-shop",
   "parking",
+  "free-parking",
+  "valet-parking",
   "airport-shuttle",
+  "free-airport-transportation",
   "room-service",
   "concierge",
   "beach-access",
+  "beachfront",
+  "private-beach",
   "pet-friendly",
   "business-center",
+  "meeting-rooms",
+  "conference-facilities",
   "kids-club",
+  "kids-pool",
   "laundry",
+  "dry-cleaning",
   "air-conditioning",
   "balcony",
+  "private-balcony",
   "ocean-view",
   "city-view",
+  "mountain-view",
+  // Additional popular amenities
+  "24-hour-front-desk",
+  "24-hour-security",
+  "accessible-rooms",
+  "wheelchair-access",
+  "all-inclusive",
+  "babysitting",
+  "baggage-storage",
+  "bathrobes",
+  "breakfast-included",
+  "breakfast-buffet",
+  "casino",
+  "currency-exchange",
+  "doorperson",
+  "electric-vehicle-charging",
+  "executive-lounge",
+  "express-check-in",
+  "family-rooms",
+  "fireplace",
+  "gift-shop",
+  "golf-course",
+  "hair-dryer",
+  "housekeeping",
+  "kitchenette",
+  "minibar",
+  "non-smoking-rooms",
+  "non-smoking-hotel",
+  "on-demand-movies",
+  "outdoor-furniture",
+  "patio",
+  "private-bathroom",
+  "refrigerator",
+  "safe",
+  "shuttle-service",
+  "soundproof-rooms",
+  "suites",
+  "sun-terrace",
+  "tennis-court",
+  "tv",
+  "flatscreen-tv",
+  // Activities
+  "bicycle-rental",
+  "diving",
+  "snorkeling",
+  "water-sports",
+  "hiking",
+  "yoga-classes",
+  "massage",
+  "couples-massage",
+  // Dining
+  "poolside-bar",
+  "snack-bar",
+  "special-diet-menus",
+  // Tech
+  "telephone",
+  "iron",
 ]);
 
 export const regionEnum = pgEnum("region", [
@@ -129,6 +210,42 @@ export const regionEnum = pgEnum("region", [
   "Sub-Saharan Africa",
   "Oceania",
   "Central Asia",
+]);
+
+export const hotelStyleEnum = pgEnum("hotel_style", [
+  "art-deco",
+  "bay-view",
+  "boutique",
+  "budget",
+  "business",
+  "centrally-located",
+  "charming",
+  "city-view",
+  "classic",
+  "family",
+  "family-resort",
+  "great-view",
+  "green",
+  "harbor-view",
+  "hidden-gem",
+  "historic",
+  "lagoon-view",
+  "lake-view",
+  "luxury",
+  "marina-view",
+  "mid-range",
+  "modern",
+  "mountain-view",
+  "ocean-view",
+  "park-view",
+  "quaint",
+  "quiet",
+  "quirky",
+  "residential",
+  "river-view",
+  "romantic",
+  "trendy",
+  "value",
 ]);
 
 // =============================================================================
@@ -281,16 +398,34 @@ export const hotel = pgTable(
       .notNull()
       .references(() => destination.id, { onDelete: "restrict" }),
     name: text("name").notNull(),
+    // Simple address string for display
     address: text("address").notNull(),
+    // Structured address from TripAdvisor
+    addressObj: jsonb("address_obj").$type<{
+      street1?: string;
+      street2?: string;
+      city?: string;
+      state?: string;
+      country?: string;
+      postalcode?: string;
+    }>(),
     latitude: real("latitude"),
     longitude: real("longitude"),
     imageUrl: text("image_url"),
     source: text("source"),
     sourceId: text("source_id"),
-    starRating: integer("star_rating").notNull(), // 1-5
-    amenities: amenityEnum("amenities").array().notNull(), // e.g., ["pool", "spa"]
-    priceRange: priceRangeEnum("price_range").notNull(),
-    avgPricePerNightInCents: integer("avg_price_per_night_in_cents").notNull(),
+    sourceUrl: text("source_url"), // TripAdvisor URL
+    // Rating from TripAdvisor (1.0-5.0 scale)
+    rating: real("rating"),
+    numReviews: integer("num_reviews"),
+    // e.g., "#6 of 82 hotels in Auckland Central"
+    rankingString: text("ranking_string"),
+    starRating: integer("star_rating"), // 1-5, nullable since TripAdvisor doesn't always have this
+    amenities: amenityEnum("amenities").array().notNull().default([]),
+    // Hotel styles from TripAdvisor
+    styles: hotelStyleEnum("styles").array().notNull().default([]),
+    priceRange: priceRangeEnum("price_range"),
+    avgPricePerNightInCents: integer("avg_price_per_night_in_cents"),
     description: text("description"),
     // Full-text search vector - maintained by trigger
     searchVector: tsvector("search_vector"),
@@ -304,16 +439,22 @@ export const hotel = pgTable(
     index("hotel_destination_id_idx").on(table.destinationId),
     index("hotel_price_range_idx").on(table.priceRange),
     index("hotel_star_rating_idx").on(table.starRating),
+    index("hotel_rating_idx").on(table.rating),
     index("hotel_source_idx").on(table.source),
+    index("hotel_styles_idx").using("gin", table.styles),
     index("hotel_search_vector_idx").using("gin", table.searchVector),
     unique("hotel_source_source_id_unique").on(table.source, table.sourceId),
     check(
       "hotel_star_rating_check",
-      sql`${table.starRating} >= 1 AND ${table.starRating} <= 5`,
+      sql`${table.starRating} IS NULL OR (${table.starRating} >= 1 AND ${table.starRating} <= 5)`,
+    ),
+    check(
+      "hotel_rating_check",
+      sql`${table.rating} IS NULL OR (${table.rating} >= 0 AND ${table.rating} <= 5)`,
     ),
     check(
       "hotel_avg_price_non_negative",
-      sql`${table.avgPricePerNightInCents} >= 0`,
+      sql`${table.avgPricePerNightInCents} IS NULL OR ${table.avgPricePerNightInCents} >= 0`,
     ),
   ],
 );

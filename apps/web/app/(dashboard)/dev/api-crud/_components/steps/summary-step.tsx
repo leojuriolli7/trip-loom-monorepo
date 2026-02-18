@@ -201,16 +201,18 @@ export function SummaryStep() {
                     <span className="font-medium">
                       {hotelBooking.hotel.name}
                     </span>
-                    <div className="flex">
-                      {Array.from({
-                        length: hotelBooking.hotel.starRating,
-                      }).map((_, i) => (
-                        <StarIcon
-                          key={i}
-                          className="size-3 fill-yellow-400 text-yellow-400"
-                        />
-                      ))}
-                    </div>
+                    {hotelBooking.hotel.starRating && (
+                      <div className="flex">
+                        {Array.from({
+                          length: hotelBooking.hotel.starRating,
+                        }).map((_, i) => (
+                          <StarIcon
+                            key={i}
+                            className="size-3 fill-yellow-400 text-yellow-400"
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <Badge
                     variant={

@@ -105,13 +105,11 @@ Server to base myself: https://github.com/modelcontextprotocol/servers/blob/main
 Client examples: https://modelcontextprotocol.io/clients
 
 ### 5. Immediate TODOs
-
-- The destination and hotels database needs tuning: it works and has many destinations, but:
-
-  1. Hotels database is not working properly, eg: Park Hyatt in Sydney is marked as a hotel from the destination "Wollstonecraft" instead.
-  2. Destinations database has many locations, but all of them have no imageUrl (because of the source having no images).
-
-  Likely better approach: Slim down number of destinations and work with smaller AI model to generate high-quality hotels for each location based on real hotels on the region.
+- Add remaining amenities icons and put in external file
+- Transfer all images to my own S3 instance, add back `next/image`
+- Add more hotels for each destination using other sources
+- Need to improve average price per night for hotels -- too similar (or add real price for each night, no average, for better payment user experience)
+- Need to improve airport seat view price coloring: many flights show ALL prices red/yellow
 
 - Implement MCP Server
 - Implement AI agents

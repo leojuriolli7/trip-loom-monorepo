@@ -5,7 +5,12 @@ const nextConfig: NextConfig = {
     authInterrupts: true,
   },
   images: {
-    remotePatterns: [{ hostname: "images.unsplash.com" }],
+    remotePatterns: [
+      { hostname: "images.unsplash.com" },
+      { hostname: "praia.info" },
+      { hostname: "images.pexels.com" },
+      { hostname: "upload.wikimedia.org" },
+    ],
   },
 };
 

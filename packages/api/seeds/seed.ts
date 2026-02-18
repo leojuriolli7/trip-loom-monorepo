@@ -1,7 +1,17 @@
 /// <reference types="node" />
 import "dotenv/config";
 import { db } from "../src/db";
-import { airport, destination, hotel } from "../src/db/schema";
+import {
+  airport,
+  destination,
+  hotel,
+  flightBooking,
+  hotelBooking,
+  itineraryActivity,
+  itineraryDay,
+  itinerary,
+  trip,
+} from "../src/db/schema";
 import { seedDataSchema } from "./lib/data-schemas";
 import { normalizeAirportRows } from "./lib/airport-normalizer";
 import airportsData from "./data/airports.json";
@@ -41,7 +51,17 @@ async function seed() {
 
   if (isClean) {
     console.log("Cleaning existing data...");
-    // Delete hotels first (FK constraint)
+    // Delete in FK-safe order (dependents first)
+    // 1. Itinerary chain
+    await db.delete(itineraryActivity);
+    await db.delete(itineraryDay);
+    await db.delete(itinerary);
+    // 2. Bookings (reference trips, hotels, airports)
+    await db.delete(flightBooking);
+    await db.delete(hotelBooking);
+    // 3. Trips (reference destinations)
+    await db.delete(trip);
+    // 4. Seed tables
     await db.delete(hotel);
     await db.delete(destination);
     await db.delete(airport);
