@@ -1,6 +1,7 @@
 /**
  * TripAdvisor Content API v1 client.
  * Rate-limited to ~5 calls/second to stay well under 50/sec limit.
+ * Includes retry logic with exponential backoff for 429 errors.
  */
 
 const BASE_URL = "https://api.content.tripadvisor.com/api/v1";
@@ -9,7 +10,14 @@ const BASE_URL = "https://api.content.tripadvisor.com/api/v1";
 const RATE_LIMIT_MS = 200;
 let lastCallTime = 0;
 
-async function rateLimitedFetch(url: string): Promise<Response> {
+// Retry config
+const MAX_RETRIES = 3;
+const INITIAL_BACKOFF_MS = 2000; // Start with 2 seconds
+
+async function rateLimitedFetch(
+  url: string,
+  retries = MAX_RETRIES
+): Promise<Response> {
   const now = Date.now();
   const timeSinceLastCall = now - lastCallTime;
 
@@ -18,7 +26,19 @@ async function rateLimitedFetch(url: string): Promise<Response> {
   }
 
   lastCallTime = Date.now();
-  return fetch(url);
+  const response = await fetch(url);
+
+  // Handle rate limiting with exponential backoff
+  if (response.status === 429 && retries > 0) {
+    const backoffMs = INITIAL_BACKOFF_MS * Math.pow(2, MAX_RETRIES - retries);
+    console.log(
+      `  Rate limited (429), waiting ${backoffMs / 1000}s before retry (${retries} retries left)...`
+    );
+    await sleep(backoffMs);
+    return rateLimitedFetch(url, retries - 1);
+  }
+
+  return response;
 }
 
 export function sleep(ms: number): Promise<void> {

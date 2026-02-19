@@ -23,7 +23,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { HotelMiniCard } from "@/components/hotel-mini-card";
-import { MapPinIcon, CalendarIcon, PlaneIcon, MapIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  ChevronRightIcon,
+  MapIcon,
+  MapPinIcon,
+  PlaneIcon,
+  XIcon,
+} from "lucide-react";
 import { destinationQueries } from "@/lib/api/react-query/destinations";
 
 type DestinationDetailContentProps = {
@@ -40,6 +47,7 @@ function DestinationDetailContent({
   const { data, isPending, isError } = useQuery(
     destinationQueries.getDestinationDetail(destinationId),
   );
+  const highlights = data?.highlights ?? [];
 
   const Header = React.useMemo(
     () => (isDrawer ? DrawerHeader : DialogHeader),
@@ -54,10 +62,13 @@ function DestinationDetailContent({
   if (isPending) {
     return (
       <div
-        className="flex min-h-80 items-center justify-center"
+        className="flex min-h-80 flex-col items-center justify-center gap-3"
         data-testid="destination-detail-loading"
       >
         <Spinner className="size-8" />
+        <p className="text-sm text-muted-foreground">
+          Loading destination details...
+        </p>
       </div>
     );
   }
@@ -88,18 +99,34 @@ function DestinationDetailContent({
           src={data.imageUrl ?? "/placeholder.png"}
           alt={data.name}
           // fill
-          className="object-cover"
+          className="h-full w-full object-cover"
           // priority
           fetchPriority="high"
           loading="eager"
         />
-        <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/50 to-black/20" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/50 to-black/15" />
 
-        <div className="absolute inset-0 flex flex-col justify-end p-6">
-          <Header className="p-0">
-            <div className="flex items-center gap-2">
+        <div className="absolute inset-x-0 top-0 flex justify-end p-4 sm:p-5">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onClick={onClose}
+            className="border border-white/30 bg-black/35 text-white hover:bg-black/55 hover:text-white"
+          >
+            <XIcon className="size-4" />
+            <span className="sr-only">Close destination details</span>
+          </Button>
+        </div>
+
+        <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+          <Header className="space-y-2 p-0">
+            <div className="flex flex-wrap items-center gap-2">
               {data.region && (
-                <Badge className="border-0 bg-white/20 text-xs text-white backdrop-blur-sm">
+                <Badge
+                  variant="secondary"
+                  className="bg-background/90 text-foreground"
+                >
                   {data.region}
                 </Badge>
               )}
@@ -107,7 +134,7 @@ function DestinationDetailContent({
             <Title className="text-left text-2xl font-semibold tracking-tight text-white drop-shadow-lg">
               {data.name}
             </Title>
-            <div className="flex items-center gap-1.5 text-white/80">
+            <div className="flex items-center gap-1.5 text-white/85">
               <MapPinIcon className="size-4" />
               <span className="text-sm font-medium">{data.country}</span>
             </div>
@@ -115,37 +142,54 @@ function DestinationDetailContent({
         </div>
       </div>
 
-      <div className="flex-1 space-y-6 overflow-y-auto p-6">
-        <div className="space-y-4">
-          {data.description && (
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              {data.description}
-            </p>
-          )}
+      <div className="relative flex-1 overflow-y-auto no-scrollbar">
+        <div className="pointer-events-none absolute -left-20 top-14 size-56 rounded-full bg-primary/8 blur-3xl" />
+        <div className="pointer-events-none absolute -right-14 bottom-12 size-56 rounded-full bg-chart-2/10 blur-3xl" />
 
-          {data.bestTimeToVisit && (
-            <div className="flex items-start gap-2.5 rounded-xl bg-muted/50 p-3">
-              <CalendarIcon className="mt-0.5 size-4 shrink-0 text-primary" />
-              <div>
-                <p className="text-xs font-medium text-muted-foreground">
-                  Best time to visit
-                </p>
-                <p className="text-sm font-medium">{data.bestTimeToVisit}</p>
-              </div>
+        <div className="relative space-y-5 p-5 sm:p-6">
+          <div className="grid gap-2 sm:grid-cols-2">
+            {data.bestTimeToVisit && (
+              <DetailStatCard
+                icon={CalendarIcon}
+                label="Best time to visit"
+                value={data.bestTimeToVisit}
+              />
+            )}
+
+            <DetailStatCard
+              icon={MapPinIcon}
+              label="Country"
+              value={data.country}
+            />
+          </div>
+
+          {data.description && (
+            <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
+              <p className="text-foreground text-semibold text-xs font-medium tracking-[0.12em] uppercase">
+                About {data.name}
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {data.description}
+              </p>
             </div>
           )}
 
-          {data.highlights && data.highlights.length > 0 && (
-            <div className="space-y-2">
-              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Highlights
-              </p>
+          {highlights.length > 0 && (
+            <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <p className="text-xs font-medium uppercase tracking-[0.12em] text-foreground font-semibold">
+                  Highlights
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {highlights.length} picks
+                </p>
+              </div>
               <div className="flex flex-wrap gap-1.5">
-                {data.highlights.map((highlight) => (
+                {highlights.map((highlight) => (
                   <Badge
                     key={highlight}
-                    variant="outline"
-                    className="text-xs capitalize"
+                    variant="secondary"
+                    className="capitalize"
                   >
                     {highlight}
                   </Badge>
@@ -153,38 +197,78 @@ function DestinationDetailContent({
               </div>
             </div>
           )}
-        </div>
 
-        {/* Hotels */}
-        {data.topHotels.length > 0 && (
-          <div className="space-y-3">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Top Hotels
-            </p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {data.topHotels.map((hotel) => (
-                <HotelMiniCard key={hotel.id} hotel={hotel} />
-              ))}
+          {/* Hotels */}
+          {data.topHotels.length > 0 && (
+            <div className="space-y-3 rounded-2xl border border-border/70 bg-background/80 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                  Top Hotels
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {data.topHotels.length} options
+                </p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {data.topHotels.map((hotel) => (
+                  <HotelMiniCard key={hotel.id} hotel={hotel} />
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* AI Actions */}
-        <div className="space-y-3 rounded-xl border-primary/30">
-          <p>Ready to learn more?</p>
-          <div className="grid gap-2 sm:grid-cols-2">
-            <Button>
-              <PlaneIcon className="mb-px" />
-              Plan a trip
-            </Button>
-            <Button>
-              <MapIcon className="mb-px" />
-              Ask about activities
-            </Button>
+          {/* AI Actions */}
+          <div className="rounded-2xl border border-primary/30 bg-linear-to-br from-primary/9 via-background to-background p-4">
+            <p className="text-base font-semibold tracking-tight">
+              Ready to learn more?
+            </p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <Button className="justify-between">
+                <span className="inline-flex items-center gap-1.5">
+                  <PlaneIcon className="size-4" />
+                  Plan a trip
+                </span>
+                <ChevronRightIcon className="size-4 opacity-80" />
+              </Button>
+              <Button
+                variant="outline"
+                className="justify-between border-border/70 bg-background/80"
+              >
+                <span className="inline-flex items-center gap-1.5">
+                  <MapIcon className="size-4" />
+                  Ask about activities
+                </span>
+                <ChevronRightIcon className="size-4 opacity-70" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
     </>
+  );
+}
+
+function DetailStatCard({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-start gap-2.5 rounded-2xl border border-border/70 bg-background/80 p-3">
+      <span className="mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary">
+        <Icon className="size-4" />
+      </span>
+      <div>
+        <p className="text-xs font-medium uppercase tracking-[0.1em] text-muted-foreground">
+          {label}
+        </p>
+        <p className="text-sm font-medium text-foreground">{value}</p>
+      </div>
+    </div>
   );
 }
 
@@ -209,7 +293,7 @@ export function DestinationDetailDialog({
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
-          className="flex max-h-[95dvh] flex-col gap-0 overflow-hidden p-0 sm:max-w-xl"
+          className="flex max-h-[95dvh] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl"
           showCloseButton={false}
           data-testid="destination-detail-dialog"
         >
@@ -225,7 +309,7 @@ export function DestinationDetailDialog({
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent data-testid="destination-detail-drawer">
+      <DrawerContent className="p-0" data-testid="destination-detail-drawer">
         <div className="max-h-[90dvh] overflow-y-auto no-scrollbar">
           <DestinationDetailContent
             destinationId={destinationId}
@@ -233,7 +317,7 @@ export function DestinationDetailDialog({
             isDrawer
           />
         </div>
-        <DrawerFooter className="pt-2">
+        <DrawerFooter className="border-t border-border/60 pt-3">
           <DrawerClose asChild>
             <Button variant="outline">Close</Button>
           </DrawerClose>

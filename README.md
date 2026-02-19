@@ -105,7 +105,6 @@ Server to base myself: https://github.com/modelcontextprotocol/servers/blob/main
 Client examples: https://modelcontextprotocol.io/clients
 
 ### 5. Immediate TODOs
-- Your trips section: When less than 3 trips on desktop, fill with user preferences action card
 - Transfer all images to my own S3 instance, add back `next/image`
 - Add more hotels for each destination using other sources
 - Improve destination descriptions via AI: More about culture, less about demographics, longer...

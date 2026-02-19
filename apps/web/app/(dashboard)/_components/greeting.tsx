@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { ArrowUpRightIcon } from "lucide-react";
 
 interface GreetingProps {
   userName: string;
@@ -13,33 +14,36 @@ export function Greeting({ userName }: GreetingProps) {
   };
 
   return (
-    <section className="relative overflow-hidden py-12 lg:py-16">
-      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/5 via-transparent to-transparent" />
-      <div className="absolute -right-20 -top-20 -z-10 size-64 rounded-full bg-primary/5 blur-3xl" />
+    <section className="relative overflow-hidden py-10 lg:py-14">
+      <div className="absolute inset-0 -z-10 bg-linear-to-br from-primary/8 via-transparent to-chart-2/7" />
+      <div className="absolute -left-24 top-10 -z-10 size-72 rounded-full bg-primary/10 blur-3xl" />
+      <div className="absolute -right-28 bottom-0 -z-10 size-72 rounded-full bg-chart-2/15 blur-3xl" />
 
       <div className="mx-auto max-w-5xl px-6 lg:px-8">
-        <div className="flex flex-col items-start gap-8 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-col gap-3">
-            <h1
-              data-testid="greeting-message"
-              className="text-3xl font-semibold tracking-tight text-foreground lg:text-4xl"
-            >
-              {getGreeting()}, {userName}
-            </h1>
-            <p className="max-w-lg text-lg text-muted-foreground">
-              Where would you like to go next? Let me help you book your perfect
-              trip.
-            </p>
-          </div>
+        <div className="relative overflow-hidden rounded-4xl border border-border/70 bg-linear-to-br from-background via-background to-secondary/35 px-6 py-7 shadow-[0_28px_44px_-34px_rgba(15,23,42,0.45)] sm:px-7 lg:px-8 lg:py-8">
+          <div className="relative flex flex-col items-start gap-8 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex max-w-xl flex-col gap-3">
+              <h1
+                data-testid="greeting-message"
+                className="text-3xl font-semibold tracking-tight text-foreground lg:text-4xl"
+              >
+                {getGreeting()}, {userName}
+              </h1>
+              <p className="max-w-xl text-base leading-6 text-muted-foreground sm:text-lg sm:leading-7">
+                Where would you like to go next? Let me help you book your
+                perfect trip with richer, better-tailored suggestions.
+              </p>
+            </div>
 
-          <div className="hidden items-center gap-4 lg:flex">
-            <div className="relative">
-              <Image src="/plane.png" alt="" width={120} height={120} />
+            <div className="hidden items-center gap-4 lg:flex">
+              <div className="relative rounded-3xl backdrop-blur-sm">
+                <Image src="/plane.png" alt="" width={132} height={132} />
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <QuickAction
             icon="/island.png"
             hoverIcon="/japanese-temple.png"
@@ -82,8 +86,13 @@ function QuickAction({
   description,
 }: QuickActionProps) {
   return (
-    <button className="group flex items-center gap-4 rounded-xl border border-border/60 bg-card/50 p-4 text-left transition-all duration-200 hover:scale-[1.02] hover:border-primary/30 hover:bg-card hover:shadow-sm">
-      <div className="relative flex size-20 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+    <button
+      type="button"
+      className="group relative flex items-center gap-4 overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card via-card to-secondary/35 p-4 text-left shadow-[0_18px_30px_-28px_rgba(15,23,42,0.7)] transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_24px_34px_-24px_rgba(208,115,48,0.35)]"
+    >
+      <div className="pointer-events-none absolute -right-8 -top-8 size-24 rounded-full bg-primary/12 opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100" />
+
+      <div className="relative flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl">
         <Image
           src={icon}
           alt=""
@@ -105,9 +114,13 @@ function QuickAction({
           />
         ) : null}
       </div>
-      <div className="flex flex-col gap-0.5">
-        <span className="font-medium text-foreground">{title}</span>
+      <div className="relative flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="truncate font-medium text-foreground">{title}</span>
         <span className="text-sm text-muted-foreground">{description}</span>
+        <span className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-primary/85">
+          Try prompt
+          <ArrowUpRightIcon className="size-3 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+        </span>
       </div>
     </button>
   );

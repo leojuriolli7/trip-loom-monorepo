@@ -45,7 +45,16 @@ export function YourTripsSection() {
 
   return (
     <section className="mx-auto max-w-5xl px-6 lg:px-8">
-      <h2 className="mb-6 text-xl font-semibold text-foreground">Your trips</h2>
+      <div className="mb-6 flex items-end justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">
+            Your trips
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Ongoing plans and upcoming adventures, all in one place.
+          </p>
+        </div>
+      </div>
 
       <Carousel
         opts={{
@@ -58,7 +67,7 @@ export function YourTripsSection() {
           Error and pending statuses: Render error message or loading spinner.
         */}
         {queryStatus !== "success" && (
-          <div className="flex h-48 items-center justify-center rounded-xl border border-dashed border-border/60 bg-muted/30">
+          <div className="flex h-48 items-center justify-center rounded-3xl border border-dashed border-border/70 bg-linear-to-br from-muted/40 via-card to-transparent">
             {queryStatus === "error" && (
               <p className="text-sm text-destructive">
                 Could not load trips right now.
@@ -70,16 +79,17 @@ export function YourTripsSection() {
         )}
 
         {queryStatus === "success" && !trips.length && (
-          <div className="flex h-48 flex-col items-center justify-center rounded-xl border border-dashed border-border/60 bg-muted/30">
+          <div className="relative flex h-48 flex-col items-center justify-center overflow-hidden rounded-3xl border border-dashed border-primary/30 bg-linear-to-br from-primary/8 via-card to-chart-2/10">
+            <div className="pointer-events-none absolute -right-10 -top-10 size-28 rounded-full bg-primary/14 blur-2xl" />
             <Image
               src={"/colliseum.png"}
               alt=""
               width={112}
               height={112}
-              className="w-28 h-28"
+              className="h-28 w-28"
             />
 
-            <p className="text-muted-foreground text-center">
+            <p className="relative text-center text-muted-foreground">
               No trips yet
               <br />
               <Link href="/chat" className="text-sm text-primary underline">
@@ -91,7 +101,7 @@ export function YourTripsSection() {
 
         {queryStatus === "success" && trips.length > 0 && (
           <>
-            <CarouselContent className="-ml-4 pb-1">
+            <CarouselContent className="-ml-4 pb-7 pt-1">
               {orderedTrips.map((trip) => (
                 <CarouselItem
                   key={trip.id}
@@ -117,8 +127,8 @@ export function YourTripsSection() {
 
             {trips.length > 3 && (
               <>
-                <CarouselPrevious className="-left-4 lg:-left-12" />
-                <CarouselNext className="-right-4 lg:-right-12" />
+                <CarouselPrevious className="-left-4 border-border/70 bg-background/90 shadow-[0_14px_22px_-18px_rgba(15,23,42,0.75)] lg:-left-12" />
+                <CarouselNext className="-right-4 border-border/70 bg-background/90 shadow-[0_14px_22px_-18px_rgba(15,23,42,0.75)] lg:-right-12" />
               </>
             )}
           </>

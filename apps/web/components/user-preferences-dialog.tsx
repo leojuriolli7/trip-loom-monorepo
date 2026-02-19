@@ -51,7 +51,7 @@ import {
   FieldDescription,
 } from "@/components/ui/field";
 import { Badge } from "@/components/ui/badge";
-import { XIcon, CheckIcon } from "lucide-react";
+import { CheckIcon, XIcon } from "lucide-react";
 import { userPreferencesQueries } from "@/lib/api/react-query/user-preferences";
 import { atom, useAtom } from "jotai";
 
@@ -86,18 +86,32 @@ export function UserPreferencesDialog() {
     return (
       <Dialog open={dialogOpen} onOpenChange={onOpenChange}>
         <DialogContent
-          className="max-h-[85vh] overflow-y-auto no-scrollbar sm:max-w-lg"
+          className="max-h-[90dvh] overflow-hidden p-0 sm:max-w-2xl"
           data-testid="preferences-dialog"
         >
-          <DialogHeader>
-            <DialogTitle>Travel Preferences</DialogTitle>
-            <DialogDescription>
-              Help us personalize your travel recommendations. Your preferences
-              help our AI suggest destinations, hotels, and itineraries tailored
-              to you.
-            </DialogDescription>
-          </DialogHeader>
-          <PreferencesFormWrapper onSuccess={() => onOpenChange(false)} />
+          <div className="relative h-full">
+            <div className="pointer-events-none absolute -left-24 top-6 size-56 rounded-full bg-primary/10 blur-3xl" />
+            <div className="pointer-events-none absolute -right-20 bottom-0 size-56 rounded-full bg-chart-2/15 blur-3xl" />
+
+            <div className="max-h-[90dvh] overflow-y-auto no-scrollbar px-5 pt-5 pb-6 sm:px-6">
+              <DialogHeader className="gap-3 pb-2">
+                <div className="flex items-start justify-between gap-4 pr-10">
+                  <div className="space-y-1.5">
+                    <DialogTitle className="text-2xl font-semibold tracking-tight">
+                      Travel Preferences
+                    </DialogTitle>
+                    <DialogDescription className="text-sm leading-relaxed">
+                      Help us personalize your travel recommendations. Your
+                      choices guide flights, destinations, hotels, and itinerary
+                      suggestions.
+                    </DialogDescription>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <PreferencesFormWrapper onSuccess={() => onOpenChange(false)} />
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     );
@@ -105,19 +119,34 @@ export function UserPreferencesDialog() {
 
   return (
     <Drawer open={dialogOpen} onOpenChange={onOpenChange}>
-      <DrawerContent data-testid="preferences-drawer">
-        <DrawerHeader className="text-left">
-          <DrawerTitle>Travel Preferences</DrawerTitle>
-          <DrawerDescription>
-            Help us personalize your travel recommendations.
-          </DrawerDescription>
-        </DrawerHeader>
-        <div className="max-h-[60vh] overflow-y-auto px-4">
-          <PreferencesFormWrapper onSuccess={() => onOpenChange(false)} />
+      <DrawerContent className="p-0" data-testid="preferences-drawer">
+        <div className="relative">
+          <div className="pointer-events-none absolute -left-24 top-8 size-48 rounded-full bg-primary/10 blur-3xl" />
+          <div className="pointer-events-none absolute -right-16 bottom-10 size-52 rounded-full bg-chart-2/15 blur-3xl" />
+
+          <DrawerHeader className="px-5 pt-5 pb-1 text-left">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <DrawerTitle className="text-left text-xl font-semibold tracking-tight">
+                  Travel Preferences
+                </DrawerTitle>
+                <DrawerDescription className="text-left text-sm leading-relaxed">
+                  Help us personalize your recommendations.
+                </DrawerDescription>
+              </div>
+            </div>
+          </DrawerHeader>
+
+          <div className="max-h-[66dvh] overflow-y-auto no-scrollbar px-4 pb-2">
+            <PreferencesFormWrapper onSuccess={() => onOpenChange(false)} />
+          </div>
         </div>
-        <DrawerFooter className="pt-2">
+
+        <DrawerFooter className="border-t border-border/60 pt-3">
           <DrawerClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline" className="w-full">
+              Cancel
+            </Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
@@ -133,7 +162,7 @@ function PreferencesFormWrapper({ onSuccess }: { onSuccess: () => void }) {
   if (isPending) {
     return (
       <div
-        className="flex min-h-75 items-center justify-center"
+        className="mt-4 flex min-h-75 items-center justify-center rounded-3xl border border-border/60 bg-background/70"
         data-testid="preferences-loading"
       >
         <Spinner className="size-8" />
@@ -143,7 +172,7 @@ function PreferencesFormWrapper({ onSuccess }: { onSuccess: () => void }) {
 
   if (isError || !data?.data) {
     return (
-      <div className="flex min-h-75 flex-col items-center justify-center gap-2 text-center">
+      <div className="mt-4 flex min-h-75 flex-col items-center justify-center gap-2 rounded-3xl border border-border/60 bg-background/70 text-center">
         <p className="text-destructive">Failed to load preferences</p>
         <p className="text-sm text-muted-foreground">Please try again later</p>
       </div>
@@ -218,16 +247,22 @@ function PreferencesForm({
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)}>
-      <FieldGroup>
+    <form onSubmit={form.handleSubmit(onSubmit)} className="pt-4">
+      <FieldGroup className="gap-4">
         <Controller
           name="preferredCabinClass"
           control={form.control}
           render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
+            <Field
+              data-invalid={fieldState.invalid}
+              className="rounded-2xl border border-border/70 bg-background/80 p-4"
+            >
               <FieldLabel htmlFor="cabin-class">
                 Preferred Cabin Class
               </FieldLabel>
+              <FieldDescription>
+                Choose the seat comfort level you usually book.
+              </FieldDescription>
               <Select
                 value={field.value ?? "none"}
                 onValueChange={(value) =>
@@ -236,7 +271,7 @@ function PreferencesForm({
               >
                 <SelectTrigger
                   id="cabin-class"
-                  className="w-full"
+                  className="h-10 w-full rounded-2xl border-border/70 bg-background/90"
                   data-testid="cabin-class-select"
                 >
                   <SelectValue placeholder="No preference" />
@@ -259,8 +294,15 @@ function PreferencesForm({
           name="budgetRange"
           control={form.control}
           render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
+            <Field
+              data-invalid={fieldState.invalid}
+              className="rounded-2xl border border-border/70 bg-background/80 p-4"
+            >
               <FieldLabel htmlFor="budget-range">Budget Range</FieldLabel>
+              <FieldDescription>
+                Keep destination and stay options aligned with your expected
+                spend.
+              </FieldDescription>
               <Select
                 value={field.value ?? "none"}
                 onValueChange={(value) =>
@@ -269,7 +311,7 @@ function PreferencesForm({
               >
                 <SelectTrigger
                   id="budget-range"
-                  className="w-full"
+                  className="h-10 w-full rounded-2xl border-border/70 bg-background/90"
                   data-testid="budget-range-select"
                 >
                   <SelectValue placeholder="No preference" />
@@ -292,7 +334,10 @@ function PreferencesForm({
           name="travelInterests"
           control={form.control}
           render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
+            <Field
+              data-invalid={fieldState.invalid}
+              className="rounded-2xl border border-border/70 bg-background/80 p-4"
+            >
               <FieldLabel>Travel Interests</FieldLabel>
               <FieldDescription>Select all that apply to you</FieldDescription>
               <div
@@ -315,10 +360,10 @@ function PreferencesForm({
                         }
                       }}
                       className={cn(
-                        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-all",
+                        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-all duration-200",
                         isSelected
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border bg-background text-muted-foreground hover:border-primary/50 hover:text-foreground",
+                          ? "border-primary/55 bg-primary/15 text-primary shadow-[0_10px_20px_-16px_rgba(208,115,48,0.8)]"
+                          : "border-border/80 bg-background text-muted-foreground hover:border-primary/50 hover:bg-secondary/55 hover:text-foreground",
                       )}
                       data-testid={`interest-${interest}`}
                     >
@@ -337,7 +382,10 @@ function PreferencesForm({
           name="preferredRegions"
           control={form.control}
           render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
+            <Field
+              data-invalid={fieldState.invalid}
+              className="rounded-2xl border border-border/70 bg-background/80 p-4"
+            >
               <FieldLabel>Preferred Regions</FieldLabel>
               <FieldDescription>
                 Where would you like to travel?
@@ -362,10 +410,10 @@ function PreferencesForm({
                         }
                       }}
                       className={cn(
-                        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-all",
+                        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-all duration-200",
                         isSelected
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border bg-background text-muted-foreground hover:border-primary/50 hover:text-foreground",
+                          ? "border-primary/55 bg-primary/15 text-primary shadow-[0_10px_20px_-16px_rgba(208,115,48,0.8)]"
+                          : "border-border/80 bg-background text-muted-foreground hover:border-primary/50 hover:bg-secondary/55 hover:text-foreground",
                       )}
                       data-testid={`region-${region.toLowerCase().replace(/\s+/g, "-")}`}
                     >
@@ -384,7 +432,10 @@ function PreferencesForm({
           name="dietaryRestrictions"
           control={form.control}
           render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
+            <Field
+              data-invalid={fieldState.invalid}
+              className="rounded-2xl border border-border/70 bg-background/80 p-4"
+            >
               <FieldLabel htmlFor="dietary-restrictions">
                 Dietary Restrictions
               </FieldLabel>
@@ -398,7 +449,7 @@ function PreferencesForm({
                 onChange={(e) => setDietaryInput(e.target.value)}
                 onKeyDown={handleDietaryKeyDown}
                 placeholder="Add a dietary restriction..."
-                className="border-input bg-input/30 focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full rounded-xl border px-3 text-sm outline-none transition-colors focus-visible:ring-[3px]"
+                className="border-input bg-input/20 focus-visible:border-ring focus-visible:ring-ring/50 h-10 w-full rounded-2xl border px-3 text-sm outline-none transition-colors focus-visible:ring-[3px]"
                 data-testid="dietary-input"
               />
               {field.value.length > 0 && (
@@ -407,7 +458,7 @@ function PreferencesForm({
                     <Badge
                       key={restriction}
                       variant="secondary"
-                      className="gap-1 pr-1"
+                      className="gap-1 border border-border/60 bg-secondary/65 pr-1"
                     >
                       {restriction}
                       <button
@@ -431,7 +482,10 @@ function PreferencesForm({
           name="accessibilityNeeds"
           control={form.control}
           render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
+            <Field
+              data-invalid={fieldState.invalid}
+              className="rounded-2xl border border-border/70 bg-background/80 p-4"
+            >
               <FieldLabel htmlFor="accessibility-needs">
                 Accessibility Needs
               </FieldLabel>
@@ -444,7 +498,7 @@ function PreferencesForm({
                 onChange={(e) => field.onChange(e.target.value || null)}
                 id="accessibility-needs"
                 placeholder="E.g., wheelchair accessible rooms, visual aids, etc."
-                className="min-h-20"
+                className="min-h-24 rounded-2xl border-border/70 bg-input/20"
                 data-testid="accessibility-textarea"
               />
               {fieldState.error && <FieldError errors={[fieldState.error]} />}
@@ -454,7 +508,7 @@ function PreferencesForm({
 
         <Button
           type="submit"
-          className="w-full"
+          className="mt-1 h-10 w-full rounded-3xl shadow-[0_20px_30px_-24px_rgba(208,115,48,0.7)]"
           disabled={mutation.isPending}
           data-testid="save-preferences-button"
         >
