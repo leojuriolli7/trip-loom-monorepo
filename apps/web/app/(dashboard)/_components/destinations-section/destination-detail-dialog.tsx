@@ -93,7 +93,7 @@ function DestinationDetailContent({
 
   return (
     <>
-      <div className="relative aspect-video w-full shrink-0 overflow-hidden">
+      <div className="relative aspect-video w-[90%] mx-auto rounded-[20px] sm:w-full sm:mx-0 sm:rounded-none shrink-0 overflow-hidden">
         {/* TODO: Add next/image back after images are on my CDN */}
         <img
           src={data.imageUrl ?? "/placeholder.png"}
