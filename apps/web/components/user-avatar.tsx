@@ -19,19 +19,57 @@ import { LogOutIcon, MapIcon, UserIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useSetAtom } from "jotai";
+import { userPreferencesQueries } from "@/lib/api/react-query/user-preferences";
+
+type UserAvatarVariant = "icon" | "full";
 
 type UserAvatarProps = {
   /**
    * "icon" - Just the avatar button
    * "full" - Avatar with name and email beside it
    */
-  variant?: "icon" | "full";
+  variant?: UserAvatarVariant;
+};
+
+const AvatarContent = ({ variant }: { variant: UserAvatarVariant }) => {
+  const queryClient = useQueryClient();
+
+  const { data: sessionData, isPending: isSessionPending } =
+    authClient.useSession();
+
+  const { user } = sessionData || {};
+
+  return (
+    <Avatar
+      onMouseOver={() => {
+        void queryClient.prefetchQuery(
+          userPreferencesQueries.getUserPreferences(),
+        );
+      }}
+      onTouchStart={() => {
+        void queryClient.prefetchQuery(
+          userPreferencesQueries.getUserPreferences(),
+        );
+      }}
+      className={variant === "icon" ? "size-9" : "size-8"}
+    >
+      {isSessionPending ? (
+        <Spinner className="mx-auto my-auto" />
+      ) : (
+        <>
+          <AvatarImage src={user?.image as string} alt={user?.name} />
+          <AvatarFallback className="bg-primary/10 font-medium text-primary">
+            {user?.name?.slice(0, 2).toUpperCase()}
+          </AvatarFallback>
+        </>
+      )}
+    </Avatar>
+  );
 };
 
 export function UserAvatar({ variant = "icon" }: UserAvatarProps) {
   const setPreferencesOpen = useSetAtom(userPreferencesDialogOpenAtom);
-  const { data: sessionData, isPending: isSessionPending } =
-    authClient.useSession();
+  const { data: sessionData } = authClient.useSession();
 
   const queryClient = useQueryClient();
   const { user } = sessionData || {};
@@ -53,21 +91,6 @@ export function UserAvatar({ variant = "icon" }: UserAvatarProps) {
       });
   };
 
-  const avatarContent = (
-    <Avatar className={variant === "icon" ? "size-9" : "size-8"}>
-      {isSessionPending ? (
-        <Spinner className="mx-auto my-auto" />
-      ) : (
-        <>
-          <AvatarImage src={user?.image as string} alt={user?.name} />
-          <AvatarFallback className="bg-primary/10 font-medium text-primary">
-            {user?.name?.slice(0, 2).toUpperCase()}
-          </AvatarFallback>
-        </>
-      )}
-    </Avatar>
-  );
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -77,7 +100,7 @@ export function UserAvatar({ variant = "icon" }: UserAvatarProps) {
             className="relative h-9 w-9 rounded-full ring-2 ring-border/50 ring-offset-2 ring-offset-background transition-all hover:ring-primary/30"
             data-testid="user-avatar-trigger"
           >
-            {avatarContent}
+            <AvatarContent variant={variant} />
           </Button>
         ) : (
           <button
@@ -85,7 +108,8 @@ export function UserAvatar({ variant = "icon" }: UserAvatarProps) {
             className="flex w-full items-center gap-3 rounded-md p-1 text-left transition-colors hover:opacity-80"
             data-testid="user-avatar-trigger"
           >
-            {avatarContent}
+            <AvatarContent variant={variant} />
+
             <div className="flex flex-1 flex-col overflow-hidden">
               <span
                 className="truncate text-sm font-medium"

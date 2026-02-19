@@ -2835,20 +2835,6 @@
     "bestTimeToVisit": "March to May and September to November"
   },
   {
-    "id": "dest_au_australian-bureau-of-statistics",
-    "name": "Australian Bureau of Statistics",
-    "country": "Australia",
-    "countryCode": "AU",
-    "region": "Oceania",
-    "timezone": "Australia/Sydney",
-    "latitude": null,
-    "longitude": null,
-    "imageUrl": "https://images.pexels.com/photos/9769561/pexels-photo-9769561.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-    "description": "The Australian Bureau of Statistics (ABS) is an agency of the Australian Government that collates and analyses statistical data on economic, demographic, environmental and social issues to support policy research and development.",
-    "highlights": ["art", "culture", "beaches", "nature"],
-    "bestTimeToVisit": "Year-round"
-  },
-  {
     "id": "dest_ck_avarua",
     "name": "Avarua",
     "country": "Cook Islands",
@@ -2987,20 +2973,6 @@
     "description": "Banff is a resort town in Banff National Park, Alberta, Canada, in Alberta's Rockies along the Trans-Canada Highway, 126 km (78 mi) west of Calgary, 58 km (36 mi) east of Lake Louise, and 1,400 to 1,630 m above sea level.",
     "highlights": ["art", "culture", "nature", "food"],
     "bestTimeToVisit": "June to August"
-  },
-  {
-    "id": "dest_th_bangkok-metropolitan-region",
-    "name": "Bangkok Metropolitan Region",
-    "country": "Thailand",
-    "countryCode": "TH",
-    "region": "Southeast Asia",
-    "timezone": "Asia/Bangkok",
-    "latitude": 13.85,
-    "longitude": 100.41666667,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/7/74/Bangkok%E2%80%99s_green_lung_%2840468870113%29.jpg",
-    "description": "The Bangkok Metropolitan Region (BMR), may refer to a government-defined \"political definition\" of the urban region surrounding the metropolis of Bangkok, or the built-up area, i.e., urban agglomeration of Bangkok, Thailand, which varies in size and shape, and gets filled in as development expands.",
-    "highlights": ["art", "culture", "beaches", "food"],
-    "bestTimeToVisit": "November to February (dry season)"
   },
   {
     "id": "dest_cf_bangui",
@@ -3259,20 +3231,6 @@
     "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3b/Bergen_panorama_at_night_-_panoramio_%281%29.jpg",
     "description": "Bergen is a city and municipality in the Vestland county on the west coast of Norway. Bergen is the second-largest city in Norway after the capital, Oslo.",
     "highlights": ["art", "culture", "beaches", "nature"],
-    "bestTimeToVisit": "June to August"
-  },
-  {
-    "id": "dest_no_bergen-region",
-    "name": "Bergen Region",
-    "country": "Norway",
-    "countryCode": "NO",
-    "region": "Europe",
-    "timezone": "Europe/Oslo",
-    "latitude": 60.3767,
-    "longitude": 5.3353,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/1/13/SkansenSeptember2007_2.jpg",
-    "description": "The Bergen Region is a statistical metropolitan region in Vestland county, Norway. It is centered on the city of Bergen.",
-    "highlights": ["art", "culture", "history", "architecture"],
     "bestTimeToVisit": "June to August"
   },
   {
@@ -3591,20 +3549,6 @@
     "bestTimeToVisit": "April to October"
   },
   {
-    "id": "dest_kr_busan-gyeongnam-area",
-    "name": "Busan-Gyeongnam Area",
-    "country": "South Korea",
-    "countryCode": "KR",
-    "region": "East Asia",
-    "timezone": "Asia/Seoul",
-    "latitude": null,
-    "longitude": null,
-    "imageUrl": "https://images.pexels.com/photos/29188041/pexels-photo-29188041.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-    "description": "Busan–Gyeongnam Area, also known as Pusan–Kyŏngnam (PK) is the metropolitan area of Busan, Ulsan, and Gyeongsangnam-do (Gyeongnam) located in southeast South Korea. Now it is called Buulgyeong.",
-    "highlights": ["culture", "food", "shopping", "temples"],
-    "bestTimeToVisit": "Year-round"
-  },
-  {
     "id": "dest_mx_cabo-san-lucas",
     "name": "Cabo San Lucas",
     "country": "Mexico",
@@ -3629,20 +3573,6 @@
     "longitude": -114.07,
     "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/b/bb/Downtown_Calgary_2020-4.jpg",
     "description": "Calgary is the largest city in the Canadian province of Alberta. As of 2021, the city proper had a population of 1,306,784 and a metropolitan population of 1,481,806, making Calgary the third-largest city and the fifth-largest metropolitan area in Canada.",
-    "highlights": ["art", "culture", "nature", "food"],
-    "bestTimeToVisit": "June to August"
-  },
-  {
-    "id": "dest_ca_calgary-metropolitan-region",
-    "name": "Calgary Metropolitan Region",
-    "country": "Canada",
-    "countryCode": "CA",
-    "region": "North America",
-    "timezone": "America/Toronto",
-    "latitude": 51,
-    "longitude": -114,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/b/bb/Downtown_Calgary_2020-4.jpg",
-    "description": "The Calgary Metropolitan Region (CMR), also known as Greater Calgary or Metro Calgary is a conglomeration of municipalities centred on Calgary, the largest city in Alberta.",
     "highlights": ["art", "culture", "nature", "food"],
     "bestTimeToVisit": "June to August"
   },
@@ -4109,20 +4039,6 @@
     "bestTimeToVisit": "June to August"
   },
   {
-    "id": "dest_us_columbus-oh-metropolitan-statistical-area",
-    "name": "Columbus, OH (Metropolitan Statistical Area)",
-    "country": "United States",
-    "countryCode": "US",
-    "region": "North America",
-    "timezone": "America/New_York",
-    "latitude": 40,
-    "longitude": -83,
-    "imageUrl": "https://images.pexels.com/photos/19148168/pexels-photo-19148168.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-    "description": "The Columbus metropolitan area is a metropolitan area in Central Ohio surrounding the state capital of Columbus.  As defined by the U. S.",
-    "highlights": ["nature", "food", "shopping", "adventure"],
-    "bestTimeToVisit": "April to October"
-  },
-  {
     "id": "dest_ar_c-rdoba",
     "name": "Córdoba",
     "country": "Argentina",
@@ -4324,20 +4240,6 @@
     "description": "Dalian is a major sub-provincial port city in Liaoning province, People's Republic of China, and is Liaoning's second largest city and the third-most populous city of Northeast China. Located on the southern tip of the Liaodong peninsula, it is the southernmost city in both Liaoning and the entire Northeast. Dalian borders the prefectural cities of Yingkou and Anshan to the north and Dandong to the northeast, and also shares maritime boundaries with Qinhuangdao and Huludao across the Liaodong Bay to the west and northwest, Yantai and Weihai on the Shandong peninsula across the Bohai Strait to the south, and North Korea across the Korea Bay to the east.",
     "highlights": ["art", "culture", "nature", "hiking", "beaches"],
     "bestTimeToVisit": "April to October"
-  },
-  {
-    "id": "dest_us_dallas-fort-worth",
-    "name": "Dallas/Fort Worth",
-    "country": "United States",
-    "countryCode": "US",
-    "region": "North America",
-    "timezone": "America/New_York",
-    "latitude": 32.763,
-    "longitude": -97.0326,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Cowboys_Stadium_2.jpg",
-    "description": "The Dallas–Fort Worth metroplex, officially designated the Dallas–Fort Worth–Arlington metropolitan statistical area by the U. S.  Office of Management and Budget, is the most populous metropolitan statistical area in the U.",
-    "highlights": ["art", "culture", "nature", "food"],
-    "bestTimeToVisit": "March to May and September to November"
   },
   {
     "id": "dest_sy_damascus",
@@ -4555,20 +4457,6 @@
     "description": "Easter Island is an island and special territory of Chile in the southeastern Pacific Ocean, at the southeasternmost point of the Polynesian Triangle in Oceania.  The island is renowned for its nearly 1,000 extant monumental statues, called moai, which were created by the early Rapa Nui people.  In 1995, UNESCO named Easter Island a World Heritage Site, with much of the island protected within Rapa Nui National Park.",
     "highlights": ["art", "culture", "islands", "beaches"],
     "bestTimeToVisit": "September to November and March to May"
-  },
-  {
-    "id": "dest_ca_edmonton-metropolitan-region",
-    "name": "Edmonton Metropolitan Region",
-    "country": "Canada",
-    "countryCode": "CA",
-    "region": "North America",
-    "timezone": "America/Toronto",
-    "latitude": 53.56666667,
-    "longitude": -113.51666667,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Edmonton_cityscape.jpg",
-    "description": "The Edmonton Metropolitan Region (EMR), also commonly referred to as Greater Edmonton or Metro Edmonton, is a conglomeration of municipalities centred on Edmonton, the capital of the Canadian province of Alberta.",
-    "highlights": ["art", "culture", "nature", "food"],
-    "bestTimeToVisit": "June to August"
   },
   {
     "id": "dest_ar_el-calafate",
@@ -4879,20 +4767,6 @@
     "bestTimeToVisit": "September to November and March to May"
   },
   {
-    "id": "dest_ng_global-city",
-    "name": "Global city",
-    "country": "Nigeria",
-    "countryCode": "NG",
-    "region": "Sub-Saharan Africa",
-    "timezone": "Africa/Lagos",
-    "latitude": null,
-    "longitude": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7a/View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg",
-    "description": "A global city is a city that serves as a primary node in the global economic network. The concept originates from geography and urban studies, based on the thesis that globalization has created a hierarchy of strategic geographic locations with varying degrees of influence over finance, trade, and culture worldwide. The global city represents the most complex and significant hub within the international system, characterized by links binding it to other cities that have direct, tangible effects on global socioeconomic affairs.",
-    "highlights": ["art", "culture", "wildlife", "nature"],
-    "bestTimeToVisit": "Year-round"
-  },
-  {
     "id": "dest_in_goa",
     "name": "Goa",
     "country": "India",
@@ -4968,20 +4842,6 @@
       "hiking"
     ],
     "bestTimeToVisit": "April to October"
-  },
-  {
-    "id": "dest_ch_grand-gen-ve",
-    "name": "Grand Genève",
-    "country": "Switzerland",
-    "countryCode": "CH",
-    "region": "Europe",
-    "timezone": "Europe/Zurich",
-    "latitude": null,
-    "longitude": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/c/ce/Grand_Gen%C3%A8ve_map.svg",
-    "description": "Grand Genève is a local grouping of transnational cooperation, a public entity under Swiss law, in charge of organizing cooperation within the cross-border metropolitan area of Geneva. The Grand Genève GLCT extends over Switzerland and France.",
-    "highlights": ["art", "culture", "history", "architecture"],
-    "bestTimeToVisit": "Year-round"
   },
   {
     "id": "dest_au_great-barrier-reef",
@@ -5320,20 +5180,6 @@
     "bestTimeToVisit": "November to February (dry season)"
   },
   {
-    "id": "dest_br_ibge",
-    "name": "IBGE",
-    "country": "Brazil",
-    "countryCode": "BR",
-    "region": "South America",
-    "timezone": "America/Sao_Paulo",
-    "latitude": -22.90944444,
-    "longitude": -43.17055556,
-    "imageUrl": "https://images.pexels.com/photos/15031956/pexels-photo-15031956.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-    "description": "The Brazilian Institute of Geography and Statistics is the agency responsible for official collection of statistical, geographic, cartographic, geodetic and environmental information in Brazil. The IBGE performs a decennial national census; questionnaires account for information such as age, household income, literacy, education, occupation and hygiene levels.",
-    "highlights": ["art", "culture", "nature", "adventure"],
-    "bestTimeToVisit": "Year-round, with dry season preferred"
-  },
-  {
     "id": "dest_es_ibiza",
     "name": "Ibiza",
     "country": "Spain",
@@ -5437,20 +5283,6 @@
       "architecture"
     ],
     "bestTimeToVisit": "April to October"
-  },
-  {
-    "id": "dest_us_jacksonville-fl-metropolitan-statistical-area",
-    "name": "Jacksonville, FL (Metropolitan Statistical Area)",
-    "country": "United States",
-    "countryCode": "US",
-    "region": "North America",
-    "timezone": "America/New_York",
-    "latitude": null,
-    "longitude": null,
-    "imageUrl": "https://images.pexels.com/photos/15058860/pexels-photo-15058860.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-    "description": "The Jacksonville Metropolitan Area, also called the First Coast, Metro Jacksonville, or Northeast Florida, is the metropolitan area centered on the principal city of Jacksonville, Florida and including the First Coast of North Florida.  As of the 2020 census, the total population was 1,605,848.  The Jacksonville–Kingsland–Palatka, FL–GA Combined Statistical Area (CSA) had a population of 1,733,937 in 2020 and was the 34th largest CSA in the United States.",
-    "highlights": ["nature", "food", "shopping", "adventure"],
-    "bestTimeToVisit": "Year-round"
   },
   {
     "id": "dest_kr_jeju",
@@ -6426,20 +6258,6 @@
     "bestTimeToVisit": "March to May and September to November"
   },
   {
-    "id": "dest_us_memphis-tn-ms-ar-metropolitan-statistical-area",
-    "name": "Memphis, TN-MS-AR (Metropolitan Statistical Area)",
-    "country": "United States",
-    "countryCode": "US",
-    "region": "North America",
-    "timezone": "America/New_York",
-    "latitude": 35.0239,
-    "longitude": -89.8692,
-    "imageUrl": "https://images.pexels.com/photos/13440083/pexels-photo-13440083.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-    "description": "The Memphis–Clarksdale–Forrest City Combined Statistical Area, TN–MS–AR (CSA) or Greater Memphis is the commercial and cultural hub of the Mid-South centered on the city of Memphis.  The census-defined combined statistical area covers eleven counties in three states, Tennessee, Mississippi, and Arkansas.  As of 2020 census, the Memphis metropolitan area had a population of 1,389,905 The Forrest City, Arkansas Micropolitan area was added to the Memphis area in 2012 to form the Memphis–Forrest City Combined Statistical area.",
-    "highlights": ["nature", "food", "shopping", "adventure"],
-    "bestTimeToVisit": "April to October"
-  },
-  {
     "id": "dest_ar_mendoza",
     "name": "Mendoza",
     "country": "Argentina",
@@ -6466,20 +6284,6 @@
     "description": "Mérida is the capital of the Mexican state of Yucatán, and the largest city in southern Mexico.  The city is also the seat of the eponymous municipality.  It is located slightly inland from the northwest corner of the Yucatán Peninsula, about 35 km (22 mi) from the coast of the Gulf of Mexico.",
     "highlights": ["art", "culture", "beaches", "adventure"],
     "bestTimeToVisit": "Year-round, with dry season preferred"
-  },
-  {
-    "id": "dest_gb_merseyside",
-    "name": "Merseyside",
-    "country": "United Kingdom",
-    "countryCode": "GB",
-    "region": "Europe",
-    "timezone": "Europe/London",
-    "latitude": 53.41666667,
-    "longitude": -3,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/7/78/Pier_Head%2C_Liverpool_-_geograph.org.uk_-_3059094.jpg",
-    "description": "Merseyside is a ceremonial and metropolitan county in North West England. It borders Lancashire to the north, Greater Manchester to the east, Cheshire to the south, the Welsh county of Flintshire across the Dee Estuary to the southwest, and the Irish Sea to the west. The largest settlement is the city of Liverpool.",
-    "highlights": ["art", "culture", "history", "architecture"],
-    "bestTimeToVisit": "June to August"
   },
   {
     "id": "dest_it_milan",
@@ -6965,20 +6769,6 @@
     "bestTimeToVisit": "April to October"
   },
   {
-    "id": "dest_gb_north-tyneside",
-    "name": "North Tyneside",
-    "country": "United Kingdom",
-    "countryCode": "GB",
-    "region": "Europe",
-    "timezone": "Europe/London",
-    "latitude": 55.0123,
-    "longitude": -1.5456,
-    "imageUrl": "https://images.pexels.com/photos/20853455/pexels-photo-20853455.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-    "description": "North Tyneside is a metropolitan borough in the metropolitan county of Tyne and Wear, England. It forms part of the greater Tyneside conurbation. North Tyneside Council is headquartered at Cobalt Park, Wallsend.",
-    "highlights": ["art", "culture", "history", "architecture"],
-    "bestTimeToVisit": "June to August"
-  },
-  {
     "id": "dest_gb_nottingham",
     "name": "Nottingham",
     "country": "United Kingdom",
@@ -7075,20 +6865,6 @@
     "description": "Okinawa Island , also known as Okinawa Main Island , is the largest of the Okinawa Islands and the Ryukyu (Nansei) Islands of Japan in the Kyushu region.  It is the smallest and least populated of the five main islands of Japan.  The island is approximately 106 kilometres (66 mi) long, an average 11 kilometres (7 mi) wide, and has an area of 1,206.",
     "highlights": ["art", "culture", "islands", "beaches"],
     "bestTimeToVisit": "March to May and September to November"
-  },
-  {
-    "id": "dest_us_oklahoma-city-ok-metropolitan-statistical-area",
-    "name": "Oklahoma City, OK (Metropolitan Statistical Area)",
-    "country": "United States",
-    "countryCode": "US",
-    "region": "North America",
-    "timezone": "America/New_York",
-    "latitude": 35.5,
-    "longitude": -97.5,
-    "imageUrl": "https://images.pexels.com/photos/12264315/pexels-photo-12264315.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-    "description": "The Oklahoma City metropolitan area is an urban region in Central Oklahoma. It is the largest metropolitan area in the state of Oklahoma and contains the state capital and principal city, Oklahoma City. It is often known as the Oklahoma City Metro, or Greater Oklahoma City in addition to the nicknames Oklahoma City itself is known for, such as OKC or \"the 405\".",
-    "highlights": ["nature", "food", "shopping", "adventure"],
-    "bestTimeToVisit": "April to October"
   },
   {
     "id": "dest_au_orange",
@@ -7441,20 +7217,6 @@
     "bestTimeToVisit": "April to October"
   },
   {
-    "id": "dest_us_pittsburgh-pa-metropolitan-statistical-area",
-    "name": "Pittsburgh, PA (Metropolitan Statistical Area)",
-    "country": "United States",
-    "countryCode": "US",
-    "region": "North America",
-    "timezone": "America/New_York",
-    "latitude": 40.4375,
-    "longitude": -79.995,
-    "imageUrl": "https://images.pexels.com/photos/18221027/pexels-photo-18221027.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-    "description": "Greater Pittsburgh is the metropolitan area surrounding the city of Pittsburgh in Western Pennsylvania, United States.  The region includes Allegheny County, Pittsburgh's urban core county and economic hub, and seven adjacent Pennsylvania counties: Armstrong, Beaver, Butler, Fayette, Lawrence, Washington, and Westmoreland in Western Pennsylvania, which constitutes the Pittsburgh, PA Metropolitan Statistical Area MSA as defined by the U. S.",
-    "highlights": ["nature", "food", "shopping", "adventure"],
-    "bestTimeToVisit": "April to October"
-  },
-  {
     "id": "dest_mx_playa-del-carmen",
     "name": "Playa del Carmen",
     "country": "Mexico",
@@ -7658,20 +7420,6 @@
     "bestTimeToVisit": "Year-round"
   },
   {
-    "id": "dest_gb_portsmouth-southampton",
-    "name": "Portsmouth-Southampton",
-    "country": "United Kingdom",
-    "countryCode": "GB",
-    "region": "Europe",
-    "timezone": "Europe/London",
-    "latitude": 50.86666667,
-    "longitude": -1.26666667,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e8/South_Hampshire_population_density_map%2C_2011_census.png",
-    "description": "South Hampshire is a term used mainly to refer to the conurbation formed by the city of Portsmouth, city of Southampton and the boroughs of Gosport, Fareham, Havant and Eastleigh in southern Hampshire, South East England.  Using the definition of the agglomeration used by CityPopulation. de, the area had a population of 1,151,300 in the 2021 census.",
-    "highlights": ["art", "culture", "history", "architecture"],
-    "bestTimeToVisit": "June to August"
-  },
-  {
     "id": "dest_cz_prague",
     "name": "Prague",
     "country": "Czech Republic",
@@ -7847,20 +7595,6 @@
     "bestTimeToVisit": "Year-round, with dry season preferred"
   },
   {
-    "id": "dest_us_raleigh-nc-metropolitan-statistical-area",
-    "name": "Raleigh, NC (Metropolitan Statistical Area)",
-    "country": "United States",
-    "countryCode": "US",
-    "region": "North America",
-    "timezone": "America/New_York",
-    "latitude": 35.89,
-    "longitude": -78.86,
-    "imageUrl": "https://images.pexels.com/photos/5489599/pexels-photo-5489599.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-    "description": "The Research Triangle, or simply The Triangle, are both common nicknames for a Combined Statistical Area in the Piedmont region of the U. S.  state of North Carolina.",
-    "highlights": ["nature", "food", "shopping", "adventure"],
-    "bestTimeToVisit": "April to October"
-  },
-  {
     "id": "dest_br_recife",
     "name": "Recife",
     "country": "Brazil",
@@ -7936,20 +7670,6 @@
     "description": "Reykjavík is the capital and largest city of Iceland. It is located on the southern shore of the Faxaflói bay in southwest Iceland and has a latitude of 64°08′ N, making it the world's northernmost capital of a sovereign state. Reykjavík has a population of around 139,000 as of 2025, and the surrounding Capital Region has a population of around 249,000, constituting approximately 64% of Iceland's population.",
     "highlights": ["art", "culture", "beaches", "nature"],
     "bestTimeToVisit": "June to August"
-  },
-  {
-    "id": "dest_us_richmond-va-metropolitan-statistical-area",
-    "name": "Richmond, VA (Metropolitan Statistical Area)",
-    "country": "United States",
-    "countryCode": "US",
-    "region": "North America",
-    "timezone": "America/New_York",
-    "latitude": null,
-    "longitude": null,
-    "imageUrl": "https://images.pexels.com/photos/34586197/pexels-photo-34586197.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-    "description": "The Greater Richmond Region, also known as the Richmond metropolitan area or Central Virginia, is a region and metropolitan area in the U. S.  state of Virginia, centered on Richmond.",
-    "highlights": ["nature", "food", "shopping", "adventure"],
-    "bestTimeToVisit": "Year-round"
   },
   {
     "id": "dest_ie_ring-of-kerry",
@@ -8169,20 +7889,6 @@
     "bestTimeToVisit": "March to May and September to November"
   },
   {
-    "id": "dest_us_san-francisco-bay-area-nine-county-area",
-    "name": "San Francisco Bay Area (nine-county area)",
-    "country": "United States",
-    "countryCode": "US",
-    "region": "North America",
-    "timezone": "America/New_York",
-    "latitude": 37.81,
-    "longitude": -122.37,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d5/OAKLAND%2C_CA%2C_USA_-_Skyline_and_Bridge.JPG",
-    "description": "The San Francisco Bay Area, commonly known as the Bay Area, is a region of California surrounding and including San Francisco Bay, and anchored by the cities of Oakland, San Francisco, and San Jose.  The Association of Bay Area Governments defines the Bay Area as including the nine counties that border the estuaries of San Francisco Bay, San Pablo Bay, and Suisun Bay: Alameda, Contra Costa, Marin, Napa, San Mateo, Santa Clara, Solano, Sonoma, and San Francisco.  Other definitions may be either smaller or larger, and may include neighboring counties which are not officially part of the San Francisco Bay Area, such as the Central Coast counties of Santa Cruz, San Benito, and Monterey, or the Central Valley counties of San Joaquin, Merced, and Stanislaus.",
-    "highlights": ["art", "culture", "nature", "food"],
-    "bestTimeToVisit": "April to October"
-  },
-  {
     "id": "dest_us_san-jose",
     "name": "San Jose",
     "country": "United States",
@@ -8286,20 +7992,6 @@
     "description": "Santiago de Cali, or Cali, is the capital of the Valle del Cauca department, and the most populous city in southwest Colombia, with an estimated 2,280,522 residents in 2023.  The city spans 560. 3 km2 (216.",
     "highlights": ["art", "culture", "nature", "adventure"],
     "bestTimeToVisit": "Year-round, with dry season preferred"
-  },
-  {
-    "id": "dest_cl_santiago-metropolitan-region",
-    "name": "Santiago Metropolitan Region",
-    "country": "Chile",
-    "countryCode": "CL",
-    "region": "South America",
-    "timezone": "America/Santiago",
-    "latitude": -33.43777778,
-    "longitude": -70.65027778,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/8/87/Montaje_de_la_Regi%C3%B3n_Metropolitana_de_Santiago_%28202011260%29.png",
-    "description": "Santiago Metropolitan Region is one of Chile's 16 first-order administrative divisions. It is the country's only landlocked administrative region and contains the nation's capital, Santiago. Most commercial and administrative centers are located in the region, including Chile's main international airport, Arturo Merino Benítez International Airport.",
-    "highlights": ["art", "culture", "nature", "adventure"],
-    "bestTimeToVisit": "September to November and March to May"
   },
   {
     "id": "dest_gr_santorini",
@@ -8680,20 +8372,6 @@
     "bestTimeToVisit": "September to November and March to May"
   },
   {
-    "id": "dest_gb_south-tyneside",
-    "name": "South Tyneside",
-    "country": "United Kingdom",
-    "countryCode": "GB",
-    "region": "Europe",
-    "timezone": "Europe/London",
-    "latitude": 54.959,
-    "longitude": -1.438,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3e/Souter_Lighthouse_-_geograph.org.uk_-_3469880.jpg",
-    "description": "South Tyneside is a metropolitan borough in the county of Tyne and Wear, England. It is bordered by all four other boroughs in Tyne and Wear: Gateshead to the west, Sunderland in the south, North Tyneside to the north and Newcastle upon Tyne to the north-west; the border county of Northumberland lies further north. The borough was formed on 1 April 1974 by the merger of the County Borough of South Shields with the municipal borough of Jarrow and the urban districts of Boldon and Hebburn from County Durham.",
-    "highlights": ["art", "culture", "history", "architecture"],
-    "bestTimeToVisit": "June to August"
-  },
-  {
     "id": "dest_hr_split",
     "name": "Split",
     "country": "Croatia",
@@ -8741,34 +8419,6 @@
       "nature"
     ],
     "bestTimeToVisit": "April to October"
-  },
-  {
-    "id": "dest_us_st-louis-mo-il-metropolitan-statistical-area",
-    "name": "St. Louis, MO-IL (Metropolitan Statistical Area)",
-    "country": "United States",
-    "countryCode": "US",
-    "region": "North America",
-    "timezone": "America/New_York",
-    "latitude": null,
-    "longitude": null,
-    "imageUrl": "https://images.pexels.com/photos/34178478/pexels-photo-34178478.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-    "description": "Greater St.  Louis is the 23rd-largest metropolitan statistical area (MSA) in the United States consisting with an MSA population more than 2. 8 million, and almost 3 million CSA the largest in Missouri, and the second-largest in Illinois.",
-    "highlights": ["nature", "food", "shopping", "adventure"],
-    "bestTimeToVisit": "Year-round"
-  },
-  {
-    "id": "dest_nz_statistics-new-zealand",
-    "name": "Statistics New Zealand",
-    "country": "New Zealand",
-    "countryCode": "NZ",
-    "region": "Oceania",
-    "timezone": "Pacific/Auckland",
-    "latitude": null,
-    "longitude": null,
-    "imageUrl": "https://images.pexels.com/photos/35364683/pexels-photo-35364683.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-    "description": "Statistics New Zealand, branded as Stats NZ, is the public service department of New Zealand charged with the collection of statistics related to the economy, population and society of New Zealand. To this end, Stats NZ produces censuses and surveys.",
-    "highlights": ["art", "culture", "beaches", "nature"],
-    "bestTimeToVisit": "Year-round"
   },
   {
     "id": "dest_gb_stoke-on-trent",
@@ -9149,20 +8799,6 @@
     "bestTimeToVisit": "Year-round, with dry season preferred"
   },
   {
-    "id": "dest_ch_trinational-eurodistrict-of-basel",
-    "name": "Trinational Eurodistrict of Basel",
-    "country": "Switzerland",
-    "countryCode": "CH",
-    "region": "Europe",
-    "timezone": "Europe/Zurich",
-    "latitude": null,
-    "longitude": null,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d8/Grossraum_Basel.png",
-    "description": "The Trinational Eurodistrict of Basel, or Basel metropolitan area, extends across three countries: Switzerland, France and Germany.  The Trinational Eurodistrict of Basel is an organization of municipalities and cities in the trinational surroundings of Basel.  The TEB acts as coordinator for cross-border projects between the German, French and Swiss cities around Basel and promotes the cultural and linguistic exchange between the people living in the region.",
-    "highlights": ["art", "culture", "history", "architecture"],
-    "bestTimeToVisit": "Year-round"
-  },
-  {
     "id": "dest_cu_trinidad",
     "name": "Trinidad",
     "country": "Cuba",
@@ -9219,20 +8855,6 @@
     "bestTimeToVisit": "June to August"
   },
   {
-    "id": "dest_no_trondheim-region",
-    "name": "Trondheim Region",
-    "country": "Norway",
-    "countryCode": "NO",
-    "region": "Europe",
-    "timezone": "Europe/Oslo",
-    "latitude": 63.43333333,
-    "longitude": 10.36666667,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/7/76/2010-08-04_-_Trondheim_-_Nidarosdom_2_-_panoramio_-_Edgar_El.jpg",
-    "description": "The Trondheim Region is a statistical metropolitan region in the county of Trøndelag in Norway. It is centered in the city of Trondheim.",
-    "highlights": ["art", "culture", "history", "architecture"],
-    "bestTimeToVisit": "June to August"
-  },
-  {
     "id": "dest_pe_trujillo",
     "name": "Trujillo",
     "country": "Peru",
@@ -9275,20 +8897,6 @@
     "bestTimeToVisit": "April to October"
   },
   {
-    "id": "dest_tr_turkish-statistical-institute",
-    "name": "Turkish Statistical Institute",
-    "country": "Turkey",
-    "countryCode": "TR",
-    "region": "Middle East",
-    "timezone": "Europe/Istanbul",
-    "latitude": null,
-    "longitude": null,
-    "imageUrl": "https://images.pexels.com/photos/18543167/pexels-photo-18543167.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-    "description": "The Turkish Statistical Institute is a Turkish government agency responsible for producing official statistics on Turkey's population, resources, economy, society, and culture.  Founded on 25 April 1926 and headquartered in Ankara, the institute operates through 26 regional directorates across the country.  Formerly known as the State Institute of Statistics, the institute was reorganized and renamed under Law No.",
-    "highlights": ["art", "culture", "history", "architecture"],
-    "bestTimeToVisit": "Year-round"
-  },
-  {
     "id": "dest_us_twin-falls-idaho",
     "name": "Twin Falls, Idaho",
     "country": "United States",
@@ -9301,20 +8909,6 @@
     "description": "Twin Falls is the county seat of and the largest city in Twin Falls County, Idaho, United States.  The population was 51,807 at the 2020 census, and was estimated at 55,589 in 2024.  In the Magic Valley region, Twin Falls is the largest city in a 100-mile (160 km) radius, and is the regional commercial center for south-central Idaho and northeastern Nevada.",
     "highlights": ["art", "culture", "nature", "food"],
     "bestTimeToVisit": "April to October"
-  },
-  {
-    "id": "dest_gb_tyneside",
-    "name": "Tyneside",
-    "country": "United Kingdom",
-    "countryCode": "GB",
-    "region": "Europe",
-    "timezone": "Europe/London",
-    "latitude": 54.9875,
-    "longitude": -1.45833333,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/0/03/Tyne_Bridge_-_Newcastle_Upon_Tyne_-_England_-_2004-08-14.jpg",
-    "description": "Tyneside is a built-up area across the banks of the River Tyne in Northern England.  The population of Tyneside as published in the 2011 census was 774,891.  Tyneside is made up of the metropolitan boroughs of Newcastle upon Tyne, Gateshead, North Tyneside and South Tyneside.",
-    "highlights": ["art", "culture", "history", "architecture"],
-    "bestTimeToVisit": "June to August"
   },
   {
     "id": "dest_br_uberlandia",
@@ -9434,20 +9028,6 @@
     "description": "Vaduz is the capital of Liechtenstein and also the seat of the national parliament.  The village, which is located along the Rhine, has 5,696 residents.  The most prominent landmark of Vaduz is Vaduz Castle, perched atop a steep hill overlooking the village.",
     "highlights": ["art", "culture", "history", "architecture"],
     "bestTimeToVisit": "April to October"
-  },
-  {
-    "id": "dest_gb_vale-of-glamorgan",
-    "name": "Vale of Glamorgan",
-    "country": "United Kingdom",
-    "countryCode": "GB",
-    "region": "Europe",
-    "timezone": "Europe/London",
-    "latitude": 51.45,
-    "longitude": -3.41666667,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2d/Nash_Point%2C_Vale_of_Glamorgan%2C_south_Wales_%2826088435901%29.jpg",
-    "description": "The Vale of Glamorgan, locally referred to as The Vale, is a county borough in the south-east of Wales.  It borders Bridgend County Borough to the west, Cardiff to the east, Rhondda Cynon Taf to the north, and the Bristol Channel to the south.  With an economy based largely on agriculture and chemicals, it is the southernmost unitary authority in Wales.",
-    "highlights": ["art", "culture", "history", "architecture"],
-    "bestTimeToVisit": "June to August"
   },
   {
     "id": "dest_es_valencia",
@@ -9738,20 +9318,6 @@
   },
   {
     "id": "dest_us_washington-d-c",
-    "name": "Washington D.C.",
-    "country": "United States",
-    "countryCode": "US",
-    "region": "North America",
-    "timezone": "America/New_York",
-    "latitude": 38.90472222,
-    "longitude": -77.01638889,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e4/12-07-13-washington-by-RalfR-08.jpg",
-    "description": "Washington, D. C. , officially the District of Columbia and commonly known as simply Washington or D.",
-    "highlights": ["art", "culture", "nature", "food"],
-    "bestTimeToVisit": "April to October"
-  },
-  {
-    "id": "dest_us_washington-d-c",
     "name": "Washington, D.C.",
     "country": "United States",
     "countryCode": "US",
@@ -9763,34 +9329,6 @@
     "description": "Washington, D. C. , officially the District of Columbia and commonly known as simply Washington or D.",
     "highlights": ["art", "culture", "nature", "food"],
     "bestTimeToVisit": "April to October"
-  },
-  {
-    "id": "dest_gb_west-midlands",
-    "name": "West Midlands",
-    "country": "United Kingdom",
-    "countryCode": "GB",
-    "region": "Europe",
-    "timezone": "Europe/London",
-    "latitude": 52.5,
-    "longitude": -1.9,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Dudley_Castle_-_panoramio_-_Tanya_Dedyukhina_%282%29.jpg",
-    "description": "West Midlands is a metropolitan and ceremonial county in the larger West Midlands region of England. A landlocked county, it is bordered by Staffordshire to the north and west, Worcestershire to the south, and is almost surrounded by Warwickshire to the east. The largest settlement is the city of Birmingham.",
-    "highlights": ["art", "culture", "history", "architecture"],
-    "bestTimeToVisit": "June to August"
-  },
-  {
-    "id": "dest_gb_west-yorkshire",
-    "name": "West Yorkshire",
-    "country": "United Kingdom",
-    "countryCode": "GB",
-    "region": "Europe",
-    "timezone": "Europe/London",
-    "latitude": 53.75,
-    "longitude": -1.66666667,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Aspley_Basin_%28edited%2C_cropped%29.jpg",
-    "description": "West Yorkshire is a metropolitan and ceremonial county in the Yorkshire and the Humber region of England. It borders North Yorkshire to the north and east, South Yorkshire and Derbyshire to the south, Greater Manchester to the south-west, and Lancashire to the west. The city of Leeds is the largest settlement.",
-    "highlights": ["art", "culture", "history", "architecture"],
-    "bestTimeToVisit": "June to August"
   },
   {
     "id": "dest_ca_whistler",
@@ -9849,20 +9387,6 @@
     "bestTimeToVisit": "April to October"
   },
   {
-    "id": "dest_ca_winnipeg-metropolitan-region",
-    "name": "Winnipeg Metropolitan Region",
-    "country": "Canada",
-    "countryCode": "CA",
-    "region": "North America",
-    "timezone": "America/Toronto",
-    "latitude": 49.88,
-    "longitude": -97.13,
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2f/Downtown_Area%2C_Winnipeg_%28505203%29_%2825671037705%29.jpg",
-    "description": "The Winnipeg Metropolitan Region is a metropolitan area in the Canadian province of Manitoba located in the Red River Valley in the southeast portion of the province of Manitoba, Canada. It contains the provincial capital of Winnipeg and 17 surrounding rural municipalities, cities, and towns.",
-    "highlights": ["art", "culture", "nature", "food"],
-    "bestTimeToVisit": "April to October"
-  },
-  {
     "id": "dest_au_wollongong",
     "name": "Wollongong",
     "country": "Australia",
@@ -9903,20 +9427,6 @@
     "description": "Xiamen, historically romanized as Amoy, is a sub-provincial city in southeastern Fujian, People's Republic of China, beside the Taiwan Strait.  It is divided into six districts: Huli, Siming, Jimei, Tong'an, Haicang, and Xiang'an.  All together, these cover an area of 1,700.",
     "highlights": ["art", "culture", "nature", "hiking", "beaches"],
     "bestTimeToVisit": "March to May and September to November"
-  },
-  {
-    "id": "dest_cn_xinhua",
-    "name": "Xinhua",
-    "country": "China",
-    "countryCode": "CN",
-    "region": "East Asia",
-    "timezone": "Asia/Shanghai",
-    "latitude": null,
-    "longitude": null,
-    "imageUrl": "https://images.pexels.com/photos/5577063/pexels-photo-5577063.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-    "description": "Xinhua News Agency, or New China News Agency, is the official state news agency of the People's Republic of China. It is a ministry-level institution of the State Council. It is the country's largest media outlet.",
-    "highlights": ["culture", "food", "shopping", "temples"],
-    "bestTimeToVisit": "Year-round"
   },
   {
     "id": "dest_cn_xinyu",
@@ -10112,6 +9622,202 @@
     "imageUrl": "https://images.pexels.com/photos/28505478/pexels-photo-28505478.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
     "description": "Zurich is the largest city in Switzerland and the capital of the canton of Zurich.  It is in north-central Switzerland, at the northwestern tip of Lake Zurich.  As of the end of 2024, the municipality had a population of 436,551, while the urban area was home to.",
     "highlights": ["culture", "history", "architecture", "food"],
+    "bestTimeToVisit": "April to October"
+  },
+  {
+    "id": "dest_us_columbus",
+    "name": "Columbus",
+    "country": "United States",
+    "countryCode": "US",
+    "region": "North America",
+    "timezone": "America/New_York",
+    "latitude": 40,
+    "longitude": -83,
+    "imageUrl": "https://images.pexels.com/photos/19148168/pexels-photo-19148168.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    "description": "The Columbus metropolitan area is a metropolitan area in Central Ohio surrounding the state capital of Columbus.  As defined by the U. S.",
+    "highlights": ["nature", "food", "shopping", "adventure"],
+    "bestTimeToVisit": "April to October"
+  },
+  {
+    "id": "dest_us_dallas",
+    "name": "Dallas",
+    "country": "United States",
+    "countryCode": "US",
+    "region": "North America",
+    "timezone": "America/New_York",
+    "latitude": 32.763,
+    "longitude": -97.0326,
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Cowboys_Stadium_2.jpg",
+    "description": "The Dallas–Fort Worth metroplex, officially designated the Dallas–Fort Worth–Arlington metropolitan statistical area by the U. S.  Office of Management and Budget, is the most populous metropolitan statistical area in the U.",
+    "highlights": ["art", "culture", "nature", "food"],
+    "bestTimeToVisit": "March to May and September to November"
+  },
+  {
+    "id": "dest_ca_edmonton",
+    "name": "Edmonton",
+    "country": "Canada",
+    "countryCode": "CA",
+    "region": "North America",
+    "timezone": "America/Toronto",
+    "latitude": 53.56666667,
+    "longitude": -113.51666667,
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Edmonton_cityscape.jpg",
+    "description": "The Edmonton Metropolitan Region (EMR), also commonly referred to as Greater Edmonton or Metro Edmonton, is a conglomeration of municipalities centred on Edmonton, the capital of the Canadian province of Alberta.",
+    "highlights": ["art", "culture", "nature", "food"],
+    "bestTimeToVisit": "June to August"
+  },
+  {
+    "id": "dest_us_jacksonville",
+    "name": "Jacksonville",
+    "country": "United States",
+    "countryCode": "US",
+    "region": "North America",
+    "timezone": "America/New_York",
+    "latitude": null,
+    "longitude": null,
+    "imageUrl": "https://images.pexels.com/photos/15058860/pexels-photo-15058860.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    "description": "The Jacksonville Metropolitan Area, also called the First Coast, Metro Jacksonville, or Northeast Florida, is the metropolitan area centered on the principal city of Jacksonville, Florida and including the First Coast of North Florida.  As of the 2020 census, the total population was 1,605,848.  The Jacksonville–Kingsland–Palatka, FL–GA Combined Statistical Area (CSA) had a population of 1,733,937 in 2020 and was the 34th largest CSA in the United States.",
+    "highlights": ["nature", "food", "shopping", "adventure"],
+    "bestTimeToVisit": "Year-round"
+  },
+  {
+    "id": "dest_us_memphis",
+    "name": "Memphis",
+    "country": "United States",
+    "countryCode": "US",
+    "region": "North America",
+    "timezone": "America/New_York",
+    "latitude": 35.0239,
+    "longitude": -89.8692,
+    "imageUrl": "https://images.pexels.com/photos/13440083/pexels-photo-13440083.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    "description": "The Memphis–Clarksdale–Forrest City Combined Statistical Area, TN–MS–AR (CSA) or Greater Memphis is the commercial and cultural hub of the Mid-South centered on the city of Memphis.  The census-defined combined statistical area covers eleven counties in three states, Tennessee, Mississippi, and Arkansas.  As of 2020 census, the Memphis metropolitan area had a population of 1,389,905 The Forrest City, Arkansas Micropolitan area was added to the Memphis area in 2012 to form the Memphis–Forrest City Combined Statistical area.",
+    "highlights": ["nature", "food", "shopping", "adventure"],
+    "bestTimeToVisit": "April to October"
+  },
+  {
+    "id": "dest_us_oklahoma-city",
+    "name": "Oklahoma City",
+    "country": "United States",
+    "countryCode": "US",
+    "region": "North America",
+    "timezone": "America/New_York",
+    "latitude": 35.5,
+    "longitude": -97.5,
+    "imageUrl": "https://images.pexels.com/photos/12264315/pexels-photo-12264315.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    "description": "The Oklahoma City metropolitan area is an urban region in Central Oklahoma. It is the largest metropolitan area in the state of Oklahoma and contains the state capital and principal city, Oklahoma City. It is often known as the Oklahoma City Metro, or Greater Oklahoma City in addition to the nicknames Oklahoma City itself is known for, such as OKC or \"the 405\".",
+    "highlights": ["nature", "food", "shopping", "adventure"],
+    "bestTimeToVisit": "April to October"
+  },
+  {
+    "id": "dest_us_pittsburgh",
+    "name": "Pittsburgh",
+    "country": "United States",
+    "countryCode": "US",
+    "region": "North America",
+    "timezone": "America/New_York",
+    "latitude": 40.4375,
+    "longitude": -79.995,
+    "imageUrl": "https://images.pexels.com/photos/18221027/pexels-photo-18221027.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    "description": "Greater Pittsburgh is the metropolitan area surrounding the city of Pittsburgh in Western Pennsylvania, United States.  The region includes Allegheny County, Pittsburgh's urban core county and economic hub, and seven adjacent Pennsylvania counties: Armstrong, Beaver, Butler, Fayette, Lawrence, Washington, and Westmoreland in Western Pennsylvania, which constitutes the Pittsburgh, PA Metropolitan Statistical Area MSA as defined by the U. S.",
+    "highlights": ["nature", "food", "shopping", "adventure"],
+    "bestTimeToVisit": "April to October"
+  },
+  {
+    "id": "dest_gb_portsmouth",
+    "name": "Portsmouth",
+    "country": "United Kingdom",
+    "countryCode": "GB",
+    "region": "Europe",
+    "timezone": "Europe/London",
+    "latitude": 50.86666667,
+    "longitude": -1.26666667,
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e8/South_Hampshire_population_density_map%2C_2011_census.png",
+    "description": "South Hampshire is a term used mainly to refer to the conurbation formed by the city of Portsmouth, city of Southampton and the boroughs of Gosport, Fareham, Havant and Eastleigh in southern Hampshire, South East England.  Using the definition of the agglomeration used by CityPopulation. de, the area had a population of 1,151,300 in the 2021 census.",
+    "highlights": ["art", "culture", "history", "architecture"],
+    "bestTimeToVisit": "June to August"
+  },
+  {
+    "id": "dest_us_raleigh",
+    "name": "Raleigh",
+    "country": "United States",
+    "countryCode": "US",
+    "region": "North America",
+    "timezone": "America/New_York",
+    "latitude": 35.89,
+    "longitude": -78.86,
+    "imageUrl": "https://images.pexels.com/photos/5489599/pexels-photo-5489599.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    "description": "The Research Triangle, or simply The Triangle, are both common nicknames for a Combined Statistical Area in the Piedmont region of the U. S.  state of North Carolina.",
+    "highlights": ["nature", "food", "shopping", "adventure"],
+    "bestTimeToVisit": "April to October"
+  },
+  {
+    "id": "dest_us_richmond",
+    "name": "Richmond",
+    "country": "United States",
+    "countryCode": "US",
+    "region": "North America",
+    "timezone": "America/New_York",
+    "latitude": null,
+    "longitude": null,
+    "imageUrl": "https://images.pexels.com/photos/34586197/pexels-photo-34586197.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    "description": "The Greater Richmond Region, also known as the Richmond metropolitan area or Central Virginia, is a region and metropolitan area in the U. S.  state of Virginia, centered on Richmond.",
+    "highlights": ["nature", "food", "shopping", "adventure"],
+    "bestTimeToVisit": "Year-round"
+  },
+  {
+    "id": "dest_us_st-louis",
+    "name": "St. Louis",
+    "country": "United States",
+    "countryCode": "US",
+    "region": "North America",
+    "timezone": "America/New_York",
+    "latitude": null,
+    "longitude": null,
+    "imageUrl": "https://images.pexels.com/photos/34178478/pexels-photo-34178478.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    "description": "Greater St.  Louis is the 23rd-largest metropolitan statistical area (MSA) in the United States consisting with an MSA population more than 2. 8 million, and almost 3 million CSA the largest in Missouri, and the second-largest in Illinois.",
+    "highlights": ["nature", "food", "shopping", "adventure"],
+    "bestTimeToVisit": "Year-round"
+  },
+  {
+    "id": "dest_ch_basel",
+    "name": "Basel",
+    "country": "Switzerland",
+    "countryCode": "CH",
+    "region": "Europe",
+    "timezone": "Europe/Zurich",
+    "latitude": null,
+    "longitude": null,
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d8/Grossraum_Basel.png",
+    "description": "The Trinational Eurodistrict of Basel, or Basel metropolitan area, extends across three countries: Switzerland, France and Germany.  The Trinational Eurodistrict of Basel is an organization of municipalities and cities in the trinational surroundings of Basel.  The TEB acts as coordinator for cross-border projects between the German, French and Swiss cities around Basel and promotes the cultural and linguistic exchange between the people living in the region.",
+    "highlights": ["art", "culture", "history", "architecture"],
+    "bestTimeToVisit": "Year-round"
+  },
+  {
+    "id": "dest_no_trondheim",
+    "name": "Trondheim",
+    "country": "Norway",
+    "countryCode": "NO",
+    "region": "Europe",
+    "timezone": "Europe/Oslo",
+    "latitude": 63.43333333,
+    "longitude": 10.36666667,
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/7/76/2010-08-04_-_Trondheim_-_Nidarosdom_2_-_panoramio_-_Edgar_El.jpg",
+    "description": "The Trondheim Region is a statistical metropolitan region in the county of Trøndelag in Norway. It is centered in the city of Trondheim.",
+    "highlights": ["art", "culture", "history", "architecture"],
+    "bestTimeToVisit": "June to August"
+  },
+  {
+    "id": "dest_ca_winnipeg",
+    "name": "Winnipeg",
+    "country": "Canada",
+    "countryCode": "CA",
+    "region": "North America",
+    "timezone": "America/Toronto",
+    "latitude": 49.88,
+    "longitude": -97.13,
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2f/Downtown_Area%2C_Winnipeg_%28505203%29_%2825671037705%29.jpg",
+    "description": "The Winnipeg Metropolitan Region is a metropolitan area in the Canadian province of Manitoba located in the Red River Valley in the southeast portion of the province of Manitoba, Canada. It contains the provincial capital of Winnipeg and 17 surrounding rural municipalities, cities, and towns.",
+    "highlights": ["art", "culture", "nature", "food"],
     "bestTimeToVisit": "April to October"
   }
 ]
