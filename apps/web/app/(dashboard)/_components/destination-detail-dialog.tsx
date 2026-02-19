@@ -170,7 +170,7 @@ function DestinationDetailContent({
         )}
 
         {/* AI Actions */}
-        <div className="space-y-3 rounded-xl border-primary/30 py-4">
+        <div className="space-y-3 rounded-xl border-primary/30">
           <p>Ready to learn more?</p>
           <div className="grid gap-2 sm:grid-cols-2">
             <Button>

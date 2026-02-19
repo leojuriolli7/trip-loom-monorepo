@@ -1,16 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  CalendarIcon,
-  MapPinIcon,
-  PlaneIcon,
-  BedDoubleIcon,
-  MapIcon,
-} from "lucide-react";
-import Image from "next/image";
+import { CalendarIcon, MapPinIcon } from "lucide-react";
 import type { TripWithDestinationDTO } from "@trip-loom/api/dto";
 import { useMemo } from "react";
 import { format } from "date-fns";
+import { TripFeatureBadge } from "@/components/trip-feature-badge";
 
 interface TripCardProps {
   trip: TripWithDestinationDTO;
@@ -81,33 +75,9 @@ export function TripCard({ trip }: TripCardProps) {
         </div>
 
         <div className="mt-3 flex flex-wrap gap-2">
-          {trip.hasFlights && (
-            <Badge
-              variant="secondary"
-              className="gap-1.5 bg-secondary/80 text-xs font-medium"
-            >
-              <PlaneIcon className="size-3" />
-              Flights
-            </Badge>
-          )}
-          {trip.hasHotel && (
-            <Badge
-              variant="secondary"
-              className="gap-1.5 bg-secondary/80 text-xs font-medium"
-            >
-              <BedDoubleIcon className="size-3" />
-              Hotel
-            </Badge>
-          )}
-          {trip.hasItinerary && (
-            <Badge
-              variant="secondary"
-              className="gap-1.5 bg-secondary/80 text-xs font-medium"
-            >
-              <MapIcon className="size-3" />
-              Itinerary
-            </Badge>
-          )}
+          {trip.hasFlights && <TripFeatureBadge variant="flights" />}
+          {trip.hasHotel && <TripFeatureBadge variant="hotel" />}
+          {trip.hasItinerary && <TripFeatureBadge variant="itinerary" />}
         </div>
       </CardContent>
     </Card>

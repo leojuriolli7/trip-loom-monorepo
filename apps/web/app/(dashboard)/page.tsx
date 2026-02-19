@@ -28,6 +28,12 @@ export default async function Page() {
         <div className="space-y-12 pb-16">
           <HomeChatInput />
 
+          {/*
+           * TODO: A carousel might not be the best fit since it's hard for users
+           * to have more than 1 upcoming trip. Could add some kind of filler card, like
+           * explaining features or CTA to something.
+           */}
+
           <TripsSection
             title="Upcoming trips"
             status="upcoming"

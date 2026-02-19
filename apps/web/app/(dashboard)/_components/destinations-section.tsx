@@ -44,11 +44,7 @@ export function DestinationsSection({
     setDialogOpen(open);
 
     if (!open) {
-      setTimeout(() => {
-        // wait for animation to finish first
-        // TODO: Can be a better way do to this, but it works for now.
-        setSelectedDestinationId(null);
-      }, 300);
+      setSelectedDestinationId(null);
     }
   };
 
