@@ -9,6 +9,7 @@
 /seeds/generators/hotels/raw-hotels-images.json
 /seeds/generators/hotels/raw-hotels-search.json
 /seeds/generators/hotels/raw-hotels-details.json
+seeds/generators/hotels/.fetch-images-progress.json
 /seeds/generators/hotels/.search-progress.json
 /seeds/generators/hotels/.enrich-progress.json
 /seeds/generators/hotels/discovered-amenities.json
