@@ -23,6 +23,7 @@ export const SeatButton = React.memo(function SeatButton({
       new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
+        maximumFractionDigits: 0,
       }).format(seat.priceInCents / 100),
     [seat.priceInCents],
   );

@@ -7,8 +7,10 @@ import type {
   HotelSummaryDTO,
   UpdateHotelBookingInput,
 } from "../dto/hotel-bookings";
+import type { PriceRange } from "../enums";
 import { BadRequestError, NotFoundError } from "../errors";
 import { isValidDateRange } from "../lib/date-range";
+import { generatePricePerNight } from "../lib/hotels/pricing";
 import { generateId } from "../lib/nanoid";
 import { getOwnedTripMeta, refreshTripStatus } from "../lib/trips/ownership";
 import { hotelSummarySelectFields } from "../mappers/hotel-bookings";
@@ -80,13 +82,21 @@ const getBookingWithHotel = async (
 };
 
 /**
- * Verifies that a hotel exists and returns its summary info.
+ * Hotel info needed for booking creation (summary + priceRange for pricing).
  */
-const getHotelSummary = async (
+type HotelForBooking = HotelSummaryDTO & { priceRange: PriceRange | null };
+
+/**
+ * Verifies that a hotel exists and returns info needed for booking.
+ */
+const getHotelForBooking = async (
   hotelId: string,
-): Promise<HotelSummaryDTO | null> => {
+): Promise<HotelForBooking | null> => {
   const rows = await db
-    .select(hotelSummarySelectFields)
+    .select({
+      ...hotelSummarySelectFields,
+      priceRange: hotel.priceRange,
+    })
     .from(hotel)
     .where(eq(hotel.id, hotelId))
     .limit(1);
@@ -141,6 +151,7 @@ export async function getHotelBooking(
  * Creates a new hotel booking.
  * - Validates that the trip belongs to the user
  * - Validates that the hotel exists
+ * - Generates pricePerNightInCents based on hotel's priceRange
  * - Calculates numberOfNights and totalPriceInCents
  * - Refreshes trip status (may transition draft -> upcoming)
  */
@@ -154,13 +165,14 @@ export async function createHotelBooking(
     return null;
   }
 
-  const hotelSummary = await getHotelSummary(input.hotelId);
-  if (!hotelSummary) {
+  const hotelInfo = await getHotelForBooking(input.hotelId);
+  if (!hotelInfo) {
     throw new NotFoundError("Hotel not found");
   }
 
   const numberOfNights = calculateNights(input.checkInDate, input.checkOutDate);
-  const totalPriceInCents = numberOfNights * input.pricePerNightInCents;
+  const pricePerNightInCents = generatePricePerNight(hotelInfo.priceRange);
+  const totalPriceInCents = numberOfNights * pricePerNightInCents;
 
   const [created] = await db
     .insert(hotelBooking)
@@ -173,7 +185,7 @@ export async function createHotelBooking(
       checkOutDate: input.checkOutDate,
       roomType: input.roomType,
       numberOfNights,
-      pricePerNightInCents: input.pricePerNightInCents,
+      pricePerNightInCents,
       totalPriceInCents,
       status: "pending",
     })
@@ -186,7 +198,7 @@ export async function createHotelBooking(
 /**
  * Updates an existing hotel booking.
  * - Validates ownership
- * - Recalculates nights/total if dates or price change
+ * - Recalculates nights/total if dates change (uses existing pricePerNightInCents)
  * - Refreshes trip status if status changes to cancelled
  */
 export async function updateHotelBooking(
@@ -209,11 +221,9 @@ export async function updateHotelBooking(
     updatedAt: new Date(),
   };
 
-  // Determine final dates and price for recalculation
+  // Determine final dates for recalculation
   const finalCheckInDate = input.checkInDate ?? existing.checkInDate;
   const finalCheckOutDate = input.checkOutDate ?? existing.checkOutDate;
-  const finalPricePerNight =
-    input.pricePerNightInCents ?? existing.pricePerNightInCents;
 
   if (
     !isValidDateRange(finalCheckInDate, finalCheckOutDate) ||
@@ -222,18 +232,16 @@ export async function updateHotelBooking(
     throw new BadRequestError("checkOutDate must be after checkInDate");
   }
 
-  // Check if we need to recalculate nights and total
+  // Recalculate nights and total if dates changed (price stays the same)
   const datesChanged =
     input.checkInDate !== undefined || input.checkOutDate !== undefined;
-  const priceChanged = input.pricePerNightInCents !== undefined;
 
-  if (datesChanged || priceChanged) {
+  if (datesChanged) {
     const numberOfNights = calculateNights(finalCheckInDate, finalCheckOutDate);
-    const totalPriceInCents = numberOfNights * finalPricePerNight;
+    const totalPriceInCents = numberOfNights * existing.pricePerNightInCents;
 
     updateData.checkInDate = finalCheckInDate;
     updateData.checkOutDate = finalCheckOutDate;
-    updateData.pricePerNightInCents = finalPricePerNight;
     updateData.numberOfNights = numberOfNights;
     updateData.totalPriceInCents = totalPriceInCents;
   }

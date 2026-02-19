@@ -18,6 +18,7 @@ import type {
 } from "../dto/trips";
 import { isValidDateRange } from "../lib/date-range";
 import { resolveTripStatus } from "../lib/trips/rules";
+import { findStaleTrips, syncStaleStatuses } from "../lib/trips/status";
 import { hasTripTravelPlan } from "../lib/trips/travel-plan";
 import { BadRequestError } from "../errors";
 import { generateId } from "../lib/nanoid";

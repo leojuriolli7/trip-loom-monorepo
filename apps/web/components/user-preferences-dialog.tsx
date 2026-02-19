@@ -367,7 +367,6 @@ function PreferencesForm({
                       )}
                       data-testid={`interest-${interest}`}
                     >
-                      {isSelected && <CheckIcon className="size-3.5" />}
                       <span className="capitalize">{interest}</span>
                     </button>
                   );
@@ -417,7 +416,6 @@ function PreferencesForm({
                       )}
                       data-testid={`region-${region.toLowerCase().replace(/\s+/g, "-")}`}
                     >
-                      {isSelected && <CheckIcon className="size-3.5" />}
                       {region}
                     </button>
                   );

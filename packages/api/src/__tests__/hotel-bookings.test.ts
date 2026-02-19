@@ -237,7 +237,6 @@ describe("Hotel Bookings API", () => {
             checkInDate: dateWithOffset(50),
             checkOutDate: dateWithOffset(53),
             roomType: "Standard",
-            pricePerNightInCents: 10000,
           },
         }),
         requestJson({
@@ -314,21 +313,19 @@ describe("Hotel Bookings API", () => {
   });
 
   describe("POST /api/trips/:id/hotels", () => {
-    it("creates a booking and calculates nights and total correctly", async () => {
+    it("creates a booking and generates price based on hotel priceRange", async () => {
       const checkInDate = dateWithOffset(50);
       const checkOutDate = dateWithOffset(55); // 5 nights
-      const pricePerNight = 12000;
 
       const { res, body } = await requestJson({
         method: "POST",
         path: `/api/trips/${seed.draftTripId}/hotels`,
         userId: seed.primaryUserId,
         body: {
-          hotelId: seed.hotelId,
+          hotelId: seed.hotelId, // "moderate" priceRange hotel
           checkInDate,
           checkOutDate,
           roomType: "Executive Suite",
-          pricePerNightInCents: pricePerNight,
         },
       });
 
@@ -339,9 +336,12 @@ describe("Hotel Bookings API", () => {
       expect(body.checkOutDate).toBe(checkOutDate);
       expect(body.roomType).toBe("Executive Suite");
       expect(body.numberOfNights).toBe(5);
-      expect(body.pricePerNightInCents).toBe(pricePerNight);
-      expect(body.totalPriceInCents).toBe(5 * pricePerNight);
       expect(body.status).toBe("pending");
+
+      // Price should be generated within moderate range bounds ($100-$180)
+      expect(body.pricePerNightInCents).toBeGreaterThanOrEqual(10000);
+      expect(body.pricePerNightInCents).toBeLessThanOrEqual(18000);
+      expect(body.totalPriceInCents).toBe(5 * body.pricePerNightInCents);
 
       // Verify hotel info is embedded
       expect(body.hotel).toMatchObject({
@@ -359,6 +359,26 @@ describe("Hotel Bookings API", () => {
       expect(storedRows).toHaveLength(1);
     });
 
+    it("generates price within budget range for budget hotels", async () => {
+      const { res, body } = await requestJson({
+        method: "POST",
+        path: `/api/trips/${seed.draftTripId}/hotels`,
+        userId: seed.primaryUserId,
+        body: {
+          hotelId: seed.secondaryHotelId, // "budget" priceRange hotel
+          checkInDate: dateWithOffset(50),
+          checkOutDate: dateWithOffset(53), // 3 nights
+          roomType: "Standard Room",
+        },
+      });
+
+      expect(res.status).toBe(201);
+      // Price should be within budget range bounds ($40-$80)
+      expect(body.pricePerNightInCents).toBeGreaterThanOrEqual(4000);
+      expect(body.pricePerNightInCents).toBeLessThanOrEqual(8000);
+      expect(body.totalPriceInCents).toBe(3 * body.pricePerNightInCents);
+    });
+
     it("transitions trip from draft to upcoming when first booking is added", async () => {
       const { res, body } = await requestJson({
         method: "POST",
@@ -369,7 +389,6 @@ describe("Hotel Bookings API", () => {
           checkInDate: dateWithOffset(31),
           checkOutDate: dateWithOffset(34),
           roomType: "Standard",
-          pricePerNightInCents: 10000,
         },
       });
 
@@ -394,7 +413,6 @@ describe("Hotel Bookings API", () => {
           checkInDate: dateWithOffset(50),
           checkOutDate: dateWithOffset(53),
           roomType: "Standard",
-          pricePerNightInCents: 10000,
         },
       });
 
@@ -417,7 +435,6 @@ describe("Hotel Bookings API", () => {
           checkInDate: sameDay,
           checkOutDate: sameDay, // Same day = invalid
           roomType: "Standard",
-          pricePerNightInCents: 10000,
         },
       });
 
@@ -433,7 +450,6 @@ describe("Hotel Bookings API", () => {
           checkInDate: dateWithOffset(55),
           checkOutDate: dateWithOffset(50), // Before checkin
           roomType: "Standard",
-          pricePerNightInCents: 10000,
         },
       });
 
@@ -450,7 +466,6 @@ describe("Hotel Bookings API", () => {
           checkInDate: dateWithOffset(50),
           checkOutDate: dateWithOffset(53),
           roomType: "Standard",
-          pricePerNightInCents: 10000,
         },
       });
 
@@ -560,7 +575,7 @@ describe("Hotel Bookings API", () => {
       expect(body.totalPriceInCents).toBe(5 * 15000); // 5 nights * 15000
     });
 
-    it("updates room type without affecting dates", async () => {
+    it("updates room type without affecting dates or price", async () => {
       const { res, body } = await requestJson({
         method: "PATCH",
         path: `/api/trips/${seed.upcomingTripId}/hotels/${seed.primaryBookingId}`,
@@ -573,23 +588,28 @@ describe("Hotel Bookings API", () => {
       expect(res.status).toBe(200);
       expect(body.roomType).toBe("Presidential Suite");
       expect(body.numberOfNights).toBe(3); // Unchanged
+      expect(body.pricePerNightInCents).toBe(15000); // Unchanged (set at booking time)
       expect(body.totalPriceInCents).toBe(45000); // Unchanged
     });
 
-    it("updates price and recalculates total", async () => {
+    it("preserves original price when dates change", async () => {
+      const newCheckIn = dateWithOffset(42);
+      const newCheckOut = dateWithOffset(44); // 2 nights instead of 3
+
       const { res, body } = await requestJson({
         method: "PATCH",
         path: `/api/trips/${seed.upcomingTripId}/hotels/${seed.primaryBookingId}`,
         userId: seed.primaryUserId,
         body: {
-          pricePerNightInCents: 20000,
+          checkInDate: newCheckIn,
+          checkOutDate: newCheckOut,
         },
       });
 
       expect(res.status).toBe(200);
-      expect(body.pricePerNightInCents).toBe(20000);
-      expect(body.numberOfNights).toBe(3);
-      expect(body.totalPriceInCents).toBe(3 * 20000);
+      expect(body.numberOfNights).toBe(2);
+      expect(body.pricePerNightInCents).toBe(15000); // Original price preserved
+      expect(body.totalPriceInCents).toBe(2 * 15000); // Recalculated with original price
     });
 
     it("can update status to confirmed and cancelled", async () => {
@@ -694,7 +714,6 @@ describe("Hotel Bookings API", () => {
           checkInDate: dateWithOffset(31),
           checkOutDate: dateWithOffset(34),
           roomType: "Standard",
-          pricePerNightInCents: 10000,
         },
       });
       expect(created.res.status).toBe(201);
@@ -741,7 +760,6 @@ describe("Hotel Bookings API", () => {
           checkInDate: dateWithOffset(31),
           checkOutDate: dateWithOffset(34),
           roomType: "Standard",
-          pricePerNightInCents: 10000,
         },
       });
       expect(created.res.status).toBe(201);
@@ -780,7 +798,6 @@ describe("Hotel Bookings API", () => {
           checkInDate: dateWithOffset(31),
           checkOutDate: dateWithOffset(34),
           roomType: "Standard",
-          pricePerNightInCents: 10000,
         },
       });
       expect(created.res.status).toBe(201);

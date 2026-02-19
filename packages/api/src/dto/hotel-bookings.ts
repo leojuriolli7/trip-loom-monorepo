@@ -43,7 +43,7 @@ export type HotelBookingDTO = z.infer<typeof hotelBookingSchema>;
 /**
  * Input for creating a hotel booking.
  * - checkOutDate must be after checkInDate
- * - numberOfNights and totalPriceInCents are calculated server-side
+ * - numberOfNights, pricePerNightInCents, and totalPriceInCents are calculated server-side
  */
 export const createHotelBookingInputSchema = z
   .object({
@@ -51,7 +51,6 @@ export const createHotelBookingInputSchema = z
     checkInDate: isoDateSchema,
     checkOutDate: isoDateSchema,
     roomType: z.string().trim().min(1).max(100),
-    pricePerNightInCents: z.number().int().min(0),
   })
   .refine(
     (value) =>
@@ -68,13 +67,13 @@ export type CreateHotelBookingInput = z.infer<typeof createHotelBookingInputSche
 /**
  * Input for updating a hotel booking.
  * When dates are updated, numberOfNights and totalPriceInCents are recalculated.
+ * Note: pricePerNightInCents cannot be updated - it's set at booking time based on hotel's priceRange.
  */
 export const updateHotelBookingInputSchema = z
   .object({
     checkInDate: isoDateSchema.optional(),
     checkOutDate: isoDateSchema.optional(),
     roomType: z.string().trim().min(1).max(100).optional(),
-    pricePerNightInCents: z.number().int().min(0).optional(),
     status: z.enum(bookingStatusValues).optional(),
   })
   .refine(

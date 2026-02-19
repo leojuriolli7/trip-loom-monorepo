@@ -36,7 +36,6 @@ export function BookHotelStep() {
     null,
   );
   const [roomType, setRoomType] = React.useState("Standard Room");
-  const [pricePerNight, setPricePerNight] = React.useState(15000); // $150/night
 
   const createHotelBookingMutation = useMutation(
     hotelBookingQueries.createTripHotelBooking(),
@@ -63,7 +62,6 @@ export function BookHotelStep() {
           checkInDate: format(new Date(trip.startDate), "yyyy-MM-dd"),
           checkOutDate: format(new Date(trip.endDate), "yyyy-MM-dd"),
           roomType,
-          pricePerNightInCents: pricePerNight,
         },
       })
       .then((result) => {
@@ -178,7 +176,6 @@ export function BookHotelStep() {
                 selectedId={selectedHotel?.id ?? null}
                 onSelect={(hotel) => {
                   setSelectedHotel(hotel);
-                  setPricePerNight(hotel.avgPricePerNightInCents ?? 0);
                 }}
                 placeholder="Search hotels..."
                 emptyMessage="No hotels found in this destination"
@@ -224,34 +221,16 @@ export function BookHotelStep() {
                   </div>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field>
-                    <FieldLabel htmlFor="room-type">Room Type</FieldLabel>
-                    <Input
-                      id="room-type"
-                      value={roomType}
-                      onChange={(e) => setRoomType(e.target.value)}
-                      placeholder="e.g., Standard Room"
-                      required
-                    />
-                  </Field>
-
-                  <Field>
-                    <FieldLabel htmlFor="price-per-night">
-                      Price per Night (cents)
-                    </FieldLabel>
-                    <Input
-                      id="price-per-night"
-                      type="number"
-                      value={pricePerNight}
-                      onChange={(e) =>
-                        setPricePerNight(parseInt(e.target.value, 10))
-                      }
-                      min={0}
-                      required
-                    />
-                  </Field>
-                </div>
+                <Field>
+                  <FieldLabel htmlFor="room-type">Room Type</FieldLabel>
+                  <Input
+                    id="room-type"
+                    value={roomType}
+                    onChange={(e) => setRoomType(e.target.value)}
+                    placeholder="e.g., Standard Room"
+                    required
+                  />
+                </Field>
 
                 <div className="rounded-xl border border-border bg-muted/30 p-4">
                   <div className="grid gap-2 text-sm">

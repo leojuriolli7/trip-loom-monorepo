@@ -41,7 +41,7 @@ export function YourTripsSection() {
     });
   }, [trips]);
 
-  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const isDesktop = useMediaQuery("(min-width: 640px)");
 
   return (
     <section className="mx-auto max-w-5xl px-6 lg:px-8">
@@ -117,7 +117,9 @@ export function YourTripsSection() {
                 <CarouselItem
                   className={cn(
                     "pl-4 basis-full",
-                    trips.length === 1 ? "basis-[66%]" : "basis-1/3",
+                    trips.length === 1
+                      ? "lg:basis-[66%] sm:basis-1/2"
+                      : "basis-1/3",
                   )}
                 >
                   <PersonalizeCtaCard />
