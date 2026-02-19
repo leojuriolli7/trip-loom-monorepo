@@ -1,0 +1,14 @@
+# source of data for destinations
+/seeds/sources/geonames/*
+
+# Seed generator intermediate files (destinations)
+/seeds/generators/destinations/master-cities.json
+/seeds/generators/destinations/.enrichment-progress.json
+
+# Seed generator intermediate files (hotels)
+/seeds/generators/hotels/raw-hotels-search.json
+/seeds/generators/hotels/raw-hotels-details.json
+/seeds/generators/hotels/.search-progress.json
+/seeds/generators/hotels/.enrich-progress.json
+/seeds/generators/hotels/discovered-amenities.json
+/seeds/generators/hotels/data-analysis.json

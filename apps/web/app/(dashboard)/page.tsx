@@ -23,7 +23,7 @@ export default async function Page() {
       <Header />
 
       <main className="flex-1">
-        <Greeting userName={sessionResult?.user.name} />
+        <Greeting userName={sessionResult?.user.name.split(" ")[0]} />
 
         <div className="space-y-12 pb-16">
           <HomeChatInput />
