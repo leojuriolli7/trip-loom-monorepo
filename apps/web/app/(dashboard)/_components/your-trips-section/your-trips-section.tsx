@@ -15,6 +15,9 @@ import { tripQueries } from "@/lib/api/react-query/trips";
 import { Spinner } from "@/components/ui/spinner";
 import { useMemo } from "react";
 import { TripStatus } from "@trip-loom/api/enums";
+import { PersonalizeCtaCard } from "./personalize-cta-card";
+import { cn } from "@/lib/utils";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 export function YourTripsSection() {
   const { data: trips = [], status: queryStatus } = useInfiniteQuery(
@@ -37,6 +40,8 @@ export function YourTripsSection() {
       return (statusOrder[a.status] ?? 99) - (statusOrder[b.status] ?? 99);
     });
   }, [trips]);
+
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   return (
     <section className="mx-auto max-w-5xl px-6 lg:px-8">
@@ -97,7 +102,19 @@ export function YourTripsSection() {
                   </Link>
                 </CarouselItem>
               ))}
+
+              {trips.length < 3 && isDesktop === true && (
+                <CarouselItem
+                  className={cn(
+                    "pl-4 basis-full",
+                    trips.length === 1 ? "basis-[66%]" : "basis-1/3",
+                  )}
+                >
+                  <PersonalizeCtaCard />
+                </CarouselItem>
+              )}
             </CarouselContent>
+
             {trips.length > 3 && (
               <>
                 <CarouselPrevious className="-left-4 lg:-left-12" />
