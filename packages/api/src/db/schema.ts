@@ -468,7 +468,9 @@ export const trip = pgTable(
       onDelete: "set null",
     }),
     title: text("title"),
-    status: tripStatusEnum("status").notNull().default("draft"),
+    // Status is computed at query time from cancelledAt + dates + travel plan existence
+    // See lib/trips/status.ts for the SQL computation
+    cancelledAt: timestamp("cancelled_at"),
     startDate: date("start_date"),
     endDate: date("end_date"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -479,9 +481,8 @@ export const trip = pgTable(
   },
   (table) => [
     index("trip_user_id_idx").on(table.userId),
-    index("trip_status_idx").on(table.status),
-    index("trip_user_id_status_idx").on(table.userId, table.status),
     index("trip_user_id_created_at_idx").on(table.userId, table.createdAt),
+    index("trip_cancelled_at_idx").on(table.cancelledAt),
     check(
       "trip_dates_check",
       sql`${table.endDate} IS NULL OR ${table.startDate} IS NULL OR ${table.startDate} <= ${table.endDate}`,

@@ -12,7 +12,7 @@ import { BadRequestError, NotFoundError } from "../errors";
 import { isValidDateRange } from "../lib/date-range";
 import { generatePricePerNight } from "../lib/hotels/pricing";
 import { generateId } from "../lib/nanoid";
-import { getOwnedTripMeta, refreshTripStatus } from "../lib/trips/ownership";
+import { getOwnedTripMeta } from "../lib/trips/ownership";
 import { hotelSummarySelectFields } from "../mappers/hotel-bookings";
 
 /**
@@ -191,7 +191,6 @@ export async function createHotelBooking(
     })
     .returning({ id: hotelBooking.id });
 
-  await refreshTripStatus(tripMeta);
   return getBookingWithHotel(tripId, created.id);
 }
 
@@ -258,7 +257,6 @@ export async function updateHotelBooking(
     .update(hotelBooking)
     .set(updateData)
     .where(eq(hotelBooking.id, bookingId));
-  await refreshTripStatus(tripMeta);
 
   return getBookingWithHotel(tripId, bookingId);
 }
@@ -291,6 +289,5 @@ export async function cancelHotelBooking(
     return false;
   }
 
-  await refreshTripStatus(tripMeta);
   return true;
 }

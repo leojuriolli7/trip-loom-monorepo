@@ -1,16 +1,24 @@
 import { trip, destination } from "../db/schema";
 import type { TripWithDestinationDTO } from "../dto/trips";
+import type { TripStatus } from "../enums";
+import { computedTripStatusSql } from "../lib/trips/status";
 
+/**
+ * Base trip select fields (without computed status).
+ * Status is added separately via computedTripStatusSql.
+ */
 export const tripSelectFields = {
   id: trip.id,
   userId: trip.userId,
   destinationId: trip.destinationId,
   title: trip.title,
-  status: trip.status,
+  cancelledAt: trip.cancelledAt,
   startDate: trip.startDate,
   endDate: trip.endDate,
   createdAt: trip.createdAt,
   updatedAt: trip.updatedAt,
+  // Computed status from SQL CASE expression
+  status: computedTripStatusSql,
 } as const;
 
 export const tripDestinationSelectFields = {
@@ -29,7 +37,13 @@ type DestinationSummaryRow = {
   imageUrl: string | null;
 } | null;
 
-type TripWithDestinationRow = typeof trip.$inferSelect & {
+/**
+ * Row type returned from trip queries with computed status.
+ * Note: status is computed via SQL CASE, not stored in DB.
+ */
+type TripWithDestinationRow = Omit<typeof trip.$inferSelect, "cancelledAt"> & {
+  status: TripStatus;
+  cancelledAt: Date | null;
   destination: DestinationSummaryRow;
   hasFlights: boolean;
   hasHotel: boolean;

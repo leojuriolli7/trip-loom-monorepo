@@ -85,6 +85,13 @@
       "when": 1771519634348,
       "tag": "0011_sloppy_thunderbird",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1771536265565,
+      "tag": "0012_harsh_legion",
+      "breakpoints": true
     }
   ]
 }

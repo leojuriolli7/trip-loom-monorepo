@@ -5,6 +5,7 @@ import type { RecommendedDestinationDTO } from "../../dto/destinations";
 import type { Region, TravelInterest } from "../../enums";
 import { destinationSelectFields } from "../../mappers/destinations";
 import { combineConditions } from "../pagination";
+import { computedTripStatusSql } from "./status";
 
 // Keep weights centralized so tuning recommendation behavior is straightforward.
 const SCORE_WEIGHTS = {
@@ -159,7 +160,7 @@ async function buildRecommendationContext(
       .from(trip)
       .leftJoin(destination, eq(trip.destinationId, destination.id))
       .where(
-        combineConditions(eq(trip.userId, userId), eq(trip.status, "past")),
+        combineConditions(eq(trip.userId, userId), sql`${computedTripStatusSql} = 'past'`),
       ),
   ]);
 

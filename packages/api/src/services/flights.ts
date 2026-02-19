@@ -16,7 +16,7 @@ import {
   generateFlightOptions,
   generateSeatMapForFlight,
 } from "../lib/flights/generator";
-import { getOwnedTripMeta, refreshTripStatus } from "../lib/trips/ownership";
+import { getOwnedTripMeta } from "../lib/trips/ownership";
 import { flightBookingSelectFields } from "../mappers/flights";
 
 type SeatMapSource = {
@@ -227,7 +227,6 @@ export async function createFlightBooking(
     })
     .returning({ id: flightBooking.id });
 
-  await refreshTripStatus(ownedTrip);
   return getFlightBookingById(tripId, created.id);
 }
 
@@ -260,7 +259,6 @@ export async function updateFlightBooking(
   }
 
   await db.update(flightBooking).set(updateData).where(eq(flightBooking.id, bookingId));
-  await refreshTripStatus(ownedTrip);
 
   return getFlightBookingById(tripId, bookingId);
 }
@@ -288,6 +286,5 @@ export async function cancelFlightBooking(
     return false;
   }
 
-  await refreshTripStatus(ownedTrip);
   return true;
 }

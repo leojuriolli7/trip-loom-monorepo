@@ -231,7 +231,6 @@ const seedFlightsFixtureData = async () => {
       userId: primaryUserId,
       destinationId: null,
       title: "Draft With Future Dates",
-      status: "draft",
       startDate: dateWithOffset(30),
       endDate: dateWithOffset(36),
       createdAt: new Date(baseTime),
@@ -242,7 +241,6 @@ const seedFlightsFixtureData = async () => {
       userId: primaryUserId,
       destinationId: null,
       title: "Upcoming Primary Trip",
-      status: "upcoming",
       startDate: dateWithOffset(40),
       endDate: dateWithOffset(48),
       createdAt: new Date(baseTime + 1_000),
@@ -253,7 +251,6 @@ const seedFlightsFixtureData = async () => {
       userId: secondaryUserId,
       destinationId: null,
       title: "Secondary User Trip",
-      status: "upcoming",
       startDate: dateWithOffset(18),
       endDate: dateWithOffset(24),
       createdAt: new Date(baseTime + 2_000),
@@ -539,12 +536,6 @@ describe("Flights API", () => {
         .from(flightBooking)
         .where(eq(flightBooking.id, create.body.id));
       expect(storedRows).toHaveLength(1);
-
-      const draftTripRows = await db
-        .select({ status: trip.status })
-        .from(trip)
-        .where(eq(trip.id, seed.draftTripId));
-      expect(draftTripRows[0]?.status).toBe("upcoming");
     });
 
     it("GET /api/trips/:id/flights lists only trip bookings", async () => {
@@ -638,12 +629,6 @@ describe("Flights API", () => {
         .from(flightBooking)
         .where(eq(flightBooking.id, created.body.id));
       expect(bookingRows[0]?.status).toBe("cancelled");
-
-      const tripRows = await db
-        .select({ status: trip.status })
-        .from(trip)
-        .where(eq(trip.id, seed.draftTripId));
-      expect(tripRows[0]?.status).toBe("draft");
     });
 
     it("DELETE keeps trip upcoming when itinerary still exists", async () => {
@@ -680,12 +665,6 @@ describe("Flights API", () => {
       });
 
       expect(deleted.res.status).toBe(204);
-
-      const tripRows = await db
-        .select({ status: trip.status })
-        .from(trip)
-        .where(eq(trip.id, seed.draftTripId));
-      expect(tripRows[0]?.status).toBe("upcoming");
     });
 
     it("cannot access another user's trip bookings", async () => {

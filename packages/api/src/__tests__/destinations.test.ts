@@ -1,7 +1,7 @@
 import { describe, expect, it, beforeAll, afterAll, beforeEach } from "vitest";
 import { eq } from "drizzle-orm";
 import { db } from "../db";
-import { user, userPreference, trip, destination } from "../db/schema";
+import { user, userPreference, trip, destination, itinerary } from "../db/schema";
 import { destinationRoutes } from "../routes/destinations";
 import {
   createHeaderAuthMock,
@@ -365,15 +365,19 @@ describe("Destinations Recommendations API", () => {
 
     it("should factor in past trips for recommendations", async () => {
       // Create a past trip to Bali (beaches, temples, relaxation)
+      // Note: Trip needs an itinerary to compute as 'past' (otherwise it's 'draft')
       const pastTripId = `${ctx.prefix}trip_past_${generateId()}`;
       await db.insert(trip).values({
         id: pastTripId,
         userId: primaryUserId,
         title: "Past Bali Trip",
-        status: "past",
         destinationId: pastTripDestId,
         startDate: "2024-01-01",
         endDate: "2024-01-10",
+      });
+      await db.insert(itinerary).values({
+        id: `${ctx.prefix}itin_past_${generateId()}`,
+        tripId: pastTripId,
       });
 
       const { res, body } = await request.get(
@@ -421,15 +425,19 @@ describe("Destinations Recommendations API", () => {
       });
 
       // Also create a past trip to East Asia
+      // Note: Trip needs an itinerary to compute as 'past' (otherwise it's 'draft')
       const pastTripId = `${ctx.prefix}trip_asia_${generateId()}`;
       await db.insert(trip).values({
         id: pastTripId,
         userId: primaryUserId,
         title: "Past Tokyo Trip",
-        status: "past",
         destinationId: asiaDestId,
         startDate: "2024-02-01",
         endDate: "2024-02-10",
+      });
+      await db.insert(itinerary).values({
+        id: `${ctx.prefix}itin_asia_${generateId()}`,
+        tripId: pastTripId,
       });
 
       const { res, body } = await request.get(

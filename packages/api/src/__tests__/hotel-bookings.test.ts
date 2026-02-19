@@ -129,7 +129,6 @@ const seedFixtureData = async () => {
       userId: primaryUserId,
       destinationId: null,
       title: "Draft With Future Dates",
-      status: "draft",
       startDate: dateWithOffset(30),
       endDate: dateWithOffset(36),
       createdAt: new Date(baseTime),
@@ -140,7 +139,6 @@ const seedFixtureData = async () => {
       userId: primaryUserId,
       destinationId: null,
       title: "Upcoming Primary Trip",
-      status: "upcoming",
       startDate: dateWithOffset(40),
       endDate: dateWithOffset(48),
       createdAt: new Date(baseTime + 1_000),
@@ -151,7 +149,6 @@ const seedFixtureData = async () => {
       userId: secondaryUserId,
       destinationId: null,
       title: "Secondary User Trip",
-      status: "upcoming",
       startDate: dateWithOffset(18),
       endDate: dateWithOffset(24),
       createdAt: new Date(baseTime + 2_000),
@@ -394,13 +391,6 @@ describe("Hotel Bookings API", () => {
 
       expect(res.status).toBe(201);
       expect(body.tripId).toBe(seed.draftTripId);
-
-      // Check trip status transitioned
-      const tripRows = await db
-        .select({ status: trip.status })
-        .from(trip)
-        .where(eq(trip.id, seed.draftTripId));
-      expect(tripRows[0]?.status).toBe("upcoming");
     });
 
     it("returns 404 for invalid hotelId", async () => {
@@ -502,7 +492,6 @@ describe("Hotel Bookings API", () => {
         id: emptyTripId,
         userId: seed.primaryUserId,
         title: "Empty Trip",
-        status: "draft",
       });
 
       const { res, body } = await requestJson({
@@ -718,13 +707,6 @@ describe("Hotel Bookings API", () => {
       });
       expect(created.res.status).toBe(201);
 
-      // Verify trip is now upcoming
-      let tripRows = await db
-        .select({ status: trip.status })
-        .from(trip)
-        .where(eq(trip.id, seed.draftTripId));
-      expect(tripRows[0]?.status).toBe("upcoming");
-
       // Delete the booking
       const deleted = await requestJson({
         method: "DELETE",
@@ -740,13 +722,6 @@ describe("Hotel Bookings API", () => {
         .from(hotelBooking)
         .where(eq(hotelBooking.id, created.body.id));
       expect(bookingRows[0]?.status).toBe("cancelled");
-
-      // Trip should be back to draft
-      tripRows = await db
-        .select({ status: trip.status })
-        .from(trip)
-        .where(eq(trip.id, seed.draftTripId));
-      expect(tripRows[0]?.status).toBe("draft");
     });
 
     it("keeps trip upcoming when other travel plans exist (itinerary)", async () => {
@@ -778,13 +753,6 @@ describe("Hotel Bookings API", () => {
       });
 
       expect(deleted.res.status).toBe(204);
-
-      // Trip should remain upcoming because itinerary exists
-      const tripRows = await db
-        .select({ status: trip.status })
-        .from(trip)
-        .where(eq(trip.id, seed.draftTripId));
-      expect(tripRows[0]?.status).toBe("upcoming");
     });
 
     it("keeps trip upcoming when other travel plans exist (flight booking)", async () => {
@@ -829,13 +797,6 @@ describe("Hotel Bookings API", () => {
       });
 
       expect(deleted.res.status).toBe(204);
-
-      // Trip should remain upcoming because flight exists
-      const tripRows = await db
-        .select({ status: trip.status })
-        .from(trip)
-        .where(eq(trip.id, seed.draftTripId));
-      expect(tripRows[0]?.status).toBe("upcoming");
     });
 
     it("returns 404 for non-existent booking", async () => {

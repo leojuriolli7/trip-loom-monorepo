@@ -89,7 +89,6 @@ const seedFixtureData = async () => {
       userId: primaryUserId,
       destinationId: null,
       title: "Trip With Itinerary",
-      status: "upcoming",
       startDate: dateWithOffset(30),
       endDate: dateWithOffset(36),
       createdAt: new Date(baseTime),
@@ -100,7 +99,6 @@ const seedFixtureData = async () => {
       userId: primaryUserId,
       destinationId: null,
       title: "Trip Without Itinerary",
-      status: "draft",
       startDate: dateWithOffset(40),
       endDate: dateWithOffset(46),
       createdAt: new Date(baseTime + 1_000),
@@ -111,7 +109,6 @@ const seedFixtureData = async () => {
       userId: secondaryUserId,
       destinationId: null,
       title: "Secondary User Trip",
-      status: "upcoming",
       startDate: dateWithOffset(50),
       endDate: dateWithOffset(56),
       createdAt: new Date(baseTime + 2_000),
@@ -505,31 +502,6 @@ describe("Itineraries API", () => {
       expect(body.days[1].activities[0].title).toBe("City Tour");
     });
 
-    it("transitions trip from draft to upcoming when itinerary is created", async () => {
-      // Verify trip is draft
-      let tripRows = await db
-        .select({ status: trip.status })
-        .from(trip)
-        .where(eq(trip.id, seed.tripWithoutItineraryId));
-      expect(tripRows[0]?.status).toBe("draft");
-
-      const { res } = await requestJson({
-        method: "POST",
-        path: `/api/trips/${seed.tripWithoutItineraryId}/itinerary`,
-        userId: seed.primaryUserId,
-        body: {},
-      });
-
-      expect(res.status).toBe(201);
-
-      // Trip should now be upcoming
-      tripRows = await db
-        .select({ status: trip.status })
-        .from(trip)
-        .where(eq(trip.id, seed.tripWithoutItineraryId));
-      expect(tripRows[0]?.status).toBe("upcoming");
-    });
-
     it("returns 409 if itinerary already exists", async () => {
       const { res, body } = await requestJson({
         method: "POST",
@@ -624,41 +596,6 @@ describe("Itineraries API", () => {
         .from(itineraryActivity)
         .where(eq(itineraryActivity.itineraryDayId, seed.day1Id));
       expect(activityRows).toHaveLength(0);
-    });
-
-    it("transitions trip from upcoming to draft when itinerary is only travel plan", async () => {
-      // Create a draft trip with just an itinerary
-      const draftTripId = `${ctx.prefix}trip_draft_for_delete`;
-      const draftItineraryId = `${ctx.prefix}itinerary_for_delete`;
-
-      await db.insert(trip).values({
-        id: draftTripId,
-        userId: seed.primaryUserId,
-        title: "Trip to test delete",
-        status: "upcoming",
-        startDate: dateWithOffset(60),
-        endDate: dateWithOffset(65),
-      });
-
-      await db.insert(itinerary).values({
-        id: draftItineraryId,
-        tripId: draftTripId,
-      });
-
-      const { res } = await requestJson({
-        method: "DELETE",
-        path: `/api/trips/${draftTripId}/itinerary`,
-        userId: seed.primaryUserId,
-      });
-
-      expect(res.status).toBe(204);
-
-      // Trip should be back to draft
-      const tripRows = await db
-        .select({ status: trip.status })
-        .from(trip)
-        .where(eq(trip.id, draftTripId));
-      expect(tripRows[0]?.status).toBe("draft");
     });
 
     it("returns 404 if no itinerary exists", async () => {

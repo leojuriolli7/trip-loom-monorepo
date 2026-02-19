@@ -12,7 +12,7 @@ import type {
 } from "../dto/itineraries";
 import { ConflictError, NotFoundError } from "../errors";
 import { generateId } from "../lib/nanoid";
-import { getOwnedTripMeta, refreshTripStatus } from "../lib/trips/ownership";
+import { getOwnedTripMeta } from "../lib/trips/ownership";
 import {
   itineraryActivityColumns,
   itineraryDayColumns,
@@ -268,9 +268,6 @@ export async function createItinerary(
     throw error;
   }
 
-  // Refresh trip status (may transition draft -> upcoming if dates are set)
-  await refreshTripStatus(tripMeta);
-
   return getItineraryDetailsByTripId(tripId);
 }
 
@@ -295,9 +292,6 @@ export async function deleteItinerary(
   if (deleted.length === 0) {
     return false;
   }
-
-  // Refresh trip status (may transition upcoming -> draft if no other travel plans)
-  await refreshTripStatus(tripMeta);
 
   return true;
 }

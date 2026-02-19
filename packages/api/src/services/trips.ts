@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, ilike, inArray, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, or, sql, type SQL } from "drizzle-orm";
 import { db } from "../db";
 import {
   destination,
@@ -17,9 +17,7 @@ import type {
   UpdateTripInput,
 } from "../dto/trips";
 import { isValidDateRange } from "../lib/date-range";
-import { resolveTripStatus } from "../lib/trips/rules";
-import { findStaleTrips, syncStaleStatuses } from "../lib/trips/status";
-import { hasTripTravelPlan } from "../lib/trips/travel-plan";
+import { buildComputedStatusCondition } from "../lib/trips/status";
 import { BadRequestError } from "../errors";
 import { generateId } from "../lib/nanoid";
 import {
@@ -116,20 +114,6 @@ const getTripWithDestinationById = async (
   return mapTripWithDestination(rows[0]);
 };
 
-const buildStatusCondition = (
-  status: TripQuery["status"],
-): SQL | undefined => {
-  if (!status || status.length === 0) {
-    return undefined;
-  }
-
-  if (status.length === 1) {
-    return eq(trip.status, status[0]);
-  }
-
-  return inArray(trip.status, status);
-};
-
 export async function listTrips(
   userId: string,
   query: TripQuery,
@@ -138,7 +122,7 @@ export async function listTrips(
 
   const whereCondition = combineConditions(
     eq(trip.userId, userId),
-    buildStatusCondition(status),
+    buildComputedStatusCondition(status),
     destinationId ? eq(trip.destinationId, destinationId) : undefined,
     buildTripSearchCondition(search),
     buildCursorCondition(cursor, trip.createdAt, trip.id),
@@ -230,7 +214,8 @@ export async function createTrip(
       title: input.title ?? null,
       startDate: input.startDate ?? null,
       endDate: input.endDate ?? null,
-      status: "draft",
+      // cancelledAt defaults to null (not cancelled)
+      // status is computed at query time
     })
     .returning({ id: trip.id });
 
@@ -250,7 +235,7 @@ export async function updateTrip(
   const existingRows = await db
     .select({
       id: trip.id,
-      status: trip.status,
+      cancelledAt: trip.cancelledAt,
       startDate: trip.startDate,
       endDate: trip.endDate,
     })
@@ -274,14 +259,6 @@ export async function updateTrip(
     throw new BadRequestError("startDate must be before or equal to endDate");
   }
 
-  const nextStatus = resolveTripStatus({
-    currentStatus: existing.status,
-    requestedStatus: input.status,
-    startDate: nextStartDate,
-    endDate: nextEndDate,
-    hasTravelPlan: await hasTripTravelPlan(tripId),
-  });
-
   const updateData: Partial<typeof trip.$inferInsert> = {
     updatedAt: new Date(),
   };
@@ -302,8 +279,12 @@ export async function updateTrip(
     updateData.endDate = input.endDate;
   }
 
-  if (nextStatus !== existing.status) {
-    updateData.status = nextStatus;
+  // Handle cancellation: status is computed, but 'cancelled' sets cancelledAt
+  if (input.status === "cancelled" && !existing.cancelledAt) {
+    updateData.cancelledAt = new Date();
+  } else if (input.status && input.status !== "cancelled" && existing.cancelledAt) {
+    // Un-cancel: clear cancelledAt so status can be computed from dates again
+    updateData.cancelledAt = null;
   }
 
   await db
