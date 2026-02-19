@@ -105,14 +105,15 @@ Server to base myself: https://github.com/modelcontextprotocol/servers/blob/main
 Client examples: https://modelcontextprotocol.io/clients
 
 ### 5. Immediate TODOs
-- Improve trips carousel UI: When not enough trips, fill with filler cards with actions and CTAs (like personalize your profile)
+- Dialog perf issue: fix implementation of destination details dialog in destination section
+- Improve trips carousel UI: When not enough trips, fill with filler cards with actions and CTAs (like personalize your profile + 3D Icon + dashed border...)
 - Improve destination descriptions via AI: More about culture, less about demographics, longer...
 - Transfer all images to my own S3 instance, add back `next/image`
 - Add more hotels for each destination using other sources
 - Need to improve average price per night for hotels -- too similar (or add real price for each night, no average, for better payment user experience)
-- Integrate hotel style from schema into DTO
-- CHECK: Need to improve airport seat view price coloring: many flights show ALL prices as red or all as yellow
+- Integrate hotelStyle from schema into DTO
 
+- Add search box to header: Aggregate search hotels, trips and destinations
 - Implement MCP Server
 - Implement AI agents
 - Implement AI frontend experience

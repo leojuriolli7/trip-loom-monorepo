@@ -104,7 +104,7 @@ function DestinationDetailContent({
                 </Badge>
               )}
             </div>
-            <Title className="text-2xl font-semibold tracking-tight text-white drop-shadow-lg">
+            <Title className="text-left text-2xl font-semibold tracking-tight text-white drop-shadow-lg">
               {data.name}
             </Title>
             <div className="flex items-center gap-1.5 text-white/80">
