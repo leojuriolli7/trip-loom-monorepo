@@ -1,10 +1,14 @@
 import { tripStatusEnum } from "../../db/schema";
 import { isValidDateRange } from "../date-range";
 import { BadRequestError } from "../../errors";
+import { TripStatus } from "../../enums";
 
-export type TripStatus = (typeof tripStatusEnum.enumValues)[number];
 type TripDerivedStatus = "upcoming" | "current" | "past";
-const derivedTripStatuses = new Set<TripStatus>(["upcoming", "current", "past"]);
+const derivedTripStatuses = new Set<TripStatus>([
+  "upcoming",
+  "current",
+  "past",
+]);
 
 const deriveTripStatusFromDates = (
   startDate: string,

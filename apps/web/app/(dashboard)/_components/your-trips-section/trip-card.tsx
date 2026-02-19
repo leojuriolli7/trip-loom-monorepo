@@ -1,10 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, MapPinIcon } from "lucide-react";
 import type { TripWithDestinationDTO } from "@trip-loom/api/dto";
 import { useMemo } from "react";
 import { format } from "date-fns";
 import { TripFeatureBadge } from "@/components/trip-feature-badge";
+import { TripStatusBadge } from "@/components/trip-status-badge";
 
 interface TripCardProps {
   trip: TripWithDestinationDTO;
@@ -51,19 +51,18 @@ export function TripCard({ trip }: TripCardProps) {
         />
         <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
 
-        {trip.status === "current" && (
-          <Badge className="absolute right-3 top-3 border-0 bg-primary font-medium text-primary-foreground shadow-lg">
-            Ongoing
-          </Badge>
-        )}
-
         <div className="absolute inset-x-0 bottom-0 p-4">
           <h3 className="text-xl font-semibold tracking-tight text-white drop-shadow-sm">
             {tripTitle}
           </h3>
-          <div className="mt-1 flex items-center gap-1.5 text-white/85">
-            <MapPinIcon className="size-3.5" />
-            <span className="text-sm font-medium">{destinationCountry}</span>
+
+          <div className="mt-1 flex items-center justify-between">
+            <div className="flex items-center gap-1.5 text-white/85">
+              <MapPinIcon className="size-3.5" />
+              <span className="text-sm font-medium">{destinationCountry}</span>
+            </div>
+
+            <TripStatusBadge status={trip.status} />
           </div>
         </div>
       </div>
@@ -74,7 +73,7 @@ export function TripCard({ trip }: TripCardProps) {
           <span className="font-medium">{dateRange}</span>
         </div>
 
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-3 flex flex-wrap gap-2 h-5">
           {trip.hasFlights && <TripFeatureBadge variant="flights" />}
           {trip.hasHotel && <TripFeatureBadge variant="hotel" />}
           {trip.hasItinerary && <TripFeatureBadge variant="itinerary" />}

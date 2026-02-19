@@ -16,7 +16,7 @@ import { CurrentTripCard } from "@/components/current-trip-card";
 export function HomeChatInput() {
   const { data: currentTrips = [] } = useInfiniteQuery(
     tripQueries.listTrips({
-      status: "upcoming",
+      status: ["current"],
       limit: 1,
     }),
   );

@@ -538,6 +538,7 @@ export function createTestDestinations(
 6. **Keep services DB-focused** - Business logic in services, HTTP in routes
 7. **Test all endpoints** - Pagination, filters, 404s, auth
 8. **Keep exports minimal** - If a symbol is unused, remove it
+9. **No backwards compatibility unless explicitly requested** - Refactors and API changes should not consider backwards compatibility unless the user explicitly asks for it
 
 ## Seed Data
 

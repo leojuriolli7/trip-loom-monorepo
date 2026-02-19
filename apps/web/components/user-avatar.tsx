@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,12 +12,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Spinner } from "@/components/ui/spinner";
-import { UserPreferencesDialog } from "@/components/user-preferences-dialog";
+import { userPreferencesDialogOpenAtom } from "@/components/user-preferences-dialog";
 import { authClient } from "@/lib/api/auth-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { LogOutIcon, MapIcon, UserIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useSetAtom } from "jotai";
 
 type UserAvatarProps = {
   /**
@@ -29,7 +29,7 @@ type UserAvatarProps = {
 };
 
 export function UserAvatar({ variant = "icon" }: UserAvatarProps) {
-  const [preferencesOpen, setPreferencesOpen] = React.useState(false);
+  const setPreferencesOpen = useSetAtom(userPreferencesDialogOpenAtom);
   const { data: sessionData, isPending: isSessionPending } =
     authClient.useSession();
 
@@ -142,11 +142,6 @@ export function UserAvatar({ variant = "icon" }: UserAvatarProps) {
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>
-
-      <UserPreferencesDialog
-        open={preferencesOpen}
-        onOpenChange={setPreferencesOpen}
-      />
     </DropdownMenu>
   );
 }

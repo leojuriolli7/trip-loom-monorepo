@@ -463,7 +463,7 @@ describe("Trips API", () => {
     expect(draftRow?.hasItinerary).toBe(false);
   });
 
-  it("GET /api/trips supports status filtering", async () => {
+  it("GET /api/trips supports status filtering with single status", async () => {
     const { res, body } = await requestJson({
       method: "GET",
       path: "/api/trips?status=draft",
@@ -474,6 +474,47 @@ describe("Trips API", () => {
     expect(body.data).toHaveLength(1);
     expect(body.data[0].id).toBe(seed.draftTripId);
     expect(body.data[0].status).toBe("draft");
+  });
+
+  it("GET /api/trips supports multiple status filtering", async () => {
+    const { res, body } = await requestJson({
+      method: "GET",
+      path: "/api/trips?status=draft&status=upcoming",
+      userId: seed.primaryUserId,
+    });
+
+    expect(res.status).toBe(200);
+    expect(body.data).toHaveLength(2);
+
+    const statuses = body.data.map((row: { status: string }) => row.status);
+    expect(statuses).toContain("draft");
+    expect(statuses).toContain("upcoming");
+    expect(statuses).not.toContain("past");
+
+    const ids = body.data.map((row: { id: string }) => row.id);
+    expect(ids).toContain(seed.draftTripId);
+    expect(ids).toContain(seed.upcomingTripId);
+    expect(ids).not.toContain(seed.pastTripId);
+  });
+
+  it("GET /api/trips rejects invalid status value", async () => {
+    const { res } = await requestJson({
+      method: "GET",
+      path: "/api/trips?status=doesnt-exist",
+      userId: seed.primaryUserId,
+    });
+
+    expect(res.status).toBe(422);
+  });
+
+  it("GET /api/trips rejects when any status value is invalid", async () => {
+    const { res } = await requestJson({
+      method: "GET",
+      path: "/api/trips?status=upcoming&status=not-real",
+      userId: seed.primaryUserId,
+    });
+
+    expect(res.status).toBe(422);
   });
 
   it("GET /api/trips paginates correctly", async () => {

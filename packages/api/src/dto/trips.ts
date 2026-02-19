@@ -93,8 +93,13 @@ export const updateTripInputSchema = z
 
 export type UpdateTripInput = z.infer<typeof updateTripInputSchema>;
 
+const statusSchema = z
+  .union([z.enum(tripStatusValues), z.array(z.enum(tripStatusValues))])
+  .transform((val) => (Array.isArray(val) ? val : [val]))
+  .optional();
+
 export const tripQuerySchema = paginationQuerySchema.extend({
-  status: z.enum(tripStatusValues).optional(),
+  status: statusSchema,
   destinationId: z.string().min(1).optional(),
 });
 

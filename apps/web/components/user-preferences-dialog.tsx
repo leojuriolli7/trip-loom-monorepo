@@ -9,6 +9,8 @@ import {
   budgetRangeValues,
   travelInterestValues,
   regionValues,
+  CabinClass,
+  BudgetRange,
 } from "@trip-loom/api/enums";
 import type { UserPreferenceDTO } from "@trip-loom/api/dto";
 
@@ -51,31 +53,30 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { XIcon, CheckIcon } from "lucide-react";
 import { userPreferencesQueries } from "@/lib/api/react-query/user-preferences";
+import { atom, useAtom } from "jotai";
 
-const CABIN_CLASS_LABELS: Record<(typeof cabinClassValues)[number], string> = {
+export const userPreferencesDialogOpenAtom = atom(false);
+
+const CABIN_CLASS_LABELS: Record<CabinClass, string> = {
   economy: "Economy",
   business: "Business",
   first: "First Class",
 };
 
-const BUDGET_RANGE_LABELS: Record<(typeof budgetRangeValues)[number], string> =
-  {
-    budget: "Budget-Friendly",
-    moderate: "Moderate",
-    upscale: "Upscale",
-    luxury: "Luxury",
-  };
-
-type UserPreferencesDialogProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+const BUDGET_RANGE_LABELS: Record<BudgetRange, string> = {
+  budget: "Budget-Friendly",
+  moderate: "Moderate",
+  upscale: "Upscale",
+  luxury: "Luxury",
 };
 
-export function UserPreferencesDialog({
-  open,
-  onOpenChange,
-}: UserPreferencesDialogProps) {
+export function UserPreferencesDialog() {
   const isDesktop = useMediaQuery("(min-width: 768px)");
+  const [dialogOpen, setDialogOpen] = useAtom(userPreferencesDialogOpenAtom);
+
+  const onOpenChange = (val: boolean) => {
+    setDialogOpen(val);
+  };
 
   if (isDesktop === undefined) {
     return null;
@@ -83,7 +84,7 @@ export function UserPreferencesDialog({
 
   if (isDesktop) {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={dialogOpen} onOpenChange={onOpenChange}>
         <DialogContent
           className="max-h-[85vh] overflow-y-auto no-scrollbar sm:max-w-lg"
           data-testid="preferences-dialog"
@@ -103,7 +104,7 @@ export function UserPreferencesDialog({
   }
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
+    <Drawer open={dialogOpen} onOpenChange={onOpenChange}>
       <DrawerContent data-testid="preferences-drawer">
         <DrawerHeader className="text-left">
           <DrawerTitle>Travel Preferences</DrawerTitle>

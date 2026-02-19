@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, ilike, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, inArray, or, sql, type SQL } from "drizzle-orm";
 import { db } from "../db";
 import {
   destination,
@@ -115,6 +115,20 @@ const getTripWithDestinationById = async (
   return mapTripWithDestination(rows[0]);
 };
 
+const buildStatusCondition = (
+  status: TripQuery["status"],
+): SQL | undefined => {
+  if (!status || status.length === 0) {
+    return undefined;
+  }
+
+  if (status.length === 1) {
+    return eq(trip.status, status[0]);
+  }
+
+  return inArray(trip.status, status);
+};
+
 export async function listTrips(
   userId: string,
   query: TripQuery,
@@ -123,7 +137,7 @@ export async function listTrips(
 
   const whereCondition = combineConditions(
     eq(trip.userId, userId),
-    status ? eq(trip.status, status) : undefined,
+    buildStatusCondition(status),
     destinationId ? eq(trip.destinationId, destinationId) : undefined,
     buildTripSearchCondition(search),
     buildCursorCondition(cursor, trip.createdAt, trip.id),

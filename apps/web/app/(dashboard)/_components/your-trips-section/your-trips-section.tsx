@@ -11,33 +11,36 @@ import { TripCard } from "./trip-card";
 import Image from "next/image";
 import Link from "next/link";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import type { TripStatus } from "@trip-loom/api/enums";
 import { tripQueries } from "@/lib/api/react-query/trips";
 import { Spinner } from "@/components/ui/spinner";
+import { useMemo } from "react";
+import { TripStatus } from "@trip-loom/api/enums";
 
-interface TripsSectionProps {
-  title: string;
-  status: TripStatus;
-  emptyMessage?: string;
-  emptyMessageIcon?: string;
-}
-
-export function TripsSection({
-  title,
-  status,
-  emptyMessage = "No trips yet",
-  emptyMessageIcon = "/colliseum.png",
-}: TripsSectionProps) {
+export function YourTripsSection() {
   const { data: trips = [], status: queryStatus } = useInfiniteQuery(
     tripQueries.listTrips({
-      status,
+      status: ["upcoming", "draft", "past"],
       limit: 10,
     }),
   );
 
+  const orderedTrips = useMemo(() => {
+    const statusOrder: Record<TripStatus, number> = {
+      current: 0,
+      upcoming: 1,
+      draft: 2,
+      past: 3,
+      cancelled: 4,
+    };
+
+    return [...trips].sort((a, b) => {
+      return (statusOrder[a.status] ?? 99) - (statusOrder[b.status] ?? 99);
+    });
+  }, [trips]);
+
   return (
     <section className="mx-auto max-w-5xl px-6 lg:px-8">
-      <h2 className="mb-6 text-xl font-semibold text-foreground">{title}</h2>
+      <h2 className="mb-6 text-xl font-semibold text-foreground">Your trips</h2>
 
       <Carousel
         opts={{
@@ -64,7 +67,7 @@ export function TripsSection({
         {queryStatus === "success" && !trips.length && (
           <div className="flex h-48 flex-col items-center justify-center rounded-xl border border-dashed border-border/60 bg-muted/30">
             <Image
-              src={emptyMessageIcon}
+              src={"/colliseum.png"}
               alt=""
               width={112}
               height={112}
@@ -72,7 +75,7 @@ export function TripsSection({
             />
 
             <p className="text-muted-foreground text-center">
-              {emptyMessage}
+              No trips yet
               <br />
               <Link href="/chat" className="text-sm text-primary underline">
                 Get started!
@@ -84,7 +87,7 @@ export function TripsSection({
         {queryStatus === "success" && trips.length > 0 && (
           <>
             <CarouselContent className="-ml-4 pb-1">
-              {trips.map((trip) => (
+              {orderedTrips.map((trip) => (
                 <CarouselItem
                   key={trip.id}
                   className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3"

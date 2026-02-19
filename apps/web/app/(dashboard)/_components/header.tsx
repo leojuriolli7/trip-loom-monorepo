@@ -3,7 +3,7 @@
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/user-avatar";
-import { BookCheckIcon } from "lucide-react";
+import { BookCheckIcon, MessageCircleIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -25,13 +25,18 @@ export function Header() {
             <Link href="/dev/api-crud">
               <Button variant="outline">
                 <BookCheckIcon />
-                API Dev Page
+
+                <span className="sm:inline hidden">API Dev Page</span>
               </Button>
             </Link>
           )}
 
           <Link href="/chat">
-            <Button>Plan a Trip</Button>
+            <Button>
+              <MessageCircleIcon className="sm:hidden block" />
+
+              <span className="sm:inline hidden">Plan a Trip</span>
+            </Button>
           </Link>
 
           <ThemeToggle />
