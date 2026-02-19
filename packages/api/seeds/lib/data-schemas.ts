@@ -54,7 +54,6 @@ export const hotelSeedSchema = z.object({
   rating: z.number().min(0).max(5).nullable().optional(),
   numReviews: z.number().int().min(0).nullable().optional(),
   rankingString: z.string().nullable().optional(),
-  starRating: z.number().int().min(1).max(5).nullable(),
   amenities: z.array(z.enum(amenityValues)),
   styles: z.array(z.enum(hotelStyleValues)).optional().default([]),
   priceRange: z.enum(priceRangeValues).nullable(),

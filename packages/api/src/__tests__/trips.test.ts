@@ -185,7 +185,7 @@ const seedTripsFixtureData = async () => {
       latitude: 48.8566,
       longitude: 2.3522,
       imageUrl: null,
-      starRating: 4,
+      rating: 4,
       amenities: ["wifi", "restaurant"],
       priceRange: "upscale",
       avgPricePerNightInCents: 26_000,

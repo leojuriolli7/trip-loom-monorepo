@@ -177,11 +177,8 @@ function DestinationDetailContent({
           {highlights.length > 0 && (
             <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
               <div className="mb-2 flex items-center justify-between gap-3">
-                <p className="text-xs font-medium uppercase tracking-[0.12em] text-foreground font-semibold">
+                <p className="text-xs uppercase tracking-[0.12em] text-foreground font-semibold">
                   Highlights
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {highlights.length} picks
                 </p>
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -202,11 +199,8 @@ function DestinationDetailContent({
           {data.topHotels.length > 0 && (
             <div className="space-y-3 rounded-2xl border border-border/70 bg-background/80 p-4">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                <p className="text-xs uppercase tracking-[0.12em] text-foreground font-semibold">
                   Top Hotels
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {data.topHotels.length} options
                 </p>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
@@ -263,7 +257,7 @@ function DetailStatCard({
         <Icon className="size-4" />
       </span>
       <div>
-        <p className="text-xs font-medium uppercase tracking-[0.1em] text-muted-foreground">
+        <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
           {label}
         </p>
         <p className="text-sm font-medium text-foreground">{value}</p>

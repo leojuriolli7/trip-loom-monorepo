@@ -21,7 +21,7 @@ const hotelSummaryColumns = {
   name: true,
   address: true,
   imageUrl: true,
-  starRating: true,
+  rating: true,
 } as const;
 
 /**

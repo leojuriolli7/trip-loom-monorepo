@@ -15,7 +15,7 @@ export const hotelSchema = z.object({
   latitude: z.number().nullable(),
   longitude: z.number().nullable(),
   imageUrl: z.string().nullable(),
-  starRating: z.number().int().min(1).max(5).nullable(),
+  rating: z.number().min(0).max(5).nullable(),
   amenities: z.array(z.enum(amenityValues)),
   priceRange: z.enum(priceRangeValues).nullable(),
   avgPricePerNightInCents: z.number().int().min(0).nullable(),
@@ -42,7 +42,7 @@ export type HotelWithDestinationDTO = z.infer<typeof hotelWithDestinationSchema>
 export const hotelQuerySchema = paginationQuerySchema.extend({
   destinationId: z.string().optional(),
   priceRange: z.enum(priceRangeValues).optional(),
-  minStarRating: z.coerce.number().int().min(1).max(5).optional(),
+  minRating: z.coerce.number().min(0).max(5).optional(),
   amenity: z.enum(amenityValues).optional(),
 });
 

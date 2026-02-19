@@ -90,7 +90,7 @@ export function YourTripsSection() {
             />
 
             <p className="relative text-center text-muted-foreground">
-              No trips yet
+              You have not planned any trips yet
               <br />
               <Link href="/chat" className="text-sm text-primary underline">
                 Get started!

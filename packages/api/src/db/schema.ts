@@ -420,7 +420,6 @@ export const hotel = pgTable(
     numReviews: integer("num_reviews"),
     // e.g., "#6 of 82 hotels in Auckland Central"
     rankingString: text("ranking_string"),
-    starRating: integer("star_rating"), // 1-5, nullable since TripAdvisor doesn't always have this
     amenities: amenityEnum("amenities").array().notNull().default([]),
     // Hotel styles from TripAdvisor
     styles: hotelStyleEnum("styles").array().notNull().default([]),
@@ -438,16 +437,11 @@ export const hotel = pgTable(
   (table) => [
     index("hotel_destination_id_idx").on(table.destinationId),
     index("hotel_price_range_idx").on(table.priceRange),
-    index("hotel_star_rating_idx").on(table.starRating),
     index("hotel_rating_idx").on(table.rating),
     index("hotel_source_idx").on(table.source),
     index("hotel_styles_idx").using("gin", table.styles),
     index("hotel_search_vector_idx").using("gin", table.searchVector),
     unique("hotel_source_source_id_unique").on(table.source, table.sourceId),
-    check(
-      "hotel_star_rating_check",
-      sql`${table.starRating} IS NULL OR (${table.starRating} >= 1 AND ${table.starRating} <= 5)`,
-    ),
     check(
       "hotel_rating_check",
       sql`${table.rating} IS NULL OR (${table.rating} >= 0 AND ${table.rating} <= 5)`,

@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import type { PaymentDTO } from "@trip-loom/api/dto";
-import { CheckCircle2Icon, XCircleIcon, StarIcon } from "lucide-react";
+import { CheckCircle2Icon, XCircleIcon } from "lucide-react";
 
 import { poll } from "@/lib/poll";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import {
 import { PaymentFormProvider, PaymentForm } from "@/components/payment-form";
 import { paymentQueries } from "@/lib/api/react-query/payments";
 import { useWizard } from "../wizard-context";
+import { Ratings } from "@/components/ui/rating";
 
 type PaymentStatus =
   | "idle"
@@ -208,17 +209,8 @@ export function PayHotelStep() {
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <span className="font-medium">{hotelBooking.hotel.name}</span>
-                  {hotelBooking.hotel.starRating && (
-                    <div className="flex">
-                      {Array.from({ length: hotelBooking.hotel.starRating }).map(
-                        (_, i) => (
-                          <StarIcon
-                            key={i}
-                            className="size-3 fill-yellow-400 text-yellow-400"
-                          />
-                        ),
-                      )}
-                    </div>
+                  {hotelBooking.hotel.rating && (
+                    <Ratings rating={hotelBooking.hotel.rating} />
                   )}
                 </div>
                 <p className="text-sm text-muted-foreground">

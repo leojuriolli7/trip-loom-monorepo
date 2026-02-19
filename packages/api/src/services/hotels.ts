@@ -19,14 +19,14 @@ import { hotelSelectFields } from "../mappers/hotels";
 export async function listHotels(
   query: HotelQuery
 ): Promise<PaginatedResponse<HotelDTO>> {
-  const { cursor, limit, search, destinationId, priceRange, minStarRating, amenity } = query;
+  const { cursor, limit, search, destinationId, priceRange, minRating, amenity } = query;
 
   // Build conditions using shared helpers
   const whereCondition = combineConditions(
     // Domain-specific filters
     destinationId ? eq(hotel.destinationId, destinationId) : undefined,
     priceRange ? eq(hotel.priceRange, priceRange) : undefined,
-    minStarRating ? gte(hotel.starRating, minStarRating) : undefined,
+    minRating ? gte(hotel.rating, minRating) : undefined,
     amenity ? arrayContains(hotel.amenities, [amenity]) : undefined,
     // Full-text search
     buildSearchCondition(hotel.searchVector, search),

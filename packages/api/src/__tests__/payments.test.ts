@@ -187,7 +187,7 @@ const seedFixtureData = async () => {
     destinationId,
     name: "Payment Test Hotel",
     address: "123 Test Street",
-    starRating: 4,
+    rating: 4,
     amenities: ["wifi", "pool"],
     priceRange: "moderate",
     avgPricePerNightInCents: 20_000,

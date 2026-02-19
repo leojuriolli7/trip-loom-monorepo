@@ -380,7 +380,6 @@ type TransformedHotel = {
   rating: number | null;
   numReviews: number | null;
   rankingString: string | null;
-  starRating: number | null;
   amenities: Amenity[];
   styles: HotelStyle[];
   priceRange: "budget" | "moderate" | "upscale" | "luxury" | null;
@@ -497,7 +496,6 @@ function transformHotel(raw: EnrichedHotel): TransformedHotel | null {
     rating: details.rating ? parseFloat(details.rating) : null,
     numReviews: details.num_reviews ? parseInt(details.num_reviews, 10) : null,
     rankingString: details.ranking_data?.ranking_string || null,
-    starRating: null, // TripAdvisor doesn't provide star ratings
     amenities: mapAmenities(details.amenities),
     styles: mapStyles(details.styles),
     priceRange: priceInfo.priceRange,

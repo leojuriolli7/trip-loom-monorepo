@@ -9,7 +9,6 @@ import {
   CalendarIcon,
   MapPinIcon,
   CreditCardIcon,
-  StarIcon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -22,6 +21,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useWizard } from "../wizard-context";
+import { Ratings } from "@/components/ui/rating";
 
 export function SummaryStep() {
   const {
@@ -201,17 +201,8 @@ export function SummaryStep() {
                     <span className="font-medium">
                       {hotelBooking.hotel.name}
                     </span>
-                    {hotelBooking.hotel.starRating && (
-                      <div className="flex">
-                        {Array.from({
-                          length: hotelBooking.hotel.starRating,
-                        }).map((_, i) => (
-                          <StarIcon
-                            key={i}
-                            className="size-3 fill-yellow-400 text-yellow-400"
-                          />
-                        ))}
-                      </div>
+                    {hotelBooking.hotel.rating && (
+                      <Ratings rating={hotelBooking.hotel.rating} />
                     )}
                   </div>
                   <Badge

@@ -78,6 +78,13 @@
       "when": 1771452362807,
       "tag": "0010_cultured_sunspot",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1771519634348,
+      "tag": "0011_sloppy_thunderbird",
+      "breakpoints": true
     }
   ]
 }

@@ -88,7 +88,7 @@ export async function getDestinationDetail(
         id: hotel.id,
         name: hotel.name,
         imageUrl: hotel.imageUrl,
-        starRating: hotel.starRating,
+        rating: hotel.rating,
         priceRange: hotel.priceRange,
         avgPricePerNightInCents: hotel.avgPricePerNightInCents,
         amenities: hotel.amenities,
@@ -96,7 +96,7 @@ export async function getDestinationDetail(
       .from(hotel)
       .where(eq(hotel.destinationId, id))
       .orderBy(
-        desc(hotel.starRating),
+        desc(hotel.rating),
         asc(hotel.avgPricePerNightInCents),
         asc(hotel.id),
       )

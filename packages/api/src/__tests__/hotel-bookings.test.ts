@@ -85,7 +85,7 @@ const seedFixtureData = async () => {
       destinationId,
       name: "Grand Test Hotel",
       address: "123 Test Street",
-      starRating: 4,
+      rating: 4,
       amenities: ["wifi", "pool"],
       priceRange: "moderate",
       avgPricePerNightInCents: 15000,
@@ -97,7 +97,7 @@ const seedFixtureData = async () => {
       destinationId,
       name: "Budget Test Inn",
       address: "456 Test Avenue",
-      starRating: 3,
+      rating: 3,
       amenities: ["wifi"],
       priceRange: "budget",
       avgPricePerNightInCents: 8000,
@@ -348,7 +348,7 @@ describe("Hotel Bookings API", () => {
         id: seed.hotelId,
         name: "Grand Test Hotel",
         address: "123 Test Street",
-        starRating: 4,
+        rating: 4,
       });
 
       // Verify stored in DB
@@ -518,7 +518,7 @@ describe("Hotel Bookings API", () => {
         id: seed.hotelId,
         name: "Grand Test Hotel",
         address: "123 Test Street",
-        starRating: 4,
+        rating: 4,
       });
     });
 

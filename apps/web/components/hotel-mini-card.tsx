@@ -1,9 +1,8 @@
-import Image from "next/image";
-
 import type { DestinationHotelSummaryDTO } from "@trip-loom/api/dto";
 import type { PriceRange } from "@trip-loom/api/enums";
 import { amenityIcons } from "@/lib/amenity-icons";
-import { StarIcon, WifiIcon } from "lucide-react";
+import { WifiIcon } from "lucide-react";
+import { Ratings } from "./ui/rating";
 
 const PRICE_RANGE_LABELS: Record<PriceRange[number], string> = {
   budget: "$",
@@ -17,22 +16,13 @@ type HotelMiniCardProps = {
 };
 
 export function HotelMiniCard({ hotel }: HotelMiniCardProps) {
-  const pricePerNight = hotel.avgPricePerNightInCents
-    ? (hotel.avgPricePerNightInCents / 100).toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-        maximumFractionDigits: 0,
-      })
-    : null;
-
   return (
-    <div className="group flex gap-3 rounded-xl border border-border/60 bg-card p-2.5 transition-colors hover:border-primary/30">
+    <div className="group flex gap-3 rounded-xl bg-card p-2.5">
       <div className="relative size-16 shrink-0 overflow-hidden rounded-lg">
-        <Image
+        <img
           src={hotel.imageUrl ?? "/placeholder.png"}
           alt={hotel.name}
-          fill
-          className="object-cover"
+          className="object-cover w-full h-full"
         />
       </div>
 
@@ -42,16 +32,7 @@ export function HotelMiniCard({ hotel }: HotelMiniCardProps) {
             {hotel.name}
           </p>
           <div className="mt-0.5 flex items-center gap-1.5">
-            {hotel.starRating && (
-              <div className="flex">
-                {Array.from({ length: hotel.starRating }).map((_, i) => (
-                  <StarIcon
-                    key={i}
-                    className="size-3 fill-amber-400 text-amber-400"
-                  />
-                ))}
-              </div>
-            )}
+            {hotel.rating && <Ratings rating={hotel.rating} />}
             {hotel.priceRange && (
               <span className="text-xs text-muted-foreground">
                 {PRICE_RANGE_LABELS[hotel.priceRange]}
@@ -75,12 +56,6 @@ export function HotelMiniCard({ hotel }: HotelMiniCardProps) {
               );
             })}
           </div>
-          {pricePerNight && (
-            <p className="text-xs font-medium text-primary">
-              {pricePerNight}
-              <span className="text-muted-foreground">/night</span>
-            </p>
-          )}
         </div>
       </div>
     </div>

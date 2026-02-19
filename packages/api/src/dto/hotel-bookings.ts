@@ -12,7 +12,7 @@ export const hotelSummarySchema = z.object({
   name: z.string(),
   address: z.string(),
   imageUrl: z.string().nullable(),
-  starRating: z.number().int().min(1).max(5).nullable(),
+  rating: z.number().min(0).max(5).nullable(),
 });
 
 export type HotelSummaryDTO = z.infer<typeof hotelSummarySchema>;

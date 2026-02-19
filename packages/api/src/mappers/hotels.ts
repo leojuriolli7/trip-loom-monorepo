@@ -12,7 +12,7 @@ export const hotelSelectFields = {
   latitude: hotel.latitude,
   longitude: hotel.longitude,
   imageUrl: hotel.imageUrl,
-  starRating: hotel.starRating,
+  rating: hotel.rating,
   amenities: hotel.amenities,
   priceRange: hotel.priceRange,
   avgPricePerNightInCents: hotel.avgPricePerNightInCents,

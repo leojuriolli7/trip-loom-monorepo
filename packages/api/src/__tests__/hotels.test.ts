@@ -100,15 +100,15 @@ describe("Hotels API", () => {
       expect(body.data[0].name).toBe("Luxury Palace Tokyo");
     });
 
-    it("should filter by minStarRating", async () => {
+    it("should filter by minRating", async () => {
       const { res, body } = await request.get(
-        `/api/hotels?destinationId=${tokyoId}&minStarRating=4`,
+        `/api/hotels?destinationId=${tokyoId}&minRating=4`,
       );
 
       expect(res.status).toBe(200);
       expect(body.data.length).toBe(2); // 4-star and 5-star hotels in Tokyo
       expect(
-        body.data.every((h: { starRating: number }) => h.starRating >= 4),
+        body.data.every((h: { rating: number }) => h.rating >= 4),
       ).toBe(true);
     });
 
@@ -136,15 +136,15 @@ describe("Hotels API", () => {
 
     it("should combine multiple filters", async () => {
       const { res, body } = await request.get(
-        `/api/hotels?destinationId=${tokyoId}&minStarRating=4`,
+        `/api/hotels?destinationId=${tokyoId}&minRating=4`,
       );
 
       expect(res.status).toBe(200);
       expect(body.data.length).toBe(2); // 4-star and 5-star in Tokyo
       expect(
         body.data.every(
-          (h: { destinationId: string; starRating: number }) =>
-            h.destinationId === tokyoId && h.starRating >= 4,
+          (h: { destinationId: string; rating: number }) =>
+            h.destinationId === tokyoId && h.rating >= 4,
         ),
       ).toBe(true);
     });

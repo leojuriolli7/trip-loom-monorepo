@@ -27,6 +27,7 @@ import {
 import { hotelBookingQueries } from "@/lib/api/react-query/hotel-bookings";
 import { useWizard } from "../wizard-context";
 import { InfiniteSearchList } from "../infinite-search-list";
+import { Ratings } from "@/components/ui/rating";
 
 export function BookHotelStep() {
   const { trip, destination, setHotelBooking, nextStep } = useWizard();
@@ -149,16 +150,16 @@ export function BookHotelStep() {
                         <span className="font-medium truncate">
                           {hotel.name}
                         </span>
-                        {hotel.starRating && (
+                        {hotel.rating && (
                           <div className="flex shrink-0">
-                            {Array.from({ length: hotel.starRating }).map(
-                              (_, i) => (
-                                <StarIcon
-                                  key={i}
-                                  className="size-3 fill-yellow-400 text-yellow-400"
-                                />
-                              ),
-                            )}
+                            {Array.from({
+                              length: Math.round(hotel.rating),
+                            }).map((_, i) => (
+                              <StarIcon
+                                key={i}
+                                className="size-3 fill-yellow-400 text-yellow-400"
+                              />
+                            ))}
                           </div>
                         )}
                       </div>
@@ -198,17 +199,8 @@ export function BookHotelStep() {
                     <div>
                       <div className="flex items-center gap-2">
                         <h4 className="font-medium">{selectedHotel.name}</h4>
-                        {selectedHotel.starRating && (
-                          <div className="flex">
-                            {Array.from({ length: selectedHotel.starRating }).map(
-                              (_, i) => (
-                                <StarIcon
-                                  key={i}
-                                  className="size-3 fill-yellow-400 text-yellow-400"
-                                />
-                              ),
-                            )}
-                          </div>
+                        {selectedHotel.rating && (
+                          <Ratings rating={selectedHotel.rating} />
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground">
