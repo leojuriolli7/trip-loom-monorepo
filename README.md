@@ -105,10 +105,9 @@ Server to base myself: https://github.com/modelcontextprotocol/servers/blob/main
 Client examples: https://modelcontextprotocol.io/clients
 
 ### 5. Immediate TODOs
-- All hotels don't have images
+- Integrate hotelStyle from schema into DTO and UI, add multiple images per hotel instead of `imageUrl`
 - Transfer all images (destinations + hotels) to my own S3 instance, add back `next/image`
 - Improve destination descriptions via AI: More about culture, less about demographics, longer...
-- Integrate hotelStyle from schema into DTO and UI
 - Need to improve average price per night for hotels -- too similar (or add a price per night -- random, no average, for better payment user experience)
 - 
 - Implement MCP Server

@@ -244,3 +244,59 @@ export async function getHotelDetails(
 
   return response.json();
 }
+
+export type PhotoImage = {
+  height: number;
+  width: number;
+  url: string;
+};
+
+export type Photo = {
+  id: number;
+  is_blessed: boolean;
+  caption: string;
+  published_date: string;
+  images: {
+    thumbnail: PhotoImage;
+    small: PhotoImage;
+    medium: PhotoImage;
+    large: PhotoImage;
+    original: PhotoImage;
+  };
+  album: string;
+  source: {
+    name: string;
+    localized_name: string;
+  };
+  user?: {
+    username: string;
+  };
+};
+
+export type PhotosResponse = {
+  data: Photo[];
+};
+
+/**
+ * Get photos for a location.
+ * This counts against the daily API limit.
+ */
+export async function getHotelPhotos(
+  apiKey: string,
+  locationId: string
+): Promise<PhotosResponse> {
+  const params = new URLSearchParams({
+    language: "en",
+    key: apiKey,
+  });
+
+  const url = `${BASE_URL}/location/${locationId}/photos?${params.toString()}`;
+  const response = await rateLimitedFetch(url);
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`TripAdvisor photos failed: ${response.status} ${text}`);
+  }
+
+  return response.json();
+}
