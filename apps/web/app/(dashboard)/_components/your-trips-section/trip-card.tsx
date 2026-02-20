@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { format } from "date-fns";
 import { TripFeatureBadge } from "@/components/trip-feature-badge";
 import { TripStatusBadge } from "@/components/trip-status-badge";
+import { getCoverImage } from "@/lib/get-cover-image";
 
 interface TripCardProps {
   trip: TripWithDestinationDTO;
@@ -43,7 +44,7 @@ export function TripCard({ trip }: TripCardProps) {
       <div className="relative aspect-4/3 overflow-hidden">
         {/* TODO: Add next/image back after images are on my CDN */}
         <img
-          src={trip.destination?.imagesUrls?.find((img) => img.isCover)?.url ?? trip.destination?.imagesUrls?.[0]?.url ?? "/placeholder.png"}
+          src={getCoverImage(trip.destination?.imagesUrls)}
           alt={tripTitle}
           // fill
           fetchPriority="high"

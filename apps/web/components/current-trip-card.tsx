@@ -2,6 +2,7 @@ import { ArrowRightIcon, MapPinIcon } from "lucide-react";
 import { TripFeatureBadge } from "./trip-feature-badge";
 import { Button } from "./ui/button";
 import type { TripWithDestinationDTO } from "@trip-loom/api/dto";
+import { getCoverImage } from "@/lib/get-cover-image";
 
 export function CurrentTripCard({ trip }: { trip: TripWithDestinationDTO }) {
   const tripTitle = trip?.title ?? trip?.destination?.name ?? "Current trip";
@@ -25,7 +26,7 @@ export function CurrentTripCard({ trip }: { trip: TripWithDestinationDTO }) {
               TODO: Add next/image back when we have our own S3 bucket for images.
               */}
             <img
-              src={trip?.destination?.imagesUrls?.find((img) => img.isCover)?.url ?? trip?.destination?.imagesUrls?.[0]?.url ?? "/placeholder.png"}
+              src={getCoverImage(trip?.destination?.imagesUrls)}
               alt={`${tripTitle} destination`}
               className="h-24 w-full object-cover sm:h-27.5"
               loading="lazy"

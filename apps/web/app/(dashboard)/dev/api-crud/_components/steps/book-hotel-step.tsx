@@ -28,6 +28,7 @@ import { hotelBookingQueries } from "@/lib/api/react-query/hotel-bookings";
 import { useWizard } from "../wizard-context";
 import { InfiniteSearchList } from "../infinite-search-list";
 import { Ratings } from "@/components/ui/rating";
+import { getCoverImage } from "@/lib/get-cover-image";
 
 export function BookHotelStep() {
   const { trip, destination, setHotelBooking, nextStep } = useWizard();
@@ -136,13 +137,12 @@ export function BookHotelStep() {
                 }}
                 renderItem={(hotel) => (
                   <div className="flex items-start gap-3">
-                    {(hotel.imagesUrls?.find((img) => img.isCover)?.url ?? hotel.imagesUrls?.[0]?.url) && (
-                      <img
-                        src={hotel.imagesUrls?.find((img) => img.isCover)?.url ?? hotel.imagesUrls?.[0]?.url}
-                        alt={hotel.name}
-                        className="size-12 rounded-lg object-cover"
-                      />
-                    )}
+                    {/* TODO: next/image */}
+                    <img
+                      src={getCoverImage(hotel.imagesUrls)}
+                      alt={hotel.name}
+                      className="size-12 rounded-lg object-cover"
+                    />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="font-medium truncate">
@@ -186,13 +186,12 @@ export function BookHotelStep() {
               <>
                 <div className="rounded-xl border border-border bg-muted/30 p-4">
                   <div className="flex items-start gap-4">
-                    {(selectedHotel.imagesUrls?.find((img) => img.isCover)?.url ?? selectedHotel.imagesUrls?.[0]?.url) && (
-                      <img
-                        src={selectedHotel.imagesUrls?.find((img) => img.isCover)?.url ?? selectedHotel.imagesUrls?.[0]?.url}
-                        alt={selectedHotel.name}
-                        className="size-20 rounded-lg object-cover"
-                      />
-                    )}
+                    {/* TODO: next/image */}
+                    <img
+                      src={getCoverImage(selectedHotel.imagesUrls)}
+                      alt={selectedHotel.name}
+                      className="size-20 rounded-lg object-cover"
+                    />
                     <div>
                       <div className="flex items-center gap-2">
                         <h4 className="font-medium">{selectedHotel.name}</h4>

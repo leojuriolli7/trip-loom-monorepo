@@ -14,6 +14,7 @@ import Image from "next/image";
 import type { RecommendedDestinationDTO } from "@trip-loom/api/dto";
 import { useQueryClient } from "@tanstack/react-query";
 import { destinationQueries } from "@/lib/api/react-query/destinations";
+import { getCoverImage } from "@/lib/get-cover-image";
 
 interface DestinationCardProps {
   destination: RecommendedDestinationDTO;
@@ -48,7 +49,7 @@ export function DestinationCard({
       <div className="relative aspect-3/4 overflow-hidden">
         {/* TODO: Add next/image back after images are on my CDN */}
         <img
-          src={destination.imagesUrls?.find((img) => img.isCover)?.url ?? destination.imagesUrls?.[0]?.url ?? "/placeholder.png"}
+          src={getCoverImage(destination.imagesUrls)}
           alt={destination.name}
           // fill
           fetchPriority="high"

@@ -21,6 +21,7 @@ import { PaymentFormProvider, PaymentForm } from "@/components/payment-form";
 import { paymentQueries } from "@/lib/api/react-query/payments";
 import { useWizard } from "../wizard-context";
 import { Ratings } from "@/components/ui/rating";
+import { getCoverImage } from "@/lib/get-cover-image";
 
 type PaymentStatus =
   | "idle"
@@ -199,13 +200,13 @@ export function PayHotelStep() {
           {/* Hotel Summary */}
           <div className="rounded-xl border border-border bg-muted/30 p-4">
             <div className="flex items-start gap-4">
-              {(hotelBooking.hotel.imagesUrls?.find((img) => img.isCover)?.url ?? hotelBooking.hotel.imagesUrls?.[0]?.url) && (
-                <img
-                  src={hotelBooking.hotel.imagesUrls?.find((img) => img.isCover)?.url ?? hotelBooking.hotel.imagesUrls?.[0]?.url}
-                  alt={hotelBooking.hotel.name}
-                  className="size-16 rounded-lg object-cover"
-                />
-              )}
+              {/* TODO: next/image */}
+              <img
+                src={getCoverImage(hotelBooking.hotel)}
+                alt={hotelBooking.hotel.name}
+                className="size-16 rounded-lg object-cover"
+              />
+
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <span className="font-medium">{hotelBooking.hotel.name}</span>
