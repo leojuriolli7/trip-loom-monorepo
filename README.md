@@ -113,6 +113,7 @@ Client examples: https://modelcontextprotocol.io/clients
 - Implement MCP Server
 - Implement AI agents
 - Implement AI frontend experience
+- Add OpenTelemetry to API, MCP and Agents
 
 More data:
 - Add more destinations, eg Maldivas
