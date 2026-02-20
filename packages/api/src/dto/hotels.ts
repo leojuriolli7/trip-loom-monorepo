@@ -6,6 +6,12 @@ import { amenityValues, priceRangeValues } from "../enums";
 // Response Schemas
 // =============================================================================
 
+const hotelImageSchema = z.object({
+  url: z.string(),
+  isCover: z.boolean(),
+  caption: z.string(),
+});
+
 /** What the API returns for a hotel */
 export const hotelSchema = z.object({
   id: z.string(),
@@ -14,7 +20,7 @@ export const hotelSchema = z.object({
   address: z.string(),
   latitude: z.number().nullable(),
   longitude: z.number().nullable(),
-  imageUrl: z.string().nullable(),
+  imagesUrls: z.array(hotelImageSchema).nullable(),
   rating: z.number().min(0).max(5).nullable(),
   amenities: z.array(z.enum(amenityValues)),
   priceRange: z.enum(priceRangeValues).nullable(),

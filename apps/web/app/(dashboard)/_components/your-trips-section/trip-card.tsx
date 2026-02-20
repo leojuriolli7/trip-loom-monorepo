@@ -43,7 +43,7 @@ export function TripCard({ trip }: TripCardProps) {
       <div className="relative aspect-4/3 overflow-hidden">
         {/* TODO: Add next/image back after images are on my CDN */}
         <img
-          src={trip.destination?.imageUrl ?? "/placeholder.png"}
+          src={trip.destination?.imagesUrls?.find((img) => img.isCover)?.url ?? trip.destination?.imagesUrls?.[0]?.url ?? "/placeholder.png"}
           alt={tripTitle}
           // fill
           fetchPriority="high"

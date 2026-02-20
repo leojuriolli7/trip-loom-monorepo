@@ -87,7 +87,7 @@ export async function getDestinationDetail(
       .select({
         id: hotel.id,
         name: hotel.name,
-        imageUrl: hotel.imageUrl,
+        imagesUrls: hotel.imagesUrls,
         rating: hotel.rating,
         priceRange: hotel.priceRange,
         avgPricePerNightInCents: hotel.avgPricePerNightInCents,

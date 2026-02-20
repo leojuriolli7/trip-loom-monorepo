@@ -136,9 +136,9 @@ export function BookHotelStep() {
                 }}
                 renderItem={(hotel) => (
                   <div className="flex items-start gap-3">
-                    {hotel.imageUrl && (
+                    {(hotel.imagesUrls?.find((img) => img.isCover)?.url ?? hotel.imagesUrls?.[0]?.url) && (
                       <img
-                        src={hotel.imageUrl}
+                        src={hotel.imagesUrls?.find((img) => img.isCover)?.url ?? hotel.imagesUrls?.[0]?.url}
                         alt={hotel.name}
                         className="size-12 rounded-lg object-cover"
                       />
@@ -186,9 +186,9 @@ export function BookHotelStep() {
               <>
                 <div className="rounded-xl border border-border bg-muted/30 p-4">
                   <div className="flex items-start gap-4">
-                    {selectedHotel.imageUrl && (
+                    {(selectedHotel.imagesUrls?.find((img) => img.isCover)?.url ?? selectedHotel.imagesUrls?.[0]?.url) && (
                       <img
-                        src={selectedHotel.imageUrl}
+                        src={selectedHotel.imagesUrls?.find((img) => img.isCover)?.url ?? selectedHotel.imagesUrls?.[0]?.url}
                         alt={selectedHotel.name}
                         className="size-20 rounded-lg object-cover"
                       />

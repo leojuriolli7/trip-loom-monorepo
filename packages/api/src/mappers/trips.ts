@@ -26,7 +26,7 @@ export const tripDestinationSelectFields = {
   name: destination.name,
   country: destination.country,
   countryCode: destination.countryCode,
-  imageUrl: destination.imageUrl,
+  imagesUrls: destination.imagesUrls,
 } as const;
 
 type DestinationSummaryRow = {
@@ -34,7 +34,7 @@ type DestinationSummaryRow = {
   name: string | null;
   country: string | null;
   countryCode: string | null;
-  imageUrl: string | null;
+  imagesUrls: Array<{ url: string; isCover: boolean; caption: string }> | null;
 } | null;
 
 /**
@@ -66,7 +66,7 @@ const mapTripDestination = (
     name: value.name,
     country: value.country,
     countryCode: value.countryCode,
-    imageUrl: value.imageUrl,
+    imagesUrls: value.imagesUrls,
   };
 };
 

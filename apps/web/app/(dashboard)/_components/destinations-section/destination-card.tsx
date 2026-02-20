@@ -48,7 +48,7 @@ export function DestinationCard({
       <div className="relative aspect-3/4 overflow-hidden">
         {/* TODO: Add next/image back after images are on my CDN */}
         <img
-          src={destination.imageUrl ?? "/placeholder.png"}
+          src={destination.imagesUrls?.find((img) => img.isCover)?.url ?? destination.imagesUrls?.[0]?.url ?? "/placeholder.png"}
           alt={destination.name}
           // fill
           fetchPriority="high"

@@ -4,6 +4,12 @@ import { isValidDateRange } from "../lib/date-range";
 
 const isoDateSchema = z.string().date();
 
+const hotelImageSchema = z.object({
+  url: z.string(),
+  isCover: z.boolean(),
+  caption: z.string(),
+});
+
 /**
  * Hotel summary embedded in booking responses.
  */
@@ -11,7 +17,7 @@ export const hotelSummarySchema = z.object({
   id: z.string(),
   name: z.string(),
   address: z.string(),
-  imageUrl: z.string().nullable(),
+  imagesUrls: z.array(hotelImageSchema).nullable(),
   rating: z.number().min(0).max(5).nullable(),
 });
 

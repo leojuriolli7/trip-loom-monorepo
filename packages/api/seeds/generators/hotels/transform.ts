@@ -358,6 +358,12 @@ type EnrichedHotel = {
   details: RawHotelDetails | null;
 };
 
+type HotelImage = {
+  url: string;
+  isCover: boolean;
+  caption: string;
+};
+
 type TransformedHotel = {
   id: string;
   destinationId: string;
@@ -373,7 +379,7 @@ type TransformedHotel = {
   } | null;
   latitude: number | null;
   longitude: number | null;
-  imageUrl: string | null;
+  imagesUrls: HotelImage[];
   source: string;
   sourceId: string;
   sourceUrl: string | null;
@@ -489,7 +495,7 @@ function transformHotel(raw: EnrichedHotel): TransformedHotel | null {
       : null,
     latitude: details.latitude ? parseFloat(details.latitude) : null,
     longitude: details.longitude ? parseFloat(details.longitude) : null,
-    imageUrl: null, // TripAdvisor doesn't provide images in the API
+    imagesUrls: [], // Populated by fetch-images.ts + migrate-seed-images.ts
     source: "tripadvisor",
     sourceId: details.location_id,
     sourceUrl: details.web_url || null,

@@ -14,6 +14,12 @@ const hotelStyleValues = hotelStyleEnum.enumValues;
 const priceRangeValues = priceRangeEnum.enumValues;
 const regionValues = regionEnum.enumValues;
 
+const seedImageSchema = z.object({
+  url: z.string().url(),
+  isCover: z.boolean(),
+  caption: z.string(),
+});
+
 export const destinationSeedSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -23,7 +29,7 @@ export const destinationSeedSchema = z.object({
   timezone: z.string().min(1),
   latitude: z.number().nullable(),
   longitude: z.number().nullable(),
-  imageUrl: z.string().url().nullable(),
+  imagesUrls: z.array(seedImageSchema).nullable(),
   description: z.string().min(1),
   highlights: z.array(z.enum(highlightValues)).min(1),
   bestTimeToVisit: z.string().nullable(),
@@ -47,7 +53,7 @@ export const hotelSeedSchema = z.object({
   addressObj: addressObjSchema.optional(),
   latitude: z.number().nullable(),
   longitude: z.number().nullable(),
-  imageUrl: z.string().url().nullable(),
+  imagesUrls: z.array(seedImageSchema).nullable(),
   source: z.string().min(1).nullable().default(null),
   sourceId: z.string().min(1).nullable().default(null),
   sourceUrl: z.string().url().nullable().optional(),

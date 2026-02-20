@@ -6,6 +6,12 @@ import { regionValues, travelInterestValues, amenityValues, priceRangeValues } f
 // Response Schemas
 // =============================================================================
 
+const destinationImageSchema = z.object({
+  url: z.string(),
+  isCover: z.boolean(),
+  caption: z.string(),
+});
+
 /** What the API returns for a destination */
 export const destinationSchema = z.object({
   id: z.string(),
@@ -14,7 +20,7 @@ export const destinationSchema = z.object({
   countryCode: z.string(),
   region: z.enum(regionValues).nullable(),
   timezone: z.string(),
-  imageUrl: z.string().nullable(),
+  imagesUrls: z.array(destinationImageSchema).nullable(),
   description: z.string().nullable(),
   highlights: z.array(z.enum(travelInterestValues)).nullable(),
   bestTimeToVisit: z.string().nullable(),
@@ -41,7 +47,7 @@ export type DestinationWithStatsDTO = z.infer<
 export const destinationHotelSummarySchema = z.object({
   id: z.string(),
   name: z.string(),
-  imageUrl: z.string().nullable(),
+  imagesUrls: z.array(destinationImageSchema).nullable(),
   rating: z.number().min(0).max(5).nullable(),
   priceRange: z.enum(priceRangeValues).nullable(),
   avgPricePerNightInCents: z.number().int().min(0).nullable(),

@@ -199,9 +199,9 @@ export function PayHotelStep() {
           {/* Hotel Summary */}
           <div className="rounded-xl border border-border bg-muted/30 p-4">
             <div className="flex items-start gap-4">
-              {hotelBooking.hotel.imageUrl && (
+              {(hotelBooking.hotel.imagesUrls?.find((img) => img.isCover)?.url ?? hotelBooking.hotel.imagesUrls?.[0]?.url) && (
                 <img
-                  src={hotelBooking.hotel.imageUrl}
+                  src={hotelBooking.hotel.imagesUrls?.find((img) => img.isCover)?.url ?? hotelBooking.hotel.imagesUrls?.[0]?.url}
                   alt={hotelBooking.hotel.name}
                   className="size-16 rounded-lg object-cover"
                 />

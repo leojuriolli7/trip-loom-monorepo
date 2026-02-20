@@ -20,7 +20,7 @@ export function HotelMiniCard({ hotel }: HotelMiniCardProps) {
     <div className="group flex gap-3 rounded-xl bg-card p-2.5">
       <div className="relative size-16 shrink-0 overflow-hidden rounded-lg">
         <img
-          src={hotel.imageUrl ?? "/placeholder.png"}
+          src={hotel.imagesUrls?.find((img) => img.isCover)?.url ?? hotel.imagesUrls?.[0]?.url ?? "/placeholder.png"}
           alt={hotel.name}
           className="object-cover w-full h-full"
         />

@@ -1,7 +1,7 @@
 /// <reference types="node" />
 /**
  * Fetch hotel images from TripAdvisor Photos API.
- * Updates hotels.json with imageUrl and saves raw responses to raw-hotels-images.json.
+ * Updates hotels.json with imagesUrls and saves raw responses to raw-hotels-images.json.
  *
  * Usage:
  *   TRIPADVISOR_API_KEY=xxx npx tsx seeds/generators/hotels/fetch-images.ts
@@ -23,12 +23,18 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+type HotelImage = {
+  url: string;
+  isCover: boolean;
+  caption: string;
+};
+
 type Hotel = {
   id: string;
   destinationId: string;
   name: string;
   sourceId: string;
-  imageUrl: string | null;
+  imagesUrls: HotelImage[];
   [key: string]: unknown;
 };
 
@@ -100,25 +106,34 @@ async function saveHotels(hotelsPath: string, hotels: Hotel[]): Promise<void> {
 }
 
 /**
- * Pick the best image URL from a photos response.
- * Prefers "large" size, falls back to "original" or "medium".
+ * Build an imagesUrls array from a photos response.
+ * Uses "large" size for each photo, falling back to "original" or "medium".
+ * Marks the blessed (featured) photo as isCover, or the first photo if none is blessed.
  */
-function pickBestImageUrl(photos: PhotosResponse): string | null {
+function buildImagesUrls(photos: PhotosResponse): HotelImage[] {
   if (!photos.data || photos.data.length === 0) {
-    return null;
+    return [];
   }
 
-  // Prefer photos marked as "blessed" (featured/primary)
-  const blessedPhoto = photos.data.find((p) => p.is_blessed);
-  const photo = blessedPhoto || photos.data[0];
+  const blessedIndex = photos.data.findIndex((p) => p.is_blessed);
+  const coverIndex = blessedIndex >= 0 ? blessedIndex : 0;
 
-  // Prefer large, then original, then medium
-  return (
-    photo.images.large?.url ||
-    photo.images.original?.url ||
-    photo.images.medium?.url ||
-    null
-  );
+  const images: HotelImage[] = [];
+  for (let i = 0; i < photos.data.length; i++) {
+    const photo = photos.data[i];
+    const url =
+      photo.images.large?.url ||
+      photo.images.original?.url ||
+      photo.images.medium?.url ||
+      null;
+    if (!url) continue;
+    images.push({
+      url,
+      isCover: i === coverIndex,
+      caption: photo.caption?.trim() ?? "",
+    });
+  }
+  return images;
 }
 
 async function main() {
@@ -154,7 +169,7 @@ async function main() {
   // Find hotels without images
   const hotelsNeedingImages = hotels
     .map((hotel, index) => ({ hotel, originalIndex: index }))
-    .filter(({ hotel }) => !hotel.imageUrl);
+    .filter(({ hotel }) => !hotel.imagesUrls?.length);
 
   console.log(`Hotels without images: ${hotelsNeedingImages.length}`);
 
@@ -236,9 +251,9 @@ async function main() {
     // Check if we already have photos for this hotel
     const existingEntry = rawImagesBySourceId.get(hotel.sourceId);
     if (existingEntry && existingEntry.photos) {
-      const imageUrl = pickBestImageUrl(existingEntry.photos);
-      if (imageUrl) {
-        hotels[originalIndex].imageUrl = imageUrl;
+      const imagesUrls = buildImagesUrls(existingEntry.photos);
+      if (imagesUrls.length > 0) {
+        hotels[originalIndex].imagesUrls = imagesUrls;
         console.log(`${progress} ${hotel.name} - using cached image`);
         state.lastProcessedIndex = globalIndex;
         state.processedCount++;
@@ -251,10 +266,10 @@ async function main() {
       const photos = await getHotelPhotos(apiKey, hotel.sourceId);
       state.apiCallsUsed++;
 
-      const imageUrl = pickBestImageUrl(photos);
+      const imagesUrls = buildImagesUrls(photos);
 
       // Update hotel in memory
-      hotels[originalIndex].imageUrl = imageUrl;
+      hotels[originalIndex].imagesUrls = imagesUrls;
 
       // Store raw response
       const rawEntry: RawImageEntry = {
@@ -280,7 +295,7 @@ async function main() {
       pendingSave = state;
 
       const photoCount = photos.data?.length ?? 0;
-      const status = imageUrl ? `✓ ${photoCount} photos` : `✗ no photos`;
+      const status = imagesUrls.length > 0 ? `✓ ${photoCount} photos` : `✗ no photos`;
       console.log(`${progress} ${hotel.name} - ${status}`);
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
@@ -351,8 +366,8 @@ async function main() {
   console.log(`Errors: ${state.errors.length}`);
 
   // Count hotels with images now
-  const withImages = hotels.filter((h) => h.imageUrl).length;
-  const withoutImages = hotels.filter((h) => !h.imageUrl).length;
+  const withImages = hotels.filter((h) => h.imagesUrls?.length).length;
+  const withoutImages = hotels.filter((h) => !h.imagesUrls?.length).length;
   console.log(`\nHotels with images: ${withImages}`);
   console.log(`Hotels without images: ${withoutImages}`);
 
@@ -378,7 +393,7 @@ async function main() {
   }
 
   console.log(`\nOutput files:`);
-  console.log(`  - ${hotelsPath} (updated with imageUrl)`);
+  console.log(`  - ${hotelsPath} (updated with imagesUrls)`);
   console.log(`  - ${rawImagesPath} (raw TripAdvisor responses)`);
 }
 

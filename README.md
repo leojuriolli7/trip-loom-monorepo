@@ -105,9 +105,10 @@ Server to base myself: https://github.com/modelcontextprotocol/servers/blob/main
 Client examples: https://modelcontextprotocol.io/clients
 
 ### 5. Immediate TODOs
-- Transfer all images (destinations + hotels) to my own S3 instance, add back `next/image`
+
+- Migrate hotels and destinations images to S3
+- Hotel booking: hotels should declare what kinds of rooms they offer (e.g., standard, deluxe, suite, king, etc.), and clients pick from those options. (Price varying for each)
 - Improve destination descriptions via AI: More about culture, less about demographics, longer...
-- Hotel booking: Room Type should not be open for client to decide, instead should be enum AND factor for pricing (can be done later...)
 
 - Implement MCP Server
 - Implement AI agents

@@ -139,7 +139,7 @@ const seedTripsFixtureData = async () => {
       countryCode: "JP",
       region: "East Asia",
       timezone: "Asia/Tokyo",
-      imageUrl: null,
+      imagesUrls: null,
       description: "Test destination Tokyo",
       highlights: ["culture", "food"],
       bestTimeToVisit: "March to May",
@@ -153,7 +153,7 @@ const seedTripsFixtureData = async () => {
       countryCode: "FR",
       region: "Europe",
       timezone: "Europe/Paris",
-      imageUrl: null,
+      imagesUrls: null,
       description: "Test destination Paris",
       highlights: ["art", "culture"],
       bestTimeToVisit: "April to June",
@@ -167,7 +167,7 @@ const seedTripsFixtureData = async () => {
       countryCode: "ID",
       region: "Southeast Asia",
       timezone: "Asia/Makassar",
-      imageUrl: null,
+      imagesUrls: null,
       description: "Test destination Bali",
       highlights: ["beaches", "relaxation"],
       bestTimeToVisit: "April to October",
@@ -184,7 +184,7 @@ const seedTripsFixtureData = async () => {
       address: "10 Rue de Test, Paris",
       latitude: 48.8566,
       longitude: 2.3522,
-      imageUrl: null,
+      imagesUrls: null,
       rating: 4,
       amenities: ["wifi", "restaurant"],
       priceRange: "upscale",
@@ -565,7 +565,7 @@ describe("Trips API", () => {
     expect(body.hotelBookings[0].hotel.id).toBe(seed.hotelParisId);
     expect(body.payments).toHaveLength(1);
     expect(body.payments[0].id).toBe(seed.upcomingTripPaymentId);
-    expect(body.destination?.imageUrl).toBeNull();
+    expect(body.destination?.imagesUrls).toBeNull();
     expect(body.hasFlights).toBe(true);
     expect(body.hasHotel).toBe(true);
     expect(body.hasItinerary).toBe(true);

@@ -96,7 +96,7 @@ function DestinationDetailContent({
       <div className="relative aspect-video w-[90%] mx-auto rounded-[20px] sm:w-full sm:mx-0 sm:rounded-none shrink-0 overflow-hidden">
         {/* TODO: Add next/image back after images are on my CDN */}
         <img
-          src={data.imageUrl ?? "/placeholder.png"}
+          src={data.imagesUrls?.find((img) => img.isCover)?.url ?? data.imagesUrls?.[0]?.url ?? "/placeholder.png"}
           alt={data.name}
           // fill
           className="h-full w-full object-cover"

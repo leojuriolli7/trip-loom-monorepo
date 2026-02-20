@@ -43,6 +43,12 @@ type MasterCity = {
   sources: string[];
 };
 
+type DestinationImage = {
+  url: string;
+  isCover: boolean;
+  caption: string;
+};
+
 type EnrichedDestination = {
   id: string;
   name: string;
@@ -52,7 +58,7 @@ type EnrichedDestination = {
   timezone: string;
   latitude: number | null;
   longitude: number | null;
-  imageUrl: string | null;
+  imagesUrls: DestinationImage[] | null;
   description: string;
   highlights: TravelHighlight[];
   bestTimeToVisit: string | null;
@@ -204,7 +210,7 @@ async function enrichDestination(
     timezone,
     latitude: lat,
     longitude: lon,
-    imageUrl: image?.url ?? null,
+    imagesUrls: image?.url ? [{ url: image.url, isCover: true, caption: "" }] : null,
     description,
     highlights,
     bestTimeToVisit,
@@ -266,7 +272,7 @@ async function main() {
       const destination = await enrichDestination(city, pexelsKey, unsplashKey);
       state.destinations.push(destination);
 
-      const hasImage = destination.imageUrl ? "+" : "-";
+      const hasImage = destination.imagesUrls?.length ? "+" : "-";
       const hasCoords = destination.latitude ? "+" : "-";
       console.log(
         `  -> ${destination.highlights.slice(0, 3).join(", ")} | img:${hasImage} coords:${hasCoords}`
@@ -302,7 +308,7 @@ async function main() {
   console.log(`Output: ${outputPath}`);
 
   // Stats
-  const withImages = state.destinations.filter((d) => d.imageUrl).length;
+  const withImages = state.destinations.filter((d) => d.imagesUrls?.length).length;
   const withCoords = state.destinations.filter((d) => d.latitude).length;
   console.log(`\nWith images: ${withImages} (${Math.round((withImages / state.destinations.length) * 100)}%)`);
   console.log(`With coordinates: ${withCoords} (${Math.round((withCoords / state.destinations.length) * 100)}%)`);

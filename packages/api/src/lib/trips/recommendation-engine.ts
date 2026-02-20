@@ -31,7 +31,7 @@ interface DefaultDestinationRow {
   country_code: string;
   region: Region | null;
   timezone: string;
-  image_url: string | null;
+  images_urls: Array<{ url: string; isCover: boolean; caption: string }> | null;
   description: string | null;
   highlights: TravelInterest[] | null;
   best_time_to_visit: string | null;
@@ -211,7 +211,7 @@ async function getDefaultDestinations(
       country_code,
       region,
       timezone,
-      image_url,
+      images_urls,
       description,
       highlights,
       best_time_to_visit,
@@ -231,7 +231,7 @@ async function getDefaultDestinations(
       countryCode: row.country_code,
       region: row.region,
       timezone: row.timezone,
-      imageUrl: row.image_url,
+      imagesUrls: row.images_urls,
       description: row.description,
       highlights: row.highlights,
       bestTimeToVisit: row.best_time_to_visit,

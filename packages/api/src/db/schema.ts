@@ -212,6 +212,25 @@ export const regionEnum = pgEnum("region", [
   "Central Asia",
 ]);
 
+// TODO: Hotel room types - hotels should declare what kinds of rooms they offer
+// (e.g., standard, deluxe, suite, king, etc.), and clients pick from those options.
+// roomType in hotel_booking should become this enum + hotels table should list
+// which room types they offer (array field), so the AI/client can pick from them.
+// export const hotelRoomTypeEnum = pgEnum("hotel_room_type", [
+//   "standard",
+//   "deluxe",
+//   "suite",
+//   "junior-suite",
+//   "double",
+//   "twin",
+//   "single",
+//   "king",
+//   "queen",
+//   "family",
+//   "penthouse",
+//   "villa",
+// ]);
+
 export const hotelStyleEnum = pgEnum("hotel_style", [
   "art-deco",
   "bay-view",
@@ -365,7 +384,9 @@ export const destination = pgTable(
     timezone: text("timezone").notNull(), // IANA timezone
     latitude: real("latitude"),
     longitude: real("longitude"),
-    imageUrl: text("image_url"),
+    imagesUrls: jsonb("images_urls").$type<
+      Array<{ url: string; isCover: boolean; caption: string }>
+    >(),
     description: text("description"),
     highlights: travelInterestEnum("highlights").array(), // e.g., ["beaches", "nightlife"]
     bestTimeToVisit: text("best_time_to_visit"),
@@ -411,7 +432,9 @@ export const hotel = pgTable(
     }>(),
     latitude: real("latitude"),
     longitude: real("longitude"),
-    imageUrl: text("image_url"),
+    imagesUrls: jsonb("images_urls").$type<
+      Array<{ url: string; isCover: boolean; caption: string }>
+    >(),
     source: text("source"),
     sourceId: text("source_id"),
     sourceUrl: text("source_url"), // TripAdvisor URL

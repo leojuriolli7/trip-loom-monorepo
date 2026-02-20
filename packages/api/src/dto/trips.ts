@@ -21,7 +21,7 @@ const destinationSummarySchema = destinationSchema
     name: true,
     country: true,
     countryCode: true,
-    imageUrl: true,
+    imagesUrls: true,
   })
   .nullable();
 

@@ -11,7 +11,7 @@ export const destinationSelectFields = {
   countryCode: destination.countryCode,
   region: destination.region,
   timezone: destination.timezone,
-  imageUrl: destination.imageUrl,
+  imagesUrls: destination.imagesUrls,
   description: destination.description,
   highlights: destination.highlights,
   bestTimeToVisit: destination.bestTimeToVisit,

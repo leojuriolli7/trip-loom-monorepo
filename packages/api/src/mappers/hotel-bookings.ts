@@ -27,7 +27,7 @@ export const hotelSummarySelectFields = {
   id: hotel.id,
   name: hotel.name,
   address: hotel.address,
-  imageUrl: hotel.imageUrl,
+  imagesUrls: hotel.imagesUrls,
   rating: hotel.rating,
 } as const;
 
@@ -39,6 +39,6 @@ export const hotelSummaryColumns = {
   id: true,
   name: true,
   address: true,
-  imageUrl: true,
+  imagesUrls: true,
   rating: true,
 } as const;
