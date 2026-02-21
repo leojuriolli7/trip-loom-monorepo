@@ -47,14 +47,14 @@ export function DestinationCard({
       data-testid={`destination-card-${destination.id}`}
     >
       <div className="relative aspect-3/4 overflow-hidden">
-        {/* TODO: Add next/image back after images are on my CDN */}
-        <img
+        <Image
           src={getCoverImage(destination.imagesUrls)}
           alt={destination.name}
-          // fill
+          fill
+          sizes="(max-width: 1024px) 100vw, 25vw"
           fetchPriority="high"
           loading="eager"
-          className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-black/10" />
 

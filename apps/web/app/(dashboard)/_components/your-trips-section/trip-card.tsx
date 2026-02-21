@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { CalendarIcon, MapPinIcon } from "lucide-react";
+import Image from "next/image";
 import type { TripWithDestinationDTO } from "@trip-loom/api/dto";
 import { useMemo } from "react";
 import { format } from "date-fns";
@@ -42,14 +43,14 @@ export function TripCard({ trip }: TripCardProps) {
   return (
     <Card className="group cursor-pointer overflow-hidden rounded-3xl border border-border/70 bg-linear-to-b from-card to-secondary/25 p-0 shadow-[0_18px_28px_-24px_rgba(15,23,42,0.7)] transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_30px_42px_-26px_rgba(209,116,49,0.35)]">
       <div className="relative aspect-4/3 overflow-hidden">
-        {/* TODO: Add next/image back after images are on my CDN */}
-        <img
+        <Image
           src={getCoverImage(trip.destination?.imagesUrls)}
           alt={tripTitle}
-          // fill
+          fill
+          sizes="(max-width: 1024px) 100vw, 33vw"
           fetchPriority="high"
           loading="eager"
-          className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-linear-to-t from-black/78 via-black/22 to-transparent" />
         <div className="absolute right-3 top-3">

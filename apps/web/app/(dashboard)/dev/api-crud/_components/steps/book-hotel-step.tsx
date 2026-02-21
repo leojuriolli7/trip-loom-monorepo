@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import type { HotelDTO, HotelBookingDTO } from "@trip-loom/api/dto";
 import { StarIcon } from "lucide-react";
+import Image from "next/image";
 
 import { apiClient } from "@/lib/api/api-client";
 import { Button } from "@/components/ui/button";
@@ -137,10 +138,11 @@ export function BookHotelStep() {
                 }}
                 renderItem={(hotel) => (
                   <div className="flex items-start gap-3">
-                    {/* TODO: next/image */}
-                    <img
+                    <Image
                       src={getCoverImage(hotel.imagesUrls)}
                       alt={hotel.name}
+                      width={48}
+                      height={48}
                       className="size-12 rounded-lg object-cover"
                     />
                     <div className="flex-1 min-w-0">
@@ -186,10 +188,11 @@ export function BookHotelStep() {
               <>
                 <div className="rounded-xl border border-border bg-muted/30 p-4">
                   <div className="flex items-start gap-4">
-                    {/* TODO: next/image */}
-                    <img
+                    <Image
                       src={getCoverImage(selectedHotel.imagesUrls)}
                       alt={selectedHotel.name}
+                      width={80}
+                      height={80}
                       className="size-20 rounded-lg object-cover"
                     />
                     <div>

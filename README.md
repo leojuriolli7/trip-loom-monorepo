@@ -106,7 +106,6 @@ Client examples: https://modelcontextprotocol.io/clients
 
 ### 5. Immediate TODOs
 
-- Migrate hotels and destinations images to S3
 - Hotel booking: hotels should declare what kinds of rooms they offer (e.g., standard, deluxe, suite, king, etc.), and clients pick from those options. (Price varying for each)
 - Improve destination descriptions via AI: More about culture, less about demographics, longer...
 
@@ -115,8 +114,9 @@ Client examples: https://modelcontextprotocol.io/clients
 - Implement AI frontend experience
 
 More data:
-- Add more destinations, eg Maldivas
+- Add more destinations, eg Maldivas, Arraial do Cabo, Trancoso... + worldwide
 - Add more hotels for each destination using other sources
+- Remove data acquisition scripts when done with data collection
 
 ### 6. For later
 

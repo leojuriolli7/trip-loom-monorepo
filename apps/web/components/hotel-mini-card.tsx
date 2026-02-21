@@ -2,6 +2,7 @@ import type { DestinationHotelSummaryDTO } from "@trip-loom/api/dto";
 import type { PriceRange } from "@trip-loom/api/enums";
 import { amenityIcons } from "@/lib/amenity-icons";
 import { WifiIcon } from "lucide-react";
+import Image from "next/image";
 import { Ratings } from "./ui/rating";
 import { getCoverImage } from "@/lib/get-cover-image";
 
@@ -20,10 +21,12 @@ export function HotelMiniCard({ hotel }: HotelMiniCardProps) {
   return (
     <div className="group flex gap-3 rounded-xl bg-card p-2.5">
       <div className="relative size-16 shrink-0 overflow-hidden rounded-lg">
-        <img
+        <Image
           src={getCoverImage(hotel.imagesUrls)}
           alt={hotel.name}
-          className="object-cover w-full h-full"
+          fill
+          sizes="64px"
+          className="object-cover"
         />
       </div>
 

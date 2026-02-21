@@ -95,13 +95,12 @@ function DestinationDetailContent({
   return (
     <>
       <div className="relative aspect-video w-[90%] mx-auto rounded-[20px] sm:w-full sm:mx-0 sm:rounded-none shrink-0 overflow-hidden">
-        {/* TODO: Add next/image back after images are on my CDN */}
-        <img
+        <Image
           src={getCoverImage(data.imagesUrls)}
           alt={data.name}
-          // fill
-          className="h-full w-full object-cover"
-          // priority
+          fill
+          sizes="(max-width: 640px) 90vw, 100vw"
+          className="object-cover"
           fetchPriority="high"
           loading="eager"
         />

@@ -1,4 +1,5 @@
 import { ArrowRightIcon, MapPinIcon } from "lucide-react";
+import Image from "next/image";
 import { TripFeatureBadge } from "./trip-feature-badge";
 import { Button } from "./ui/button";
 import type { TripWithDestinationDTO } from "@trip-loom/api/dto";
@@ -22,14 +23,13 @@ export function CurrentTripCard({ trip }: { trip: TripWithDestinationDTO }) {
         <div className="absolute inset-0 -z-10 bg-linear-to-r from-primary/10 via-primary/5 to-transparent" />
         <div className="grid gap-3 p-3 sm:grid-cols-[130px_1fr] sm:items-center sm:gap-4">
           <div className="relative overflow-hidden rounded-xl border border-border/60">
-            {/*
-              TODO: Add next/image back when we have our own S3 bucket for images.
-              */}
-            <img
+            <Image
               src={getCoverImage(trip?.destination?.imagesUrls)}
               alt={`${tripTitle} destination`}
+              width={520}
+              height={220}
+              sizes="(max-width: 640px) 100vw, 130px"
               className="h-24 w-full object-cover sm:h-27.5"
-              loading="lazy"
             />
             <div className="absolute inset-0 bg-linear-to-t from-black/65 via-black/20 to-transparent" />
             <p className="absolute left-2 top-2 rounded-md border border-destructive/80 bg-red-500 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-white shadow-sm">

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import type { PaymentDTO } from "@trip-loom/api/dto";
 import { CheckCircle2Icon, XCircleIcon } from "lucide-react";
+import Image from "next/image";
 
 import { poll } from "@/lib/poll";
 import { Button } from "@/components/ui/button";
@@ -200,10 +201,11 @@ export function PayHotelStep() {
           {/* Hotel Summary */}
           <div className="rounded-xl border border-border bg-muted/30 p-4">
             <div className="flex items-start gap-4">
-              {/* TODO: next/image */}
-              <img
-                src={getCoverImage(hotelBooking.hotel)}
+              <Image
+                src={getCoverImage(hotelBooking.hotel.imagesUrls)}
                 alt={hotelBooking.hotel.name}
+                width={64}
+                height={64}
                 className="size-16 rounded-lg object-cover"
               />
 

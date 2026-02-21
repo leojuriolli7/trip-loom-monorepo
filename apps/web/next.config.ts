@@ -6,10 +6,10 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [
-      { hostname: "images.unsplash.com" },
-      { hostname: "praia.info" },
-      { hostname: "images.pexels.com" },
-      { hostname: "upload.wikimedia.org" },
+      {
+        protocol: "https",
+        hostname: "trip-loom-bucket.s3.sa-east-1.amazonaws.com",
+      },
     ],
   },
 };
