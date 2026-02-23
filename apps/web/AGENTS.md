@@ -155,7 +155,7 @@ await poll({
 });
 ```
 
-See `app/(dashboard)/dev/api-crud/_components/steps/pay-flight-step.tsx` for a full example.
+See `app/dev/api-crud/_components/steps/pay-flight-step.tsx` for a full example.
 
 ## Shared DTO and Schema Reuse
 

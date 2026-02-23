@@ -12,7 +12,7 @@ export default async function EnterLayout({
   });
 
   if (session) {
-    redirect("/");
+    redirect("/chat");
   }
 
   return <>{children}</>;

@@ -111,7 +111,7 @@ export function SignUpForm() {
       }
 
       toast.success("Account created! Welcome to TripLoom.");
-      router.push("/");
+      router.push("/chat");
       router.refresh();
     } catch (err) {
       toast.error("Something went wrong. Please try again.");

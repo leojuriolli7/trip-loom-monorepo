@@ -16,14 +16,10 @@ import { Spinner } from "@/components/ui/spinner";
 import Image from "next/image";
 
 interface DestinationsSectionProps {
-  title: string;
-  subtitle?: string;
   limit?: number;
 }
 
-export function DestinationsSection({
-  title,
-  subtitle,
+export function RecommendedDestinationsSection({
   limit = 10,
 }: DestinationsSectionProps) {
   const [selectedDestinationId, setSelectedDestinationId] = React.useState<
@@ -51,10 +47,12 @@ export function DestinationsSection({
   return (
     <section className="mx-auto max-w-5xl px-6 lg:px-8">
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-foreground">{title}</h2>
-        {subtitle && (
-          <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
-        )}
+        <h2 className="text-xl font-semibold text-foreground">
+          Recommended for you
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Based on your preferences and travel history
+        </p>
       </div>
 
       <Carousel

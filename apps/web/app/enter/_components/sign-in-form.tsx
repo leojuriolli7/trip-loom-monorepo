@@ -61,7 +61,7 @@ export function SignInForm() {
       );
 
       toast.success("Welcome back!");
-      router.push("/");
+      router.push("/chat");
       router.refresh();
     } catch (err) {
       toast.error("Something went wrong. Please try again.");

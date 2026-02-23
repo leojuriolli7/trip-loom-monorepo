@@ -106,19 +106,23 @@ Client examples: https://modelcontextprotocol.io/clients
 
 ### 5. Immediate TODOs
 
-- Hotel booking: hotels should declare what kinds of rooms they offer (e.g., standard, deluxe, suite, king, etc.), and clients pick from those options. (Price varying for each)
-- Improve destination descriptions via AI: More about culture, less about demographics, longer...
+Polishing:
+2. Hotel booking: hotels should declare what kinds of rooms they offer (e.g., standard, deluxe, suite, king, etc.), and clients pick from those options. (Price will vary for each) --> Currently, client can declare any kind of room as a string.
+3. If payment isn't confirmed in N hours, all types of bookings must be cancelled/deleted
 
+Continue development:
 - Implement MCP Server
 - Implement AI agents
 - Implement AI frontend experience
-- Add OpenTelemetry to API, MCP and Agents
-- Remove seed code
+  - UI: Should also think about how trips will look in chat, like if a trip is current, we display the weather in location... If trip is current, hide previous planning messages behind a toggle/dropdown.
+- Add OpenTelemetry to API, MCP and Agents (Structured Logging)
 
-More data:
+Data improvements:
+- Some photos, like Monaco, are SVG flags of the countries
+- Improve destination descriptions via AI: More about culture, less about demographics, longer...
 - Add more destinations, eg Maldivas, Arraial do Cabo, Trancoso... + worldwide
 - Add more hotels for each destination using other sources
-- Remove data acquisition scripts when done with data collection
+- Remove data acquisition/generators scripts when done with data collection
 
 ### 6. For later
 

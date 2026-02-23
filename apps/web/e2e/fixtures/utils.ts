@@ -61,8 +61,8 @@ export async function signUpUser(
     page.getByTestId("sign-up-submit").click(),
   ]);
 
-  // Wait for redirect to dashboard
-  await page.waitForURL("/", { timeout: 15000 });
+  // Wait for redirect to chat dashboard
+  await page.waitForURL("/chat", { timeout: 15000 });
 
   // Wait for page to be fully loaded
   await page.waitForLoadState("networkidle");
@@ -99,8 +99,8 @@ export async function signInUser(
     page.getByTestId("sign-in-submit").click(),
   ]);
 
-  // Wait for redirect to dashboard
-  await page.waitForURL("/", { timeout: 15000 });
+  // Wait for redirect to chat dashboard
+  await page.waitForURL("/chat", { timeout: 15000 });
 
   // Wait for page to be fully loaded
   await page.waitForLoadState("networkidle");

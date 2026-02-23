@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import { ArrowUpRightIcon } from "lucide-react";
+import { focusChatInput } from "../chat-input-focus";
 
 interface GreetingProps {
   userName: string;
@@ -20,7 +23,7 @@ export function Greeting({ userName }: GreetingProps) {
       <div className="absolute -right-28 bottom-0 -z-10 size-72 rounded-full bg-chart-2/15 blur-3xl" />
 
       <div className="mx-auto max-w-5xl px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-4xl border border-border/70 bg-linear-to-br from-background via-background to-secondary/35 px-6 py-7 shadow-[0_28px_44px_-34px_rgba(15,23,42,0.45)] sm:px-7 lg:px-8 lg:py-8">
+        <div className="relative overflow-hidden px-0 py-2 lg:py-3">
           <div className="relative flex flex-col items-start gap-8 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex max-w-xl flex-col gap-3">
               <h1
@@ -88,6 +91,7 @@ function QuickAction({
   return (
     <button
       type="button"
+      onClick={focusChatInput}
       className="group relative flex items-center gap-4 overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card via-card to-secondary/35 p-4 text-left shadow-[0_18px_30px_-28px_rgba(15,23,42,0.7)] transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_24px_34px_-24px_rgba(208,115,48,0.35)]"
     >
       <div className="pointer-events-none absolute -right-8 -top-8 size-24 rounded-full bg-primary/12 opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100" />

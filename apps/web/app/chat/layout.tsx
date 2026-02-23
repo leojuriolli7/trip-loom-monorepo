@@ -3,7 +3,9 @@ import { redirect } from "next/navigation";
 import { auth } from "@trip-loom/api/auth";
 import { UserPreferencesDialog } from "@/components/user-preferences-dialog";
 
-export default async function DashboardLayout({
+import { ChatShellLayout } from "./_components/shell/chat-shell-layout";
+
+export default async function ChatLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -19,7 +21,7 @@ export default async function DashboardLayout({
   return (
     <>
       <UserPreferencesDialog />
-      {children}
+      <ChatShellLayout>{children}</ChatShellLayout>
     </>
   );
 }

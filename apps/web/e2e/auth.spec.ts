@@ -13,7 +13,7 @@ import {
 
 test.describe("Authentication", () => {
   test.describe("Sign Up", () => {
-    test("should create a new account and redirect to dashboard", async ({
+    test("should create a new account and redirect to chat dashboard", async ({
       page,
     }) => {
       const testUser = generateTestUser();
@@ -37,8 +37,8 @@ test.describe("Authentication", () => {
       // Submit
       await page.getByTestId("sign-up-submit").click();
 
-      // Should redirect to dashboard (wait for navigation)
-      await page.waitForURL("/", { timeout: 15000 });
+      // Should redirect to chat dashboard (wait for navigation)
+      await page.waitForURL("/chat", { timeout: 15000 });
 
       // User name should be visible in the user avatar dropdown
       await page.getByTestId("user-avatar-trigger").click();
@@ -144,7 +144,7 @@ test.describe("Authentication", () => {
   });
 
   test.describe("Sign In", () => {
-    test("should sign in existing user and redirect to dashboard", async ({
+    test("should sign in existing user and redirect to chat dashboard", async ({
       page,
     }) => {
       // First create a user
@@ -159,8 +159,8 @@ test.describe("Authentication", () => {
         password: testUser.password,
       });
 
-      // Should be on dashboard
-      await expect(page).toHaveURL("/");
+      // Should be on chat dashboard
+      await expect(page).toHaveURL("/chat");
       await expect(page.getByTestId("greeting-message")).toBeVisible();
 
       // User name should be visible
@@ -198,7 +198,7 @@ test.describe("Authentication", () => {
       await signUpUser(page);
 
       // Verify we're logged in
-      await expect(page).toHaveURL("/");
+      await expect(page).toHaveURL("/chat");
       await expect(page.getByTestId("greeting-message")).toBeVisible();
 
       // Sign out
@@ -252,7 +252,7 @@ test.describe("Authentication", () => {
       await expect(page).toHaveURL("/enter");
     });
 
-    test("should redirect authenticated users from /enter to /", async ({
+    test("should redirect authenticated users from /enter to /chat", async ({
       page,
     }) => {
       // First sign up and be logged in
@@ -261,8 +261,8 @@ test.describe("Authentication", () => {
       // Try to access /enter while logged in
       await page.goto("/enter");
 
-      // Should be redirected to dashboard
-      await expect(page).toHaveURL("/");
+      // Should be redirected to chat dashboard
+      await expect(page).toHaveURL("/chat");
       await expect(page.getByTestId("greeting-message")).toBeVisible();
     });
   });

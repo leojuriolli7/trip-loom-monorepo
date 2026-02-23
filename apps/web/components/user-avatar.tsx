@@ -15,7 +15,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { userPreferencesDialogOpenAtom } from "@/components/user-preferences-dialog";
 import { authClient } from "@/lib/api/auth-client";
 import { useQueryClient } from "@tanstack/react-query";
-import { LogOutIcon, MapIcon, UserIcon } from "lucide-react";
+import { LogOutIcon, UserIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useSetAtom } from "jotai";
@@ -150,10 +150,6 @@ export function UserAvatar({ variant = "icon" }: UserAvatarProps) {
           >
             <UserIcon />
             Profile
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <MapIcon />
-            My Trips
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

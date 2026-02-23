@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { destinationQueries } from "@/lib/api/react-query/destinations";
 import { getCoverImage } from "@/lib/get-cover-image";
+import { focusChatInput } from "../../chat-input-focus";
 
 type DestinationDetailContentProps = {
   destinationId: string;
@@ -59,6 +60,13 @@ function DestinationDetailContent({
     () => (isDrawer ? DrawerTitle : DialogTitle),
     [isDrawer],
   );
+
+  const handleChatAction = () => {
+    onClose();
+    requestAnimationFrame(() => {
+      focusChatInput();
+    });
+  };
 
   if (isPending) {
     return (
@@ -217,7 +225,7 @@ function DestinationDetailContent({
               Ready to learn more?
             </p>
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              <Button className="justify-between">
+              <Button className="justify-between" onClick={handleChatAction}>
                 <span className="inline-flex items-center gap-1.5">
                   <PlaneIcon className="size-4" />
                   Plan a trip
@@ -227,6 +235,7 @@ function DestinationDetailContent({
               <Button
                 variant="outline"
                 className="justify-between border-border/70 bg-background/80"
+                onClick={handleChatAction}
               >
                 <span className="inline-flex items-center gap-1.5">
                   <MapIcon className="size-4" />
