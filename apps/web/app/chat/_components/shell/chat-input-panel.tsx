@@ -28,14 +28,13 @@ export function ChatInputPanel() {
             id={CHAT_INPUT_ID}
             placeholder={
               isActiveChatRoute
-                ? "Ask about your trip, book flights, find hotels..."
-                : "Where would you like to go? Ask me anything about travel..."
+                ? "Ask about your trip..."
+                : "Where would you like to go?"
             }
             className="min-h-4 max-h-32 resize-none border-0 bg-transparent focus-visible:ring-0"
           />
-          <PromptInputFooter className="justify-end p-2 pt-0">
-            <PromptInputSubmit />
-          </PromptInputFooter>
+
+          <PromptInputSubmit />
         </PromptInput>
       </div>
     </div>

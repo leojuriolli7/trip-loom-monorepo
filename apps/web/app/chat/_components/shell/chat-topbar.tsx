@@ -32,6 +32,7 @@ function getHeaderMeta(pathname: string): HeaderMeta | null {
     };
   }
 
+  // TODO: Will get from react-query cache here
   const trip = [...currentTrips, ...upcomingTrips, ...pastTrips].find(
     (item) => item.id === chatId,
   );
@@ -60,17 +61,14 @@ export function ChatTopbar() {
 
         {meta ? (
           <div className="flex min-w-0 items-center gap-2">
-            {meta.isDraft ? (
-              <PenLineIcon className="size-4 shrink-0 text-primary" />
-            ) : (
-              <PlaneIcon className="size-4 shrink-0 text-primary" />
-            )}
-            <span className="truncate font-medium">{meta.title}</span>
-            {meta.subtitle ? (
-              <span className="truncate text-sm text-muted-foreground">
-                · {meta.subtitle}
-              </span>
-            ) : null}
+            <div>
+              <p className="truncate font-medium">{meta.title}</p>
+              {meta.subtitle ? (
+                <p className="truncate text-sm text-muted-foreground">
+                  {meta.subtitle}
+                </p>
+              ) : null}
+            </div>
           </div>
         ) : null}
       </div>

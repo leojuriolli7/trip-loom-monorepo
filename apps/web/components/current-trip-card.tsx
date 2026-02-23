@@ -24,7 +24,7 @@ export function CurrentTripCard({ trip, onContinue }: CurrentTripCardProps) {
 
       <div className="relative">
         <div className="absolute inset-0 -z-10 bg-linear-to-r from-primary/10 via-primary/5 to-transparent" />
-        <div className="grid gap-3 p-3 sm:grid-cols-[130px_1fr] sm:items-center sm:gap-4">
+        <div className="grid gap-3 p-3 grid-cols-[130px_1fr] sm:items-center sm:gap-4">
           <div className="relative overflow-hidden rounded-xl border border-border/60">
             <Image
               src={getCoverImage(trip?.destination?.imagesUrls)}
