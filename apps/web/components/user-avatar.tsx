@@ -52,6 +52,7 @@ const AvatarContent = ({ variant }: { variant: UserAvatarVariant }) => {
         );
       }}
       className={variant === "icon" ? "size-9" : "size-8"}
+      suppressHydrationWarning
     >
       {isSessionPending ? (
         <Spinner className="mx-auto my-auto" />
