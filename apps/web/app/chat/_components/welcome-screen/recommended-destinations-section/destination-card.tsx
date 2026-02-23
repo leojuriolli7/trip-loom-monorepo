@@ -79,9 +79,10 @@ export function DestinationCard({
             <CardFooter className="mt-3 p-0">
               <Badge
                 variant="secondary"
-                className="gap-1.5 border-0 bg-white/15 text-xs font-medium text-white backdrop-blur-sm"
+                className="gap-1.5 border-0 bg-white/15 text-xs font-medium text-white backdrop-blur-sm h-auto whitespace-normal"
               >
-                <SparklesIcon className="size-3" />
+                <SparklesIcon className="size-3 shrink-0" />
+
                 {destination.matchReason}
               </Badge>
             </CardFooter>

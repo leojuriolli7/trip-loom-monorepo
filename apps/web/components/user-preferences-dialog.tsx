@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { useForm, Controller } from "react-hook-form";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -69,6 +70,60 @@ const BUDGET_RANGE_LABELS: Record<BudgetRange, string> = {
   upscale: "Upscale",
   luxury: "Luxury",
 };
+
+type PreferencesSectionCardProps = {
+  iconSrc: string;
+  iconAlt: string;
+  label: string;
+  description: string;
+  htmlFor?: string;
+  invalid?: boolean;
+  children: React.ReactNode;
+};
+
+function PreferencesSectionCard({
+  iconSrc,
+  iconAlt,
+  label,
+  description,
+  htmlFor,
+  invalid,
+  children,
+}: PreferencesSectionCardProps) {
+  return (
+    <Field
+      data-invalid={invalid}
+      className="relative overflow-hidden rounded-[1.65rem] p-4"
+    >
+      <div className="relative space-y-3">
+        <div className="flex items-start gap-3.5">
+          <div className="relative mt-0.5 shrink-0">
+            <div className="relative flex items-center justify-center rounded-full">
+              <Image
+                src={iconSrc}
+                alt={iconAlt}
+                width={96}
+                height={96}
+                className="h-24 w-24 object-contain drop-shadow-[0_8px_10px_rgba(0,0,0,0.2)]"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1 mt-3">
+            <FieldLabel className="text-lg" htmlFor={htmlFor}>
+              {label}
+            </FieldLabel>
+            <FieldDescription className="text-md">
+              {description}
+            </FieldDescription>
+          </div>
+        </div>
+
+        {children}
+      </div>
+    </Field>
+  );
+}
 
 export function UserPreferencesDialog() {
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -142,13 +197,7 @@ export function UserPreferencesDialog() {
           </div>
         </div>
 
-        <DrawerFooter className="border-t border-border/60 pt-3">
-          <DrawerClose asChild>
-            <Button variant="outline" className="w-full">
-              Cancel
-            </Button>
-          </DrawerClose>
-        </DrawerFooter>
+        <DrawerFooter className="pt-3" />
       </DrawerContent>
     </Drawer>
   );
@@ -253,16 +302,14 @@ function PreferencesForm({
           name="preferredCabinClass"
           control={form.control}
           render={({ field, fieldState }) => (
-            <Field
-              data-invalid={fieldState.invalid}
-              className="rounded-2xl border border-border/70 bg-background/80 p-4"
+            <PreferencesSectionCard
+              iconSrc="/plane.png"
+              iconAlt="3D plane icon"
+              invalid={fieldState.invalid}
+              htmlFor="cabin-class"
+              label="Preferred Cabin Class"
+              description="Choose the seat comfort level you usually book."
             >
-              <FieldLabel htmlFor="cabin-class">
-                Preferred Cabin Class
-              </FieldLabel>
-              <FieldDescription>
-                Choose the seat comfort level you usually book.
-              </FieldDescription>
               <Select
                 value={field.value ?? "none"}
                 onValueChange={(value) =>
@@ -286,7 +333,7 @@ function PreferencesForm({
                 </SelectContent>
               </Select>
               {fieldState.error && <FieldError errors={[fieldState.error]} />}
-            </Field>
+            </PreferencesSectionCard>
           )}
         />
 
@@ -294,15 +341,14 @@ function PreferencesForm({
           name="budgetRange"
           control={form.control}
           render={({ field, fieldState }) => (
-            <Field
-              data-invalid={fieldState.invalid}
-              className="rounded-2xl border border-border/70 bg-background/80 p-4"
+            <PreferencesSectionCard
+              iconSrc="/wallet.png"
+              iconAlt="Wallet with dollar bills coming out of it"
+              invalid={fieldState.invalid}
+              htmlFor="budget-range"
+              label="Budget Range"
+              description="Keep destination and stay options aligned with your expected spend."
             >
-              <FieldLabel htmlFor="budget-range">Budget Range</FieldLabel>
-              <FieldDescription>
-                Keep destination and stay options aligned with your expected
-                spend.
-              </FieldDescription>
               <Select
                 value={field.value ?? "none"}
                 onValueChange={(value) =>
@@ -326,7 +372,7 @@ function PreferencesForm({
                 </SelectContent>
               </Select>
               {fieldState.error && <FieldError errors={[fieldState.error]} />}
-            </Field>
+            </PreferencesSectionCard>
           )}
         />
 
@@ -334,12 +380,13 @@ function PreferencesForm({
           name="travelInterests"
           control={form.control}
           render={({ field, fieldState }) => (
-            <Field
-              data-invalid={fieldState.invalid}
-              className="rounded-2xl border border-border/70 bg-background/80 p-4"
+            <PreferencesSectionCard
+              iconSrc="/eiffel-golden.png"
+              iconAlt="Eiffel tower"
+              invalid={fieldState.invalid}
+              label="Travel Interests"
+              description="Select all that apply to you"
             >
-              <FieldLabel>Travel Interests</FieldLabel>
-              <FieldDescription>Select all that apply to you</FieldDescription>
               <div
                 className="flex flex-wrap gap-2"
                 data-testid="travel-interests"
@@ -373,7 +420,7 @@ function PreferencesForm({
                 })}
               </div>
               {fieldState.error && <FieldError errors={[fieldState.error]} />}
-            </Field>
+            </PreferencesSectionCard>
           )}
         />
 
@@ -381,14 +428,13 @@ function PreferencesForm({
           name="preferredRegions"
           control={form.control}
           render={({ field, fieldState }) => (
-            <Field
-              data-invalid={fieldState.invalid}
-              className="rounded-2xl border border-border/70 bg-background/80 p-4"
+            <PreferencesSectionCard
+              iconSrc="/map-and-compass.png"
+              iconAlt="3D map and compass icon"
+              invalid={fieldState.invalid}
+              label="Preferred Regions"
+              description="Where would you like to travel?"
             >
-              <FieldLabel>Preferred Regions</FieldLabel>
-              <FieldDescription>
-                Where would you like to travel?
-              </FieldDescription>
               <div
                 className="flex flex-wrap gap-2"
                 data-testid="preferred-regions"
@@ -422,7 +468,7 @@ function PreferencesForm({
                 })}
               </div>
               {fieldState.error && <FieldError errors={[fieldState.error]} />}
-            </Field>
+            </PreferencesSectionCard>
           )}
         />
 
@@ -430,16 +476,14 @@ function PreferencesForm({
           name="dietaryRestrictions"
           control={form.control}
           render={({ field, fieldState }) => (
-            <Field
-              data-invalid={fieldState.invalid}
-              className="rounded-2xl border border-border/70 bg-background/80 p-4"
+            <PreferencesSectionCard
+              iconSrc="/apple.png"
+              iconAlt="Red apple in a plate"
+              invalid={fieldState.invalid}
+              htmlFor="dietary-restrictions"
+              label="Dietary Restrictions"
+              description="Type and press Enter to add (e.g., vegetarian, gluten-free)"
             >
-              <FieldLabel htmlFor="dietary-restrictions">
-                Dietary Restrictions
-              </FieldLabel>
-              <FieldDescription>
-                Type and press Enter to add (e.g., vegetarian, gluten-free)
-              </FieldDescription>
               <input
                 id="dietary-restrictions"
                 type="text"
@@ -456,7 +500,7 @@ function PreferencesForm({
                     <Badge
                       key={restriction}
                       variant="secondary"
-                      className="gap-1 border border-border/60 bg-secondary/65 pr-1"
+                      className="gap-1 border border-border/60 bg-secondary/65 p-4 text-md"
                     >
                       {restriction}
                       <button
@@ -472,7 +516,7 @@ function PreferencesForm({
                 </div>
               )}
               {fieldState.error && <FieldError errors={[fieldState.error]} />}
-            </Field>
+            </PreferencesSectionCard>
           )}
         />
 
@@ -480,16 +524,14 @@ function PreferencesForm({
           name="accessibilityNeeds"
           control={form.control}
           render={({ field, fieldState }) => (
-            <Field
-              data-invalid={fieldState.invalid}
-              className="rounded-2xl border border-border/70 bg-background/80 p-4"
+            <PreferencesSectionCard
+              iconSrc="/wheelchair.png"
+              iconAlt="Blue wheelchair"
+              invalid={fieldState.invalid}
+              htmlFor="accessibility-needs"
+              label="Accessibility Needs"
+              description="Let us know if you have any accessibility requirements"
             >
-              <FieldLabel htmlFor="accessibility-needs">
-                Accessibility Needs
-              </FieldLabel>
-              <FieldDescription>
-                Let us know if you have any accessibility requirements
-              </FieldDescription>
               <Textarea
                 {...field}
                 value={field.value ?? ""}
@@ -500,7 +542,7 @@ function PreferencesForm({
                 data-testid="accessibility-textarea"
               />
               {fieldState.error && <FieldError errors={[fieldState.error]} />}
-            </Field>
+            </PreferencesSectionCard>
           )}
         />
 

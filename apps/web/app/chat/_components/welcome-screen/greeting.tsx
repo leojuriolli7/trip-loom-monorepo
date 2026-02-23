@@ -46,7 +46,7 @@ export function Greeting({ userName }: GreetingProps) {
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="mt-6 grid lg:grid-cols-2 gap-4 grid-cols-1 xl:grid-cols-3">
           <QuickAction
             icon="/island.png"
             hoverIcon="/japanese-temple.png"

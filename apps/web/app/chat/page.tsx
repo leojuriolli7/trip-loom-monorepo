@@ -16,7 +16,7 @@ export default async function ChatWelcomePage() {
   }
 
   return (
-    <div className="h-full overflow-y-auto">
+    <div className="h-full overflow-y-auto no-scrollbar">
       <WelcomeScreen userName={userName.split(" ")[0]} />
     </div>
   );
