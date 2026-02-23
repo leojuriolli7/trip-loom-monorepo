@@ -203,7 +203,7 @@ export function ChatSidebar() {
         )}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border p-3">
+      <SidebarFooter className="border-t border-sidebar-border p-3 min-h-[73px]">
         <div className="flex items-center justify-between gap-2">
           <UserAvatar variant="full" />
           <ThemeToggle />

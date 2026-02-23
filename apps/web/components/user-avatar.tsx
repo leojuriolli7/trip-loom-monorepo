@@ -15,11 +15,14 @@ import { Spinner } from "@/components/ui/spinner";
 import { userPreferencesDialogOpenAtom } from "@/components/user-preferences-dialog";
 import { authClient } from "@/lib/api/auth-client";
 import { useQueryClient } from "@tanstack/react-query";
-import { LogOutIcon, UserIcon } from "lucide-react";
+import { ConstructionIcon, LogOutIcon, UserIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useSetAtom } from "jotai";
 import { userPreferencesQueries } from "@/lib/api/react-query/user-preferences";
+import Link from "next/link";
+
+const isDevEnvironment = process.env.NODE_ENV !== "production";
 
 type UserAvatarVariant = "icon" | "full";
 
@@ -152,6 +155,16 @@ export function UserAvatar({ variant = "icon" }: UserAvatarProps) {
             <UserIcon />
             Profile
           </DropdownMenuItem>
+
+          {isDevEnvironment && (
+            <Link href="/dev/api-crud">
+              <DropdownMenuItem>
+                <ConstructionIcon />
+                <span className="font-bold -mr-1">[DEV]</span>
+                Test the API
+              </DropdownMenuItem>
+            </Link>
+          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem

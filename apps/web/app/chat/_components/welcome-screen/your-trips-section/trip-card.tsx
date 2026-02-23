@@ -16,7 +16,7 @@ export function TripCard({ trip }: TripCardProps) {
   const tripTitle =
     trip.title ?? trip.destination?.name ?? "Destination pending";
 
-  const destinationCountry = trip.destination?.country ?? "Country pending";
+  const destinationPlace = `${trip.destination?.name}, ${trip.destination?.country}`;
   const hasAnyFeature = trip.hasFlights || trip.hasHotel || trip.hasItinerary;
 
   /**
@@ -50,7 +50,7 @@ export function TripCard({ trip }: TripCardProps) {
           sizes="(max-width: 1024px) 100vw, 33vw"
           fetchPriority="high"
           loading="eager"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          className="object-cover"
         />
         <div className="absolute inset-0 bg-linear-to-t from-black/78 via-black/22 to-transparent" />
         <div className="absolute right-3 top-3">
@@ -65,7 +65,7 @@ export function TripCard({ trip }: TripCardProps) {
           <div className="mt-1 flex items-center">
             <div className="flex items-center gap-1.5 text-white/85">
               <MapPinIcon className="size-3.5" />
-              <span className="text-sm font-medium">{destinationCountry}</span>
+              <span className="text-sm font-medium">{destinationPlace}</span>
             </div>
           </div>
         </div>

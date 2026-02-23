@@ -298,7 +298,7 @@ function PreferencesForm({
           render={({ field, fieldState }) => (
             <PreferencesSectionCard
               iconSrc="/plane-seat-3.png"
-              iconAlt="3D plane icon"
+              iconAlt="3D plane seat icon"
               invalid={fieldState.invalid}
               htmlFor="cabin-class"
               label="Preferred Cabin Class"
@@ -471,8 +471,8 @@ function PreferencesForm({
           control={form.control}
           render={({ field, fieldState }) => (
             <PreferencesSectionCard
-              iconSrc="/apple.png"
-              iconAlt="Red apple in a plate"
+              iconSrc="/dish.png"
+              iconAlt="A dish plate with an egg, bananas and grapes"
               invalid={fieldState.invalid}
               htmlFor="dietary-restrictions"
               label="Dietary Restrictions"
