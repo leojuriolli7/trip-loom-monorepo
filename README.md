@@ -107,8 +107,8 @@ Client examples: https://modelcontextprotocol.io/clients
 ### 5. Immediate TODOs
 
 Polishing:
-2. Hotel booking: hotels should declare what kinds of rooms they offer (e.g., standard, deluxe, suite, king, etc.), and clients pick from those options. (Price will vary for each) --> Currently, client can declare any kind of room as a string.
-3. If payment isn't confirmed in N hours, all types of bookings must be cancelled/deleted
+- Hotel booking: hotels should declare what kinds of rooms they offer (e.g., standard, deluxe, suite, king, etc.), and clients pick from those options. (Price will vary for each) --> Currently, client can declare any kind of room as a string.
+- If payment isn't confirmed in N hours, all types of bookings must be cancelled/deleted
 
 Continue development:
 - Implement MCP Server

@@ -28,7 +28,6 @@ import {
 } from "@/components/ui/dialog";
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
   DrawerFooter,
@@ -52,7 +51,7 @@ import {
   FieldDescription,
 } from "@/components/ui/field";
 import { Badge } from "@/components/ui/badge";
-import { CheckIcon, XIcon } from "lucide-react";
+import { XIcon } from "lucide-react";
 import { userPreferencesQueries } from "@/lib/api/react-query/user-preferences";
 import { atom, useAtom } from "jotai";
 

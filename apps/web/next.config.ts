@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
     authInterrupts: true,
   },
   images: {
+    dangerouslyAllowSVG: true,
+    maximumResponseBody: 500_000_000, // 500MB
     remotePatterns: [
       {
         protocol: "https",
