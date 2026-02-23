@@ -151,9 +151,6 @@ function DestinationDetailContent({
       </div>
 
       <div className="relative flex-1 overflow-y-auto no-scrollbar">
-        <div className="pointer-events-none absolute -left-20 top-14 size-56 rounded-full bg-primary/8 blur-3xl" />
-        <div className="pointer-events-none absolute -right-14 bottom-12 size-56 rounded-full bg-chart-2/10 blur-3xl" />
-
         <div className="relative space-y-5 p-5 sm:p-6">
           <div className="grid gap-2 sm:grid-cols-2">
             {data.bestTimeToVisit && (

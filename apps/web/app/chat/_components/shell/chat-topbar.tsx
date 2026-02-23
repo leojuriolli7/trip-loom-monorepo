@@ -64,7 +64,7 @@ export function ChatTopbar() {
             <div>
               <p className="truncate font-medium">{meta.title}</p>
               {meta.subtitle ? (
-                <p className="truncate text-sm text-muted-foreground">
+                <p className="truncate text-sm text-muted-foreground leading-none">
                   {meta.subtitle}
                 </p>
               ) : null}

@@ -145,9 +145,6 @@ export function UserPreferencesDialog() {
           data-testid="preferences-dialog"
         >
           <div className="relative h-full">
-            <div className="pointer-events-none absolute -left-24 top-6 size-56 rounded-full bg-primary/10 blur-3xl" />
-            <div className="pointer-events-none absolute -right-20 bottom-0 size-56 rounded-full bg-chart-2/15 blur-3xl" />
-
             <div className="max-h-[90dvh] overflow-y-auto no-scrollbar px-5 pt-5 pb-6 sm:px-6">
               <DialogHeader className="gap-3 pb-2">
                 <div className="flex items-start justify-between gap-4 pr-10">
@@ -176,9 +173,6 @@ export function UserPreferencesDialog() {
     <Drawer open={dialogOpen} onOpenChange={onOpenChange}>
       <DrawerContent className="p-0" data-testid="preferences-drawer">
         <div className="relative">
-          <div className="pointer-events-none absolute -left-24 top-8 size-48 rounded-full bg-primary/10 blur-3xl" />
-          <div className="pointer-events-none absolute -right-16 bottom-10 size-52 rounded-full bg-chart-2/15 blur-3xl" />
-
           <DrawerHeader className="px-5 pt-5 pb-1 text-left">
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -303,7 +297,7 @@ function PreferencesForm({
           control={form.control}
           render={({ field, fieldState }) => (
             <PreferencesSectionCard
-              iconSrc="/plane.png"
+              iconSrc="/plane-seat-3.png"
               iconAlt="3D plane icon"
               invalid={fieldState.invalid}
               htmlFor="cabin-class"
