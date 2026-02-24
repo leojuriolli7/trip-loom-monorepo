@@ -222,7 +222,7 @@ async function getDefaultDestinations(
     ORDER BY region, created_at DESC
   `);
 
-  return shuffle(regionalResults)
+  return shuffle(regionalResults.rows)
     .slice(0, limit)
     .map((row) => ({
       id: row.id,

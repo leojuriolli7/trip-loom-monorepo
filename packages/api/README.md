@@ -67,6 +67,16 @@ import type { TripWithDestinationDTO } from "@trip-loom/api/dto";
 import { tripStatusValues } from "@trip-loom/api/enums";
 ```
 
+### `@trip-loom/api/otel`
+
+OpenTelemetry SDK initializer. Call once, as early as possible, so the SDK can monkey-patch libraries before they're imported.
+
+```typescript
+import { initOtel } from "@trip-loom/api/otel";
+
+initOtel(); // uses env vars for defaults
+```
+
 ## Structure
 
 ```
@@ -87,6 +97,8 @@ src/
     ├── auth-plugin.ts      # Auth macro plugin (`auth: true`)
     ├── pagination.ts       # Cursor pagination helpers
     ├── date-range.ts       # Shared date-range validation helper
+    ├── otel/               # OpenTelemetry SDK wrapper (`initOtel`)
+    ├── wide-events/        # Structured logging plugin (1 JSON log per request)
     └── [domain]/           # Domain rules (eg. `lib/trips/rules.ts`)
 ```
 
@@ -209,8 +221,103 @@ This package requires the following environment variables (provided by the app t
 | `STRIPE_WEBHOOK_SECRET` | Yes (payments) | Stripe webhook signing secret |
 | `TRUSTED_ORIGINS` | Prod | Comma-separated list of trusted origins |
 | `CORS_ORIGINS` | Prod | Comma-separated list of CORS origins |
+| `OTEL_SERVICE_NAME` | No | Service name for traces and logs (default: `"trip-loom-api"`). Standard OTel env var — set to a unique value per service (e.g. `trip-loom-mcp`, `trip-loom-web`). |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | No | OTLP HTTP endpoint for trace export (default: `http://localhost:4318/v1/traces`) |
+| `OTEL_EXPORTER_OTLP_LOGS_ENDPOINT` | No | OTLP HTTP endpoint for log export (default: `http://localhost:4318/v1/logs`) |
 
 Environment files (`.env`) live in **apps**, not packages. See `apps/web/.env.example`.
+
+## Observability
+
+The API ships with two complementary observability layers: **wide events** (structured logs) and **OpenTelemetry tracing** (distributed traces). They correlate automatically — every log line includes the `trace_id` and `span_id` of the active trace when OTel is enabled. When `initOtel()` is called, wide events are also exported via OTLP to your observability backend (SigNoz, Grafana, etc.).
+
+### Wide Events (Structured Logging)
+
+Every request produces a single JSON log line emitted in `onAfterResponse`. The plugin lives in `src/lib/wide-events/`.
+
+Auto-populated fields: `timestamp`, `service`, `request_id`, `method`, `path`, `status_code`, `duration_ms`, `outcome`, `error`, `trace_id`, `span_id`.
+
+Enrich events from any route handler:
+
+```typescript
+.get("/:id", async ({ params, wideEvent }) => {
+  wideEvent.trip_id = params.id;
+  // ...
+})
+```
+
+Route files need `.use(createWideEventPlugin())` for type inference. Elysia deduplicates by the plugin's `name`, so there's no double initialization.
+
+### OpenTelemetry Tracing
+
+The `@trip-loom/api/otel` export wraps the Node.js OTel SDK. It auto-instruments `pg`, `http`/`fetch`, and other libraries so DB queries and outgoing HTTP calls (e.g. Stripe) appear as child spans in a waterfall view. It also sets up a `LoggerProvider` so wide events are exported via OTLP alongside traces.
+
+#### Instrumentation Setup — Next.js
+
+Next.js calls `register()` in `instrumentation.ts` before any imports, early enough for the SDK to patch libraries:
+
+```typescript
+// apps/web/instrumentation.ts
+export async function register() {
+  if (process.env.NEXT_RUNTIME === "nodejs") {
+    const { initOtel } = await import("@trip-loom/api/otel");
+    initOtel();
+  }
+}
+```
+
+Dynamic imports ensure OTel only loads on the Node.js runtime, not on the edge.
+
+#### Instrumentation Setup — Standalone Server
+
+For a standalone deployment, call `initOtel()` before importing the app:
+
+```typescript
+// apps/backend/src/index.ts
+import { initOtel } from "@trip-loom/api/otel";
+initOtel();
+
+import { app } from "@trip-loom/api";
+
+app.listen(3001, () => {
+  console.log("API running on http://localhost:3001");
+});
+```
+
+#### `initOtel` Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `serviceName` | `OTEL_SERVICE_NAME` env or `"trip-loom-api"` | Service name in traces and logs |
+| `exporterUrl` | `OTEL_EXPORTER_OTLP_ENDPOINT` env or `http://localhost:4318/v1/traces` | OTLP HTTP endpoint for traces |
+| `logsExporterUrl` | `OTEL_EXPORTER_OTLP_LOGS_ENDPOINT` env or `http://localhost:4318/v1/logs` | OTLP HTTP endpoint for logs |
+
+The OTel SDK also natively reads `OTEL_SERVICE_NAME`, `OTEL_EXPORTER_OTLP_ENDPOINT`, and `OTEL_EXPORTER_OTLP_HEADERS` from the environment.
+
+#### Local Dev — SigNoz
+
+The `docker-compose.yml` includes SigNoz services behind a Docker Compose profile:
+
+```bash
+docker compose --profile signoz up -d   # starts Postgres + SigNoz
+```
+
+- SigNoz UI: `http://localhost:8080` (traces, logs, and metrics)
+- OTLP HTTP receiver: `http://localhost:4318`
+- OTLP gRPC receiver: `http://localhost:4317`
+
+SigNoz provides a unified view of traces and logs, with automatic `trace_id` correlation between the two.
+
+#### Production
+
+Set `OTEL_EXPORTER_OTLP_ENDPOINT` to your tracing backend:
+
+| Provider | Traces Endpoint | Logs Endpoint |
+|----------|----------------|---------------|
+| Grafana Cloud | `https://otlp-gateway-<region>.grafana.net/otlp/v1/traces` | `https://otlp-gateway-<region>.grafana.net/otlp/v1/logs` |
+| Axiom | `https://api.axiom.co/v1/traces` | `https://api.axiom.co/v1/logs` |
+| Datadog | `localhost:4318/v1/traces` (via agent sidecar) | `localhost:4318/v1/logs` |
+| SigNoz Cloud | Your SigNoz ingest URL | Your SigNoz ingest URL |
 
 ## Database
 
@@ -266,6 +373,9 @@ If you later need to deploy the API separately (e.g., on a VPS), create `apps/ba
 
 ```typescript
 // apps/backend/src/index.ts
+import { initOtel } from "@trip-loom/api/otel";
+initOtel(); // must be called before importing the app
+
 import { app } from "@trip-loom/api";
 
 app.listen(3001, () => {

@@ -15,12 +15,14 @@ import {
   recommendedDestinationsQuerySchema,
 } from "../dto/destinations";
 import { errorResponseSchema, paginatedResponseSchema } from "../dto/common";
+import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth-plugin";
 
 export const destinationRoutes = new Elysia({
   name: "destinations",
   prefix: "/api/destinations",
 })
+  .use(createWideEventPlugin())
   .get(
     "/",
     async ({ query }) => {
@@ -31,7 +33,7 @@ export const destinationRoutes = new Elysia({
       response: {
         200: paginatedResponseSchema(destinationSchema),
       },
-    }
+    },
   )
   .use(requireAuthMacro)
   .get(
@@ -46,11 +48,13 @@ export const destinationRoutes = new Elysia({
         200: z.array(recommendedDestinationSchema),
         401: errorResponseSchema,
       },
-    }
+    },
   )
   .get(
     "/:id",
-    async ({ params, status }) => {
+    async ({ params, status, wideEvent }) => {
+      wideEvent.destination_id = params.id;
+
       const result = await getDestinationById(params.id);
       if (!result) {
         return status(404, {
@@ -71,7 +75,9 @@ export const destinationRoutes = new Elysia({
   )
   .get(
     "/:id/detail",
-    async ({ params, status }) => {
+    async ({ params, status, wideEvent }) => {
+      wideEvent.destination_id = params.id;
+
       const result = await getDestinationDetail(params.id);
       if (!result) {
         return status(404, {

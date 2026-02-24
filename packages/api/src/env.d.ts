@@ -6,6 +6,9 @@ export type BackendApiEnv = {
   STRIPE_WEBHOOK_SECRET: string;
   TRUSTED_ORIGINS?: string;
   CORS_ORIGINS?: string;
+  OTEL_SERVICE_NAME?: string;
+  OTEL_EXPORTER_OTLP_ENDPOINT?: string;
+  OTEL_EXPORTER_OTLP_LOGS_ENDPOINT?: string;
 };
 
 declare global {

@@ -6,6 +6,7 @@ import {
   hotelBookingSchema,
   updateHotelBookingInputSchema,
 } from "../dto/hotel-bookings";
+import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth-plugin";
 import {
   cancelHotelBooking,
@@ -28,10 +29,14 @@ export const hotelBookingRoutes = new Elysia({
   name: "hotel-bookings",
   prefix: "/api",
 })
+  .use(createWideEventPlugin())
   .use(requireAuthMacro)
   .get(
     "/trips/:id/hotels",
-    async ({ user, params, status }) => {
+    async ({ user, params, status, wideEvent }) => {
+
+      wideEvent.trip_id = params.id;
+
       const result = await listHotelBookings(user.id, params.id);
       if (!result) {
         return status(404, {
@@ -55,7 +60,10 @@ export const hotelBookingRoutes = new Elysia({
   )
   .post(
     "/trips/:id/hotels",
-    async ({ user, params, body, status }) => {
+    async ({ user, params, body, status, wideEvent }) => {
+
+      wideEvent.trip_id = params.id;
+
       const result = await createHotelBooking(user.id, params.id, body);
       if (!result) {
         return status(404, {
@@ -65,6 +73,7 @@ export const hotelBookingRoutes = new Elysia({
         });
       }
 
+      wideEvent.hotel_booking_id = result.id;
       return status(201, result);
     },
     {
@@ -81,7 +90,11 @@ export const hotelBookingRoutes = new Elysia({
   )
   .get(
     "/trips/:id/hotels/:hotelBookingId",
-    async ({ user, params, status }) => {
+    async ({ user, params, status, wideEvent }) => {
+
+      wideEvent.trip_id = params.id;
+      wideEvent.hotel_booking_id = params.hotelBookingId;
+
       const result = await getHotelBooking(user.id, params.id, params.hotelBookingId);
       if (!result) {
         return status(404, {
@@ -105,7 +118,11 @@ export const hotelBookingRoutes = new Elysia({
   )
   .patch(
     "/trips/:id/hotels/:hotelBookingId",
-    async ({ user, params, body, status }) => {
+    async ({ user, params, body, status, wideEvent }) => {
+
+      wideEvent.trip_id = params.id;
+      wideEvent.hotel_booking_id = params.hotelBookingId;
+
       const result = await updateHotelBooking(
         user.id,
         params.id,
@@ -136,7 +153,11 @@ export const hotelBookingRoutes = new Elysia({
   )
   .delete(
     "/trips/:id/hotels/:hotelBookingId",
-    async ({ user, params, status }) => {
+    async ({ user, params, status, wideEvent }) => {
+
+      wideEvent.trip_id = params.id;
+      wideEvent.hotel_booking_id = params.hotelBookingId;
+
       const success = await cancelHotelBooking(user.id, params.id, params.hotelBookingId);
       if (!success) {
         return status(404, {

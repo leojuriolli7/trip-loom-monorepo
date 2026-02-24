@@ -7,11 +7,13 @@ import {
   hotelWithDestinationSchema,
 } from "../dto/hotels";
 import { errorResponseSchema, paginatedResponseSchema } from "../dto/common";
+import { createWideEventPlugin } from "../lib/wide-events";
 
 export const hotelRoutes = new Elysia({
   name: "hotels",
   prefix: "/api/hotels",
 })
+  .use(createWideEventPlugin())
   .get(
     "/",
     async ({ query }) => {
@@ -26,7 +28,9 @@ export const hotelRoutes = new Elysia({
   )
   .get(
     "/:id",
-    async ({ params, status }) => {
+    async ({ params, status, wideEvent }) => {
+      wideEvent.hotel_id = params.id;
+
       const result = await getHotelById(params.id);
       if (!result) {
         return status(404, {

@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { spawnSync } from "node:child_process";
-import postgres from "postgres";
+import { Client } from "pg";
 
 const getDatabaseNameFromUrl = (databaseUrl: string): string => {
   const parsed = new URL(databaseUrl);
@@ -58,23 +58,24 @@ const recreateTestDatabase = async (
   testDatabaseName: string,
 ) => {
   const adminDatabaseUrl = withDatabaseName(baseDatabaseUrl, "postgres");
-  const admin = postgres(adminDatabaseUrl, { max: 1 });
+  const admin = new Client({ connectionString: adminDatabaseUrl });
+  await admin.connect();
 
   const dbNameLiteral = quoteLiteral(testDatabaseName);
   const dbNameIdentifier = quoteIdentifier(testDatabaseName);
 
   try {
-    await admin.unsafe(`
+    await admin.query(`
       SELECT pg_terminate_backend(pid)
       FROM pg_stat_activity
       WHERE datname = ${dbNameLiteral}
         AND pid <> pg_backend_pid();
     `);
 
-    await admin.unsafe(`DROP DATABASE IF EXISTS ${dbNameIdentifier};`);
-    await admin.unsafe(`CREATE DATABASE ${dbNameIdentifier};`);
+    await admin.query(`DROP DATABASE IF EXISTS ${dbNameIdentifier};`);
+    await admin.query(`CREATE DATABASE ${dbNameIdentifier};`);
   } finally {
-    await admin.end({ timeout: 5 });
+    await admin.end();
   }
 };
 

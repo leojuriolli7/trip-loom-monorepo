@@ -1,6 +1,7 @@
 import "server-only";
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
+import { createWideEventPlugin } from "./lib/wide-events";
 import { healthRoutes } from "./routes/health";
 import { destinationRoutes } from "./routes/destinations";
 import { hotelRoutes } from "./routes/hotels";
@@ -40,6 +41,8 @@ export const app = new Elysia({ name: "api" })
         });
     }
   })
+  // Wide event structured logging (1 log per request)
+  .use(createWideEventPlugin())
   // CORS - configured for dev/prod
   .use(
     cors({

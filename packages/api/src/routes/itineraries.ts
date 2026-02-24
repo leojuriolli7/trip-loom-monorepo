@@ -9,6 +9,7 @@ import {
   updateActivityInputSchema,
   updateDayInputSchema,
 } from "../dto/itineraries";
+import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth-plugin";
 import {
   addActivity,
@@ -41,13 +42,17 @@ export const itineraryRoutes = new Elysia({
   name: "itineraries",
   prefix: "/api",
 })
+  .use(createWideEventPlugin())
   .use(requireAuthMacro)
   // ==========================================================================
   // Itinerary Level
   // ==========================================================================
   .get(
     "/trips/:id/itinerary",
-    async ({ user, params, status }) => {
+    async ({ user, params, status, wideEvent }) => {
+
+      wideEvent.trip_id = params.id;
+
       const result = await getItinerary(user.id, params.id);
       if (!result) {
         return status(404, {
@@ -71,7 +76,10 @@ export const itineraryRoutes = new Elysia({
   )
   .post(
     "/trips/:id/itinerary",
-    async ({ user, params, body, status }) => {
+    async ({ user, params, body, status, wideEvent }) => {
+
+      wideEvent.trip_id = params.id;
+
       const result = await createItinerary(user.id, params.id, body);
       if (!result) {
         return status(404, {
@@ -97,7 +105,10 @@ export const itineraryRoutes = new Elysia({
   )
   .delete(
     "/trips/:id/itinerary",
-    async ({ user, params, status }) => {
+    async ({ user, params, status, wideEvent }) => {
+
+      wideEvent.trip_id = params.id;
+
       const success = await deleteItinerary(user.id, params.id);
       if (!success) {
         return status(404, {
@@ -123,7 +134,10 @@ export const itineraryRoutes = new Elysia({
   // ==========================================================================
   .post(
     "/trips/:id/itinerary/days",
-    async ({ user, params, body, status }) => {
+    async ({ user, params, body, status, wideEvent }) => {
+
+      wideEvent.trip_id = params.id;
+
       const result = await addDay(user.id, params.id, body);
       if (!result) {
         return status(404, {
@@ -148,7 +162,11 @@ export const itineraryRoutes = new Elysia({
   )
   .patch(
     "/trips/:id/itinerary/days/:dayId",
-    async ({ user, params, body, status }) => {
+    async ({ user, params, body, status, wideEvent }) => {
+
+      wideEvent.trip_id = params.id;
+      wideEvent.day_id = params.dayId;
+
       const result = await updateDay(user.id, params.id, params.dayId, body);
       if (!result) {
         return status(404, {
@@ -173,7 +191,11 @@ export const itineraryRoutes = new Elysia({
   )
   .delete(
     "/trips/:id/itinerary/days/:dayId",
-    async ({ user, params, status }) => {
+    async ({ user, params, status, wideEvent }) => {
+
+      wideEvent.trip_id = params.id;
+      wideEvent.day_id = params.dayId;
+
       const result = await deleteDay(user.id, params.id, params.dayId);
       if (!result) {
         return status(404, {
@@ -200,7 +222,11 @@ export const itineraryRoutes = new Elysia({
   // ==========================================================================
   .post(
     "/trips/:id/itinerary/days/:dayId/activities",
-    async ({ user, params, body, status }) => {
+    async ({ user, params, body, status, wideEvent }) => {
+
+      wideEvent.trip_id = params.id;
+      wideEvent.day_id = params.dayId;
+
       const result = await addActivity(user.id, params.id, params.dayId, body);
       if (!result) {
         return status(404, {
@@ -225,7 +251,12 @@ export const itineraryRoutes = new Elysia({
   )
   .patch(
     "/trips/:id/itinerary/days/:dayId/activities/:activityId",
-    async ({ user, params, body, status }) => {
+    async ({ user, params, body, status, wideEvent }) => {
+
+      wideEvent.trip_id = params.id;
+      wideEvent.day_id = params.dayId;
+      wideEvent.activity_id = params.activityId;
+
       const result = await updateActivity(
         user.id,
         params.id,
@@ -256,7 +287,12 @@ export const itineraryRoutes = new Elysia({
   )
   .delete(
     "/trips/:id/itinerary/days/:dayId/activities/:activityId",
-    async ({ user, params, status }) => {
+    async ({ user, params, status, wideEvent }) => {
+
+      wideEvent.trip_id = params.id;
+      wideEvent.day_id = params.dayId;
+      wideEvent.activity_id = params.activityId;
+
       const result = await deleteActivity(
         user.id,
         params.id,

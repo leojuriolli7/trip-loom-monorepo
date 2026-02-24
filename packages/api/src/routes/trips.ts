@@ -8,6 +8,7 @@ import {
   tripWithDestinationSchema,
   updateTripInputSchema,
 } from "../dto/trips";
+import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth-plugin";
 import {
   createTrip,
@@ -25,6 +26,7 @@ export const tripRoutes = new Elysia({
   name: "trips",
   prefix: "/api/trips",
 })
+  .use(createWideEventPlugin())
   .use(requireAuthMacro)
   .get(
     "/",
@@ -42,7 +44,9 @@ export const tripRoutes = new Elysia({
   )
   .get(
     "/:id",
-    async ({ user, params, status }) => {
+    async ({ user, params, status, wideEvent }) => {
+      wideEvent.trip_id = params.id;
+
       const result = await getTripById(user.id, params.id);
       if (!result) {
         return status(404, {
@@ -65,8 +69,12 @@ export const tripRoutes = new Elysia({
   )
   .post(
     "/",
-    async ({ user, body, status }) => {
+    async ({ user, body, status, wideEvent }) => {
+      wideEvent.destination_id = body.destinationId;
+
       const trip = await createTrip(user.id, body);
+
+      wideEvent.trip_id = trip.id;
       return status(201, trip);
     },
     {
@@ -81,7 +89,9 @@ export const tripRoutes = new Elysia({
   )
   .patch(
     "/:id",
-    async ({ user, params, body, status }) => {
+    async ({ user, params, body, status, wideEvent }) => {
+      wideEvent.trip_id = params.id;
+
       const result = await updateTrip(user.id, params.id, body);
       if (!result) {
         return status(404, {
@@ -106,7 +116,9 @@ export const tripRoutes = new Elysia({
   )
   .delete(
     "/:id",
-    async ({ user, params, status }) => {
+    async ({ user, params, status, wideEvent }) => {
+      wideEvent.trip_id = params.id;
+
       const success = await deleteTrip(user.id, params.id);
       if (!success) {
         return status(404, {

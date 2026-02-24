@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!--
+  ClickHouse cluster config for SigNoz local dev.
+  The cluster name "cluster" is hardcoded in SigNoz migrations — do not rename.
+  Vendored from: https://github.com/SigNoz/signoz/blob/main/deploy/common/clickhouse/cluster.xml
+-->
+<clickhouse>
+    <zookeeper>
+        <node index="1">
+            <host>signoz-zookeeper</host>
+            <port>2181</port>
+        </node>
+    </zookeeper>
+    <remote_servers>
+        <cluster>
+            <shard>
+                <replica>
+                    <host>signoz-clickhouse</host>
+                    <port>9000</port>
+                </replica>
+            </shard>
+        </cluster>
+    </remote_servers>
+</clickhouse>

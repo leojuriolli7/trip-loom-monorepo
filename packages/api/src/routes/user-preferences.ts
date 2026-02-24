@@ -1,4 +1,5 @@
 import { Elysia } from "elysia";
+import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth-plugin";
 import { errorResponseSchema } from "../dto/common";
 import {
@@ -14,6 +15,7 @@ export const userPreferenceRoutes = new Elysia({
   name: "user-preferences",
   prefix: "/api/user",
 })
+  .use(createWideEventPlugin())
   .use(requireAuthMacro)
   .get(
     "/preferences",

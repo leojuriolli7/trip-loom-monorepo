@@ -115,7 +115,6 @@ Continue development:
 - Implement AI agents
 - Implement AI frontend experience
   - UI: Should also think about how trips will look in chat, like if a trip is current, we display the weather in location... If trip is current, hide previous planning messages behind a toggle/dropdown.
-- Add OpenTelemetry to API, MCP and Agents (Structured Logging)
 
 Data improvements:
 - Some photos, like Monaco, are SVG flags of the countries

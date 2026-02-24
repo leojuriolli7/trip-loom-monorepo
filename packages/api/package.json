@@ -8,7 +8,8 @@
     "./auth": "./src/lib/auth.ts",
     "./env": "./src/env.d.ts",
     "./enums": "./src/enums.ts",
-    "./dto": "./src/dto/index.ts"
+    "./dto": "./src/dto/index.ts",
+    "./otel": "./src/lib/otel/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -26,18 +27,29 @@
   },
   "dependencies": {
     "@elysiajs/cors": "^1.4.1",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/api-logs": "^0.212.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.70.0",
+    "@opentelemetry/exporter-logs-otlp-http": "^0.212.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.212.0",
+    "@opentelemetry/resources": "^2.5.1",
+    "@opentelemetry/sdk-logs": "^0.212.0",
+    "@opentelemetry/sdk-node": "^0.212.0",
+    "@opentelemetry/sdk-trace-node": "^2.5.1",
+    "@opentelemetry/semantic-conventions": "^1.39.0",
     "better-auth": "^1.4.18",
     "dotenv": "^17.3.1",
     "drizzle-orm": "^0.45.1",
     "elysia": "^1.2.25",
     "nanoid": "^5.1.5",
-    "postgres": "^3.4.8",
+    "pg": "^8.16.0",
     "server-only": "^0.0.1",
     "stripe": "^20.3.1",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/node": "^20.19.33",
+    "@types/pg": "^8.15.4",
     "drizzle-kit": "^0.31.9",
     "tsx": "^4.19.4",
     "typescript": "^5.7.0",

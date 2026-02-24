@@ -9,6 +9,7 @@ import {
   flightSearchSchema,
   updateFlightBookingInputSchema,
 } from "../dto/flights";
+import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth-plugin";
 import {
   cancelFlightBooking,
@@ -32,10 +33,16 @@ export const flightRoutes = new Elysia({
   name: "flights",
   prefix: "/api",
 })
+  .use(createWideEventPlugin())
   .use(requireAuthMacro)
   .get(
     "/flights/search",
-    async ({ query }) => {
+    async ({ query, wideEvent }) => {
+      wideEvent.search = {
+        from: query.from,
+        to: query.to,
+      };
+
       return searchFlights(query);
     },
     {
@@ -50,7 +57,10 @@ export const flightRoutes = new Elysia({
   )
   .get(
     "/trips/:id/flights",
-    async ({ user, params, status }) => {
+    async ({ user, params, status, wideEvent }) => {
+
+      wideEvent.trip_id = params.id;
+
       const result = await listFlightBookings(user.id, params.id);
       if (!result) {
         return status(404, {
@@ -74,7 +84,10 @@ export const flightRoutes = new Elysia({
   )
   .post(
     "/trips/:id/flights",
-    async ({ user, params, body, status }) => {
+    async ({ user, params, body, status, wideEvent }) => {
+
+      wideEvent.trip_id = params.id;
+
       const result = await createFlightBooking(user.id, params.id, body);
       if (!result) {
         return status(404, {
@@ -84,6 +97,7 @@ export const flightRoutes = new Elysia({
         });
       }
 
+      wideEvent.flight_booking_id = result.id;
       return status(201, result);
     },
     {
@@ -100,7 +114,11 @@ export const flightRoutes = new Elysia({
   )
   .get(
     "/trips/:id/flights/:flightId",
-    async ({ user, params, status }) => {
+    async ({ user, params, status, wideEvent }) => {
+
+      wideEvent.trip_id = params.id;
+      wideEvent.flight_booking_id = params.flightId;
+
       const result = await getFlightBooking(user.id, params.id, params.flightId);
       if (!result) {
         return status(404, {
@@ -124,7 +142,11 @@ export const flightRoutes = new Elysia({
   )
   .patch(
     "/trips/:id/flights/:flightId",
-    async ({ user, params, body, status }) => {
+    async ({ user, params, body, status, wideEvent }) => {
+
+      wideEvent.trip_id = params.id;
+      wideEvent.flight_booking_id = params.flightId;
+
       const result = await updateFlightBooking(
         user.id,
         params.id,
@@ -155,7 +177,11 @@ export const flightRoutes = new Elysia({
   )
   .delete(
     "/trips/:id/flights/:flightId",
-    async ({ user, params, status }) => {
+    async ({ user, params, status, wideEvent }) => {
+
+      wideEvent.trip_id = params.id;
+      wideEvent.flight_booking_id = params.flightId;
+
       const success = await cancelFlightBooking(user.id, params.id, params.flightId);
       if (!success) {
         return status(404, {

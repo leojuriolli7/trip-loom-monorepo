@@ -1,4 +1,5 @@
 import { Elysia } from "elysia";
+import { createWideEventPlugin } from "./wide-events";
 import { auth } from "./auth";
 
 /**
@@ -25,7 +26,9 @@ import { auth } from "./auth";
  */
 export const requireAuthMacro = new Elysia({
   name: "require-auth-macro",
-}).macro({
+})
+  .use(createWideEventPlugin())
+  .macro({
   /**
    * Auth macro - protects routes and injects user/session into context.
    *
@@ -38,7 +41,7 @@ export const requireAuthMacro = new Elysia({
    * - Cleaner early return pattern
    */
   auth: {
-    async resolve({ status, request: { headers } }) {
+    async resolve({ status, request: { headers }, wideEvent }) {
       const session = await auth.api.getSession({ headers });
 
       if (!session) {
@@ -48,6 +51,8 @@ export const requireAuthMacro = new Elysia({
           statusCode: 401,
         });
       }
+
+      wideEvent.user_id = session.user.id;
 
       return {
         user: session.user,
