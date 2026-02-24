@@ -11,7 +11,7 @@ export interface WideEventPluginOptions {
 
   /**
    * Service name added to every event.
-   * @default process.env.OTEL_SERVICE_NAME ?? "trip-loom-api"
+   * @default "trip-loom-api"
    */
   service?: string;
 
@@ -26,9 +26,9 @@ const defaultLogger = (event: Record<string, unknown>) => {
 };
 
 export const createWideEventPlugin = (options?: WideEventPluginOptions) => {
-  const logger = options?.logger ?? defaultLogger;
-  const service = options?.service ?? process.env.OTEL_SERVICE_NAME ?? "trip-loom-api";
-  const extraFields = options?.extraFields ?? {};
+  const logger = options?.logger || defaultLogger;
+  const service = options?.service || "trip-loom-api";
+  const extraFields = options?.extraFields || {};
 
   const otelLogger = logs.getLogger("wide-events");
 

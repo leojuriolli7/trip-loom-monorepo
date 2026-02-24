@@ -10,22 +10,26 @@ import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 export interface OtelOptions {
   /**
    * Service name reported in traces and logs.
-   * @default process.env.OTEL_SERVICE_NAME ?? "trip-loom-api"
+   * @default "trip-loom-api"
    */
   serviceName?: string;
 
   /**
    * OTLP HTTP endpoint for trace export.
-   * @default process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:4318/v1/traces"
+   * @default "http://localhost:4318/v1/traces"
    */
-  exporterUrl?: string;
+  traceExporterUrl?: string;
 
   /**
    * OTLP HTTP endpoint for log export.
-   * @default process.env.OTEL_EXPORTER_OTLP_LOGS_ENDPOINT ?? "http://localhost:4318/v1/logs"
+   * @default "http://localhost:4318/v1/logs"
    */
   logsExporterUrl?: string;
 }
+
+const DEFAULT_SERVICE_NAME = "trip-loom-api";
+const DEFAULT_TRACE_EXPORTER_URL = "http://localhost:4318/v1/traces";
+const DEFAULT_LOGS_EXPORTER_URL = "http://localhost:4318/v1/logs";
 
 /**
  * Initialise the OpenTelemetry Node SDK with sensible defaults.
@@ -42,46 +46,32 @@ export interface OtelOptions {
  * ```ts
  * export async function register() {
  *   if (process.env.NEXT_RUNTIME === "nodejs") {
- *     const { initOtel } = await import("@trip-loom/api/otel");
- *     initOtel();
+ *     const { initOtel } = await import("@trip-loom/otel");
+ *     initOtel({ serviceName: "trip-loom-web" });
  *   }
  * }
  * ```
  *
- * @example Standalone server (`apps/backend/src/index.ts`)
+ * @example Standalone server
  * ```ts
- * import { initOtel } from "@trip-loom/api/otel";
- * initOtel();
- *
- * import { app } from "@trip-loom/api";
- * app.listen(3001);
+ * import { initOtel } from "@trip-loom/otel";
+ * initOtel({ serviceName: "trip-loom-mcp" });
  * ```
  */
 export function initOtel(options?: OtelOptions) {
-  const traceUrl =
-    options?.exporterUrl ??
-    process.env.OTEL_EXPORTER_OTLP_ENDPOINT ??
-    "http://localhost:4318/v1/traces";
-
-  const logsUrl =
-    options?.logsExporterUrl ??
-    process.env.OTEL_EXPORTER_OTLP_LOGS_ENDPOINT ??
-    "http://localhost:4318/v1/logs";
+  const traceUrl = options?.traceExporterUrl || DEFAULT_TRACE_EXPORTER_URL;
+  const logsUrl = options?.logsExporterUrl || DEFAULT_LOGS_EXPORTER_URL;
+  const serviceName = options?.serviceName || DEFAULT_SERVICE_NAME;
 
   const sdk = new NodeSDK({
     resource: resourceFromAttributes({
-      [ATTR_SERVICE_NAME]:
-        options?.serviceName ?? process.env.OTEL_SERVICE_NAME ?? "trip-loom-api",
+      [ATTR_SERVICE_NAME]: serviceName,
     }),
     spanProcessors: [
-      new BatchSpanProcessor(
-        new OTLPTraceExporter({ url: traceUrl })
-      ),
+      new BatchSpanProcessor(new OTLPTraceExporter({ url: traceUrl })),
     ],
     logRecordProcessors: [
-      new BatchLogRecordProcessor(
-        new OTLPLogExporter({ url: logsUrl })
-      ),
+      new BatchLogRecordProcessor(new OTLPLogExporter({ url: logsUrl })),
     ],
     instrumentations: [
       getNodeAutoInstrumentations({

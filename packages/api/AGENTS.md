@@ -252,11 +252,14 @@ Use split auth plugins:
 
 ```typescript
 // src/index.ts (root app)
+import { Elysia } from "elysia";
 import { auth } from "./lib/auth";
+import { tripRoutes } from "./routes/trips";
 
-export const app = new Elysia({ name: "api" })
-  .mount(auth.handler)
-  .use(tripRoutes);
+export const createApp = () =>
+  new Elysia({ name: "api" })
+    .mount(auth.handler)
+    .use(tripRoutes);
 ```
 
 ```typescript

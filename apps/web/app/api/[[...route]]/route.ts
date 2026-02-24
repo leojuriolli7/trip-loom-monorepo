@@ -1,4 +1,8 @@
-import { app } from "@trip-loom/api";
+import { createApp } from "@trip-loom/api";
+
+const app = createApp({
+  loggerServiceName: process.env.OTEL_SERVICE_NAME,
+});
 
 export const GET = app.handle;
 export const POST = app.handle;
