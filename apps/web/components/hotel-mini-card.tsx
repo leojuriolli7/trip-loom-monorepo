@@ -32,7 +32,7 @@ export function HotelMiniCard({ hotel }: HotelMiniCardProps) {
 
       <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
         <div>
-          <p className="truncate text-sm font-medium leading-tight">
+          <p className="truncate text-sm font-medium leading-tight whitespace-normal">
             {hotel.name}
           </p>
           <div className="mt-0.5 flex items-center gap-1.5">
