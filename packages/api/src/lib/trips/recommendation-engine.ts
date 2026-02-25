@@ -1,7 +1,10 @@
 import { desc, eq, or, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { destination, trip, userPreference } from "../../db/schema";
-import type { RecommendedDestinationDTO } from "../../dto/destinations";
+import type {
+  DestinationDTO,
+  RecommendedDestinationDTO,
+} from "../../dto/destinations";
 import type { Region, TravelInterest } from "../../enums";
 import { destinationSelectFields } from "../../mappers/destinations";
 import { combineConditions } from "../pagination";
@@ -23,21 +26,6 @@ interface RecommendationContext {
   visitedDestinationIds: string[];
 }
 
-interface DefaultDestinationRow {
-  [key: string]: unknown;
-  id: string;
-  name: string;
-  country: string;
-  country_code: string;
-  region: Region | null;
-  timezone: string;
-  images_urls: Array<{ url: string; isCover: boolean; caption: string }> | null;
-  description: string | null;
-  highlights: TravelInterest[] | null;
-  best_time_to_visit: string | null;
-  created_at: string;
-  updated_at: string;
-}
 
 // Helper for strongly-typed SQL arrays in scoring/filter expressions.
 function sqlArray<T extends string>(
@@ -160,7 +148,10 @@ async function buildRecommendationContext(
       .from(trip)
       .leftJoin(destination, eq(trip.destinationId, destination.id))
       .where(
-        combineConditions(eq(trip.userId, userId), sql`${computedTripStatusSql} = 'past'`),
+        combineConditions(
+          eq(trip.userId, userId),
+          sql`${computedTripStatusSql} = 'past'`,
+        ),
       ),
   ]);
 
@@ -203,40 +194,26 @@ async function getDefaultDestinations(
 ): Promise<RecommendedDestinationDTO[]> {
   // Pick one destination per region (latest by created_at), then shuffle in app code.
   // This keeps the user-visible order varied without DB-level RANDOM() sorting.
-  const regionalResults = await db.execute<DefaultDestinationRow>(sql`
-    SELECT DISTINCT ON (region)
-      id,
-      name,
-      country,
-      country_code,
-      region,
-      timezone,
-      images_urls,
-      description,
-      highlights,
-      best_time_to_visit,
-      created_at,
-      updated_at
-    FROM destination
-    WHERE region IS NOT NULL
-    ORDER BY region, created_at DESC
-  `);
+  const rows = await db
+    .select(destinationSelectFields)
+    .from(destination)
+    .where(sql`${destination.region} IS NOT NULL`)
+    .orderBy(desc(destination.createdAt));
 
-  return shuffle(regionalResults.rows)
+  // Keep only the first (most recent) destination per region
+  const seenRegions = new Set<string>();
+  const perRegion: DestinationDTO[] = [];
+  for (const row of rows) {
+    if (row.region && !seenRegions.has(row.region)) {
+      seenRegions.add(row.region);
+      perRegion.push(row);
+    }
+  }
+
+  return shuffle(perRegion)
     .slice(0, limit)
     .map((row) => ({
-      id: row.id,
-      name: row.name,
-      country: row.country,
-      countryCode: row.country_code,
-      region: row.region,
-      timezone: row.timezone,
-      imagesUrls: row.images_urls,
-      description: row.description,
-      highlights: row.highlights,
-      bestTimeToVisit: row.best_time_to_visit,
-      createdAt: new Date(row.created_at),
-      updatedAt: new Date(row.updated_at),
+      ...row,
       matchScore: 0,
       matchReason: row.region ? `Explore ${row.region}` : "Popular destination",
     }));
