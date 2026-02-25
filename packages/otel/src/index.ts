@@ -59,9 +59,9 @@ const DEFAULT_LOGS_EXPORTER_URL = "http://localhost:4318/v1/logs";
  * ```
  */
 export function initOtel(options?: OtelOptions) {
-  const traceUrl = options?.traceExporterUrl || DEFAULT_TRACE_EXPORTER_URL;
-  const logsUrl = options?.logsExporterUrl || DEFAULT_LOGS_EXPORTER_URL;
-  const serviceName = options?.serviceName || DEFAULT_SERVICE_NAME;
+  const traceUrl = options?.traceExporterUrl ?? DEFAULT_TRACE_EXPORTER_URL;
+  const logsUrl = options?.logsExporterUrl ?? DEFAULT_LOGS_EXPORTER_URL;
+  const serviceName = options?.serviceName ?? DEFAULT_SERVICE_NAME;
 
   const sdk = new NodeSDK({
     resource: resourceFromAttributes({

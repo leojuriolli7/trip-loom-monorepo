@@ -26,9 +26,9 @@ const defaultLogger = (event: Record<string, unknown>) => {
 };
 
 export const createWideEventPlugin = (options?: WideEventPluginOptions) => {
-  const logger = options?.logger || defaultLogger;
-  const service = options?.service || "trip-loom-api";
-  const extraFields = options?.extraFields || {};
+  const logger = options?.logger ?? defaultLogger;
+  const service = options?.service ?? "trip-loom-api";
+  const extraFields = options?.extraFields ?? {};
 
   const otelLogger = logs.getLogger("wide-events");
 
