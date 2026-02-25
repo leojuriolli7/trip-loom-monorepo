@@ -212,24 +212,20 @@ export const regionEnum = pgEnum("region", [
   "Central Asia",
 ]);
 
-// TODO: Hotel room types - hotels should declare what kinds of rooms they offer
-// (e.g., standard, deluxe, suite, king, etc.), and clients pick from those options.
-// roomType in hotel_booking should become this enum + hotels table should list
-// which room types they offer (array field), so the AI/client can pick from them.
-// export const hotelRoomTypeEnum = pgEnum("hotel_room_type", [
-//   "standard",
-//   "deluxe",
-//   "suite",
-//   "junior-suite",
-//   "double",
-//   "twin",
-//   "single",
-//   "king",
-//   "queen",
-//   "family",
-//   "penthouse",
-//   "villa",
-// ]);
+export const hotelRoomTypeEnum = pgEnum("hotel_room_type", [
+  "standard",
+  "deluxe",
+  "suite",
+  "junior-suite",
+  "double",
+  "twin",
+  "single",
+  "king",
+  "queen",
+  "family",
+  "penthouse",
+  "villa",
+]);
 
 export const hotelStyleEnum = pgEnum("hotel_style", [
   "art-deco",
@@ -446,6 +442,7 @@ export const hotel = pgTable(
     amenities: amenityEnum("amenities").array().notNull().default([]),
     // Hotel styles from TripAdvisor
     styles: hotelStyleEnum("styles").array().notNull().default([]),
+    roomTypes: hotelRoomTypeEnum("room_types").array().notNull().default([]),
     priceRange: priceRangeEnum("price_range"),
     avgPricePerNightInCents: integer("avg_price_per_night_in_cents"),
     description: text("description"),
@@ -675,7 +672,7 @@ export const hotelBooking = pgTable(
     }),
     checkInDate: date("check_in_date").notNull(),
     checkOutDate: date("check_out_date").notNull(),
-    roomType: text("room_type").notNull(),
+    roomType: hotelRoomTypeEnum("room_type").notNull(),
     numberOfNights: integer("number_of_nights").notNull(),
     pricePerNightInCents: integer("price_per_night_in_cents").notNull(),
     totalPriceInCents: integer("total_price_in_cents").notNull(),

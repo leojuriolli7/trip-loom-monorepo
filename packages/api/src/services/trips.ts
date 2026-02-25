@@ -282,7 +282,11 @@ export async function updateTrip(
   // Handle cancellation: status is computed, but 'cancelled' sets cancelledAt
   if (input.status === "cancelled" && !existing.cancelledAt) {
     updateData.cancelledAt = new Date();
-  } else if (input.status && input.status !== "cancelled" && existing.cancelledAt) {
+  } else if (
+    input.status &&
+    input.status !== "cancelled" &&
+    existing.cancelledAt
+  ) {
     // Un-cancel: clear cancelledAt so status can be computed from dates again
     updateData.cancelledAt = null;
   }

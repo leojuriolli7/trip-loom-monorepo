@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   amenityEnum,
+  hotelRoomTypeEnum,
   hotelStyleEnum,
   priceRangeEnum,
   regionEnum,
@@ -11,6 +12,7 @@ import { airportsSeedSchema } from "./airport-normalizer";
 const highlightValues = travelInterestEnum.enumValues;
 const amenityValues = amenityEnum.enumValues;
 const hotelStyleValues = hotelStyleEnum.enumValues;
+const hotelRoomTypeValues = hotelRoomTypeEnum.enumValues;
 const priceRangeValues = priceRangeEnum.enumValues;
 const regionValues = regionEnum.enumValues;
 
@@ -62,6 +64,7 @@ export const hotelSeedSchema = z.object({
   rankingString: z.string().nullable().optional(),
   amenities: z.array(z.enum(amenityValues)),
   styles: z.array(z.enum(hotelStyleValues)).optional().default([]),
+  roomTypes: z.array(z.enum(hotelRoomTypeValues)).min(1),
   priceRange: z.enum(priceRangeValues).nullable(),
   avgPricePerNightInCents: z.number().int().positive().nullable(),
   description: z.string().nullable(),

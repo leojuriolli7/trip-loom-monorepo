@@ -14,6 +14,7 @@ export const hotelSelectFields = {
   imagesUrls: hotel.imagesUrls,
   rating: hotel.rating,
   amenities: hotel.amenities,
+  roomTypes: hotel.roomTypes,
   priceRange: hotel.priceRange,
   avgPricePerNightInCents: hotel.avgPricePerNightInCents,
   description: hotel.description,

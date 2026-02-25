@@ -92,6 +92,7 @@ export async function getDestinationDetail(
         priceRange: hotel.priceRange,
         avgPricePerNightInCents: hotel.avgPricePerNightInCents,
         amenities: hotel.amenities,
+        roomTypes: hotel.roomTypes,
       })
       .from(hotel)
       .where(eq(hotel.destinationId, id))

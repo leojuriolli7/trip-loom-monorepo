@@ -282,7 +282,7 @@ const seedTripsFixtureData = async () => {
     paymentId: upcomingTripPaymentId,
     checkInDate: upcomingStartDate,
     checkOutDate: upcomingEndDate,
-    roomType: "Deluxe",
+    roomType: "deluxe",
     numberOfNights: 7,
     pricePerNightInCents: 20_000,
     totalPriceInCents: 140_000,

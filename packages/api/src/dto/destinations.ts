@@ -1,6 +1,12 @@
 import { z } from "zod";
 import { paginationQuerySchema } from "../lib/pagination";
-import { regionValues, travelInterestValues, amenityValues, priceRangeValues } from "../enums";
+import {
+  regionValues,
+  travelInterestValues,
+  amenityValues,
+  hotelRoomTypeValues,
+  priceRangeValues,
+} from "../enums";
 
 // =============================================================================
 // Response Schemas
@@ -52,6 +58,7 @@ export const destinationHotelSummarySchema = z.object({
   priceRange: z.enum(priceRangeValues).nullable(),
   avgPricePerNightInCents: z.number().int().min(0).nullable(),
   amenities: z.array(z.enum(amenityValues)),
+  roomTypes: z.array(z.enum(hotelRoomTypeValues)),
 });
 
 export type DestinationHotelSummaryDTO = z.infer<

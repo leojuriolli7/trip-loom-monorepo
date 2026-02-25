@@ -7,7 +7,7 @@ import type {
   HotelSummaryDTO,
   UpdateHotelBookingInput,
 } from "../dto/hotel-bookings";
-import type { PriceRange } from "../enums";
+import type { HotelRoomType, PriceRange } from "../enums";
 import { BadRequestError, NotFoundError } from "../errors";
 import { isValidDateRange } from "../lib/date-range";
 import { generatePricePerNight } from "../lib/hotels/pricing";
@@ -82,9 +82,12 @@ const getBookingWithHotel = async (
 };
 
 /**
- * Hotel info needed for booking creation (summary + priceRange for pricing).
+ * Hotel info needed for booking creation (summary + priceRange + roomTypes).
  */
-type HotelForBooking = HotelSummaryDTO & { priceRange: PriceRange | null };
+type HotelForBooking = HotelSummaryDTO & {
+  priceRange: PriceRange | null;
+  roomTypes: HotelRoomType[];
+};
 
 /**
  * Verifies that a hotel exists and returns info needed for booking.
@@ -96,6 +99,7 @@ const getHotelForBooking = async (
     .select({
       ...hotelSummarySelectFields,
       priceRange: hotel.priceRange,
+      roomTypes: hotel.roomTypes,
     })
     .from(hotel)
     .where(eq(hotel.id, hotelId))
@@ -170,8 +174,20 @@ export async function createHotelBooking(
     throw new NotFoundError("Hotel not found");
   }
 
+  if (
+    hotelInfo.roomTypes.length > 0 &&
+    !hotelInfo.roomTypes.includes(input.roomType)
+  ) {
+    throw new BadRequestError(
+      `Hotel does not offer room type "${input.roomType}". Available: ${hotelInfo.roomTypes.join(", ")}`,
+    );
+  }
+
   const numberOfNights = calculateNights(input.checkInDate, input.checkOutDate);
-  const pricePerNightInCents = generatePricePerNight(hotelInfo.priceRange);
+  const pricePerNightInCents = generatePricePerNight(
+    hotelInfo.priceRange,
+    input.roomType,
+  );
   const totalPriceInCents = numberOfNights * pricePerNightInCents;
 
   const [created] = await db
@@ -246,6 +262,16 @@ export async function updateHotelBooking(
   }
 
   if (input.roomType !== undefined) {
+    const hotelInfo = await getHotelForBooking(existing.hotelId);
+    if (
+      hotelInfo &&
+      hotelInfo.roomTypes.length > 0 &&
+      !hotelInfo.roomTypes.includes(input.roomType)
+    ) {
+      throw new BadRequestError(
+        `Hotel does not offer room type "${input.roomType}". Available: ${hotelInfo.roomTypes.join(", ")}`,
+      );
+    }
     updateData.roomType = input.roomType;
   }
 

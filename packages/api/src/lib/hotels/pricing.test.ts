@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { generatePricePerNight, getPriceBounds } from "./pricing";
-import type { PriceRange } from "../../enums";
+import { ROOM_TYPE_MULTIPLIERS } from "./room-types";
+import type { HotelRoomType, PriceRange } from "../../enums";
 
 describe("Hotel Pricing", () => {
   describe("generatePricePerNight", () => {
@@ -16,10 +17,9 @@ describe("Hotel Pricing", () => {
     ];
 
     for (const { range, min, max } of PRICE_RANGES) {
-      it(`generates price within ${range} bounds ($${min / 100}-$${max / 100})`, () => {
-        // Run multiple times to test randomness stays within bounds
+      it(`generates price within ${range} bounds for standard room ($${min / 100}-$${max / 100})`, () => {
         for (let i = 0; i < 50; i++) {
-          const price = generatePricePerNight(range);
+          const price = generatePricePerNight(range, "standard");
           expect(price).toBeGreaterThanOrEqual(min);
           expect(price).toBeLessThanOrEqual(max);
         }
@@ -28,7 +28,7 @@ describe("Hotel Pricing", () => {
 
     it("rounds prices to nearest 100 cents ($1)", () => {
       for (let i = 0; i < 50; i++) {
-        const price = generatePricePerNight("moderate");
+        const price = generatePricePerNight("moderate", "standard");
         expect(price % 100).toBe(0);
       }
     });
@@ -36,7 +36,7 @@ describe("Hotel Pricing", () => {
     it("defaults to moderate range when priceRange is null", () => {
       const moderateBounds = getPriceBounds("moderate");
       for (let i = 0; i < 20; i++) {
-        const price = generatePricePerNight(null);
+        const price = generatePricePerNight(null, "standard");
         expect(price).toBeGreaterThanOrEqual(moderateBounds.min);
         expect(price).toBeLessThanOrEqual(moderateBounds.max);
       }
@@ -45,7 +45,7 @@ describe("Hotel Pricing", () => {
     it("defaults to moderate range when priceRange is undefined", () => {
       const moderateBounds = getPriceBounds("moderate");
       for (let i = 0; i < 20; i++) {
-        const price = generatePricePerNight(undefined);
+        const price = generatePricePerNight(undefined, "standard");
         expect(price).toBeGreaterThanOrEqual(moderateBounds.min);
         expect(price).toBeLessThanOrEqual(moderateBounds.max);
       }
@@ -54,11 +54,41 @@ describe("Hotel Pricing", () => {
     it("generates different prices (randomness check)", () => {
       const prices = new Set<number>();
       for (let i = 0; i < 100; i++) {
-        prices.add(generatePricePerNight("moderate"));
+        prices.add(generatePricePerNight("moderate", "standard"));
       }
-      // With 100 iterations and 80 possible values ($100-$180 in $1 increments),
-      // we should see at least a few different prices
       expect(prices.size).toBeGreaterThan(1);
+    });
+
+    it("applies room type multiplier correctly", () => {
+      const roomTypes: HotelRoomType[] = ["single", "suite", "penthouse"];
+      for (const roomType of roomTypes) {
+        const multiplier = ROOM_TYPE_MULTIPLIERS[roomType];
+        const bounds = getPriceBounds("moderate");
+        for (let i = 0; i < 20; i++) {
+          const price = generatePricePerNight("moderate", roomType);
+          // Price should be within bounds * multiplier, rounded to nearest $1
+          const minExpected =
+            Math.round((bounds.min * multiplier) / 100) * 100 - 100;
+          const maxExpected =
+            Math.round((bounds.max * multiplier) / 100) * 100 + 100;
+          expect(price).toBeGreaterThanOrEqual(minExpected);
+          expect(price).toBeLessThanOrEqual(maxExpected);
+        }
+      }
+    });
+
+    it("suite costs more than standard for same price range", () => {
+      // With enough samples, average suite price should exceed average standard price
+      let standardTotal = 0;
+      let suiteTotal = 0;
+      const iterations = 200;
+      for (let i = 0; i < iterations; i++) {
+        standardTotal += generatePricePerNight("moderate", "standard");
+        suiteTotal += generatePricePerNight("moderate", "suite");
+      }
+      expect(suiteTotal / iterations).toBeGreaterThan(
+        standardTotal / iterations,
+      );
     });
   });
 

@@ -10,8 +10,14 @@ import Image from "next/image";
 
 import { apiClient } from "@/lib/api/api-client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Field,
   FieldLabel,
@@ -30,6 +36,7 @@ import { useWizard } from "../wizard-context";
 import { InfiniteSearchList } from "../infinite-search-list";
 import { Ratings } from "@/components/ui/rating";
 import { getCoverImage } from "@/lib/get-cover-image";
+import type { HotelRoomType } from "@trip-loom/api/enums";
 
 export function BookHotelStep() {
   const { trip, destination, setHotelBooking, nextStep } = useWizard();
@@ -37,7 +44,7 @@ export function BookHotelStep() {
   const [selectedHotel, setSelectedHotel] = React.useState<HotelDTO | null>(
     null,
   );
-  const [roomType, setRoomType] = React.useState("Standard Room");
+  const [roomType, setRoomType] = React.useState<HotelRoomType | "">("");
 
   const createHotelBookingMutation = useMutation(
     hotelBookingQueries.createTripHotelBooking(),
@@ -53,6 +60,11 @@ export function BookHotelStep() {
 
     if (!trip.startDate || !trip.endDate) {
       toast.error("Trip dates are required");
+      return;
+    }
+
+    if (!roomType) {
+      toast.error("Please select a room type");
       return;
     }
 
@@ -178,6 +190,7 @@ export function BookHotelStep() {
                 selectedId={selectedHotel?.id ?? null}
                 onSelect={(hotel) => {
                   setSelectedHotel(hotel);
+                  setRoomType(hotel.roomTypes[0] ?? "");
                 }}
                 placeholder="Search hotels..."
                 emptyMessage="No hotels found in this destination"
@@ -225,13 +238,24 @@ export function BookHotelStep() {
 
                 <Field>
                   <FieldLabel htmlFor="room-type">Room Type</FieldLabel>
-                  <Input
-                    id="room-type"
-                    value={roomType}
-                    onChange={(e) => setRoomType(e.target.value)}
-                    placeholder="e.g., Standard Room"
-                    required
-                  />
+                  <Select
+                    value={roomType || undefined}
+                    onValueChange={(value: HotelRoomType) =>
+                      setRoomType(value)
+                    }
+                  >
+                    <SelectTrigger id="room-type">
+                      <SelectValue placeholder="Select room type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {selectedHotel.roomTypes.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type.charAt(0).toUpperCase() +
+                            type.slice(1).replace("-", " ")}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </Field>
 
                 <div className="rounded-xl border border-border bg-muted/30 p-4">
@@ -260,7 +284,11 @@ export function BookHotelStep() {
             <Button
               type="submit"
               className="w-full"
-              disabled={!selectedHotel || createHotelBookingMutation.isPending}
+              disabled={
+                !selectedHotel ||
+                !roomType ||
+                createHotelBookingMutation.isPending
+              }
             >
               {createHotelBookingMutation.isPending ? (
                 <>

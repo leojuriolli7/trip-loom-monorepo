@@ -165,7 +165,7 @@ const seedFixtureData = async () => {
       paymentId: null,
       checkInDate: dateWithOffset(40),
       checkOutDate: dateWithOffset(43),
-      roomType: "Deluxe King",
+      roomType: "king",
       numberOfNights: 3,
       pricePerNightInCents: 15000,
       totalPriceInCents: 45000,
@@ -180,7 +180,7 @@ const seedFixtureData = async () => {
       paymentId: null,
       checkInDate: dateWithOffset(18),
       checkOutDate: dateWithOffset(21),
-      roomType: "Standard Double",
+      roomType: "double",
       numberOfNights: 3,
       pricePerNightInCents: 8000,
       totalPriceInCents: 24000,
@@ -233,7 +233,7 @@ describe("Hotel Bookings API", () => {
             hotelId: seed.hotelId,
             checkInDate: dateWithOffset(50),
             checkOutDate: dateWithOffset(53),
-            roomType: "Standard",
+            roomType: "standard",
           },
         }),
         requestJson({
@@ -243,7 +243,7 @@ describe("Hotel Bookings API", () => {
         requestJson({
           method: "PATCH",
           path: `/api/trips/${seed.upcomingTripId}/hotels/${seed.primaryBookingId}`,
-          body: { roomType: "Suite" },
+          body: { roomType: "suite" },
         }),
         requestJson({
           method: "DELETE",
@@ -278,7 +278,7 @@ describe("Hotel Bookings API", () => {
           method: "PATCH",
           path: `/api/trips/${seed.secondaryTripId}/hotels/${seed.secondaryBookingId}`,
           userId: seed.primaryUserId,
-          body: { roomType: "Suite" },
+          body: { roomType: "suite" },
         }),
         requestJson({
           method: "DELETE",
@@ -322,7 +322,7 @@ describe("Hotel Bookings API", () => {
           hotelId: seed.hotelId, // "moderate" priceRange hotel
           checkInDate,
           checkOutDate,
-          roomType: "Executive Suite",
+          roomType: "suite",
         },
       });
 
@@ -331,13 +331,14 @@ describe("Hotel Bookings API", () => {
       expect(body.hotelId).toBe(seed.hotelId);
       expect(body.checkInDate).toBe(checkInDate);
       expect(body.checkOutDate).toBe(checkOutDate);
-      expect(body.roomType).toBe("Executive Suite");
+      expect(body.roomType).toBe("suite");
       expect(body.numberOfNights).toBe(5);
       expect(body.status).toBe("pending");
 
       // Price should be generated within moderate range bounds ($100-$180)
-      expect(body.pricePerNightInCents).toBeGreaterThanOrEqual(10000);
-      expect(body.pricePerNightInCents).toBeLessThanOrEqual(18000);
+      // with suite multiplier (2.0x), so $200-$360
+      expect(body.pricePerNightInCents).toBeGreaterThanOrEqual(20000);
+      expect(body.pricePerNightInCents).toBeLessThanOrEqual(36000);
       expect(body.totalPriceInCents).toBe(5 * body.pricePerNightInCents);
 
       // Verify hotel info is embedded
@@ -365,7 +366,7 @@ describe("Hotel Bookings API", () => {
           hotelId: seed.secondaryHotelId, // "budget" priceRange hotel
           checkInDate: dateWithOffset(50),
           checkOutDate: dateWithOffset(53), // 3 nights
-          roomType: "Standard Room",
+          roomType: "standard",
         },
       });
 
@@ -385,7 +386,7 @@ describe("Hotel Bookings API", () => {
           hotelId: seed.hotelId,
           checkInDate: dateWithOffset(31),
           checkOutDate: dateWithOffset(34),
-          roomType: "Standard",
+          roomType: "standard",
         },
       });
 
@@ -402,7 +403,7 @@ describe("Hotel Bookings API", () => {
           hotelId: "nonexistent_hotel_id",
           checkInDate: dateWithOffset(50),
           checkOutDate: dateWithOffset(53),
-          roomType: "Standard",
+          roomType: "standard",
         },
       });
 
@@ -424,7 +425,7 @@ describe("Hotel Bookings API", () => {
           hotelId: seed.hotelId,
           checkInDate: sameDay,
           checkOutDate: sameDay, // Same day = invalid
-          roomType: "Standard",
+          roomType: "standard",
         },
       });
 
@@ -439,7 +440,7 @@ describe("Hotel Bookings API", () => {
           hotelId: seed.hotelId,
           checkInDate: dateWithOffset(55),
           checkOutDate: dateWithOffset(50), // Before checkin
-          roomType: "Standard",
+          roomType: "standard",
         },
       });
 
@@ -455,7 +456,7 @@ describe("Hotel Bookings API", () => {
           hotelId: seed.hotelId,
           checkInDate: dateWithOffset(50),
           checkOutDate: dateWithOffset(53),
-          roomType: "Standard",
+          roomType: "standard",
         },
       });
 
@@ -516,7 +517,7 @@ describe("Hotel Bookings API", () => {
       expect(res.status).toBe(200);
       expect(body.id).toBe(seed.primaryBookingId);
       expect(body.tripId).toBe(seed.upcomingTripId);
-      expect(body.roomType).toBe("Deluxe King");
+      expect(body.roomType).toBe("king");
       expect(body.numberOfNights).toBe(3);
       expect(body.hotel).toMatchObject({
         id: seed.hotelId,
@@ -570,12 +571,12 @@ describe("Hotel Bookings API", () => {
         path: `/api/trips/${seed.upcomingTripId}/hotels/${seed.primaryBookingId}`,
         userId: seed.primaryUserId,
         body: {
-          roomType: "Presidential Suite",
+          roomType: "penthouse",
         },
       });
 
       expect(res.status).toBe(200);
-      expect(body.roomType).toBe("Presidential Suite");
+      expect(body.roomType).toBe("penthouse");
       expect(body.numberOfNights).toBe(3); // Unchanged
       expect(body.pricePerNightInCents).toBe(15000); // Unchanged (set at booking time)
       expect(body.totalPriceInCents).toBe(45000); // Unchanged
@@ -680,7 +681,7 @@ describe("Hotel Bookings API", () => {
         method: "PATCH",
         path: `/api/trips/${seed.upcomingTripId}/hotels/nonexistent_booking`,
         userId: seed.primaryUserId,
-        body: { roomType: "Suite" },
+        body: { roomType: "suite" },
       });
 
       expect(res.status).toBe(404);
@@ -702,7 +703,7 @@ describe("Hotel Bookings API", () => {
           hotelId: seed.hotelId,
           checkInDate: dateWithOffset(31),
           checkOutDate: dateWithOffset(34),
-          roomType: "Standard",
+          roomType: "standard",
         },
       });
       expect(created.res.status).toBe(201);
@@ -734,7 +735,7 @@ describe("Hotel Bookings API", () => {
           hotelId: seed.hotelId,
           checkInDate: dateWithOffset(31),
           checkOutDate: dateWithOffset(34),
-          roomType: "Standard",
+          roomType: "standard",
         },
       });
       expect(created.res.status).toBe(201);
@@ -765,7 +766,7 @@ describe("Hotel Bookings API", () => {
           hotelId: seed.hotelId,
           checkInDate: dateWithOffset(31),
           checkOutDate: dateWithOffset(34),
-          roomType: "Standard",
+          roomType: "standard",
         },
       });
       expect(created.res.status).toBe(201);

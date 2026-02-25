@@ -105,16 +105,14 @@ Server to base myself: https://github.com/modelcontextprotocol/servers/blob/main
 Client examples: https://modelcontextprotocol.io/clients
 
 ### 5. Immediate TODOs
-
-Polishing:
-- Hotel booking: hotels should declare what kinds of rooms they offer (e.g., standard, deluxe, suite, king, etc.), and clients pick from those options. (Price will vary for each) --> Currently, client can declare any kind of room as a string.
-- If payment isn't confirmed in N hours, all types of bookings must be cancelled/deleted
-
 Continue development:
-- Implement MCP Server
+- Implement MCP Server: Could be an entire Agent mapping of our API, giving it each endpoint as tools, or via code-mode: 
+  - https://blog.cloudflare.com/code-mode-mcp/
+  - https://blog.cloudflare.com/code-mode/
 - Implement AI agents
 - Implement AI frontend experience
   - UI: Should also think about how trips will look in chat, like if a trip is current, we display the weather in location... If trip is current, hide previous planning messages behind a toggle/dropdown.
+  - Option for payment: AI can pay automatically for you, or user will input his credit card data manually each time.
 
 Data improvements:
 - Some photos, like Monaco, are SVG flags of the countries
