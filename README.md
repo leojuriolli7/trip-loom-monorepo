@@ -1,132 +1,297 @@
-# TripLoom Monorepo
+# TripLoom
 
-*Your AI Travel Agent — plan & book everything in one place*
+*Your AI Travel Agent — plan & book everything in one place.*
 
-*AI weaving everything together*
+## What is TripLoom?
 
-### Introduction
+TripLoom is a full-stack AI travel assistant. You open a chat, tell it where you want to go (or ask for suggestions), and it handles the rest: finding destinations, booking flights and hotels, processing payments, and building a day-by-day itinerary — all through a conversational interface powered by multiple specialized AI agents.
 
-**Goal**: Creating an entire senior-level application with modern technologies and great UI/UX.
+The entire experience lives inside a single chat UI. Agents suggest options through rich UI widgets (destination carousels, hotel cards, seat pickers, payment forms), and the user guides the flow. Want to skip the hotel and jump straight to itinerary planning? Just say so. The system is composable, not a rigid step-by-step wizard.
 
-**Elevator pitch**: Come in, find a destination based on what you like, book tickets and hotels, and create an itinerary for your next vacation without leaving an AI chatbox.
+**Key highlights:**
+- Multiple AI agents orchestrated with LangGraph, each specialized in one domain
+- MCP (Model Context Protocol) server exposing all API capabilities as tools
+- Real payments via Stripe
+- Rich, interactive tool-call UI widgets embedded in the chat
+- Fully type-safe from database to API to frontend (Drizzle + Elysia Eden + TypeScript)
 
-### **Core tech features**
+## Tech Stack
 
-- MCP Server
-- Fully type-safe API client + API definition: Need a library like tRPC that can generate a typesafe client for usage, but that can be used on the frontend & on the MCP server to call the API easily, plus types/schemas for each endpoint for eventual tool calls and validation. -- Elysia with Eden client: `packages/api`
-- Multiple AI agents, orchestrated with LangChain
-- Shadcn, warm design with big spacing and cozy feel
-- Database with Drizzle, for additional typesafety
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | Next.js 16, React 19, Shadcn UI, Tailwind CSS v4, Jotai, TanStack Query v5 |
+| **Backend API** | Elysia (Bun runtime), Drizzle ORM, PostgreSQL, Zod v4 |
+| **Auth** | Better Auth (session-based, email/password, email verification, forgot password) |
+| **Payments** | Stripe (payment intents, webhooks, refunds) |
+| **AI Agents** | LangGraph.js, LangChain.js, OpenAI GPT-5.2 |
+| **MCP Server** | @modelcontextprotocol/sdk (TypeScript) |
+| **Type-safe API Client** | Elysia Eden treaty (shared across frontend, MCP server, and agents) |
+| **Observability** | OpenTelemetry (tracing via SigNoz) |
+| **Monorepo** | pnpm workspaces |
 
-### **Example capabilities**
+## What's Built
 
-- Book a flight and return flight (Or just flight/just return flight)
-- Book accomodations (hotel, resort, Airbnb…)
-- Create an itinerary (Either after the bookings are finished, or on-demand for anywhere you ask for) —> Online research
-- Research destinations and suggest them for you (Looking at your past trips and asking you questions) —> Online research
-- All payments done with a real Stripe account
-    - We receive payments, idea is that we would then pass the payments to the hotel/airline, and receive a percentage…
+### Backend API (`packages/api`)
 
-**Important**: Agents will have “pre-written” paths sometimes, but are able to skip one or another step. For instance: The user can ask for research for destinations, then pick a destination to book flights, but choose not to book a hotel with us, so we can skip to the itinerary, and vice-versa…
+Complete REST API with full CRUD for all domains:
 
-Idea is to be composable, not limited to the one core flow of going from suggestion to booking everything and to itinerary. More below:
+- **Trips** — Create, update, delete, list (with computed status: draft/upcoming/current/past/cancelled)
+- **Destinations** — Search (full-text via tsvector), filter by region/highlights, personalized recommendations
+- **Hotels** — Search with filters (amenities, styles, price range, rating), full-text search
+- **Hotel Bookings** — Create (pending), confirm (with payment), cancel
+- **Flight Bookings** — Search, book inbound/outbound flights, cancel
+- **Itineraries** — Create per-trip, manage days and activities with ordering
+- **Payments** — Stripe payment intents, webhook processing, refunds
+- **User Preferences** — Travel interests, preferred regions, budget range, cabin class, dietary restrictions, accessibility needs
+- **Auth** — Sign up, sign in, email verification, forgot password, session management
 
-### **On composability**
+All routes are fully typed with Elysia + Zod schemas. The Eden treaty client provides end-to-end type inference from API definition to frontend consumption.
 
-- Can ask AI to look up past trips and it will call a “getPastTrips” tool and render a widget for you to explore
-    - Past trips also need to be a MCP resource
-- Can ask AI to edit an itinerary as well (Would render a widget with itineraries for you to choose, unless it's confident it knows the itinerary you asked for, in which case it would just move to asking you what to change — if you already said it, it would skip to proposing itinerary changes, with a UI widget again, something like a diff viewer for markdown rendering the differences in each itinerary)
-- **NOT on initial scope: Cancellations (Later!)**
+### Frontend (`apps/web`)
 
-**Tools details:** 
+- **Chat UI** — Shell layout with sidebar, topbar, input panel, conversation view
+- **Welcome Screen** — Personalized greeting, user's trips section, recommended destinations with detail dialogs
+- **Auth Flow** — Sign in, sign up, forgot password, email verification
+- **AI UI Components** — 40+ pre-built components (conversation, message, tool, code-block, confirmation, etc.) ready for integration
+- **Interactive Widgets** — Airplane seat picker (proof of concept for tool-call UI)
+- **API Integration** — React Query hooks for every API domain, Eden client configured
+- **Dev Tools** — API CRUD wizard page for testing all endpoints
 
-- Asking for confirmation (approval, ellicitation...) before any payments
-    - ellicitation/approval could be like said above, render (for example) destination suggestions on a carousel for user to pick/suggest changes (goes through research again for new alternatives based on user feedback).
-- On booking of a flight, render the airplane seats widget to confirm or select different seat, with pricing for each
-- Most tools would have its own UI widget
-    - Agent suggesting hotels to book: Render carousel with 3 hotel cards with details + button to select one
-    - Agent suggesting destinations: Carousel with destination cards
+### Database
 
-### **Database**
+PostgreSQL with Drizzle ORM. 15 tables covering users, auth, trips, destinations, hotels, airports, bookings (hotel + flight), payments, itineraries (with days and activities), user preferences, and Stripe webhook events. Rich enum types for trip status, cabin class, booking status, amenities, hotel styles, room types, regions, travel interests, and price ranges. Full-text search vectors on destinations and hotels.
 
-Considerations for the composability I mentioned above:
+## AI Architecture
 
-- User can have multiple trips
-- Trips are required to have a destination, start and end date. Optionally: can have flights, can have an accomodation reservation, can have an itinerary
-- Reservations
-- Accomodations have a destination
-- Many destinations (cities within a coutry)
+### Overview
 
-### **Challenges**
+The AI system follows a **supervisor multi-agent pattern** built with LangGraph.js. A central supervisor agent receives all user messages and delegates to specialized sub-agents based on the user's intent. Each sub-agent has access to domain-specific tools exposed through an MCP server, which communicates with the API via the type-safe Eden client.
 
-- Deployment: Does the MCP server live in the same machine as the API?
-- Deciding on backend client
+```
+User <-> Chat UI <-> API (SSE endpoint) <-> LangGraph Supervisor
+                                                    |
+                                          +---------+---------+
+                                          |         |         |
+                                     Destination  Flight    Hotel    Itinerary
+                                      Agent      Agent     Agent     Agent
+                                          |         |         |         |
+                                          +---------+---------+---------+
+                                                    |
+                                              MCP Server
+                                                    |
+                                           Eden Client -> API
+```
 
-After initial implementation, or during building (TDD): 
+### Agents
 
-- Tests for all features (End-to-end for frontend, unit tests for tools, evaluating agents…)
+#### Supervisor Agent (Router)
+- Receives all user messages and determines which specialized agent should handle the request
+- Handles general conversation (greetings, clarifications, trip status questions)
+- Maintains the overall conversation flow and decides when to hand off or take back control
+- Can access trip and user preference resources for context
+- Suggests next steps after a sub-agent completes (e.g., "Now that your hotel is booked, want to plan your itinerary?") but follows the user's lead
 
-### Development flow
+#### Destination Search Agent
+- **Purpose:** Help users find and choose a travel destination
+- **MCP Tools:** `searchDestinations`, `getDestinationDetails`, `getRecommendedDestinations`
+- **Web Search:** Enrich destination data with current travel info, visa requirements, weather, events
+- **Context:** Reads user preferences (travel interests, preferred regions, budget) to personalize suggestions
+- **UI Widgets:** Destination carousel cards with photos, highlights, and "Select" buttons
 
-- Planning: Initial high-level planning for AI chat flows, probable tools we will need, user information we will require to function…
-    - We won't require user passport, we just book the tickets
-    - MCP server resource example: Past user trips, past user reservations
-- Start with the frontend: Create the chatbox UI, create example conversations to show off what the widgets will look like (Different conversation paths to exemplify composability)
-- Move on to backend API: Authentication, CRUD (List destinations, list user trips…) and typesafe reusable generated API client
-- Integrate basic API to frontend: Update user profile, login, sign up…
-- MCP server: Create and expose the tools and prompts
-- AI Agents: Study and orchestrate the different agents + connect to MCP server, apply persistence to chats (Could store conversations in db)
-    - Integrate AI on frontend
+#### Flight Booking Agent
+- **Purpose:** Search and book inbound/outbound flights for a trip
+- **MCP Tools:** `searchFlights`, `bookFlight`, `cancelFlightBooking`
+- **Context:** Uses trip dates (start date = inbound, end date = outbound) and destination to derive search parameters. Reads user's preferred departure airport from preferences and confirms with the user before searching (e.g., "Based on your preferences, are you flying out of JFK?").
+- **Human-in-the-loop:** Interrupt before booking — present the AI's suggested flight with seat selection widget, then payment confirmation. User can request different options via chat.
+- **UI Widgets:** Flight suggestion card, airplane seat picker, Stripe payment form
 
-## Overview: Before development
+#### Hotel Booking Agent
+- **Purpose:** Search and book hotel accommodations
+- **MCP Tools:** `searchHotels`, `createHotelBooking`, `cancelHotelBooking`
+- **Web Search:** Enrich hotel data with recent reviews, photos, neighborhood info
+- **Context:** Uses trip dates for check-in/check-out, destination for location filtering, user budget/style preferences
+- **Flow:** Agent searches hotels, picks the best match based on user preferences, selects a room type (e.g., "standard" for budget travelers), and creates a pending booking. The booking card is presented to the user with pricing. User can approve and pay, or request changes via chat (different hotel, different room type, etc.). If user declines, the pending booking is deleted.
+- **Human-in-the-loop:** Interrupt before payment — present the suggested booking, then Stripe payment form upon approval
+- **UI Widgets:** Hotel suggestion card with amenities/rating/pricing, Stripe payment form
 
-### 1. Database Schema
+#### Itinerary Planner Agent
+- **Purpose:** Create and modify day-by-day trip itineraries
+- **MCP Tools:** `createItinerary`, `addItineraryDay`, `addItineraryActivity`, `updateItineraryActivity`, `deleteItineraryActivity`
+- **Web Search:** Research activities, restaurants, local attractions, opening hours, estimated costs
+- **Context:** Uses trip dates, destination, and existing bookings (check-in times, flight arrivals) to plan around constraints
+- **UI Widgets:** Day-by-day itinerary view, activity cards with times/locations/costs, itinerary diff viewer for edits
 
-Organize basic schema
+### Conversation Persistence
 
-### 2. API and API Client
+Each trip has an associated LangGraph thread. The approach:
 
-Choose the backend API tech stack
+- **LangGraph Checkpointer** (PostgresSaver): Persists full graph state at every step, enabling interrupt/resume for human-in-the-loop flows and conversation continuity across sessions
+- **Trip-linked thread:** The `trip` table stores a `threadId` that maps to the LangGraph thread, plus a `messages` jsonb column for fast message display without querying the checkpointer
+- **Cross-session memory:** LangGraph's Store (namespaced by user ID) can persist learned user preferences across different trip conversations
 
-### 3. AI agent orchestration
+### Human-in-the-Loop
 
-Create a basic AI agent graph orchestrated with pseudo-code/diagrams.
+LangGraph's `interrupt()` / `Command(resume=...)` pattern is used for all approval flows:
 
-### 4. MCP Overview
+1. Agent prepares an action (e.g., book a hotel for $450/night)
+2. Graph execution pauses via `interrupt()` with the action details as payload
+3. Frontend renders an approval widget (booking summary + confirm/deny buttons, or a Stripe payment form)
+4. User approves/denies
+5. Graph resumes with the user's decision via `Command(resume=...)`
 
-Plan out MCP prompts, resources, tools, ellicitation and sampling usage if necessary.
+This is used for: booking confirmations, payment processing, destination selection, itinerary approval, and any action with real-world consequences.
 
-Server to base myself: https://github.com/modelcontextprotocol/servers/blob/main/src/everything
+### Streaming
 
-**4.1 Server**
+- **Transport:** SSE (Server-Sent Events) — the standard for LangGraph web apps. Simpler than WebSockets, natively supported by browsers, and sufficient since LLM streaming is server-to-client
+- **API Endpoint:** A dedicated streaming endpoint in the Elysia API that invokes the LangGraph graph and pipes SSE events to the client
+- **Frontend:** `useStream` hook from `@langchain/langgraph-sdk/react` for LangGraph-native streaming with thread management, interrupt handling, and message state. Alternative: Vercel AI SDK v6 `useChat` with the `@ai-sdk/langchain` adapter
+- **Stream Modes:** Combining `messages` (token-by-token for typing effect) + `updates` (node execution tracking) + `custom` (tool UI widget data)
 
-**4.2 Client**
+### LLM
 
-Client examples: https://modelcontextprotocol.io/clients
+OpenAI GPT-5.2 as the primary model (95%+ tool-calling success rate, strong multi-step reasoning). LangChain abstracts the provider, making it trivial to swap to Anthropic Claude, o3-mini (budget alternative), or any other supported model.
 
-### 5. Immediate TODOs
+## MCP Server
 
-- Need to draft a full spec of which agents will exist, their tools, flows..
-- Implement MCP Server: Could be an entire Agent mapping of our API, giving it each endpoint as tools, or via code-mode: 
-  - https://blog.cloudflare.com/code-mode-mcp/
-  - https://blog.cloudflare.com/code-mode/
-- Implement AI agents
-- Implement AI frontend experience
-  - UI: Should also think about how trips will look in chat, like if a trip is current, we display the weather in location... If trip is current, hide previous planning messages behind a toggle/dropdown.
-  - Option for payment: AI can pay automatically for you, or user will input his credit card data manually each time.
-- Add evals and tests for agent behavior
+A standalone TypeScript MCP server (`@modelcontextprotocol/sdk`) that wraps the TripLoom API. Agents connect to it for all API interactions. Internally, every tool implementation calls the API via the type-safe Eden client.
 
-Data improvements:
-- Some photos, like Monaco, are SVG flags of the countries
-- Improve destination descriptions via AI: More about culture, less about demographics, longer...
-- Add more destinations, eg Maldivas, Arraial do Cabo, Trancoso... + worldwide
-- Add more hotels for each destination using other sources
-- Remove data acquisition/generators scripts when done with data collection
+### Authentication
 
-## Testing Notes
+The MCP server requires an authenticated TripLoom user session. The authenticated user's session token is passed through to every Eden client call, so all API-level ownership guards apply — a user can never access or mutate another user's trips, bookings, itineraries, or preferences through the MCP server. The API already enforces this: every user-scoped route checks `trip.userId` (or joins through trip for sub-resources like bookings and payments), and public catalog endpoints (destinations, hotels) correctly skip auth.
 
-- Run API tests from monorepo root with `pnpm test:api`.
-- API tests use an isolated database, not your main dev database.
-- The test runner creates and recreates `<DATABASE_URL db name>_test` before running migrations + Vitest.
-- Tests fail fast if `DATABASE_URL` does not point to a `*_test` database.
-- Shared API test harness lives in `packages/api/src/__tests__/harness` (`createTestContext`, `createTestApp`, `createJsonRequester`, `createHeaderAuthMock`).
+### Tools
+
+Tools are model-controlled actions the agents can invoke:
+
+| Tool | Description | Agent(s) |
+|------|-------------|----------|
+| `searchDestinations` | Search destinations by text, region, highlights | Destination |
+| `getDestinationDetails` | Get full destination info with enrichment | Destination |
+| `getRecommendedDestinations` | Get personalized recommendations based on user preferences | Destination |
+| `searchFlights` | Search flights by route, date, cabin class | Flight |
+| `bookFlight` | Book a flight (creates booking + payment intent) | Flight |
+| `cancelFlightBooking` | Cancel a flight booking | Flight |
+| `searchHotels` | Search hotels by destination, amenities, style, price range | Hotel |
+| `createHotelBooking` | Create a pending hotel booking (for pricing) | Hotel |
+| `confirmHotelBooking` | Confirm booking after payment | Hotel |
+| `cancelHotelBooking` | Cancel a hotel booking | Hotel |
+| `createItinerary` | Create an itinerary for a trip | Itinerary |
+| `addItineraryDay` | Add a day to an itinerary | Itinerary |
+| `addItineraryActivity` | Add an activity to a day | Itinerary |
+| `updateItineraryActivity` | Update an existing activity | Itinerary |
+| `deleteItineraryActivity` | Remove an activity | Itinerary |
+| `getTripDetails` | Get full trip data with all bookings | Supervisor |
+| `updateTrip` | Update trip dates, title, destination | Supervisor |
+| `getUserPreferences` | Get user travel preferences | Supervisor |
+| `createPaymentIntent` | Create a Stripe payment intent | Flight, Hotel |
+
+### Resources
+
+Resources are read-only data the host application can attach as context:
+
+| Resource URI | Description |
+|-------------|-------------|
+| `triploom://trips/{tripId}` | Full trip data (bookings, itinerary, destination, status) |
+| `triploom://users/{userId}/preferences` | User travel preferences, interests, budget, dietary needs |
+| `triploom://destinations/{destinationId}` | Destination details (highlights, weather, timezone, images) |
+| `triploom://trips/{tripId}/itinerary` | Trip itinerary with all days and activities |
+| `triploom://users/{userId}/trips` | List of all user trips (for past trip lookups) |
+
+### Prompts
+
+Prompts are user-triggered templates, surfaced as actions in the chat UI:
+
+| Prompt | Args | Description |
+|--------|------|-------------|
+| `/plan-trip` | `destination?`, `startDate?`, `endDate?` | Start planning a new trip from scratch. Embeds user preferences as context. |
+| `/review-itinerary` | `tripId` | Load and review an existing itinerary for conflicts, gaps, or optimization opportunities. |
+| `/budget-summary` | `tripId` | Generate a full budget breakdown of a trip (flights + hotel + estimated activity costs). |
+| `/compare-flights` | `origin`, `destination`, `date` | Compare available flights with structured analysis. |
+| `/packing-list` | `tripId` | Generate a packing list based on destination, dates, and planned activities. |
+
+### Elicitation
+
+Elicitation allows the MCP server to request structured input from the user mid-execution:
+
+- **Missing travel details:** If a user says "book me a flight to Paris" without dates, the server elicits a form with date pickers and cabin class selection
+- **Booking confirmation:** Present a structured form with booking details for review before finalizing
+- **Payment flow (URL mode):** Redirect to a secure Stripe checkout page for payment, keeping card details out of the LLM context
+
+### Sampling
+
+Sampling lets the MCP server request LLM completions from the client. Potential use cases:
+
+- **Itinerary optimization:** After collecting all trip data server-side, use sampling to ask the LLM to optimize the schedule for minimal travel time and balanced activities
+- **Natural language to search params:** Convert vague requests ("somewhere warm in March, under $2000") into structured API query parameters
+
+*Note: Since our agents already have LLM access via LangGraph, sampling is a secondary feature. We'll evaluate during implementation whether it adds value beyond what the agents already do.*
+
+## TODOs
+
+### AI & MCP (Current Priority)
+- [ ] Implement MCP Server with all tools, resources, and prompts
+- [ ] Implement LangGraph supervisor agent + sub-agents
+- [ ] Connect agents to MCP server via `langchain-mcp-adapters`
+- [ ] Add SSE streaming endpoint to API
+- [ ] Integrate `useStream` in frontend chat UI
+- [ ] Implement human-in-the-loop flows (booking confirmations, payments)
+- [ ] Add conversation persistence (PostgresSaver + thread ID on trips + messages jsonb)
+- [ ] Implement tool-call UI widgets (destination carousel, hotel cards, flight comparison, seat picker, payment form)
+- [ ] Plan and design how to integrate other agent systems into UI. eg: buttons or `/commands` for MCP server prompts
+- [ ] Add elicitation flows for missing information and booking confirmations
+
+### Data Improvements
+- [ ] Fix destination photos (some are SVG country flags, e.g., Monaco)
+- [ ] Improve destination descriptions via AI (more about culture, less demographics, longer)
+- [ ] Add more destinations worldwide (Maldives, Arraial do Cabo, Trancoso, etc.)
+- [ ] Add more hotels per destination from additional sources
+- [ ] Remove data acquisition/generator scripts when data collection is complete
+
+### Testing & Quality
+- [ ] Agent evaluation tests (evaluate tool selection, response quality, flow correctness)
+- [ ] E2E tests for frontend (Playwright)
+- [ ] Choose evaluation library and strategy (Evalite, LangSmith evals, or Vitest-based)
+
+### Observability
+- [ ] Add OpenTelemetry tracing to LLM calls (LangChain/LangGraph spans)
+- [ ] Add OpenTelemetry tracing to MCP server tool executions
+- [ ] Add wide event logging to agents and MCP server (matching existing API patterns)
+
+### Future Enhancements
+- [ ] Plan out UI/UX changes for each trip status:
+  - [ ] Weather display for current trips in chat and more useful information for a current trip.
+  - [ ] For a completed trip, block chat and show a widget talking about how trip was over, "how was your trip?" feedback card for emailing us + CTA to start planning a new trip...
+- [ ] Option for automatic AI payments vs manual card entry each time
+- [ ] Airport confirmation card: "Based on your preferences, are you flying out of JFK?" with "Yes", "No", and "Yes, always" buttons (last one bypasses the confirmation for future bookings)
+- [ ] Multi-option suggestion carousels: Instead of a single AI-picked suggestion, present 3 options with a highlighted "top pick" for both hotel and flight booking flows
+
+## Development
+
+### Prerequisites
+- Node.js 20+
+- pnpm 9+
+- PostgreSQL (via Docker Compose)
+
+### Running Locally
+
+```bash
+# Start database
+pnpm db:up
+
+# Run migrations and seed
+pnpm db:migrate
+pnpm db:seed
+
+# Start API
+pnpm dev:api
+
+# Start frontend
+pnpm dev:web
+```
+
+### Testing
+
+- Run API tests: `pnpm test:api`
+- Tests use an isolated `*_test` database (auto-created from `DATABASE_URL`)
+- Shared test harness: `packages/api/src/__tests__/harness` (`createTestContext`, `createTestApp`, `createJsonRequester`, `createHeaderAuthMock`)
