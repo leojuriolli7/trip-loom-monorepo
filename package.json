@@ -4,7 +4,11 @@
   "packageManager": "pnpm@10.10.0",
   "scripts": {
     "dev:web": "pnpm --filter web dev",
+    "dev:server": "pnpm --filter server dev",
     "build:web": "pnpm --filter web build",
+    "build:server": "pnpm --filter server build",
+    "start:web": "pnpm --filter web start",
+    "start:server": "pnpm --filter server start",
     "lint:web": "pnpm --filter web lint",
     "typecheck:web": "pnpm --filter web typecheck",
     "typecheck:api": "pnpm --filter @trip-loom/api typecheck",

@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeAll, afterAll, beforeEach } from "vitest";
+import { describe, expect, it, beforeAll, afterAll, beforeEach } from "bun:test";
 import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { user, userPreference, trip, destination, itinerary } from "../db/schema";

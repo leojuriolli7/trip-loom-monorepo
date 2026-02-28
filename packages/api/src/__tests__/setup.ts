@@ -1,5 +1,5 @@
 /**
- * Setup file configured on vitest.config.ts
+ * Preload file for bun test (--preload flag in run-tests.ts)
  *
  * Goal is to validate we are running tests against a test database, to avoid
  * running it against future staging or production DB.

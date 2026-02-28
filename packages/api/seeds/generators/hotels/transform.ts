@@ -1,4 +1,3 @@
-/// <reference types="node" />
 /**
  * Transform raw TripAdvisor hotel data to our schema format.
  *

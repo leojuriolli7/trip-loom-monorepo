@@ -1,4 +1,3 @@
-/// <reference types="node" />
 /**
  * Parses Wikipedia lists to build a master city list.
  *
@@ -14,7 +13,11 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { resolveCountryTemplate, getCountryByName, type CountryInfo } from "../utils/country-codes";
+import {
+  resolveCountryTemplate,
+  getCountryByName,
+  type CountryInfo,
+} from "../utils/country-codes";
 import { CURATED_ADDITIONS } from "./curated-additions";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -50,7 +53,9 @@ type WikipediaApiResponse = {
  * - [[São Paulo]]
  * - [[City, State|City]] (piped links)
  */
-function extractCityLinks(wikitext: string): Array<{ name: string; slug: string }> {
+function extractCityLinks(
+  wikitext: string,
+): Array<{ name: string; slug: string }> {
   const cities: Array<{ name: string; slug: string }> = [];
   // Match [[...]] but not [[File:...]] or [[Category:...]]
   const linkRegex = /\[\[([^\[\]|]+?)(?:\|([^\[\]]+?))?\]\]/g;
@@ -113,9 +118,13 @@ function extractCityLinks(wikitext: string): Array<{ name: string; slug: string 
  */
 function parseWikitableForCities(
   wikitext: string,
-  sourceName: string
+  sourceName: string,
 ): Array<{ city: string; slug: string; country: CountryInfo | null }> {
-  const results: Array<{ city: string; slug: string; country: CountryInfo | null }> = [];
+  const results: Array<{
+    city: string;
+    slug: string;
+    country: CountryInfo | null;
+  }> = [];
 
   // Split by table rows
   const rows = wikitext.split(/\|-/);
@@ -125,7 +134,9 @@ function parseWikitableForCities(
     const cityLinks = extractCityLinks(row);
 
     // Look for country templates in this row
-    const countryMatch = row.match(/\{\{(?:flaglist|flag|flagicon|[A-Z]{3})[^}]*\}\}/i);
+    const countryMatch = row.match(
+      /\{\{(?:flaglist|flag|flagicon|[A-Z]{3})[^}]*\}\}/i,
+    );
     let country: CountryInfo | null = null;
 
     if (countryMatch) {
@@ -152,8 +163,14 @@ function parseWikitableForCities(
  * Parse the capitals list which has a different format:
  * | [[City]] || {{flaglist|Country}} || Continent || Notes
  */
-function parseCapitalsList(wikitext: string): Array<{ city: string; slug: string; country: CountryInfo | null }> {
-  const results: Array<{ city: string; slug: string; country: CountryInfo | null }> = [];
+function parseCapitalsList(
+  wikitext: string,
+): Array<{ city: string; slug: string; country: CountryInfo | null }> {
+  const results: Array<{
+    city: string;
+    slug: string;
+    country: CountryInfo | null;
+  }> = [];
   const rows = wikitext.split(/\|-/);
 
   for (const row of rows) {
@@ -248,7 +265,7 @@ async function main() {
     name: string,
     slug: string,
     country: CountryInfo | null,
-    source: string
+    source: string,
   ) => {
     if (!country) return;
 
@@ -279,7 +296,9 @@ async function main() {
 
   // 1. Parse "List of cities by international visitors"
   console.log("Parsing: List of cities by international visitors...");
-  const visitorsContent = await loadWikipediaJson("/tmp/wiki-cities-visitors.json");
+  const visitorsContent = await loadWikipediaJson(
+    "/tmp/wiki-cities-visitors.json",
+  );
   if (visitorsContent) {
     const cities = parseWikitableForCities(visitorsContent, "visitors");
     for (const { city, slug, country } of cities) {
@@ -301,7 +320,9 @@ async function main() {
 
   // 3. Parse "List of largest cities"
   console.log("Parsing: List of largest cities...");
-  const largestContent = await loadWikipediaJson("/tmp/wiki-largest-cities.json");
+  const largestContent = await loadWikipediaJson(
+    "/tmp/wiki-largest-cities.json",
+  );
   if (largestContent) {
     const cities = parseWikitableForCities(largestContent, "largest");
     for (const { city, slug, country } of cities) {
@@ -344,7 +365,9 @@ async function main() {
       curatedAdded++;
     }
   }
-  console.log(`  Added ${curatedAdded} new destinations (${CURATED_ADDITIONS.length - curatedAdded} already existed)`);
+  console.log(
+    `  Added ${curatedAdded} new destinations (${CURATED_ADDITIONS.length - curatedAdded} already existed)`,
+  );
 
   // Convert to array and sort
   const masterCities = Array.from(citiesMap.values());
@@ -363,7 +386,9 @@ async function main() {
 
   console.log("\n=== Summary ===");
   console.log(`Total unique cities: ${masterCities.length}`);
-  console.log(`Cities in multiple lists: ${masterCities.filter((c) => c.sources.length > 1).length}`);
+  console.log(
+    `Cities in multiple lists: ${masterCities.filter((c) => c.sources.length > 1).length}`,
+  );
   console.log(`Output: ${outputPath}`);
 
   // Show top cities by mention count

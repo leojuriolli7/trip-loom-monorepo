@@ -1,4 +1,3 @@
-/// <reference types="node" />
 /**
  * Analyzes raw hotel data to extract unique values for schema design.
  * Outputs: discovered styles, price levels, and amenity mapping suggestions.

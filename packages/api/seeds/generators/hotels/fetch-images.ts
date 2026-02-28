@@ -1,4 +1,3 @@
-/// <reference types="node" />
 /**
  * Fetch hotel images from TripAdvisor Photos API.
  * Updates hotels.json with imagesUrls and saves raw responses to raw-hotels-images.json.
@@ -78,7 +77,9 @@ function parseArgs(): {
   return { limit, dryRun };
 }
 
-async function loadProgress(progressPath: string): Promise<ProgressState | null> {
+async function loadProgress(
+  progressPath: string,
+): Promise<ProgressState | null> {
   try {
     const content = await readFile(progressPath, "utf8");
     return JSON.parse(content) as ProgressState;
@@ -89,14 +90,14 @@ async function loadProgress(progressPath: string): Promise<ProgressState | null>
 
 async function saveProgress(
   progressPath: string,
-  state: ProgressState
+  state: ProgressState,
 ): Promise<void> {
   await writeFile(progressPath, JSON.stringify(state, null, 2));
 }
 
 async function saveRawImages(
   rawImagesPath: string,
-  rawImages: RawImageEntry[]
+  rawImages: RawImageEntry[],
 ): Promise<void> {
   await writeFile(rawImagesPath, JSON.stringify(rawImages, null, 2));
 }
@@ -141,7 +142,9 @@ async function main() {
   const apiKey = process.env.TRIPADVISOR_API_KEY;
 
   if (!apiKey) {
-    console.error("Error: TRIPADVISOR_API_KEY environment variable is required");
+    console.error(
+      "Error: TRIPADVISOR_API_KEY environment variable is required",
+    );
     process.exit(1);
   }
 
@@ -231,7 +234,9 @@ async function main() {
     : hotelsNeedingImages.length;
 
   const toProcess = hotelsNeedingImages.slice(startIndex, endIndex);
-  console.log(`Processing ${toProcess.length} hotels (indices ${startIndex} to ${endIndex - 1})`);
+  console.log(
+    `Processing ${toProcess.length} hotels (indices ${startIndex} to ${endIndex - 1})`,
+  );
   console.log("");
 
   // Build a map of sourceId to raw images for quick lookup
@@ -281,7 +286,7 @@ async function main() {
 
       // Update or add to raw images
       const existingIdx = state.rawImages.findIndex(
-        (r) => r.sourceId === hotel.sourceId
+        (r) => r.sourceId === hotel.sourceId,
       );
       if (existingIdx >= 0) {
         state.rawImages[existingIdx] = rawEntry;
@@ -295,7 +300,8 @@ async function main() {
       pendingSave = state;
 
       const photoCount = photos.data?.length ?? 0;
-      const status = imagesUrls.length > 0 ? `✓ ${photoCount} photos` : `✗ no photos`;
+      const status =
+        imagesUrls.length > 0 ? `✓ ${photoCount} photos` : `✗ no photos`;
       console.log(`${progress} ${hotel.name} - ${status}`);
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
@@ -322,7 +328,7 @@ async function main() {
       };
 
       const existingIdx = state.rawImages.findIndex(
-        (r) => r.sourceId === hotel.sourceId
+        (r) => r.sourceId === hotel.sourceId,
       );
       if (existingIdx >= 0) {
         state.rawImages[existingIdx] = rawEntry;
@@ -377,11 +383,12 @@ async function main() {
     .map((r) => r.photos!.data?.length ?? 0);
 
   if (photosCounts.length > 0) {
-    const avgPhotos = photosCounts.reduce((a, b) => a + b, 0) / photosCounts.length;
+    const avgPhotos =
+      photosCounts.reduce((a, b) => a + b, 0) / photosCounts.length;
     const maxPhotos = Math.max(...photosCounts);
     const minPhotos = Math.min(...photosCounts);
     console.log(
-      `\nPhotos per hotel: min ${minPhotos}, avg ${avgPhotos.toFixed(1)}, max ${maxPhotos}`
+      `\nPhotos per hotel: min ${minPhotos}, avg ${avgPhotos.toFixed(1)}, max ${maxPhotos}`,
     );
   }
 

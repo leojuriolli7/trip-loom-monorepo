@@ -31,7 +31,7 @@ The entire experience lives inside a single chat UI. Agents suggest options thro
 
 ## What's Built
 
-### Backend API (`packages/api`)
+### Backend API (`packages/api` and `apps/server`)
 
 Complete REST API with full CRUD for all domains:
 
@@ -46,6 +46,8 @@ Complete REST API with full CRUD for all domains:
 - **Auth** — Sign up, sign in, email verification, forgot password, session management
 
 All routes are fully typed with Elysia + Zod schemas. The Eden treaty client provides end-to-end type inference from API definition to frontend consumption.
+
+The API is hosted on `apps/server` as a standalone Elysia API running on Bun.
 
 ### Frontend (`apps/web`)
 
@@ -251,7 +253,7 @@ Sampling lets the MCP server request LLM completions from the client. Potential 
 ### Testing & Quality
 - [ ] Agent evaluation tests (evaluate tool selection, response quality, flow correctness)
 - [ ] E2E tests for frontend (Playwright)
-- [ ] Choose evaluation library and strategy (Evalite, LangSmith evals, or Vitest-based)
+- [ ] Choose evaluation library and strategy (Evalite, LangSmith evals, or bun:test-based)
 
 ### Observability
 - [ ] Add OpenTelemetry tracing to LLM calls (LangChain/LangGraph spans)

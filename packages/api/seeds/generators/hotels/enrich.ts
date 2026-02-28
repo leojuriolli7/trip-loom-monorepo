@@ -1,4 +1,3 @@
-/// <reference types="node" />
 /**
  * Hotel enrichment worker.
  * Fetches detailed information for top hotels from each destination.

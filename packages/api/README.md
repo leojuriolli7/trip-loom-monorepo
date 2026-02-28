@@ -9,8 +9,7 @@ Think of this package as an **engine**, not a car:
 | Layer | Role | Example |
 |-------|------|---------|
 | `packages/api` | The engine (routes, handlers, schemas) | This package |
-| `apps/web/app/api/` | A vehicle that mounts the engine | Next.js route handlers |
-| `apps/backend/` | More powerful vehicle (if needed later) | Standalone server |
+| `apps/server/` | The primary vehicle | Standalone Bun/Elysia server |
 
 The API package **defines** the application logic but doesn't **run** anything by itself. Consumers mount it wherever they need to deploy.
 
@@ -46,9 +45,9 @@ For authentication, use the Better Auth client directly (see below).
 
 ## Exports
 
-### `@trip-loom/api` (server-only)
+### `@trip-loom/api`
 
-Factory for creating the Elysia app instance. Protected by `server-only` to prevent accidental client-side imports.
+Factory for creating the Elysia app instance.
 
 ```typescript
 import { createApp } from "@trip-loom/api";
@@ -57,9 +56,7 @@ const app = createApp({
   loggerServiceName: process.env.OTEL_SERVICE_NAME,
 });
 
-// Mount in Next.js route handlers
-export const GET = app.handle;
-export const POST = app.handle;
+app.listen(3001);
 ```
 
 ### `@trip-loom/api/dto`
@@ -221,12 +218,12 @@ This package requires the following environment variables (provided by the app t
 | `SMTP_USER` | Yes (email) | SMTP authentication username |
 | `SMTP_PASSWORD` | Yes (email) | SMTP authentication password |
 | `SMTP_FROM_EMAIL` | Yes (email) | Sender address for outbound emails |
-| `VERIFY_EMAIL_BASE_URL` | Yes (email) | Base URL for verification email links, points to auth API (e.g., `http://localhost:3000/api`) |
+| `VERIFY_EMAIL_BASE_URL` | Yes (email) | Base URL for verification email links, points to the API server (e.g., `http://localhost:3001`) |
 | `FORGOT_PASSWORD_EMAIL_BASE_URL` | Yes (email) | Base URL for password reset email links, points to frontend (e.g., `http://localhost:3000`) |
 | `TRUSTED_ORIGINS` | Prod | Comma-separated list of trusted origins |
 | `CORS_ORIGINS` | Prod | Comma-separated list of CORS origins |
 
-Environment files (`.env`) live in **apps**, not packages. See `apps/web/.env.example`.
+Environment files (`.env`) live in **apps**, not packages. See `apps/server/.env.example`.
 
 ## Observability
 
@@ -274,7 +271,7 @@ How it works:
 - Starts Docker Postgres (`pnpm db:up`)
 - Creates/recreates an isolated test database (`<DATABASE_URL db name>_test`)
 - Runs `drizzle-kit migrate` against that test database
-- Runs `vitest` against that test database
+- Runs `bun test` against that test database
 - Refuses to run if `DATABASE_URL` is not a `*_test` database (test setup guard)
 
 This keeps test runs independent from your main seeded/dev database.
@@ -297,21 +294,11 @@ Use shared helpers from `src/__tests__/harness` when writing new API tests:
 
 This keeps new tests short and consistent while preserving isolation.
 
-## Adding a Standalone Server
+## Standalone Server
 
-If you later need to deploy the API separately (e.g., on a VPS), create `apps/backend`:
+The API runs as a standalone Bun/Elysia server in `apps/server/`. See `apps/server/README.md` for details.
 
-```typescript
-// apps/backend/src/index.ts
-import { createApp } from "@trip-loom/api";
-
-const app = createApp({
-  loggerServiceName: process.env.OTEL_SERVICE_NAME,
-});
-
-app.listen(3001, () => {
-  console.log("API running on http://localhost:3001");
-});
+```bash
+# From monorepo root
+pnpm dev:server
 ```
-
-This keeps the separation clean: the package remains a library, and apps are the deployment targets.

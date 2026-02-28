@@ -6,7 +6,7 @@ import {
   describe,
   expect,
   it,
-} from "vitest";
+} from "bun:test";
 import { db } from "../db";
 import { user, userPreference } from "../db/schema";
 import { generateId } from "../lib/nanoid";

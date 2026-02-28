@@ -6,8 +6,8 @@ import {
   describe,
   expect,
   it,
-  vi,
-} from "vitest";
+  spyOn,
+} from "bun:test";
 import { db } from "../db";
 import {
   airport,
@@ -56,13 +56,13 @@ type SeedData = {
 
 let seed: SeedData;
 
-const createPaymentIntentSpy = vi.spyOn(paymentProvider, "createPaymentIntent");
-const retrievePaymentIntentSpy = vi.spyOn(
+const createPaymentIntentSpy = spyOn(paymentProvider, "createPaymentIntent");
+const retrievePaymentIntentSpy = spyOn(
   paymentProvider,
   "retrievePaymentIntent",
 );
-const createRefundSpy = vi.spyOn(paymentProvider, "createRefund");
-const constructWebhookEventSpy = vi.spyOn(
+const createRefundSpy = spyOn(paymentProvider, "createRefund");
+const constructWebhookEventSpy = spyOn(
   paymentProvider,
   "constructWebhookEvent",
 );

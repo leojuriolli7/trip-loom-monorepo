@@ -6,7 +6,7 @@ import {
   describe,
   expect,
   it,
-} from "vitest";
+} from "bun:test";
 import { db } from "../db";
 import { airport, flightBooking, itinerary, trip, user } from "../db/schema";
 import { flightRoutes } from "../routes/flights";

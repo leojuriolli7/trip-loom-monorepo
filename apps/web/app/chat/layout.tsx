@@ -1,6 +1,5 @@
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { auth } from "@trip-loom/api/auth";
+import { getServerSession } from "@/lib/api/server-session";
 import { UserPreferencesDialog } from "@/components/user-preferences-dialog";
 
 import { ChatShellLayout } from "./_components/shell/chat-shell-layout";
@@ -10,9 +9,7 @@ export default async function ChatLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getServerSession();
 
   if (!session) {
     redirect("/enter");

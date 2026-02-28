@@ -1,15 +1,12 @@
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { auth } from "@trip-loom/api/auth";
+import { getServerSession } from "@/lib/api/server-session";
 
 import { WelcomeScreen } from "./_components/welcome-screen/welcome-screen";
 
 export default async function ChatWelcomePage() {
-  const sessionResult = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getServerSession();
 
-  const userName = sessionResult?.user?.name;
+  const userName = session?.user?.name;
 
   if (!userName) {
     redirect("/enter");

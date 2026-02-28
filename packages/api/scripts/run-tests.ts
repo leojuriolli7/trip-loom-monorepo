@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { spawnSync } from "node:child_process";
 import { Client } from "pg";
 
@@ -89,9 +88,7 @@ const run = async () => {
   const testDatabaseName = `${sourceDatabaseName}_test`;
 
   if (!isLocalDatabaseHost(baseDatabaseUrl)) {
-    throw new Error(
-      "Refusing to run tests on non-local DATABASE_URL host.",
-    );
+    throw new Error("Refusing to run tests on non-local DATABASE_URL host.");
   }
 
   if (sourceDatabaseName === testDatabaseName) {
@@ -110,7 +107,7 @@ const run = async () => {
     TZ: "UTC",
   });
 
-  runOrExit("pnpm", ["exec", "vitest", "run"], {
+  runOrExit("bun", ["test", "--preload", "./src/__tests__/setup.ts"], {
     DATABASE_URL: testDatabaseUrl,
     NODE_ENV: "test",
     TZ: "UTC",

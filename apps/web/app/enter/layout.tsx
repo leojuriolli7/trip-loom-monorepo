@@ -1,15 +1,12 @@
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { auth } from "@trip-loom/api/auth";
+import { getServerSession } from "@/lib/api/server-session";
 
 export default async function EnterLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getServerSession();
 
   if (session) {
     redirect("/chat");

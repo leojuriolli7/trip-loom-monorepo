@@ -29,13 +29,12 @@ packages/api/
 │   │   └── [domain].ts       # e.g., destinations.ts
 │   ├── services/             # Business logic
 │   │   └── [domain].ts       # e.g., destinations.ts
-│   └── __tests__/            # API integration + unit tests (Vitest)
+│   └── __tests__/            # API integration + unit tests (bun:test)
 ├── seeds/                    # Database seeding
 │   ├── data/                 # JSON seed files
 │   ├── seed.ts               # Seed script
 │   └── validate.ts           # Seed validation schemas
-├── drizzle/                  # Generated migrations
-└── vitest.config.ts          # Test configuration
+└── drizzle/                  # Generated migrations
 ```
 
 ## Creating New Endpoints
@@ -214,7 +213,7 @@ import { itemRoutes } from "./routes/items";
 ### 6. Write Tests (`src/__tests__/[domain].test.ts`)
 
 ```typescript
-import { describe, expect, it, beforeAll, afterAll } from "vitest";
+import { describe, expect, it, beforeAll, afterAll } from "bun:test";
 import { Elysia } from "elysia";
 import { db } from "../db";
 import { item } from "../db/schema";
@@ -393,14 +392,14 @@ pnpm test:api
 ### Test Database Isolation (Required)
 
 - `pnpm test:api` must run against an isolated test database, never the main development database.
-- The API test runner recreates `<DATABASE_URL db name>_test`, applies migrations, then runs Vitest.
+- The API test runner recreates `<DATABASE_URL db name>_test`, applies migrations, then runs `bun test`.
 - Use migrations (`db:migrate`) for deterministic schema behavior.
-- Vitest setup fails fast if `DATABASE_URL` does not point to a `*_test` DB.
+- The test setup file fails fast if `DATABASE_URL` does not point to a `*_test` DB.
 - Non-local test DB hosts are blocked by default.
 
 ## Testing
 
-Tests use **Vitest** and run against a real database:
+Tests use **bun:test** and run against a real database:
 
 ```bash
 pnpm test:api
@@ -410,7 +409,7 @@ The test command automatically:
 1. Starts the database container (`pnpm db:up`)
 2. Recreates an isolated test database (`<DATABASE_URL db name>_test`)
 3. Applies migrations (`drizzle-kit migrate`)
-4. Runs Vitest against the test database
+4. Runs `bun test` against the test database
 
 ### Test File Structure
 
@@ -424,7 +423,7 @@ src/__tests__/
 │   └── index.ts           # Harness exports
 ├── fixtures/              # Reusable test data factories
 │   └── destinations.ts    # Destination & hotel fixtures
-├── setup.ts               # Global Vitest setup (test DB safety guard)
+├── setup.ts               # Test preload setup (test DB safety guard)
 └── [domain].test.ts       # Domain-specific tests
 ```
 
@@ -433,7 +432,7 @@ src/__tests__/
 Use shared utilities to avoid boilerplate:
 
 ```typescript
-import { describe, expect, it, beforeAll, afterAll } from "vitest";
+import { describe, expect, it, beforeAll, afterAll } from "bun:test";
 import { itemRoutes } from "../routes/items";
 import {
   createJsonRequester,

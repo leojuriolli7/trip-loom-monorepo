@@ -1,6 +1,4 @@
-import type { BackendApiEnv } from "@trip-loom/api/env";
-
-export interface WebAppEnv extends BackendApiEnv {
+export interface WebAppEnv {
   NEXT_PUBLIC_API_BASE_URL: string;
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: string;
   OTEL_SERVICE_NAME?: string;

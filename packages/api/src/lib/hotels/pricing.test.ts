@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 import { generatePricePerNight, getPriceBounds } from "./pricing";
 import { ROOM_TYPE_MULTIPLIERS } from "./room-types";
 import type { HotelRoomType, PriceRange } from "../../enums";

@@ -1,4 +1,3 @@
-import "server-only";
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { createWideEventPlugin } from "./lib/wide-events";
@@ -56,7 +55,7 @@ export const createApp = (options?: AppConfig) =>
     .use(
       cors({
         origin: isDev
-          ? ["http://localhost:3000", "http://127.0.0.1:3000"]
+          ? ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001", "http://127.0.0.1:3001"]
           : (process.env.CORS_ORIGINS?.split(",") ?? []),
         credentials: true,
         allowedHeaders: ["Content-Type", "Authorization"],

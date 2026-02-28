@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeAll, afterAll } from "vitest";
+import { describe, expect, it, beforeAll, afterAll } from "bun:test";
 import { hotelRoutes } from "../routes/hotels";
 import {
   createJsonRequester,

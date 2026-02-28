@@ -1,4 +1,3 @@
-/// <reference types="node" />
 /**
  * Destination enrichment worker.
  * Fetches Wikipedia data, images, and generates complete destination records.

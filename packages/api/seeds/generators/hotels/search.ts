@@ -1,4 +1,3 @@
-/// <reference types="node" />
 /**
  * Hotel search worker.
  * Searches TripAdvisor for hotels in each destination.

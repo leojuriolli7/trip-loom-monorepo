@@ -1,8 +1,7 @@
 import { WizardProvider } from "./_components/wizard-context";
 import { Wizard } from "./_components/wizard";
-import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
-import { auth } from "@trip-loom/api/auth";
+import { getServerSession } from "@/lib/api/server-session";
 
 /**
  * Internal development page for testing the API and frontend API integration.
@@ -10,9 +9,7 @@ import { auth } from "@trip-loom/api/auth";
 export default async function ApiCrudPage() {
   if (process.env.NODE_ENV === "production") notFound();
 
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getServerSession();
 
   if (!session) {
     redirect("/enter");
