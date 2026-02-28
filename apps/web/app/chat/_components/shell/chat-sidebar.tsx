@@ -26,6 +26,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { UserAvatar } from "@/components/user-avatar";
+import { EmailVerificationBanner } from "./email-verification-banner";
 import { focusChatInput } from "../chat-input-focus";
 import { currentTrips, drafts, pastTrips, upcomingTrips } from "../../_mocks";
 
@@ -204,6 +205,8 @@ export function ChatSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border p-3 min-h-[73px]">
+        <EmailVerificationBanner />
+
         <div className="flex items-center justify-between gap-2">
           <UserAvatar variant="full" />
           <ThemeToggle />

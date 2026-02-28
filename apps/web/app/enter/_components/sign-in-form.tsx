@@ -26,7 +26,11 @@ const signInSchema = z.object({
 
 type SignInFormData = z.infer<typeof signInSchema>;
 
-export function SignInForm() {
+type SignInFormProps = {
+  onForgotPassword: () => void;
+};
+
+export function SignInForm({ onForgotPassword }: SignInFormProps) {
   const router = useRouter();
 
   const form = useForm<SignInFormData>({
@@ -115,12 +119,14 @@ export function SignInForm() {
               />
               {fieldState.error && <FieldError errors={[fieldState.error]} />}
 
-              {/*<button
-                  type="button"
-                  className="text-primary ml-auto -mb-3 shrink w-auto! hover:text-primary/80 text-sm font-medium underline-offset-4 transition-colors hover:underline"
-                >
-                  Forgot password?
-                </button>*/}
+              <button
+                type="button"
+                onClick={onForgotPassword}
+                className="text-primary ml-auto -mb-3 shrink w-auto! hover:text-primary/80 text-sm font-medium underline-offset-4 transition-colors hover:underline"
+                data-testid="forgot-password-link"
+              >
+                Forgot password?
+              </button>
             </Field>
           )}
         />

@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
@@ -81,9 +80,11 @@ function PasswordRequirements({ password }: { password: string }) {
   );
 }
 
-export function SignUpForm() {
-  const router = useRouter();
+type SignUpFormProps = {
+  onSignUpSuccess: (email: string) => void;
+};
 
+export function SignUpForm({ onSignUpSuccess }: SignUpFormProps) {
   const form = useForm<SignUpFormData>({
     resolver: standardSchemaResolver(signUpSchema),
     defaultValues: {
@@ -111,8 +112,7 @@ export function SignUpForm() {
       }
 
       toast.success("Account created! Welcome to TripLoom.");
-      router.push("/chat");
-      router.refresh();
+      onSignUpSuccess(data.email);
     } catch (err) {
       toast.error("Something went wrong. Please try again.");
       console.error("Account creation error:", err);

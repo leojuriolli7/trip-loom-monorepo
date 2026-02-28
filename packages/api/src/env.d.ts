@@ -6,6 +6,13 @@ export type BackendApiEnv = {
   STRIPE_WEBHOOK_SECRET: string;
   TRUSTED_ORIGINS?: string;
   CORS_ORIGINS?: string;
+  SMTP_HOST?: string;
+  SMTP_PORT?: string;
+  SMTP_USER?: string;
+  SMTP_PASSWORD?: string;
+  SMTP_FROM_EMAIL?: string;
+  VERIFY_EMAIL_BASE_URL?: string;
+  FORGOT_PASSWORD_EMAIL_BASE_URL?: string;
 };
 
 declare global {

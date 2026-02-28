@@ -5,14 +5,69 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import { SignInForm } from "./_components/sign-in-form";
 import { SignUpForm } from "./_components/sign-up-form";
+import { ForgotPasswordForm } from "./_components/forgot-password-form";
+import { VerifyEmailScreen } from "./_components/verify-email-screen";
 
-type AuthMode = "sign-in" | "sign-up";
+type AuthMode = "sign-in" | "sign-up" | "forgot-password" | "verify-email";
+
+const modeHeaders: Record<AuthMode, { title: string; subtitle: string; testId: string }> = {
+  "sign-in": {
+    title: "Welcome back",
+    subtitle: "Sign in to continue your journey",
+    testId: "sign-in-title",
+  },
+  "sign-up": {
+    title: "Create an account",
+    subtitle: "Start planning your next adventure",
+    testId: "sign-up-title",
+  },
+  "forgot-password": {
+    title: "Forgot password?",
+    subtitle: "Enter your email and we'll send you a reset link",
+    testId: "forgot-password-title",
+  },
+  "verify-email": {
+    title: "",
+    subtitle: "",
+    testId: "",
+  },
+};
+
+const modeFooter: Record<
+  AuthMode,
+  { text: string; actionLabel: string; targetMode: AuthMode; testId: string } | null
+> = {
+  "sign-in": {
+    text: "Don't have an account?",
+    actionLabel: "Register",
+    targetMode: "sign-up",
+    testId: "toggle-to-sign-up",
+  },
+  "sign-up": {
+    text: "Already have an account?",
+    actionLabel: "Login",
+    targetMode: "sign-in",
+    testId: "toggle-to-sign-in",
+  },
+  "forgot-password": {
+    text: "Remember your password?",
+    actionLabel: "Login",
+    targetMode: "sign-in",
+    testId: "toggle-to-sign-in",
+  },
+  "verify-email": null,
+};
 
 export default function EnterPage() {
   const [mode, setMode] = useState<AuthMode>("sign-in");
+  const [signUpEmail, setSignUpEmail] = useState("");
 
-  const toggleMode = () => {
-    setMode((prev) => (prev === "sign-in" ? "sign-up" : "sign-in"));
+  const header = modeHeaders[mode];
+  const footer = modeFooter[mode];
+
+  const handleSignUpSuccess = (email: string) => {
+    setSignUpEmail(email);
+    setMode("verify-email");
   };
 
   return (
@@ -131,41 +186,49 @@ export default function EnterPage() {
                 exit={{ opacity: 0, x: mode === "sign-in" ? 20 : -20 }}
                 transition={{ duration: 0.2, ease: "easeInOut" }}
               >
-                <div className="mb-7 text-center">
-                  <h2
-                    data-testid={
-                      mode === "sign-in" ? "sign-in-title" : "sign-up-title"
-                    }
-                    className="mb-2 text-2xl font-bold tracking-tight"
-                  >
-                    {mode === "sign-in" ? "Welcome back" : "Create an account"}
-                  </h2>
-                  <p className="text-muted-foreground">
-                    {mode === "sign-in"
-                      ? "Sign in to continue your journey"
-                      : "Start planning your next adventure"}
+                {/* Header - hidden for verify-email since it has its own */}
+                {header.title && (
+                  <div className="mb-7 text-center">
+                    <h2
+                      data-testid={header.testId}
+                      className="mb-2 text-2xl font-bold tracking-tight"
+                    >
+                      {header.title}
+                    </h2>
+                    <p className="text-muted-foreground">{header.subtitle}</p>
+                  </div>
+                )}
+
+                {mode === "sign-in" && (
+                  <SignInForm
+                    onForgotPassword={() => setMode("forgot-password")}
+                  />
+                )}
+                {mode === "sign-up" && (
+                  <SignUpForm onSignUpSuccess={handleSignUpSuccess} />
+                )}
+                {mode === "forgot-password" && (
+                  <ForgotPasswordForm
+                    onBackToLogin={() => setMode("sign-in")}
+                  />
+                )}
+                {mode === "verify-email" && (
+                  <VerifyEmailScreen email={signUpEmail} />
+                )}
+
+                {footer && (
+                  <p className="text-muted-foreground mt-4 text-center text-sm">
+                    {footer.text}{" "}
+                    <button
+                      type="button"
+                      onClick={() => setMode(footer.targetMode)}
+                      className="text-primary hover:text-primary/80 font-medium underline-offset-4 transition-colors hover:underline"
+                      data-testid={footer.testId}
+                    >
+                      {footer.actionLabel}
+                    </button>
                   </p>
-                </div>
-
-                {mode === "sign-in" ? <SignInForm /> : <SignUpForm />}
-
-                <p className="text-muted-foreground mt-4 text-center text-sm">
-                  {mode === "sign-in"
-                    ? "Don't have an account?"
-                    : "Already have an account?"}{" "}
-                  <button
-                    type="button"
-                    onClick={toggleMode}
-                    className="text-primary hover:text-primary/80 font-medium underline-offset-4 transition-colors hover:underline"
-                    data-testid={
-                      mode === "sign-in"
-                        ? "toggle-to-sign-up"
-                        : "toggle-to-sign-in"
-                    }
-                  >
-                    {mode === "sign-in" ? "Register" : "Login"}
-                  </button>
-                </p>
+                )}
               </motion.div>
             </AnimatePresence>
           </motion.div>

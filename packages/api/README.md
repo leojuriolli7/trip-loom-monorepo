@@ -216,6 +216,13 @@ This package requires the following environment variables (provided by the app t
 | `BETTER_AUTH_URL` | Yes | Base URL for auth (e.g., `http://localhost:3000`) |
 | `STRIPE_SECRET_KEY` | Yes (payments) | Stripe secret key for server-side payment operations |
 | `STRIPE_WEBHOOK_SECRET` | Yes (payments) | Stripe webhook signing secret |
+| `SMTP_HOST` | Yes (email) | SMTP server hostname (e.g., `smtp.gmail.com`) |
+| `SMTP_PORT` | Yes (email) | SMTP server port (e.g., `587`) |
+| `SMTP_USER` | Yes (email) | SMTP authentication username |
+| `SMTP_PASSWORD` | Yes (email) | SMTP authentication password |
+| `SMTP_FROM_EMAIL` | Yes (email) | Sender address for outbound emails |
+| `VERIFY_EMAIL_BASE_URL` | Yes (email) | Base URL for verification email links, points to auth API (e.g., `http://localhost:3000/api`) |
+| `FORGOT_PASSWORD_EMAIL_BASE_URL` | Yes (email) | Base URL for password reset email links, points to frontend (e.g., `http://localhost:3000`) |
 | `TRUSTED_ORIGINS` | Prod | Comma-separated list of trusted origins |
 | `CORS_ORIGINS` | Prod | Comma-separated list of CORS origins |
 

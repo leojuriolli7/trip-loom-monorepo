@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { unauthorized } from "next/navigation";
+import { redirect } from "next/navigation";
 import { auth } from "@trip-loom/api/auth";
 
 import { WelcomeScreen } from "./_components/welcome-screen/welcome-screen";
@@ -12,7 +12,7 @@ export default async function ChatWelcomePage() {
   const userName = sessionResult?.user?.name;
 
   if (!userName) {
-    unauthorized();
+    redirect("/enter");
   }
 
   return (

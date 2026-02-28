@@ -2,6 +2,9 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../db";
 import * as schema from "../db/schema";
+import { sendEmail } from "./email/transporter";
+import { getVerifyEmailHtml } from "./email/templates/verify-email";
+import { getForgotPasswordHtml } from "./email/templates/forgot-password";
 
 const isDev = process.env.NODE_ENV !== "production";
 
@@ -17,10 +20,38 @@ export const auth = betterAuth({
       verification: schema.verification,
     },
   }),
+  emailVerification: {
+    autoSignInAfterVerification: true,
+    sendOnSignUp: true,
+    sendVerificationEmail: async ({ user, token }) => {
+      const verificationUrl = `${process.env.VERIFY_EMAIL_BASE_URL}/auth/verify-email?token=${token}&callbackURL=/chat`;
+
+      void sendEmail({
+        to: user.email,
+        subject: "Verify your email - TripLoom",
+        html: getVerifyEmailHtml({
+          userName: user.name,
+          verificationUrl,
+        }),
+      });
+    },
+  },
   emailAndPassword: {
     enabled: true,
-    // Out of scope for now: Email verification
     requireEmailVerification: false,
+    sendResetPassword: async ({ user, token }) => {
+      const resetUrl = `${process.env.FORGOT_PASSWORD_EMAIL_BASE_URL}/forgot-password?token=${token}`;
+
+      void sendEmail({
+        to: user.email,
+        subject: "Reset your password - TripLoom",
+        html: getForgotPasswordHtml({
+          userName: user.name,
+          resetUrl,
+        }),
+      });
+    },
+    resetPasswordTokenExpiresIn: 3600,
   },
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days

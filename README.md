@@ -105,7 +105,8 @@ Server to base myself: https://github.com/modelcontextprotocol/servers/blob/main
 Client examples: https://modelcontextprotocol.io/clients
 
 ### 5. Immediate TODOs
-Continue development:
+
+- Need to draft a full spec of which agents will exist, their tools, flows..
 - Implement MCP Server: Could be an entire Agent mapping of our API, giving it each endpoint as tools, or via code-mode: 
   - https://blog.cloudflare.com/code-mode-mcp/
   - https://blog.cloudflare.com/code-mode/
@@ -113,6 +114,7 @@ Continue development:
 - Implement AI frontend experience
   - UI: Should also think about how trips will look in chat, like if a trip is current, we display the weather in location... If trip is current, hide previous planning messages behind a toggle/dropdown.
   - Option for payment: AI can pay automatically for you, or user will input his credit card data manually each time.
+- Add evals and tests for agent behavior
 
 Data improvements:
 - Some photos, like Monaco, are SVG flags of the countries
@@ -120,19 +122,6 @@ Data improvements:
 - Add more destinations, eg Maldivas, Arraial do Cabo, Trancoso... + worldwide
 - Add more hotels for each destination using other sources
 - Remove data acquisition/generators scripts when done with data collection
-
-### 6. For later
-
-We still need to implement in our authentication flow: 
-
-- Forgot password
-- E-mail verification
-
-These can come later, after concrete functionality in the app has been achieved.
-
-About itineraries: 
-
-- Should activity start and end times be strings (`13:00`, `12:50`...), or some other data type that is easier to validate? 
 
 ## Testing Notes
 
