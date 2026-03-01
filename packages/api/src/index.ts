@@ -61,6 +61,20 @@ export const createApp = (options?: AppConfig) =>
         allowedHeaders: ["Content-Type", "Authorization"],
       }),
     )
+    // OAuth 2.1 discovery — RFC 8414 requires well-known at the root level, but
+    // Better Auth serves it under /auth/. We proxy both the plain path and the
+    // RFC 8414 §3 path-based variant (/.well-known/oauth-authorization-server/auth)
+    // so MCP clients like mcp-remote can discover the authorization server.
+    .get("/.well-known/oauth-authorization-server/*", async ({ request }) => {
+      const url = new URL("/auth/.well-known/oauth-authorization-server", request.url);
+      const response = await fetch(url);
+      return response.json();
+    })
+    .get("/.well-known/oauth-authorization-server", async ({ request }) => {
+      const url = new URL("/auth/.well-known/oauth-authorization-server", request.url);
+      const response = await fetch(url);
+      return response.json();
+    })
     // Auth handler routes (/auth/*)
     .mount(auth.handler)
     // Routes

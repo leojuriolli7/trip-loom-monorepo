@@ -106,6 +106,13 @@
       "when": 1771986298010,
       "tag": "0014_fast_talkback",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1772385115622,
+      "tag": "0015_magical_firelord",
+      "breakpoints": true
     }
   ]
 }

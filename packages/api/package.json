@@ -17,7 +17,6 @@
     "db:migrate": "dotenv -e ../../apps/server/.env -- drizzle-kit migrate",
     "db:studio": "dotenv -e ../../apps/server/.env -- drizzle-kit studio",
     "db:seed": "dotenv -e ../../apps/server/.env -- tsx seeds/seed.ts",
-    "stripe:listen": "stripe listen --forward-to localhost:3001/api/webhooks/stripe",
     "seed:build-cities": "tsx seeds/generators/destinations/build-master-cities.ts",
     "seed:enrich-destinations": "tsx seeds/generators/destinations/enrich.ts",
     "seed:search-hotels": "tsx seeds/generators/hotels/search.ts",
@@ -28,7 +27,7 @@
     "@elysiajs/cors": "^1.4.1",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/api-logs": "^0.212.0",
-    "better-auth": "^1.4.18",
+    "better-auth": "^1.5.0",
     "dotenv": "^17.3.1",
     "drizzle-orm": "^0.45.1",
     "elysia": "^1.2.25",
@@ -41,9 +40,9 @@
   "devDependencies": {
     "@types/nodemailer": "^7.0.11",
     "@types/pg": "^8.15.4",
+    "bun-types": "^1.2.8",
     "drizzle-kit": "^0.31.9",
     "tsx": "^4.19.4",
-    "typescript": "^5.7.0",
-    "bun-types": "^1.2.8"
+    "typescript": "^5.7.0"
   }
 }

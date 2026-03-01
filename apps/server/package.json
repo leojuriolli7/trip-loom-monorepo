@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "bun --watch src/index.ts",
+    "dev:stripe": "stripe listen --forward-to localhost:3001/api/webhooks/stripe",
     "build": "bun build src/index.ts --target bun --outdir dist",
     "start": "NODE_ENV=production bun dist/index.js"
   },

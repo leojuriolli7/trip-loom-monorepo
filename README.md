@@ -158,6 +158,25 @@ OpenAI GPT-5.2 as the primary model (95%+ tool-calling success rate, strong mult
 
 A standalone TypeScript MCP server (`@modelcontextprotocol/sdk`) that wraps the TripLoom API. Agents connect to it for all API interactions. Internally, every tool implementation calls the API via the type-safe Eden client.
 
+The server will live in `apps/mcp-server` and use: 
+
+- Bun
+- Express (or Elysia depending on existing documentation and support -- Elysia and Bun only require standard Request and Response to work)
+- Typescript MCP SDK
+- OAuth 2.1, with our API using better-auth's OAuth Plugin to integrate it
+- Elysia's Eden Client, a typesafe client for calling API endpoints in tools: 
+
+```ts
+import { treaty } from "@elysiajs/eden";
+import type { App } from "@trip-loom/api";
+
+export const apiClient = treaty<App>(process.env.API_URL, {
+  parseDate: false,
+  // Required for cross-origin cookie sending (mcp server on :3002, API on :3001)
+  fetch: { credentials: "include" },
+})
+```
+
 ### Authentication
 
 The MCP server requires an authenticated TripLoom user session. The authenticated user's session token is passed through to every Eden client call, so all API-level ownership guards apply — a user can never access or mutate another user's trips, bookings, itineraries, or preferences through the MCP server. The API already enforces this: every user-scoped route checks `trip.userId` (or joins through trip for sub-resources like bookings and payments), and public catalog endpoints (destinations, hotels) correctly skip auth.

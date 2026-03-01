@@ -220,6 +220,7 @@ This package requires the following environment variables (provided by the app t
 | `SMTP_FROM_EMAIL` | Yes (email) | Sender address for outbound emails |
 | `VERIFY_EMAIL_BASE_URL` | Yes (email) | Base URL for verification email links, points to the API server (e.g., `http://localhost:3001`) |
 | `FORGOT_PASSWORD_EMAIL_BASE_URL` | Yes (email) | Base URL for password reset email links, points to frontend (e.g., `http://localhost:3000`) |
+| `FRONTEND_BASE_URL` | Yes (MCP) | Base URL for our web frontend, used for MCP server to redirect to login page (e.g., `http://localhost:3000`) |
 | `TRUSTED_ORIGINS` | Prod | Comma-separated list of trusted origins |
 | `CORS_ORIGINS` | Prod | Comma-separated list of CORS origins |
 

@@ -1,5 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { mcp } from "better-auth/plugins";
+
 import { db } from "../db";
 import * as schema from "../db/schema";
 import { sendEmail } from "./email/transporter";
@@ -18,13 +20,26 @@ export const auth = betterAuth({
       session: schema.session,
       account: schema.account,
       verification: schema.verification,
+      oauthApplication: schema.oauthApplication,
+      oauthAccessToken: schema.oauthAccessToken,
+      oauthConsent: schema.oauthConsent,
     },
   }),
   emailVerification: {
     autoSignInAfterVerification: true,
     sendOnSignUp: true,
     sendVerificationEmail: async ({ user, token }) => {
-      const verificationUrl = `${process.env.VERIFY_EMAIL_BASE_URL}/auth/verify-email?token=${token}&callbackURL=/chat`;
+      const url = new URL(
+        "/auth/verify-email",
+        process.env.VERIFY_EMAIL_BASE_URL,
+      );
+
+      url.search = new URLSearchParams({
+        token,
+        callbackURL: "/chat",
+      }).toString();
+
+      const verificationUrl = url.toString();
 
       void sendEmail({
         to: user.email,
@@ -40,7 +55,14 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: false,
     sendResetPassword: async ({ user, token }) => {
-      const resetUrl = `${process.env.FORGOT_PASSWORD_EMAIL_BASE_URL}/forgot-password?token=${token}`;
+      const url = new URL(
+        "/forgot-password",
+        process.env.FORGOT_PASSWORD_EMAIL_BASE_URL,
+      );
+
+      url.search = new URLSearchParams({ token }).toString();
+
+      const resetUrl = url.toString();
 
       void sendEmail({
         to: user.email,
@@ -81,8 +103,17 @@ export const auth = betterAuth({
         "http://127.0.0.1:3000",
         "http://localhost:3001",
         "http://127.0.0.1:3001",
+        "http://localhost:3002",
+        "http://127.0.0.1:3002",
       ]
     : (process.env.TRUSTED_ORIGINS?.split(",") ?? []),
+  plugins: [
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- MCPOptions
+    // is not exported from better-auth, causing TS4023 with declaration: true.
+    mcp({
+      loginPage: new URL("/enter", process.env.FRONTEND_BASE_URL).toString(),
+    }) as any,
+  ],
 });
 
 export type Auth = typeof auth;
