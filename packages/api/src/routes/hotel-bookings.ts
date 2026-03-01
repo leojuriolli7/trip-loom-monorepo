@@ -4,7 +4,6 @@ import { errorResponseSchema } from "../dto/common";
 import {
   createHotelBookingInputSchema,
   hotelBookingSchema,
-  updateHotelBookingInputSchema,
 } from "../dto/hotel-bookings";
 import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
@@ -13,7 +12,6 @@ import {
   createHotelBooking,
   getHotelBooking,
   listHotelBookings,
-  updateHotelBooking,
 } from "../services/hotel-bookings";
 
 const tripParamsSchema = z.object({
@@ -110,40 +108,6 @@ export const hotelBookingRoutes = new Elysia({
     {
       auth: true,
       params: bookingParamsSchema,
-      response: {
-        200: hotelBookingSchema,
-        401: errorResponseSchema,
-        404: errorResponseSchema,
-      },
-    },
-  )
-  .patch(
-    "/trips/:id/hotels/:hotelBookingId",
-    async ({ user, params, body, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
-      wideEvent.hotel_booking_id = params.hotelBookingId;
-
-      const result = await updateHotelBooking(
-        user.id,
-        params.id,
-        params.hotelBookingId,
-        body,
-      );
-
-      if (!result) {
-        return status(404, {
-          error: "Not Found",
-          message: "Hotel booking not found",
-          statusCode: 404,
-        });
-      }
-
-      return result;
-    },
-    {
-      auth: true,
-      params: bookingParamsSchema,
-      body: updateHotelBookingInputSchema,
       response: {
         200: hotelBookingSchema,
         401: errorResponseSchema,

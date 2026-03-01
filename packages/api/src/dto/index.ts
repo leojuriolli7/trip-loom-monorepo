@@ -45,7 +45,6 @@ export {
   flightBookingSchema,
   flightBookingDetailSchema,
   createFlightBookingInputSchema,
-  updateFlightBookingInputSchema,
   type AirportSummaryDTO,
   type FlightSeat,
   type FlightSeatRow,
@@ -55,18 +54,15 @@ export {
   type FlightBookingDTO,
   type FlightBookingDetailDTO,
   type CreateFlightBookingInput,
-  type UpdateFlightBookingInput,
 } from "./flights";
 
 export {
   hotelSummarySchema,
   hotelBookingSchema,
   createHotelBookingInputSchema,
-  updateHotelBookingInputSchema,
   type HotelSummaryDTO,
   type HotelBookingDTO,
   type CreateHotelBookingInput,
-  type UpdateHotelBookingInput,
 } from "./hotel-bookings";
 
 export {

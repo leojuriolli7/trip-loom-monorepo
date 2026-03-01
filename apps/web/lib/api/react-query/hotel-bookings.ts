@@ -32,12 +32,6 @@ type CreateHotelBookingVars = {
   body: Parameters<TripsCall["hotels"]["post"]>[0];
 };
 
-type UpdateHotelBookingVars = {
-  tripId: string;
-  hotelBookingId: string;
-  body: Parameters<ReturnType<TripsCall["hotels"]>["patch"]>[0];
-};
-
 type DeleteHotelBookingVars = {
   tripId: string;
   hotelBookingId: string;
@@ -65,15 +59,6 @@ export const hotelBookingQueries = {
       mutationKey: KEYS.create("any"),
       mutationFn: async (vars: CreateHotelBookingVars) =>
         apiClient.api.trips({ id: vars.tripId }).hotels.post(vars.body),
-    }),
-  updateTripHotelBooking: () =>
-    mutationOptions({
-      mutationKey: KEYS.update("any", "any"),
-      mutationFn: async (vars: UpdateHotelBookingVars) =>
-        apiClient.api
-          .trips({ id: vars.tripId })
-          .hotels({ hotelBookingId: vars.hotelBookingId })
-          .patch(vars.body),
     }),
   deleteTripHotelBooking: () =>
     mutationOptions({

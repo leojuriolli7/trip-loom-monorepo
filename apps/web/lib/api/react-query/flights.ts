@@ -34,12 +34,6 @@ type CreateFlightBookingVars = {
   body: Parameters<TripsCall["flights"]["post"]>[0];
 };
 
-type UpdateFlightBookingVars = {
-  tripId: string;
-  flightId: string;
-  body: Parameters<ReturnType<TripsCall["flights"]>["patch"]>[0];
-};
-
 type DeleteFlightBookingVars = {
   tripId: string;
   flightId: string;
@@ -77,16 +71,6 @@ export const flightQueries = {
       mutationKey: KEYS.create("any"),
       mutationFn: async (vars: CreateFlightBookingVars) =>
         apiClient.api.trips({ id: vars.tripId }).flights.post(vars.body),
-    }),
-
-  updateTripFlightBooking: () =>
-    mutationOptions({
-      mutationKey: KEYS.update("any", "any"),
-      mutationFn: async (vars: UpdateFlightBookingVars) =>
-        apiClient.api
-          .trips({ id: vars.tripId })
-          .flights({ flightId: vars.flightId })
-          .patch(vars.body),
     }),
 
   deleteTripFlightBooking: () =>

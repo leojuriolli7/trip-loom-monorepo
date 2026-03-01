@@ -149,11 +149,3 @@ export type CreateFlightBookingInput = z.infer<
   typeof createFlightBookingInputSchema
 >;
 
-export const updateFlightBookingInputSchema = z.object({
-  seatNumber: seatNumberSchema.nullable().optional(),
-  status: z.enum(bookingStatusValues).optional(),
-});
-
-export type UpdateFlightBookingInput = z.infer<
-  typeof updateFlightBookingInputSchema
->;

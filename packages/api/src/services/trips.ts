@@ -235,7 +235,6 @@ export async function updateTrip(
   const existingRows = await db
     .select({
       id: trip.id,
-      cancelledAt: trip.cancelledAt,
       startDate: trip.startDate,
       endDate: trip.endDate,
     })
@@ -277,18 +276,6 @@ export async function updateTrip(
 
   if (input.endDate !== undefined) {
     updateData.endDate = input.endDate;
-  }
-
-  // Handle cancellation: status is computed, but 'cancelled' sets cancelledAt
-  if (input.status === "cancelled" && !existing.cancelledAt) {
-    updateData.cancelledAt = new Date();
-  } else if (
-    input.status &&
-    input.status !== "cancelled" &&
-    existing.cancelledAt
-  ) {
-    // Un-cancel: clear cancelledAt so status can be computed from dates again
-    updateData.cancelledAt = null;
   }
 
   await db

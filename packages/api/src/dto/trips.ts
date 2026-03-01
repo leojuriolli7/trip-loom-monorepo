@@ -82,7 +82,6 @@ export const updateTripInputSchema = z
   .object({
     destinationId: z.string().min(1).nullable().optional(),
     title: z.string().trim().min(1).max(120).nullable().optional(),
-    status: z.enum(tripStatusValues).optional(),
     startDate: isoDateSchema.nullable().optional(),
     endDate: isoDateSchema.nullable().optional(),
   })

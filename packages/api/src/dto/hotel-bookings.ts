@@ -70,33 +70,3 @@ export const createHotelBookingInputSchema = z
 
 export type CreateHotelBookingInput = z.infer<typeof createHotelBookingInputSchema>;
 
-/**
- * Input for updating a hotel booking.
- * When dates are updated, numberOfNights and totalPriceInCents are recalculated.
- * Note: pricePerNightInCents cannot be updated - it's set at booking time based on hotel's priceRange.
- */
-export const updateHotelBookingInputSchema = z
-  .object({
-    checkInDate: isoDateSchema.optional(),
-    checkOutDate: isoDateSchema.optional(),
-    roomType: z.enum(hotelRoomTypeValues).optional(),
-    status: z.enum(bookingStatusValues).optional(),
-  })
-  .refine(
-    (value) => {
-      // If both dates are provided, validate the range
-      if (value.checkInDate && value.checkOutDate) {
-        return (
-          isValidDateRange(value.checkInDate, value.checkOutDate) &&
-          value.checkInDate !== value.checkOutDate
-        );
-      }
-      return true;
-    },
-    {
-      message: "checkOutDate must be after checkInDate",
-      path: ["checkOutDate"],
-    },
-  );
-
-export type UpdateHotelBookingInput = z.infer<typeof updateHotelBookingInputSchema>;

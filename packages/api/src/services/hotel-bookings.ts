@@ -5,7 +5,6 @@ import type {
   CreateHotelBookingInput,
   HotelBookingDTO,
   HotelSummaryDTO,
-  UpdateHotelBookingInput,
 } from "../dto/hotel-bookings";
 import type { HotelRoomType, PriceRange } from "../enums";
 import { BadRequestError, NotFoundError } from "../errors";
@@ -208,83 +207,6 @@ export async function createHotelBooking(
     .returning({ id: hotelBooking.id });
 
   return getBookingWithHotel(tripId, created.id);
-}
-
-/**
- * Updates an existing hotel booking.
- * - Validates ownership
- * - Recalculates nights/total if dates change (uses existing pricePerNightInCents)
- * - Refreshes trip status if status changes to cancelled
- */
-export async function updateHotelBooking(
-  userId: string,
-  tripId: string,
-  bookingId: string,
-  input: UpdateHotelBookingInput,
-): Promise<HotelBookingDTO | null> {
-  const tripMeta = await getOwnedTripMeta(userId, tripId);
-  if (!tripMeta) {
-    return null;
-  }
-
-  const existing = await getBookingWithHotel(tripId, bookingId);
-  if (!existing) {
-    return null;
-  }
-
-  const updateData: Partial<typeof hotelBooking.$inferInsert> = {
-    updatedAt: new Date(),
-  };
-
-  // Determine final dates for recalculation
-  const finalCheckInDate = input.checkInDate ?? existing.checkInDate;
-  const finalCheckOutDate = input.checkOutDate ?? existing.checkOutDate;
-
-  if (
-    !isValidDateRange(finalCheckInDate, finalCheckOutDate) ||
-    finalCheckInDate === finalCheckOutDate
-  ) {
-    throw new BadRequestError("checkOutDate must be after checkInDate");
-  }
-
-  // Recalculate nights and total if dates changed (price stays the same)
-  const datesChanged =
-    input.checkInDate !== undefined || input.checkOutDate !== undefined;
-
-  if (datesChanged) {
-    const numberOfNights = calculateNights(finalCheckInDate, finalCheckOutDate);
-    const totalPriceInCents = numberOfNights * existing.pricePerNightInCents;
-
-    updateData.checkInDate = finalCheckInDate;
-    updateData.checkOutDate = finalCheckOutDate;
-    updateData.numberOfNights = numberOfNights;
-    updateData.totalPriceInCents = totalPriceInCents;
-  }
-
-  if (input.roomType !== undefined) {
-    const hotelInfo = await getHotelForBooking(existing.hotelId);
-    if (
-      hotelInfo &&
-      hotelInfo.roomTypes.length > 0 &&
-      !hotelInfo.roomTypes.includes(input.roomType)
-    ) {
-      throw new BadRequestError(
-        `Hotel does not offer room type "${input.roomType}". Available: ${hotelInfo.roomTypes.join(", ")}`,
-      );
-    }
-    updateData.roomType = input.roomType;
-  }
-
-  if (input.status !== undefined) {
-    updateData.status = input.status;
-  }
-
-  await db
-    .update(hotelBooking)
-    .set(updateData)
-    .where(eq(hotelBooking.id, bookingId));
-
-  return getBookingWithHotel(tripId, bookingId);
 }
 
 /**

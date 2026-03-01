@@ -1,5 +1,4 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { tripStatusValues } from "@trip-loom/api/enums";
 import { z } from "zod";
 import type { ApiClient } from "../api-client";
 
@@ -9,7 +8,7 @@ export function registerUpdateTrip(server: McpServer, apiClient: ApiClient) {
     {
       title: "Update Trip",
       description:
-        "Update an existing trip by ID. Supports updating destination, title, dates, and status. Returns the updated trip summary.",
+        "Update an existing trip by ID. Supports updating destination, title, and dates. Returns the updated trip summary. Note: trip status is computed automatically from dates and cannot be set directly.",
       inputSchema: z
         .object({
           tripId: z.string().describe("The unique trip ID to update."),
@@ -27,10 +26,6 @@ export function registerUpdateTrip(server: McpServer, apiClient: ApiClient) {
             .nullable()
             .optional()
             .describe("Optional trip title."),
-          status: z
-            .enum(tripStatusValues)
-            .optional()
-            .describe("Optional explicit trip status value."),
           startDate: z
             .string()
             .date()
@@ -55,11 +50,10 @@ export function registerUpdateTrip(server: McpServer, apiClient: ApiClient) {
           },
         ),
     },
-    async ({ tripId, destinationId, title, status, startDate, endDate }) => {
+    async ({ tripId, destinationId, title, startDate, endDate }) => {
       const { data, error } = await apiClient.api.trips({ id: tripId }).patch({
         destinationId,
         title,
-        status,
         startDate,
         endDate,
       });

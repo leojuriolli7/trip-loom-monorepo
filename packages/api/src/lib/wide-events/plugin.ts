@@ -84,7 +84,7 @@ export const createWideEventPlugin = (options?: WideEventPluginOptions) => {
       ctx.wideEvent.outcome = ctx.wideEvent.error ? "error" : "success";
 
       // Console log (always)
-      logger(ctx.wideEvent);
+      // logger(ctx.wideEvent);
 
       const isError = !!ctx.wideEvent.error;
 

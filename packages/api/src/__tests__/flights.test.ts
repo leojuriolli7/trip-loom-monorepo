@@ -485,11 +485,6 @@ describe("Flights API", () => {
           path: `/api/trips/${seed.upcomingTripId}/flights/${seed.primaryBookingId}`,
         }),
         requestJson({
-          method: "PATCH",
-          path: `/api/trips/${seed.upcomingTripId}/flights/${seed.primaryBookingId}`,
-          body: { seatNumber: "14C" },
-        }),
-        requestJson({
           method: "DELETE",
           path: `/api/trips/${seed.upcomingTripId}/flights/${seed.primaryBookingId}`,
         }),
@@ -564,33 +559,6 @@ describe("Flights API", () => {
       expect(body.seatMap.length).toBeGreaterThan(0);
       expect(body.seatMap[0].sections.length).toBeGreaterThan(0);
       expect(body.suggestedSeatId === null || typeof body.suggestedSeatId === "string").toBe(true);
-    });
-
-    it("PATCH updates booking seat/status", async () => {
-      const { res, body } = await requestJson({
-        method: "PATCH",
-        path: `/api/trips/${seed.upcomingTripId}/flights/${seed.primaryBookingId}`,
-        userId: seed.primaryUserId,
-        body: {
-          seatNumber: "14C",
-          status: "pending",
-        },
-      });
-
-      expect(res.status).toBe(200);
-      expect(body.id).toBe(seed.primaryBookingId);
-      expect(body.seatNumber).toBe("14C");
-      expect(body.status).toBe("pending");
-
-      const rows = await db
-        .select({
-          seatNumber: flightBooking.seatNumber,
-          status: flightBooking.status,
-        })
-        .from(flightBooking)
-        .where(eq(flightBooking.id, seed.primaryBookingId));
-      expect(rows[0]?.seatNumber).toBe("14C");
-      expect(rows[0]?.status).toBe("pending");
     });
 
     it("DELETE cancels booking and may move trip back to draft", async () => {
@@ -678,14 +646,6 @@ describe("Flights API", () => {
           method: "GET",
           path: `/api/trips/${seed.secondaryTripId}/flights/${seed.secondaryBookingId}`,
           userId: seed.primaryUserId,
-        }),
-        requestJson({
-          method: "PATCH",
-          path: `/api/trips/${seed.secondaryTripId}/flights/${seed.secondaryBookingId}`,
-          userId: seed.primaryUserId,
-          body: {
-            seatNumber: "1A",
-          },
         }),
         requestJson({
           method: "DELETE",

@@ -7,7 +7,6 @@ import {
   flightBookingDetailSchema,
   flightOptionSchema,
   flightSearchSchema,
-  updateFlightBookingInputSchema,
 } from "../dto/flights";
 import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
@@ -17,7 +16,6 @@ import {
   getFlightBooking,
   listFlightBookings,
   searchFlights,
-  updateFlightBooking,
 } from "../services/flights";
 
 const tripParamsSchema = z.object({
@@ -136,40 +134,6 @@ export const flightRoutes = new Elysia({
       params: bookingParamsSchema,
       response: {
         200: flightBookingDetailSchema,
-        401: errorResponseSchema,
-        404: errorResponseSchema,
-      },
-    },
-  )
-  .patch(
-    "/trips/:id/flights/:flightId",
-    async ({ user, params, body, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
-      wideEvent.flight_booking_id = params.flightId;
-
-      const result = await updateFlightBooking(
-        user.id,
-        params.id,
-        params.flightId,
-        body,
-      );
-
-      if (!result) {
-        return status(404, {
-          error: "Not Found",
-          message: "Flight booking not found",
-          statusCode: 404,
-        });
-      }
-
-      return result;
-    },
-    {
-      auth: true,
-      params: bookingParamsSchema,
-      body: updateFlightBookingInputSchema,
-      response: {
-        200: flightBookingSchema,
         401: errorResponseSchema,
         404: errorResponseSchema,
       },

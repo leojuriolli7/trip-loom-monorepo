@@ -9,7 +9,6 @@ import type {
   FlightBookingDetailDTO,
   FlightOptionDTO,
   FlightSearchQuery,
-  UpdateFlightBookingInput,
 } from "../dto/flights";
 import { generateId } from "../lib/nanoid";
 import {
@@ -228,39 +227,6 @@ export async function createFlightBooking(
     .returning({ id: flightBooking.id });
 
   return getFlightBookingById(tripId, created.id);
-}
-
-export async function updateFlightBooking(
-  userId: string,
-  tripId: string,
-  bookingId: string,
-  input: UpdateFlightBookingInput,
-): Promise<FlightBookingDTO | null> {
-  const ownedTrip = await getOwnedTripMeta(userId, tripId);
-  if (!ownedTrip) {
-    return null;
-  }
-
-  const booking = await getFlightBookingById(tripId, bookingId);
-  if (!booking) {
-    return null;
-  }
-
-  const updateData: Partial<typeof flightBooking.$inferInsert> = {
-    updatedAt: new Date(),
-  };
-
-  if (input.seatNumber !== undefined) {
-    updateData.seatNumber = input.seatNumber;
-  }
-
-  if (input.status !== undefined) {
-    updateData.status = input.status;
-  }
-
-  await db.update(flightBooking).set(updateData).where(eq(flightBooking.id, bookingId));
-
-  return getFlightBookingById(tripId, bookingId);
 }
 
 export async function cancelFlightBooking(

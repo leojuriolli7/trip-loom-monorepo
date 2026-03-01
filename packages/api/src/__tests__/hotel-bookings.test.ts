@@ -241,11 +241,6 @@ describe("Hotel Bookings API", () => {
           path: `/api/trips/${seed.upcomingTripId}/hotels/${seed.primaryBookingId}`,
         }),
         requestJson({
-          method: "PATCH",
-          path: `/api/trips/${seed.upcomingTripId}/hotels/${seed.primaryBookingId}`,
-          body: { roomType: "suite" },
-        }),
-        requestJson({
           method: "DELETE",
           path: `/api/trips/${seed.upcomingTripId}/hotels/${seed.primaryBookingId}`,
         }),
@@ -273,12 +268,6 @@ describe("Hotel Bookings API", () => {
           method: "GET",
           path: `/api/trips/${seed.secondaryTripId}/hotels/${seed.secondaryBookingId}`,
           userId: seed.primaryUserId,
-        }),
-        requestJson({
-          method: "PATCH",
-          path: `/api/trips/${seed.secondaryTripId}/hotels/${seed.secondaryBookingId}`,
-          userId: seed.primaryUserId,
-          body: { roomType: "suite" },
         }),
         requestJson({
           method: "DELETE",
@@ -532,156 +521,6 @@ describe("Hotel Bookings API", () => {
         method: "GET",
         path: `/api/trips/${seed.upcomingTripId}/hotels/nonexistent_booking`,
         userId: seed.primaryUserId,
-      });
-
-      expect(res.status).toBe(404);
-      expect(body).toMatchObject({
-        error: "Not Found",
-        message: "Hotel booking not found",
-      });
-    });
-  });
-
-  describe("PATCH /api/trips/:id/hotels/:hotelBookingId", () => {
-    it("updates booking and recalculates totals when dates change", async () => {
-      const newCheckIn = dateWithOffset(42);
-      const newCheckOut = dateWithOffset(47); // 5 nights instead of 3
-
-      const { res, body } = await requestJson({
-        method: "PATCH",
-        path: `/api/trips/${seed.upcomingTripId}/hotels/${seed.primaryBookingId}`,
-        userId: seed.primaryUserId,
-        body: {
-          checkInDate: newCheckIn,
-          checkOutDate: newCheckOut,
-        },
-      });
-
-      expect(res.status).toBe(200);
-      expect(body.id).toBe(seed.primaryBookingId);
-      expect(body.checkInDate).toBe(newCheckIn);
-      expect(body.checkOutDate).toBe(newCheckOut);
-      expect(body.numberOfNights).toBe(5);
-      expect(body.totalPriceInCents).toBe(5 * 15000); // 5 nights * 15000
-    });
-
-    it("updates room type without affecting dates or price", async () => {
-      const { res, body } = await requestJson({
-        method: "PATCH",
-        path: `/api/trips/${seed.upcomingTripId}/hotels/${seed.primaryBookingId}`,
-        userId: seed.primaryUserId,
-        body: {
-          roomType: "penthouse",
-        },
-      });
-
-      expect(res.status).toBe(200);
-      expect(body.roomType).toBe("penthouse");
-      expect(body.numberOfNights).toBe(3); // Unchanged
-      expect(body.pricePerNightInCents).toBe(15000); // Unchanged (set at booking time)
-      expect(body.totalPriceInCents).toBe(45000); // Unchanged
-    });
-
-    it("preserves original price when dates change", async () => {
-      const newCheckIn = dateWithOffset(42);
-      const newCheckOut = dateWithOffset(44); // 2 nights instead of 3
-
-      const { res, body } = await requestJson({
-        method: "PATCH",
-        path: `/api/trips/${seed.upcomingTripId}/hotels/${seed.primaryBookingId}`,
-        userId: seed.primaryUserId,
-        body: {
-          checkInDate: newCheckIn,
-          checkOutDate: newCheckOut,
-        },
-      });
-
-      expect(res.status).toBe(200);
-      expect(body.numberOfNights).toBe(2);
-      expect(body.pricePerNightInCents).toBe(15000); // Original price preserved
-      expect(body.totalPriceInCents).toBe(2 * 15000); // Recalculated with original price
-    });
-
-    it("can update status to confirmed and cancelled", async () => {
-      // Update to pending first (it's already confirmed)
-      const { res: res1, body: body1 } = await requestJson({
-        method: "PATCH",
-        path: `/api/trips/${seed.upcomingTripId}/hotels/${seed.primaryBookingId}`,
-        userId: seed.primaryUserId,
-        body: { status: "pending" },
-      });
-
-      expect(res1.status).toBe(200);
-      expect(body1.status).toBe("pending");
-
-      // Update back to confirmed
-      const { res: res2, body: body2 } = await requestJson({
-        method: "PATCH",
-        path: `/api/trips/${seed.upcomingTripId}/hotels/${seed.primaryBookingId}`,
-        userId: seed.primaryUserId,
-        body: { status: "confirmed" },
-      });
-
-      expect(res2.status).toBe(200);
-      expect(body2.status).toBe("confirmed");
-    });
-
-    it("rejects invalid date range in update", async () => {
-      const sameDay = dateWithOffset(45);
-
-      const { res } = await requestJson({
-        method: "PATCH",
-        path: `/api/trips/${seed.upcomingTripId}/hotels/${seed.primaryBookingId}`,
-        userId: seed.primaryUserId,
-        body: {
-          checkInDate: sameDay,
-          checkOutDate: sameDay,
-        },
-      });
-
-      expect([400, 422]).toContain(res.status);
-    });
-
-    it("rejects update when only checkInDate is changed beyond current checkOutDate", async () => {
-      const { res, body } = await requestJson({
-        method: "PATCH",
-        path: `/api/trips/${seed.upcomingTripId}/hotels/${seed.primaryBookingId}`,
-        userId: seed.primaryUserId,
-        body: {
-          checkInDate: dateWithOffset(44),
-        },
-      });
-
-      expect(res.status).toBe(400);
-      expect(body).toMatchObject({
-        error: "Bad Request",
-        message: "checkOutDate must be after checkInDate",
-      });
-    });
-
-    it("rejects update when only checkOutDate is changed before current checkInDate", async () => {
-      const { res, body } = await requestJson({
-        method: "PATCH",
-        path: `/api/trips/${seed.upcomingTripId}/hotels/${seed.primaryBookingId}`,
-        userId: seed.primaryUserId,
-        body: {
-          checkOutDate: dateWithOffset(39),
-        },
-      });
-
-      expect(res.status).toBe(400);
-      expect(body).toMatchObject({
-        error: "Bad Request",
-        message: "checkOutDate must be after checkInDate",
-      });
-    });
-
-    it("returns 404 for non-existent booking", async () => {
-      const { res, body } = await requestJson({
-        method: "PATCH",
-        path: `/api/trips/${seed.upcomingTripId}/hotels/nonexistent_booking`,
-        userId: seed.primaryUserId,
-        body: { roomType: "suite" },
       });
 
       expect(res.status).toBe(404);
