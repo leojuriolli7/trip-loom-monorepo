@@ -1,8 +1,26 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { z } from "zod";
 import { createApiClient } from "./api-client";
+import { registerAddItineraryActivity } from "./tools/add-itinerary-activity";
+import { registerAddItineraryDay } from "./tools/add-itinerary-day";
+import { registerBookFlight } from "./tools/book-flight";
+import { registerCancelFlightBooking } from "./tools/cancel-flight-booking";
+import { registerCancelHotelBooking } from "./tools/cancel-hotel-booking";
+import { registerConfirmHotelBooking } from "./tools/confirm-hotel-booking";
+import { registerCreateHotelBooking } from "./tools/create-hotel-booking";
+import { registerCreateItinerary } from "./tools/create-itinerary";
+import { registerCreatePaymentIntent } from "./tools/create-payment-intent";
+import { registerCreateTrip } from "./tools/create-trip";
+import { registerDeleteItineraryActivity } from "./tools/delete-itinerary-activity";
+import { registerGetDestinationDetails } from "./tools/get-destination-details";
+import { registerGetRecommendedDestinations } from "./tools/get-recommended-destinations";
 import { registerGetUserPreferences } from "./tools/get-user-preferences";
 import { registerGetTripDetails } from "./tools/get-trip-details";
+import { registerSearchDestinations } from "./tools/search-destinations";
+import { registerSearchFlights } from "./tools/search-flights";
+import { registerSearchHotels } from "./tools/search-hotels";
+import { registerUpdateTrip } from "./tools/update-trip";
+import { registerUpdateItineraryActivity } from "./tools/update-itinerary-activity";
+import { registerPing } from "./tools/ping";
 
 /**
  * Creates an MCP server instance with an authenticated Eden client.
@@ -18,19 +36,27 @@ export function createMcpServer(accessToken: string) {
 
   const apiClient = createApiClient(accessToken);
 
-  server.registerTool(
-    "ping",
-    {
-      description: "Health check — returns pong",
-      inputSchema: z.object({}),
-    },
-    async () => ({
-      content: [{ type: "text" as const, text: "pong" }],
-    }),
-  );
-
+  registerPing(server);
   registerGetUserPreferences(server, apiClient);
   registerGetTripDetails(server, apiClient);
+  registerSearchDestinations(server, apiClient);
+  registerGetDestinationDetails(server, apiClient);
+  registerGetRecommendedDestinations(server, apiClient);
+  registerSearchFlights(server, apiClient);
+  registerBookFlight(server, apiClient);
+  registerCancelFlightBooking(server, apiClient);
+  registerSearchHotels(server, apiClient);
+  registerCreateHotelBooking(server, apiClient);
+  registerConfirmHotelBooking(server, apiClient);
+  registerCancelHotelBooking(server, apiClient);
+  registerCreateItinerary(server, apiClient);
+  registerAddItineraryDay(server, apiClient);
+  registerAddItineraryActivity(server, apiClient);
+  registerUpdateItineraryActivity(server, apiClient);
+  registerDeleteItineraryActivity(server, apiClient);
+  registerCreatePaymentIntent(server, apiClient);
+  registerCreateTrip(server, apiClient);
+  registerUpdateTrip(server, apiClient);
 
   return server;
 }

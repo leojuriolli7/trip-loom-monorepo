@@ -191,11 +191,11 @@ Tools are model-controlled actions the agents can invoke:
 | `getDestinationDetails` | Get full destination info with enrichment | Destination |
 | `getRecommendedDestinations` | Get personalized recommendations based on user preferences | Destination |
 | `searchFlights` | Search flights by route, date, cabin class | Flight |
-| `bookFlight` | Book a flight (creates booking + payment intent) | Flight |
+| `bookFlight` | Create a pending flight booking | Flight |
 | `cancelFlightBooking` | Cancel a flight booking | Flight |
 | `searchHotels` | Search hotels by destination, amenities, style, price range | Hotel |
 | `createHotelBooking` | Create a pending hotel booking (for pricing) | Hotel |
-| `confirmHotelBooking` | Confirm booking after payment | Hotel |
+| `confirmHotelBooking` | Confirm booking after payment (This will be refactored and removed) | Hotel |
 | `cancelHotelBooking` | Cancel a hotel booking | Hotel |
 | `createItinerary` | Create an itinerary for a trip | Itinerary |
 | `addItineraryDay` | Add a day to an itinerary | Itinerary |
@@ -205,7 +205,37 @@ Tools are model-controlled actions the agents can invoke:
 | `getTripDetails` | Get full trip data with all bookings | Supervisor |
 | `updateTrip` | Update trip dates, title, destination | Supervisor |
 | `getUserPreferences` | Get user travel preferences | Supervisor |
-| `createPaymentIntent` | Create a Stripe payment intent | Flight, Hotel |
+| `createPaymentIntent` | Create a Stripe payment intent for a pending booking | Flight, Hotel |
+
+### Deterministic vs Model-Controlled Inputs (Important)
+
+Not all API inputs should be chosen by the LLM. For safety and correctness, we split responsibilities:
+
+- **Model-controlled (good for AI):** search filters, destination/hotel/flight preference exploration, itinerary content suggestions.
+- **Deterministic/system-controlled (not good for AI):** payment amount/currency, payment creation timing, booking confirmation state transitions, and fields that must be derived from trip constraints (for example, hotel check-in/check-out tied to trip dates).
+
+Current examples that need this boundary:
+
+- `createPaymentIntent` should not rely on AI choosing sensitive payment fields in production flow.
+- `createHotelBooking` should not rely on AI choosing check-in/check-out when these should be locked to trip dates.
+- `createFlightBooking` should not rely on AI choosing inbound or outbound flight dates when these should be locked to trip dates.
+
+Preferred production flow:
+
+1. AI creates a **pending** booking (hotel/flight).
+2. Frontend renders booking card and asks for user confirmation.
+3. User clicks **Pay**.
+4. Frontend creates payment intent programmatically (deterministic payload from booking/trip data).
+5. Payment confirmation/webhook updates booking status.
+6. UI/agent reads updated booking via GET endpoints.
+
+Where this should be enforced:
+
+- **API layer (authoritative):** enforce invariants and derive protected fields server-side.
+- **MCP layer (tool design):** expose high-level safe tools and hide/deprecate open-ended sensitive ones.
+- **Frontend layer (user action):** own payment UI and deterministic calls triggered by explicit user intent.
+
+To be clear: It's not yet decided where the rules should be enforced: Should the API even allow creating a hotel booking in any date, since the booking should always be on the same dates as the trip? Or should the MCP server tools be the place where we fetch a trip and pass the start and end date automatically? -- So this might require an API refactor.
 
 ### Resources
 
@@ -249,6 +279,14 @@ Sampling lets the MCP server request LLM completions from the client. Potential 
 *Note: Since our agents already have LLM access via LangGraph, sampling is a secondary feature. We'll evaluate during implementation whether it adds value beyond what the agents already do.*
 
 ## TODOs
+
+### Required Fixes (Urgent)
+- [ ] OpenTelemetry and wide events not working after migration to standalone api
+- [ ] Enforce payment-gated hotel confirmation flow (`createPaymentIntent` -> payment confirmation -> booking status update), and block direct `confirmHotelBooking` success when payment is missing.  
+  Current behavior allows `confirmHotelBooking` to set `status=confirmed` without verifying a successful payment, which breaks booking/payment integrity. A `confirmHotelBooking` endpoint should not exist. Client pays and backend updates the status. Client just calls GET booking after payment is succesful. Client should not call an endpoint to confirm status.
+- [ ] Make `updateTrip` response status immediately consistent with computed trip lifecycle status (`draft`/`upcoming`/`current`/`past`/`cancelled`) returned by detail/list endpoints.  
+  Current behavior can return stale status in the PATCH response, causing UI and agent-state confusion right after updates.
+- [ ] Ensure our API and MCP Server are enforcing the rules correctly when it comes to deterministic inputs (Deterministic vs Model-Controlled Inputs section above)
 
 ### AI & MCP (Current Priority)
 - [ ] Implement MCP Server with all tools, resources, and prompts
