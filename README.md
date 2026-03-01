@@ -281,12 +281,33 @@ Sampling lets the MCP server request LLM completions from the client. Potential 
 ## TODOs
 
 ### Required Fixes (Urgent)
-- [ ] OpenTelemetry and wide events not working after migration to standalone api
-- [ ] Enforce payment-gated hotel confirmation flow (`createPaymentIntent` -> payment confirmation -> booking status update), and block direct `confirmHotelBooking` success when payment is missing.  
+#### 2) Enforce payment-gated hotel confirmation flow
+
+  `createPaymentIntent` -> payment confirmation -> booking status update, and remove direct `confirmHotelBooking`.  
+ 
   Current behavior allows `confirmHotelBooking` to set `status=confirmed` without verifying a successful payment, which breaks booking/payment integrity. A `confirmHotelBooking` endpoint should not exist. Client pays and backend updates the status. Client just calls GET booking after payment is succesful. Client should not call an endpoint to confirm status.
-- [ ] Make `updateTrip` response status immediately consistent with computed trip lifecycle status (`draft`/`upcoming`/`current`/`past`/`cancelled`) returned by detail/list endpoints.  
-  Current behavior can return stale status in the PATCH response, causing UI and agent-state confusion right after updates.
-- [ ] Ensure our API and MCP Server are enforcing the rules correctly when it comes to deterministic inputs (Deterministic vs Model-Controlled Inputs section above)
+ 
+  NOTE: This was actually a misunderstanding: The confirmHotelBooking tool was created by mistake. a confirm hotel booking endpoint doesn't exist (and should not). So the flow is already working. (read `booking-payment-flow.md` and confirm)
+  
+  What we need: Delete confirm hotel booking tool, and we need to scan the API to limit this from being able to happen: Client can never be able to directly patch to update an attribute like status, on any booking (flights, hotels). This depends on payment and can't happen:
+  
+  ```ts
+        const { data, error } = await apiClient.api
+          .trips({ id: tripId })
+          .hotels({ hotelBookingId })
+          .patch({ status: "confirmed" });
+  ```
+  
+  So status is outside `patch` scope. Same for updating a trip: status should not be updated directly ever, it should be computed (AFAIK it already is)
+
+
+#### 3) Make `updateTrip` response status immediately consistent with computed trip lifecycle status (`draft`/`upcoming`/`current`/`past`/`cancelled`) returned by detail/list endpoints. 
+
+  NOTE: This becomes irrelevant since status will not be allowed to be updated anymore. 
+  
+  Current behavior can return stale status in the PATCH response, causing UI and agent-state confusion right after updates. --> Still should ensure we are returning the most up-to-date computed status.
+
+#### 4) Ensure our API and MCP Server are enforcing the rules correctly when it comes to deterministic inputs (Deterministic vs Model-Controlled Inputs section above)
 
 ### AI & MCP (Current Priority)
 - [ ] Implement MCP Server with all tools, resources, and prompts

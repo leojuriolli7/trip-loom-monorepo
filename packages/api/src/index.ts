@@ -1,5 +1,6 @@
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
+import { createOtelPlugin, type OtelPluginOptions } from "./lib/otel/plugin";
 import { createWideEventPlugin } from "./lib/wide-events";
 import { healthRoutes } from "./routes/health";
 import { destinationRoutes } from "./routes/destinations";
@@ -20,13 +21,7 @@ import {
 
 const isDev = process.env.NODE_ENV !== "production";
 
-type AppConfig = {
-  /**
-   * The service name for the wide events logging plugin.
-   * Allows us to filter by service name in observability dashboards.
-   */
-  loggerServiceName?: string;
-};
+type AppConfig = OtelPluginOptions;
 
 export const createApp = (options?: AppConfig) =>
   new Elysia({ name: "api" })
@@ -49,13 +44,20 @@ export const createApp = (options?: AppConfig) =>
           });
       }
     })
+    // OpenTelemetry tracing + log export (must be before wide events)
+    .use(createOtelPlugin(options))
     // Wide event structured logging (1 log per request)
-    .use(createWideEventPlugin({ service: options?.loggerServiceName }))
+    .use(createWideEventPlugin({ service: options?.serviceName }))
     // CORS - configured for dev/prod
     .use(
       cors({
         origin: isDev
-          ? ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001", "http://127.0.0.1:3001"]
+          ? [
+              "http://localhost:3000",
+              "http://127.0.0.1:3000",
+              "http://localhost:3001",
+              "http://127.0.0.1:3001",
+            ]
           : (process.env.CORS_ORIGINS?.split(",") ?? []),
         credentials: true,
         allowedHeaders: ["Content-Type", "Authorization"],
@@ -66,12 +68,18 @@ export const createApp = (options?: AppConfig) =>
     // RFC 8414 §3 path-based variant (/.well-known/oauth-authorization-server/auth)
     // so MCP clients like mcp-remote can discover the authorization server.
     .get("/.well-known/oauth-authorization-server/*", async ({ request }) => {
-      const url = new URL("/auth/.well-known/oauth-authorization-server", request.url);
+      const url = new URL(
+        "/auth/.well-known/oauth-authorization-server",
+        request.url,
+      );
       const response = await fetch(url);
       return response.json();
     })
     .get("/.well-known/oauth-authorization-server", async ({ request }) => {
-      const url = new URL("/auth/.well-known/oauth-authorization-server", request.url);
+      const url = new URL(
+        "/auth/.well-known/oauth-authorization-server",
+        request.url,
+      );
       const response = await fetch(url);
       return response.json();
     })

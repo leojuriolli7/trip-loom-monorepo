@@ -28,7 +28,6 @@
     "@tanstack/react-query-devtools": "^5.91.3",
     "@tanstack/react-query-persist-client": "^5.90.22",
     "@trip-loom/api": "workspace:*",
-    "@trip-loom/otel": "workspace:*",
     "@xyflow/react": "^12.10.0",
     "ai": "^6.0.85",
     "ansi-to-react": "^6.2.6",

@@ -8,8 +8,7 @@
     "start": "NODE_ENV=production bun dist/index.js"
   },
   "dependencies": {
-    "@trip-loom/api": "workspace:*",
-    "@trip-loom/otel": "workspace:*"
+    "@trip-loom/api": "workspace:*"
   },
   "devDependencies": {
     "bun-types": "^1.2.8"

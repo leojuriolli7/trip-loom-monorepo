@@ -53,7 +53,9 @@ Factory for creating the Elysia app instance.
 import { createApp } from "@trip-loom/api";
 
 const app = createApp({
-  loggerServiceName: process.env.OTEL_SERVICE_NAME,
+  serviceName: process.env.OTEL_SERVICE_NAME,
+  traceExporterUrl: process.env.OTEL_EXPORTER_OTLP_ENDPOINT,
+  logsExporterUrl: process.env.OTEL_EXPORTER_OTLP_LOGS_ENDPOINT,
 });
 
 app.listen(3001);
@@ -88,6 +90,7 @@ src/
     ├── auth-plugin.ts      # Auth macro plugin (`auth: true`)
     ├── pagination.ts       # Cursor pagination helpers
     ├── date-range.ts       # Shared date-range validation helper
+    ├── otel/               # OpenTelemetry tracing + log export plugin
     ├── wide-events/        # Structured logging plugin (1 JSON log per request)
     └── [domain]/           # Domain rules (eg. `lib/trips/rules.ts`)
 ```
@@ -228,7 +231,11 @@ Environment files (`.env`) live in **apps**, not packages. See `apps/server/.env
 
 ## Observability
 
-The API ships with **wide events** (structured logs).
+The API ships with **OpenTelemetry tracing** and **wide events** (structured logs).
+
+### OpenTelemetry Tracing
+
+Traces are collected via `@elysiajs/opentelemetry`, the official Elysia plugin that instruments Bun's HTTP layer (Node's `auto-instrumentations-node` doesn't work on Bun). The plugin lives in `src/lib/otel/` and sets up both trace export (OTLP protobuf) and a global `LoggerProvider` for wide events log export (OTLP HTTP). Pass OTEL config to `createApp()` — see the usage example above.
 
 ### Wide Events (Structured Logging)
 
