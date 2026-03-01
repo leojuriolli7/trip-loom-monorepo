@@ -17,8 +17,7 @@ packages/api/
 │   │   ├── common.ts         # Shared schemas (errors, pagination response)
 │   │   └── [domain].ts       # Domain-specific schemas
 │   ├── lib/
-│   │   ├── auth.ts           # Better Auth configuration
-│   │   ├── auth-plugin.ts    # Elysia auth plugin with macros
+│   │   ├── auth/              # Better Auth configuration + Elysia requireAuth macro
 │   │   ├── date-range.ts     # Shared date range validation helpers
 │   │   ├── nanoid.ts         # ID generation
 │   │   ├── pagination.ts     # Pagination helpers and query builders
@@ -263,7 +262,7 @@ export const createApp = () =>
 
 ```typescript
 // src/routes/trips.ts (protected module)
-import { requireAuthMacro } from "../lib/auth-plugin";
+import { requireAuthMacro } from "../lib/auth/plugin";
 
 export const tripRoutes = new Elysia({ name: "trips", prefix: "/api/trips" })
   .use(requireAuthMacro)

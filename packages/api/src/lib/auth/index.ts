@@ -2,11 +2,11 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { mcp } from "better-auth/plugins";
 
-import { db } from "../db";
-import * as schema from "../db/schema";
-import { sendEmail } from "./email/transporter";
-import { getVerifyEmailHtml } from "./email/templates/verify-email";
-import { getForgotPasswordHtml } from "./email/templates/forgot-password";
+import { db } from "../../db";
+import * as schema from "../../db/schema";
+import { sendEmail } from "../email/transporter";
+import { getVerifyEmailHtml } from "../email/templates/verify-email";
+import { getForgotPasswordHtml } from "../email/templates/forgot-password";
 
 const isDev = process.env.NODE_ENV !== "production";
 

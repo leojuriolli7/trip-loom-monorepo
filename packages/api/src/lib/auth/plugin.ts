@@ -1,9 +1,9 @@
 import { Elysia } from "elysia";
 import { eq } from "drizzle-orm";
-import { createWideEventPlugin } from "./wide-events";
-import { auth } from "./auth";
-import { db } from "../db";
-import { user as userTable } from "../db/schema";
+import { createWideEventPlugin } from "../wide-events";
+import { auth } from ".";
+import { db } from "../../db";
+import { user as userTable } from "../../db/schema";
 
 /**
  * Auth plugins for Better Auth + Elysia macro-based route protection.

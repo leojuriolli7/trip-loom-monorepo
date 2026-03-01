@@ -7,7 +7,7 @@ import {
   updateHotelBookingInputSchema,
 } from "../dto/hotel-bookings";
 import { createWideEventPlugin } from "../lib/wide-events";
-import { requireAuthMacro } from "../lib/auth-plugin";
+import { requireAuthMacro } from "../lib/auth/plugin";
 import {
   cancelHotelBooking,
   createHotelBooking,
@@ -34,7 +34,6 @@ export const hotelBookingRoutes = new Elysia({
   .get(
     "/trips/:id/hotels",
     async ({ user, params, status, wideEvent }) => {
-
       wideEvent.trip_id = params.id;
 
       const result = await listHotelBookings(user.id, params.id);
@@ -61,7 +60,6 @@ export const hotelBookingRoutes = new Elysia({
   .post(
     "/trips/:id/hotels",
     async ({ user, params, body, status, wideEvent }) => {
-
       wideEvent.trip_id = params.id;
 
       const result = await createHotelBooking(user.id, params.id, body);
@@ -91,11 +89,14 @@ export const hotelBookingRoutes = new Elysia({
   .get(
     "/trips/:id/hotels/:hotelBookingId",
     async ({ user, params, status, wideEvent }) => {
-
       wideEvent.trip_id = params.id;
       wideEvent.hotel_booking_id = params.hotelBookingId;
 
-      const result = await getHotelBooking(user.id, params.id, params.hotelBookingId);
+      const result = await getHotelBooking(
+        user.id,
+        params.id,
+        params.hotelBookingId,
+      );
       if (!result) {
         return status(404, {
           error: "Not Found",
@@ -119,7 +120,6 @@ export const hotelBookingRoutes = new Elysia({
   .patch(
     "/trips/:id/hotels/:hotelBookingId",
     async ({ user, params, body, status, wideEvent }) => {
-
       wideEvent.trip_id = params.id;
       wideEvent.hotel_booking_id = params.hotelBookingId;
 
@@ -154,11 +154,14 @@ export const hotelBookingRoutes = new Elysia({
   .delete(
     "/trips/:id/hotels/:hotelBookingId",
     async ({ user, params, status, wideEvent }) => {
-
       wideEvent.trip_id = params.id;
       wideEvent.hotel_booking_id = params.hotelBookingId;
 
-      const success = await cancelHotelBooking(user.id, params.id, params.hotelBookingId);
+      const success = await cancelHotelBooking(
+        user.id,
+        params.id,
+        params.hotelBookingId,
+      );
       if (!success) {
         return status(404, {
           error: "Not Found",

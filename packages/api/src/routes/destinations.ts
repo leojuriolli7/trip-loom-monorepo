@@ -16,7 +16,7 @@ import {
 } from "../dto/destinations";
 import { errorResponseSchema, paginatedResponseSchema } from "../dto/common";
 import { createWideEventPlugin } from "../lib/wide-events";
-import { requireAuthMacro } from "../lib/auth-plugin";
+import { requireAuthMacro } from "../lib/auth/plugin";
 
 export const destinationRoutes = new Elysia({
   name: "destinations",

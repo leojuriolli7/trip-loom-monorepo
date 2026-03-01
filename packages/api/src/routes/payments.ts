@@ -10,7 +10,7 @@ import {
   stripeWebhookResponseSchema,
 } from "../dto/payments";
 import { createWideEventPlugin } from "../lib/wide-events";
-import { requireAuthMacro } from "../lib/auth-plugin";
+import { requireAuthMacro } from "../lib/auth/plugin";
 import {
   confirmPayment,
   createPaymentIntent,
@@ -69,7 +69,6 @@ export const paymentRoutes = new Elysia({
   .post(
     "/payments/create-intent",
     async ({ user, body, status, wideEvent }) => {
-
       wideEvent.trip_id = body.tripId;
 
       const result = await createPaymentIntent(user.id, body);
@@ -99,7 +98,6 @@ export const paymentRoutes = new Elysia({
   .post(
     "/payments/confirm",
     async ({ user, body, status, wideEvent }) => {
-
       wideEvent.payment_intent_id = body.paymentIntentId;
 
       const result = await confirmPayment(user.id, body);
@@ -128,7 +126,6 @@ export const paymentRoutes = new Elysia({
   .get(
     "/payments/:id",
     async ({ user, params, status, wideEvent }) => {
-
       wideEvent.payment_id = params.id;
 
       const result = await getPayment(user.id, params.id);
@@ -155,7 +152,6 @@ export const paymentRoutes = new Elysia({
   .post(
     "/payments/:id/refund",
     async ({ user, params, body, status, wideEvent }) => {
-
       wideEvent.payment_id = params.id;
 
       const result = await refundPayment(user.id, params.id, body);

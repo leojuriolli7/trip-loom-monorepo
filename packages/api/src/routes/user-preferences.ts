@@ -1,6 +1,6 @@
 import { Elysia } from "elysia";
 import { createWideEventPlugin } from "../lib/wide-events";
-import { requireAuthMacro } from "../lib/auth-plugin";
+import { requireAuthMacro } from "../lib/auth/plugin";
 import { errorResponseSchema } from "../dto/common";
 import {
   userPreferenceInputSchema,

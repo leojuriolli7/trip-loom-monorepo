@@ -86,8 +86,7 @@ src/
 ├── errors/
 │   └── http-errors.ts      # Shared custom HTTP errors
 └── lib/
-    ├── auth.ts             # Better Auth configuration
-    ├── auth-plugin.ts      # Auth macro plugin (`auth: true`)
+    ├── auth/               # Better Auth configuration + Elysia requireAuth macro
     ├── pagination.ts       # Cursor pagination helpers
     ├── date-range.ts       # Shared date-range validation helper
     ├── otel/               # OpenTelemetry tracing + log export plugin

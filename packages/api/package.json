@@ -6,7 +6,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./env": "./src/env.d.ts",
-    "./auth-types": "./src/lib/auth-types.ts",
+    "./auth/types": "./src/lib/auth/types.ts",
     "./enums": "./src/enums.ts",
     "./dto": "./src/dto/index.ts"
   },

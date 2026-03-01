@@ -9,7 +9,7 @@ import {
   updateTripInputSchema,
 } from "../dto/trips";
 import { createWideEventPlugin } from "../lib/wide-events";
-import { requireAuthMacro } from "../lib/auth-plugin";
+import { requireAuthMacro } from "../lib/auth/plugin";
 import {
   createTrip,
   deleteTrip,

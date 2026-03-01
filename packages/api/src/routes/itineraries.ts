@@ -10,7 +10,7 @@ import {
   updateDayInputSchema,
 } from "../dto/itineraries";
 import { createWideEventPlugin } from "../lib/wide-events";
-import { requireAuthMacro } from "../lib/auth-plugin";
+import { requireAuthMacro } from "../lib/auth/plugin";
 import {
   addActivity,
   addDay,
@@ -50,7 +50,6 @@ export const itineraryRoutes = new Elysia({
   .get(
     "/trips/:id/itinerary",
     async ({ user, params, status, wideEvent }) => {
-
       wideEvent.trip_id = params.id;
 
       const result = await getItinerary(user.id, params.id);
@@ -77,7 +76,6 @@ export const itineraryRoutes = new Elysia({
   .post(
     "/trips/:id/itinerary",
     async ({ user, params, body, status, wideEvent }) => {
-
       wideEvent.trip_id = params.id;
 
       const result = await createItinerary(user.id, params.id, body);
@@ -106,7 +104,6 @@ export const itineraryRoutes = new Elysia({
   .delete(
     "/trips/:id/itinerary",
     async ({ user, params, status, wideEvent }) => {
-
       wideEvent.trip_id = params.id;
 
       const success = await deleteItinerary(user.id, params.id);
@@ -135,7 +132,6 @@ export const itineraryRoutes = new Elysia({
   .post(
     "/trips/:id/itinerary/days",
     async ({ user, params, body, status, wideEvent }) => {
-
       wideEvent.trip_id = params.id;
 
       const result = await addDay(user.id, params.id, body);
@@ -163,7 +159,6 @@ export const itineraryRoutes = new Elysia({
   .patch(
     "/trips/:id/itinerary/days/:dayId",
     async ({ user, params, body, status, wideEvent }) => {
-
       wideEvent.trip_id = params.id;
       wideEvent.day_id = params.dayId;
 
@@ -192,7 +187,6 @@ export const itineraryRoutes = new Elysia({
   .delete(
     "/trips/:id/itinerary/days/:dayId",
     async ({ user, params, status, wideEvent }) => {
-
       wideEvent.trip_id = params.id;
       wideEvent.day_id = params.dayId;
 
@@ -223,7 +217,6 @@ export const itineraryRoutes = new Elysia({
   .post(
     "/trips/:id/itinerary/days/:dayId/activities",
     async ({ user, params, body, status, wideEvent }) => {
-
       wideEvent.trip_id = params.id;
       wideEvent.day_id = params.dayId;
 
@@ -252,7 +245,6 @@ export const itineraryRoutes = new Elysia({
   .patch(
     "/trips/:id/itinerary/days/:dayId/activities/:activityId",
     async ({ user, params, body, status, wideEvent }) => {
-
       wideEvent.trip_id = params.id;
       wideEvent.day_id = params.dayId;
       wideEvent.activity_id = params.activityId;
@@ -288,7 +280,6 @@ export const itineraryRoutes = new Elysia({
   .delete(
     "/trips/:id/itinerary/days/:dayId/activities/:activityId",
     async ({ user, params, status, wideEvent }) => {
-
       wideEvent.trip_id = params.id;
       wideEvent.day_id = params.dayId;
       wideEvent.activity_id = params.activityId;

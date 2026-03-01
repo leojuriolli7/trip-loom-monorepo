@@ -1,7 +1,7 @@
 import "server-only";
 
 import { headers } from "next/headers";
-import type { AuthSession } from "@trip-loom/api/auth-types";
+import type { AuthSession } from "@trip-loom/api/auth/types";
 
 /**
  * Fetches the current session from the API server.
