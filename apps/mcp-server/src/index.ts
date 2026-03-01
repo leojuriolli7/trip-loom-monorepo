@@ -19,7 +19,7 @@ const protectedResourceHandler = mcpAuth.protectedResourceHandler(MCP_SERVER_URL
 
 // Authenticated MCP handler — mcpAuth.handler wraps with Bearer token validation.
 // Returns 401 with WWW-Authenticate header if token is missing/invalid.
-const handleMcp = mcpAuth.handler(async (request) => {
+const handleMcp = mcpAuth.handler(async (request, session) => {
   const sessionId = request.headers.get("mcp-session-id");
 
   try {
@@ -64,7 +64,7 @@ const handleMcp = mcpAuth.handler(async (request) => {
       }
     };
 
-    const server = createMcpServer();
+    const server = createMcpServer(session.accessToken);
     await server.connect(transport);
 
     // Pass pre-parsed body since we already consumed the stream

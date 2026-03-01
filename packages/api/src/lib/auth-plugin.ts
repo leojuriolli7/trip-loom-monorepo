@@ -1,6 +1,9 @@
 import { Elysia } from "elysia";
+import { eq } from "drizzle-orm";
 import { createWideEventPlugin } from "./wide-events";
 import { auth } from "./auth";
+import { db } from "../db";
+import { user as userTable } from "../db/schema";
 
 /**
  * Auth plugins for Better Auth + Elysia macro-based route protection.
@@ -29,35 +32,77 @@ export const requireAuthMacro = new Elysia({
 })
   .use(createWideEventPlugin())
   .macro({
-  /**
-   * Auth macro - protects routes and injects user/session into context.
-   *
-   * Uses `resolve` instead of `derive` because:
-   * - `resolve` runs AFTER validation (more secure)
-   * - `derive` runs BEFORE validation (less secure)
-   *
-   * Uses `status()` instead of `set.status` because:
-   * - Better type inference for error responses
-   * - Cleaner early return pattern
-   */
-  auth: {
-    async resolve({ status, request: { headers }, wideEvent }) {
-      const session = await auth.api.getSession({ headers });
+    /**
+     * Auth macro - protects routes and injects user/session into context.
+     *
+     * Supports two auth methods:
+     * 1. Session cookies (web app) — via auth.api.getSession
+     * 2. OAuth Bearer tokens (MCP server) — via auth.api.getMcpSession
+     *
+     * Uses `resolve` instead of `derive` because:
+     * - `resolve` runs AFTER validation (more secure)
+     * - `derive` runs BEFORE validation (less secure)
+     *
+     * Uses `status()` instead of `set.status` because:
+     * - Better type inference for error responses
+     * - Cleaner early return pattern
+     */
+    auth: {
+      async resolve({ status, request: { headers }, wideEvent }) {
+        // 1. Try session cookie auth (web app)
+        const session = await auth.api.getSession({ headers });
 
-      if (!session) {
+        if (session) {
+          wideEvent.user_id = session.user.id;
+
+          return {
+            user: session.user,
+            session: session.session,
+          };
+        }
+
+        // 2. Try OAuth Bearer token auth (MCP server)
+        const authHeader = new Headers(headers).get("authorization");
+
+        if (authHeader?.startsWith("Bearer ")) {
+          // getMcpSession validates OAuth access tokens issued by the MCP plugin.
+          // Cast needed because the MCP plugin type (MCPOptions) isn't exported
+          // by better-auth, so the `as any` on the plugin in auth.ts strips its types.
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const mcpSession = await auth.api.getMcpSession({ headers });
+
+          if (mcpSession?.userId) {
+            const [user] = await db
+              .select()
+              .from(userTable)
+              .where(eq(userTable.id, mcpSession.userId))
+              .limit(1);
+
+            if (user) {
+              wideEvent.user_id = user.id;
+
+              return {
+                user,
+                session: {
+                  id: mcpSession.accessToken,
+                  expiresAt: mcpSession.accessTokenExpiresAt,
+                  token: mcpSession.accessToken,
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
+                  ipAddress: null,
+                  userAgent: null,
+                  userId: user.id,
+                },
+              };
+            }
+          }
+        }
+
         return status(401, {
           error: "Unauthorized",
           message: "Authentication required",
           statusCode: 401,
         });
-      }
-
-      wideEvent.user_id = session.user.id;
-
-      return {
-        user: session.user,
-        session: session.session,
-      };
+      },
     },
-  },
-});
+  });

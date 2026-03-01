@@ -108,11 +108,9 @@ export const auth = betterAuth({
       ]
     : (process.env.TRUSTED_ORIGINS?.split(",") ?? []),
   plugins: [
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- MCPOptions
-    // is not exported from better-auth, causing TS4023 with declaration: true.
     mcp({
       loginPage: new URL("/enter", process.env.FRONTEND_BASE_URL).toString(),
-    }) as any,
+    }),
   ],
 });
 
