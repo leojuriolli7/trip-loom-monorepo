@@ -12,7 +12,7 @@
     "@modelcontextprotocol/sdk": "^1.27.1",
     "@trip-loom/api": "workspace:*",
     "better-auth": "^1.5.0",
-    "hono": "^4.12.3",
+    "elysia": "^1.2.25",
     "zod": "^4.3.6"
   },
   "devDependencies": {

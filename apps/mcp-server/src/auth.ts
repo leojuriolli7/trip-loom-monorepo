@@ -1,9 +1,9 @@
-import { mcpAuthHono } from "better-auth/plugins/mcp/client/adapters";
+import { createMcpAuthClient } from "better-auth/plugins/mcp/client";
 
 const MCP_SERVER_PORT = process.env.MCP_SERVER_PORT ?? "3002";
 const MCP_SERVER_URL = `http://localhost:${MCP_SERVER_PORT}`;
 
-export const { middleware: mcpAuthMiddleware, discoveryRoutes } = mcpAuthHono({
+export const mcpAuth = createMcpAuthClient({
   authURL: `${process.env.API_BASE_URL}/auth`,
   resource: MCP_SERVER_URL,
 });

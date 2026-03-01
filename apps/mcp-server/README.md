@@ -74,7 +74,7 @@ MCP Client (e.g., Claude Desktop, LangGraph agent)
     |
     | Bearer token (OAuth 2.1)
     v
-MCP Server (Hono + Streamable HTTP, port 3002)
+MCP Server (Elysia + Streamable HTTP, port 3002)
     |
     | Eden client (type-safe)
     v
