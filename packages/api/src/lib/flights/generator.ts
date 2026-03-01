@@ -126,7 +126,6 @@ export function generateSeatMapForFlight({
 }): {
   seatMap: FlightSeatMap;
   availableSeatCount: number;
-  suggestedSeatId: string | null;
 } {
   const random = createSeededRandom(hashString(seedKey));
   const layoutOptions = CABIN_LAYOUTS[cabinClass];
@@ -183,21 +182,9 @@ export function generateSeatMapForFlight({
     }
   }
 
-  const availableSeatIds = seatMap.flatMap((row) =>
-    row.sections.flatMap((section) =>
-      section.filter((seat) => !seat.isBooked).map((seat) => seat.id),
-    ),
-  );
-
-  const suggestedSeatId =
-    availableSeatIds.length > 0
-      ? availableSeatIds[randomInt(random, 0, availableSeatIds.length - 1)]
-      : null;
-
   return {
     seatMap,
     availableSeatCount,
-    suggestedSeatId,
   };
 }
 
@@ -260,7 +247,6 @@ export function generateFlightOptions({
       cabinClass: params.cabinClass,
       availableSeats: seatMapData.availableSeatCount,
       seatMap: seatMapData.seatMap,
-      suggestedSeatId: seatMapData.suggestedSeatId,
     });
   }
 

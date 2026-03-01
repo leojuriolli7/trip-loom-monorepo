@@ -71,12 +71,12 @@ export function AirplaneSeatView({
 
   // State for selected seat
   const [selectedSeatId, setSelectedSeatId] = React.useState<string | null>(
-    flight.suggestedSeatId ?? null,
+    null,
   );
 
   React.useEffect(() => {
-    setSelectedSeatId(flight.suggestedSeatId ?? null);
-  }, [flight.id, flight.suggestedSeatId]);
+    setSelectedSeatId(null);
+  }, [flight.id]);
 
   // State for "request changes" input
   const [showChangeInput, setShowChangeInput] = React.useState(false);

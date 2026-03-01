@@ -142,7 +142,6 @@ I've pre-selected seat 3C for you - it's a window seat with extra legroom. You c
           cabinClass: "business",
           availableSeats: 48,
           seatMap: MOCK_SEAT_MAP,
-          suggestedSeatId: "3C",
         },
       },
     },

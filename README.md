@@ -237,6 +237,8 @@ Where this should be enforced:
 
 To be clear: It's not yet decided where the rules should be enforced: Should the API even allow creating a hotel booking in any date, since the booking should always be on the same dates as the trip? Or should the MCP server tools be the place where we fetch a trip and pass the start and end date automatically? -- So this might require an API refactor.
 
+We should also think more about each tool and how they will fit on the UI. Likely, I will need to go through and map the UI scenarios and rework the list of tools. The initial list was a good first draft and experiment (Proved the MCP server works as intended).
+
 ### Resources
 
 Resources are read-only data the host application can attach as context:
@@ -279,14 +281,6 @@ Sampling lets the MCP server request LLM completions from the client. Potential 
 *Note: Since our agents already have LLM access via LangGraph, sampling is a secondary feature. We'll evaluate during implementation whether it adds value beyond what the agents already do.*
 
 ## TODOs
-
-### Required Fixes (Urgent)
-
-#### 1) Flight booking does not need to return a suggested seat
-
-The AI tool call for a flight can return a suggested seat, but it doesn't make sense for the API to select the seat for the user.
-
-#### 2) Ensure our API and MCP Server are enforcing the rules correctly when it comes to deterministic inputs (Deterministic vs Model-Controlled Inputs section above)
 
 ### AI & MCP (Current Priority)
 - [ ] Implement MCP Server with all tools, resources, and prompts

@@ -166,7 +166,6 @@ export async function getFlightBooking(
   return {
     ...booking,
     seatMap: seatMapData.seatMap,
-    suggestedSeatId: booking.seatNumber ?? seatMapData.suggestedSeatId,
     departureAirport: departureAirport ?? {
       code: booking.departureAirportCode,
       name: booking.departureCity,

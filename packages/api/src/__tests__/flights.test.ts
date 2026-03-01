@@ -398,10 +398,6 @@ describe("Flights API", () => {
           ),
       );
 
-      if (firstOption.suggestedSeatId) {
-        expect(availableSeatIds).toContain(firstOption.suggestedSeatId);
-      }
-
       expect(firstOption.availableSeats).toBe(availableSeatIds.length);
     });
 
@@ -558,7 +554,6 @@ describe("Flights API", () => {
       expect(Array.isArray(body.seatMap)).toBe(true);
       expect(body.seatMap.length).toBeGreaterThan(0);
       expect(body.seatMap[0].sections.length).toBeGreaterThan(0);
-      expect(body.suggestedSeatId === null || typeof body.suggestedSeatId === "string").toBe(true);
     });
 
     it("DELETE cancels booking and may move trip back to draft", async () => {

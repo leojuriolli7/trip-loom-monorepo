@@ -76,7 +76,6 @@ export const flightOptionSchema = z.object({
   cabinClass: z.enum(cabinClassValues),
   availableSeats: z.number().int().nonnegative(),
   seatMap: flightSeatMapSchema,
-  suggestedSeatId: z.string().nullable(),
 });
 
 export type FlightOptionDTO = z.infer<typeof flightOptionSchema>;
@@ -107,7 +106,6 @@ export type FlightBookingDTO = z.infer<typeof flightBookingSchema>;
 
 export const flightBookingDetailSchema = flightBookingSchema.extend({
   seatMap: flightSeatMapSchema,
-  suggestedSeatId: z.string().nullable(),
   departureAirport: airportSummarySchema,
   arrivalAirport: airportSummarySchema,
 });
