@@ -67,7 +67,9 @@ PostgreSQL with Drizzle ORM. 15 tables covering users, auth, trips, destinations
 
 ### Overview
 
-The AI system follows a **supervisor multi-agent pattern** built with LangGraph.js. A central supervisor agent receives all user messages and delegates to specialized sub-agents based on the user's intent. Each sub-agent has access to domain-specific tools exposed through an MCP server, which communicates with the API via the type-safe Eden client.
+The AI system follows a **supervisor multi-agent pattern** built with LangGraph.js. A central supervisor agent receives all user messages and delegates to specialized sub-agents based on the user's intent.
+
+Tools are split across **three layers**, each with a distinct responsibility:
 
 ```
 User <-> Chat UI <-> API (SSE endpoint) <-> LangGraph Supervisor
@@ -76,13 +78,30 @@ User <-> Chat UI <-> API (SSE endpoint) <-> LangGraph Supervisor
                                           |         |         |
                                      Destination  Flight    Hotel    Itinerary
                                       Agent      Agent     Agent     Agent
-                                          |         |         |         |
-                                          +---------+---------+---------+
-                                                    |
-                                              MCP Server
-                                                    |
-                                           Eden Client -> API
+                                       |  \        |  \      |  \      |  \
+                                       |   \       |   \     |   \     |   \
+                                 MCP Tools  Agent  MCP  Agent MCP Agent MCP Agent
+                                            Tools       Tools     Tools     Tools
+                                       |          |         |         |
+                                       +----------+---------+---------+
+                                                   |
+                                             MCP Server
+                                                   |
+                                          Eden Client -> API
 ```
+
+#### Three-Layer Tool Architecture
+
+| Layer | Lives In | Purpose | Examples |
+|-------|----------|---------|----------|
+| **MCP Tools** | MCP Server (`apps/mcp-server`) | Generic API wrapper — data fetching and mutations. Reusable by any MCP client (Claude Desktop, agents, future apps). | `search_destinations`, `book_flight`, `create_hotel_booking` |
+| **Agent Tools** | LangGraph agents (`apps/agents`) | UI-aware, app-specific tools that emit structured data for the frontend to render as widgets. Encode UX decisions (what to show, when to ask for confirmation). | `suggest_destinations`, `suggest_flight`, `request_payment`, `request_confirmation` |
+| **Frontend Actions** | Next.js frontend (`apps/web`) | Deterministic, user-triggered actions. No AI involvement — buttons and forms that call the API directly. | "Pay" button creates payment intent, "Confirm"/"Deny" buttons resume the LangGraph graph |
+
+**Why this split:**
+- **MCP server stays generic.** Other clients can use it without our UI. It's a clean API wrapper.
+- **Agent tools encode UX decisions.** "Pick one hotel and present it as a card" is a UX choice, not an API operation. These tools use LangGraph's `dispatchCustomEvent` to stream structured data to the frontend via the `custom` stream mode.
+- **Payments and confirmations stay deterministic.** The frontend owns payment creation (Stripe intent) and booking state transitions, triggered by explicit user action (button clicks) or by an agent tool that opens the same UI flow.
 
 ### Agents
 
@@ -92,36 +111,38 @@ User <-> Chat UI <-> API (SSE endpoint) <-> LangGraph Supervisor
 - Maintains the overall conversation flow and decides when to hand off or take back control
 - Can access trip and user preference resources for context
 - Suggests next steps after a sub-agent completes (e.g., "Now that your hotel is booked, want to plan your itinerary?") but follows the user's lead
+- **MCP Tools:** `get_trip_details`, `get_user_preferences`, `update_trip`, `create_trip`
 
 #### Destination Search Agent
 - **Purpose:** Help users find and choose a travel destination
-- **MCP Tools:** `searchDestinations`, `getDestinationDetails`, `getRecommendedDestinations`
+- **MCP Tools:** `search_destinations`, `get_destination_details`, `get_recommended_destinations`
+- **Agent Tools:** `suggest_destinations` (renders destination card)
 - **Web Search:** Enrich destination data with current travel info, visa requirements, weather, events
 - **Context:** Reads user preferences (travel interests, preferred regions, budget) to personalize suggestions
-- **UI Widgets:** Destination carousel cards with photos, highlights, and "Select" buttons
 
 #### Flight Booking Agent
 - **Purpose:** Search and book inbound/outbound flights for a trip
-- **MCP Tools:** `searchFlights`, `bookFlight`, `cancelFlightBooking`
-- **Context:** Uses trip dates (start date = inbound, end date = outbound) and destination to derive search parameters. Reads user's preferred departure airport from preferences and confirms with the user before searching (e.g., "Based on your preferences, are you flying out of JFK?").
-- **Human-in-the-loop:** Interrupt before booking — present the AI's suggested flight with seat selection widget, then payment confirmation. User can request different options via chat.
-- **UI Widgets:** Flight suggestion card, airplane seat picker, Stripe payment form
+- **MCP Tools:** `search_flights`, `book_flight`, `cancel_flight_booking`
+- **Agent Tools:** `suggest_flight` (renders flight card + seat picker), `request_payment`, `request_confirmation`
+- **Context:** Uses trip dates (start date = outbound, end date = inbound) and destination to derive search parameters. Reads user's preferred departure airport from preferences and confirms with the user before searching.
+- **Human-in-the-loop:** Confirms departure airport, presents flight suggestion with seat picker, then payment confirmation. User can request different options via chat.
 
 #### Hotel Booking Agent
 - **Purpose:** Search and book hotel accommodations
-- **MCP Tools:** `searchHotels`, `createHotelBooking`, `cancelHotelBooking`
+- **MCP Tools:** `search_hotels`, `create_hotel_booking`, `cancel_hotel_booking`
+- **Agent Tools:** `suggest_hotel_booking` (renders hotel card with pricing), `request_payment`, `request_confirmation`
 - **Web Search:** Enrich hotel data with recent reviews, photos, neighborhood info
 - **Context:** Uses trip dates for check-in/check-out, destination for location filtering, user budget/style preferences
-- **Flow:** Agent searches hotels, picks the best match based on user preferences, selects a room type (e.g., "standard" for budget travelers), and creates a pending booking. The booking card is presented to the user with pricing. User can approve and pay, or request changes via chat (different hotel, different room type, etc.). If user declines, the pending booking is deleted.
+- **Flow:** Agent searches hotels, picks the best match based on user preferences, selects a room type (e.g., "standard" for budget travelers), and creates a pending booking via MCP. Then calls `suggest_hotel_booking` to render the booking card. User can approve and pay, or request changes via chat. If user declines, the pending booking is cancelled.
 - **Human-in-the-loop:** Interrupt before payment — present the suggested booking, then Stripe payment form upon approval
-- **UI Widgets:** Hotel suggestion card with amenities/rating/pricing, Stripe payment form
 
 #### Itinerary Planner Agent
 - **Purpose:** Create and modify day-by-day trip itineraries
-- **MCP Tools:** `createItinerary`, `addItineraryDay`, `addItineraryActivity`, `updateItineraryActivity`, `deleteItineraryActivity`
+- **MCP Tools:** `create_itinerary`, `add_itinerary_day`, `add_itinerary_activity`, `update_itinerary_activity`, `delete_itinerary_activity`
+- **Agent Tools:** `suggest_itinerary` (renders itinerary draft for approval before saving)
 - **Web Search:** Research activities, restaurants, local attractions, opening hours, estimated costs
 - **Context:** Uses trip dates, destination, and existing bookings (check-in times, flight arrivals) to plan around constraints
-- **UI Widgets:** Day-by-day itinerary view, activity cards with times/locations/costs, itinerary diff viewer for edits
+- **Flow:** Agent researches and builds a draft itinerary, presents it via `suggest_itinerary` for user approval. Only after approval does the agent call MCP tools to persist it. User can request changes to the draft via chat before saving.
 
 ### Conversation Persistence
 
@@ -158,98 +179,256 @@ OpenAI GPT-5.2 as the primary model (95%+ tool-calling success rate, strong mult
 
 A standalone TypeScript MCP server (`@modelcontextprotocol/sdk`) that wraps the TripLoom API. Agents connect to it for all API interactions. Internally, every tool implementation calls the API via the type-safe Eden client.
 
-The server will live in `apps/mcp-server` and use: 
+Lives in `apps/mcp-server` and uses:
 
-- Bun
-- Express (or Elysia depending on existing documentation and support -- Elysia and Bun only require standard Request and Response to work)
-- Typescript MCP SDK
-- OAuth 2.1, with our API using better-auth's OAuth Plugin to integrate it
-- Elysia's Eden Client, a typesafe client for calling API endpoints in tools: 
+- Elysia on Bun (consistent with the API, native Web Standard Request/Response)
+- `@modelcontextprotocol/sdk` v1.27.1 with `WebStandardStreamableHTTPServerTransport`
+- OAuth 2.1 via Better Auth's MCP plugin (`better-auth/plugins/mcp`)
+- Eden treaty client for type-safe API calls in every tool
 
 ```ts
 import { treaty } from "@elysiajs/eden";
 import type { App } from "@trip-loom/api";
 
-export const apiClient = treaty<App>(process.env.API_URL, {
-  parseDate: false,
-  // Required for cross-origin cookie sending (mcp server on :3002, API on :3001)
-  fetch: { credentials: "include" },
-})
+// Each MCP session gets its own client scoped to the authenticated user
+export function createApiClient(accessToken: string) {
+  return treaty<App>(process.env.API_BASE_URL!, {
+    parseDate: false,
+    headers: { authorization: `Bearer ${accessToken}` },
+  });
+}
 ```
 
 ### Authentication
 
 The MCP server requires an authenticated TripLoom user session. The authenticated user's session token is passed through to every Eden client call, so all API-level ownership guards apply — a user can never access or mutate another user's trips, bookings, itineraries, or preferences through the MCP server. The API already enforces this: every user-scoped route checks `trip.userId` (or joins through trip for sub-resources like bookings and payments), and public catalog endpoints (destinations, hotels) correctly skip auth.
 
-### Tools
+### MCP Tools
 
-Tools are model-controlled actions the agents can invoke:
+MCP tools are generic API wrappers that live in the MCP server (`apps/mcp-server`). They handle data fetching and mutations. Any MCP client can use them — our agents, Claude Desktop, future apps.
 
-| Tool | Description | Agent(s) |
-|------|-------------|----------|
-| `searchDestinations` | Search destinations by text, region, highlights | Destination |
-| `getDestinationDetails` | Get full destination info with enrichment | Destination |
-| `getRecommendedDestinations` | Get personalized recommendations based on user preferences | Destination |
-| `searchFlights` | Search flights by route, date, cabin class | Flight |
-| `bookFlight` | Create a pending flight booking | Flight |
-| `cancelFlightBooking` | Cancel a flight booking | Flight |
-| `searchHotels` | Search hotels by destination, amenities, style, price range | Hotel |
-| `createHotelBooking` | Create a pending hotel booking (for pricing) | Hotel |
-| `confirmHotelBooking` | Confirm booking after payment (This will be refactored and removed) | Hotel |
-| `cancelHotelBooking` | Cancel a hotel booking | Hotel |
-| `createItinerary` | Create an itinerary for a trip | Itinerary |
-| `addItineraryDay` | Add a day to an itinerary | Itinerary |
-| `addItineraryActivity` | Add an activity to a day | Itinerary |
-| `updateItineraryActivity` | Update an existing activity | Itinerary |
-| `deleteItineraryActivity` | Remove an activity | Itinerary |
-| `getTripDetails` | Get full trip data with all bookings | Supervisor |
-| `updateTrip` | Update trip dates, title, destination | Supervisor |
-| `getUserPreferences` | Get user travel preferences | Supervisor |
-| `createPaymentIntent` | Create a Stripe payment intent for a pending booking | Flight, Hotel |
+| Tool | Description | Used By |
+|------|-------------|---------|
+| `search_destinations` | Search destinations by text, region, country, highlights | Destination Agent |
+| `get_destination_details` | Get full destination info + related hotels | Destination Agent |
+| `get_recommended_destinations` | Get personalized recommendations based on user preferences | Destination Agent |
+| `search_flights` | Search flights by route, date, cabin class | Flight Agent |
+| `book_flight` | Create a pending flight booking | Flight Agent |
+| `cancel_flight_booking` | Cancel a flight booking | Flight Agent |
+| `search_hotels` | Search hotels by destination, amenities, price range, rating | Hotel Agent |
+| `create_hotel_booking` | Create a pending hotel booking (returns pricing) | Hotel Agent |
+| `cancel_hotel_booking` | Cancel a hotel booking | Hotel Agent |
+| `create_itinerary` | Create an itinerary for a trip (with nested days + activities) | Itinerary Agent |
+| `add_itinerary_day` | Add a day to an existing itinerary | Itinerary Agent |
+| `add_itinerary_activity` | Add an activity to a day | Itinerary Agent |
+| `update_itinerary_activity` | Update an existing activity | Itinerary Agent |
+| `delete_itinerary_activity` | Remove an activity | Itinerary Agent |
+| `get_trip_details` | Get full trip data with all bookings, itinerary, destination | Supervisor |
+| `create_trip` | Create a new trip | Supervisor |
+| `update_trip` | Update trip dates, title, destination | Supervisor |
+| `get_user_preferences` | Get user travel preferences | Supervisor |
 
-### Deterministic vs Model-Controlled Inputs (Important)
 
-Not all API inputs should be chosen by the LLM. For safety and correctness, we split responsibilities:
+### Agent Tools
 
-- **Model-controlled (good for AI):** search filters, destination/hotel/flight preference exploration, itinerary content suggestions.
-- **Deterministic/system-controlled (not good for AI):** payment amount/currency, payment creation timing, booking confirmation state transitions, and fields that must be derived from trip constraints (for example, hotel check-in/check-out tied to trip dates).
+Agent tools live in the LangGraph agent code (`apps/agents`), NOT in the MCP server. They don't call the API — they emit structured data via `dispatchCustomEvent` that the frontend renders as interactive widgets. These tools encode **UX decisions** specific to our app.
 
-Current examples that need this boundary:
+The frontend listens for `custom` events in the SSE stream and renders the appropriate widget based on the event type (e.g., `ui:destination_card`, `ui:flight_suggestion`, `ui:payment_request`).
 
-- `createPaymentIntent` should not rely on AI choosing sensitive payment fields in production flow.
-- `createHotelBooking` should not rely on AI choosing check-in/check-out when these should be locked to trip dates.
-- `createFlightBooking` should not rely on AI choosing inbound or outbound flight dates when these should be locked to trip dates.
+| Tool | Description | Emits Event | Used By |
+|------|-------------|-------------|---------|
+| `suggest_destinations` | Present destination options as visual cards. AI picks 1 top destination from search results and returns structured data for rendering. | `ui:destination_card` | Destination Agent |
+| `suggest_flight` | Present a flight option with seat picker. AI picks 1 flight and suggests a seat. | `ui:flight_suggestion` | Flight Agent |
+| `suggest_hotel_booking` | Present a hotel booking card with pricing details. Rendered after AI creates a pending booking via MCP. | `ui:hotel_booking` | Hotel Agent |
+| `suggest_itinerary` | Present a draft itinerary for user approval BEFORE saving to the database. | `ui:itinerary_draft` | Itinerary Agent |
+| `request_payment` | Tell the frontend to open the Stripe payment form for a pending booking. Triggered by user approval (button click) OR natural language ("Ok let's pay for the hotel"). | `ui:payment_request` | Flight Agent, Hotel Agent |
+| `request_confirmation` | Generic confirmation card. Uses a typed `action` field so the frontend can render contextual UI per action type. | `ui:confirmation` | All Agents |
 
-Preferred production flow:
+**`request_confirmation` action types:**
 
-1. AI creates a **pending** booking (hotel/flight).
-2. Frontend renders booking card and asks for user confirmation.
-3. User clicks **Pay**.
-4. Frontend creates payment intent programmatically (deterministic payload from booking/trip data).
-5. Payment confirmation/webhook updates booking status.
-6. UI/agent reads updated booking via GET endpoints.
+| Action | Context | Rendered As |
+|--------|---------|-------------|
+| `cancel_hotel` | Hotel name, dates, refund amount | "Cancel [hotel]? You'll be refunded $X." [Confirm] [Keep] |
+| `cancel_flight` | Flight number, route, refund amount | "Cancel [flight]? You'll be refunded $X." [Confirm] [Keep] |
+| `select_airport` | Airport code, airport name | "Flying out of JFK?" [Yes] [Change] |
+| `approve_itinerary` | Itinerary summary | "Save this itinerary?" [Save] [Edit] |
+| `start_payment` | Booking type, amount, description | "Pay $X for [booking]?" [Pay] [Cancel] |
 
-Where this should be enforced:
+This is extensible — new action types can be added without creating new tools.
 
-- **API layer (authoritative):** enforce invariants and derive protected fields server-side.
-- **MCP layer (tool design):** expose high-level safe tools and hide/deprecate open-ended sensitive ones.
-- **Frontend layer (user action):** own payment UI and deterministic calls triggered by explicit user intent.
+#### How Agent Tools Work (LangGraph)
 
-To be clear: It's not yet decided where the rules should be enforced: Should the API even allow creating a hotel booking in any date, since the booking should always be on the same dates as the trip? Or should the MCP server tools be the place where we fetch a trip and pass the start and end date automatically? -- So this might require an API refactor.
+Agent tools use LangGraph's `dispatchCustomEvent` to stream structured data to the frontend via the `custom` SSE stream mode:
 
-We should also think more about each tool and how they will fit on the UI. Likely, I will need to go through and map the UI scenarios and rework the list of tools. The initial list was a good first draft and experiment (Proved the MCP server works as intended).
+```ts
+import { tool } from "@langchain/core/tools";
+import { dispatchCustomEvent } from "@langchain/core/callbacks/dispatch";
+import { z } from "zod";
+
+const suggestDestinations = tool(
+  async (input, config) => {
+    dispatchCustomEvent("ui:destination_card", input, config);
+    return "Destination suggestion displayed to the user.";
+  },
+  {
+    name: "suggest_destinations",
+    description: "Present a destination to the user as a visual card with highlights and photos",
+    schema: z.object({
+      destination: z.object({
+        id: z.string(),
+        name: z.string(),
+        country: z.string(),
+        highlights: z.array(z.string()),
+        imageUrl: z.string(),
+        description: z.string(),
+      }),
+    }),
+  }
+);
+```
+
+The return value goes back to the LLM as a tool result. The `dispatchCustomEvent` data goes to the frontend. This separation means the LLM knows "the card was shown" while the frontend gets the structured data it needs to render.
+
+### Frontend Actions (Deterministic)
+
+These are NOT tools — they're user-triggered actions handled entirely by the frontend, with no AI involvement:
+
+| Action | Trigger | What Happens |
+|--------|---------|--------------|
+| Create payment intent | User clicks "Pay" button or agent calls `request_payment` | Frontend calls `POST /api/trips/:id/payments/intent` with deterministic payload derived from booking data. Stripe form opens. |
+| Confirm/deny action | User clicks confirm/deny on a `request_confirmation` card | Frontend resumes the LangGraph graph via `Command(resume="confirmed"/"denied")` |
+| Select destination | User clicks "Select" on a destination card | Frontend sends a message to the agent (or resumes graph) |
+| Adjust seat | User picks a different seat on the seat picker | Frontend includes the selected seat when creating the flight booking |
+
+**Key principle:** Payment amount, currency, and booking IDs are never chosen by the LLM. The frontend derives them deterministically from the pending booking data. The AI's role is to create the pending booking and present it — the user and frontend handle the money.
+
+### Deterministic vs Model-Controlled Inputs
+
+Not all inputs should be chosen by the LLM. The three-layer split enforces this naturally:
+
+- **Model-controlled (MCP + Agent Tools):** search filters, destination/hotel/flight preference exploration, itinerary content, which option to suggest.
+- **Deterministic (Frontend Actions):** payment amount/currency, payment intent creation, booking confirmation state transitions.
+- **Flexible (API keeps dates open-ended):** Hotel check-in/check-out and flight dates are passed by the AI from trip dates context, but the API doesn't enforce them matching trip dates. This allows future flexibility (e.g., hotel hopping, multi-city trips).
+
+### UI Flow Examples
+
+These are concrete end-to-end flows showing how MCP tools, agent tools, and frontend actions work together.
+
+#### Destination Discovery
+
+```
+User: "Find me a beach destination in Southeast Asia"
+
+1. Agent calls MCP tool: search_destinations(region="Southeast Asia", highlight="beaches")
+   → Receives list of matching destinations
+2. Agent picks top destination based on user preferences
+3. Agent calls Agent tool: suggest_destinations({destination: {id, name, highlights, imageUrl, ...}})
+   → Frontend renders destination card with photo, highlights, "Select" button
+4. User clicks "Select" (or types "I like Bali")
+   → Message sent back to agent
+5. Agent calls MCP tool: get_destination_details(destinationId)
+6. Agent: "Great, Bali it is! Want me to create a trip?"
+```
+
+#### Hotel Booking
+
+```
+User: "Find me a hotel"
+
+1. Agent calls MCP tool: search_hotels(destinationId, priceRange from user preferences)
+   → Receives hotel options
+2. Agent picks best match, calls MCP tool: create_hotel_booking(tripId, hotelId, dates, roomType)
+   → API creates PENDING booking, returns booking with pricing
+3. Agent calls Agent tool: suggest_hotel_booking({hotel, booking, totalPrice})
+   → Frontend renders hotel card with amenities, rating, pricing + "Pay" / "Skip" buttons
+4a. User clicks "Pay"
+   → Frontend creates payment intent via API (deterministic, no AI)
+   → Stripe form opens, user completes payment
+   → Webhook confirms → booking status updated to "confirmed"
+   → Frontend resumes LangGraph: Command(resume="payment_confirmed")
+   → Agent: "Hotel booked! Want to plan your itinerary?"
+4b. User types "Show me something cheaper"
+   → Resumes with "rejected", agent cancels pending booking and searches again
+4c. User types "Ok let's pay for the hotel"
+   → Agent calls Agent tool: request_payment(bookingId, "hotel", amount)
+   → Same as 4a — frontend opens the Stripe form
+```
+
+#### Flight Booking
+
+```
+User: "Book my flights"
+
+1. Agent reads trip dates + destination, checks user's preferred departure airport
+2. Agent calls Agent tool: request_confirmation(action="select_airport", {code: "JFK", name: "John F. Kennedy"})
+   → Frontend renders: "Flying out of JFK?" [Yes] [Change]
+3. User confirms → graph resumes
+4. Agent calls MCP tool: search_flights(from="JFK", to="DPS", date=tripStartDate, cabinClass=userPreference)
+   → Receives flight options
+5. Agent picks best flight, calls Agent tool: suggest_flight({flight, suggestedSeat: "14A"})
+   → Frontend renders flight card + interactive seat picker (pre-selected at 14A)
+6. User adjusts seat to 16C, clicks "Book & Pay"
+   → Frontend calls MCP tool: book_flight(..., seatNumber="16C") → creates PENDING booking
+   → Frontend creates payment intent via API (deterministic)
+   → Stripe form opens, payment completes
+   → Agent: "Outbound flight booked! Want to search for your return flight?"
+7. Repeat for inbound flight (date=tripEndDate, from="DPS", to="JFK")
+```
+
+#### Itinerary Planning
+
+```
+User: "Plan my itinerary"
+
+1. Agent reads trip details: dates, destination, existing bookings (flight arrival/departure, hotel check-in/out)
+2. Agent uses web search to research activities, restaurants, attractions at destination
+3. Agent builds a draft itinerary considering:
+   - Flight arrival time on day 1 (don't schedule morning activities)
+   - Hotel check-out time on last day
+   - Mix of user interests (from preferences)
+   - Estimated costs and opening hours
+4. Agent calls Agent tool: suggest_itinerary({days: [{date, title, activities: [...]}]})
+   → Frontend renders day-by-day itinerary draft with activity cards
+5. User: "Looks good but swap day 2 and 3"
+   → Agent adjusts the draft, calls suggest_itinerary again
+6. User: "Perfect, save it"
+   → Agent calls MCP tools: create_itinerary(tripId, {days with activities})
+   → Agent: "Itinerary saved! Your trip to Bali is all set."
+```
+
+#### Cancellation (with Confirmation)
+
+```
+User: "Cancel my hotel booking"
+
+1. Agent calls MCP tool: get_trip_details(tripId) → finds the booking
+2. Agent calls Agent tool: request_confirmation(action="cancel_hotel", {
+     hotelName: "Marriott Bangkok",
+     dates: "Mar 5-10",
+     refundAmount: "$450"
+   })
+   → Frontend renders: "Cancel Marriott Bangkok (Mar 5-10)? You'll be refunded $450." [Confirm] [Keep]
+3. User clicks "Confirm"
+   → Graph resumes with "confirmed"
+4. Agent calls MCP tool: cancel_hotel_booking(tripId, bookingId)
+5. Agent: "Done, hotel booking cancelled. Refund will appear in 5-10 business days."
+```
 
 ### Resources
 
-Resources are read-only data the host application can attach as context:
+Resources are read-only contextual data that MCP clients can attach to the conversation. Unlike tools, resources don't perform actions — they provide background context for the LLM. The host application (or the LLM itself, depending on the client) decides when to read them.
 
-| Resource URI | Description |
-|-------------|-------------|
-| `triploom://trips/{tripId}` | Full trip data (bookings, itinerary, destination, status) |
-| `triploom://users/{userId}/preferences` | User travel preferences, interests, budget, dietary needs |
-| `triploom://destinations/{destinationId}` | Destination details (highlights, weather, timezone, images) |
-| `triploom://trips/{tripId}/itinerary` | Trip itinerary with all days and activities |
-| `triploom://users/{userId}/trips` | List of all user trips (for past trip lookups) |
+Since the MCP session is already scoped to an authenticated user via OAuth, user-scoped resources use `triploom://user/...` instead of `triploom://users/{userId}/...`.
+
+| Resource URI | Type | Description |
+|-------------|------|-------------|
+| `triploom://user/preferences` | Static | User travel preferences (cabin class, budget, interests, dietary needs, accessibility) |
+| `triploom://user/trips` | Static | List of all user trips with status, dates, and destination summary |
+| `triploom://trips/{tripId}` | Template | Full trip data including destination, bookings, itinerary, and payments |
+| `triploom://trips/{tripId}/itinerary` | Template | Trip itinerary with all days and activities |
+| `triploom://destinations/{destinationId}` | Template | Destination details (highlights, timezone, currency, language, top hotels) |
+
+**Template resources** use `ResourceTemplate` with URI parameters. The `trips/{tripId}` resource includes a `list` callback that returns all user trips for discovery/autocomplete. The destination resource has no `list` (catalog is too large) — clients use destination IDs from search results or trip data.
 
 ### Prompts
 
@@ -283,16 +462,20 @@ Sampling lets the MCP server request LLM completions from the client. Potential 
 ## TODOs
 
 ### AI & MCP (Current Priority)
-- [ ] Implement MCP Server with all tools, resources, and prompts
+- [x] Implement MCP Server + Authentication
+- [x] Implement all MCP tools (18 tools, API wrapper layer)
+- [x] Implement MCP Resources
+- [ ] Remove `create_payment_intent` MCP tool (payment is now a frontend action)
 - [ ] Implement LangGraph supervisor agent + sub-agents
+- [ ] Implement agent tools: `suggest_destinations`, `suggest_flight`, `suggest_hotel_booking`, `suggest_itinerary`, `request_payment`, `request_confirmation`
 - [ ] Connect agents to MCP server via `langchain-mcp-adapters`
 - [ ] Add SSE streaming endpoint to API
-- [ ] Integrate `useStream` in frontend chat UI
-- [ ] Implement human-in-the-loop flows (booking confirmations, payments)
+- [ ] Integrate `useStream` in frontend chat UI with `custom` event handling for agent tool widgets
+- [ ] Implement human-in-the-loop flows via `interrupt()` / `Command(resume=...)` for confirmations and payments
 - [ ] Add conversation persistence (PostgresSaver + thread ID on trips + messages jsonb)
-- [ ] Implement tool-call UI widgets (destination carousel, hotel cards, flight comparison, seat picker, payment form)
-- [ ] Plan and design how to integrate other agent systems into UI. eg: buttons or `/commands` for MCP server prompts
-- [ ] Add elicitation flows for missing information and booking confirmations
+- [ ] Implement tool-call UI widgets: destination card, hotel booking card, flight card + seat picker, itinerary draft view, confirmation card, Stripe payment form
+- [ ] Implement MCP prompts
+- [ ] Add elicitation flows for missing information
 
 ### Data Improvements
 - [ ] Fix destination photos (some are SVG country flags, e.g., Monaco)
@@ -316,8 +499,8 @@ Sampling lets the MCP server request LLM completions from the client. Potential 
   - [ ] Weather display for current trips in chat and more useful information for a current trip.
   - [ ] For a completed trip, block chat and show a widget talking about how trip was over, "how was your trip?" feedback card for emailing us + CTA to start planning a new trip...
 - [ ] Option for automatic AI payments vs manual card entry each time
-- [ ] Airport confirmation card: "Based on your preferences, are you flying out of JFK?" with "Yes", "No", and "Yes, always" buttons (last one bypasses the confirmation for future bookings)
-- [ ] Multi-option suggestion carousels: Instead of a single AI-picked suggestion, present 3 options with a highlighted "top pick" for both hotel and flight booking flows
+- [ ] Airport confirmation: add "Yes, always" option to `select_airport` confirmation that bypasses the confirmation for future bookings (persisted in user preferences)
+- [ ] Multi-option suggestion carousels: expand agent tools from 1 top pick to 3 options with a highlighted recommendation for hotel and flight flows
 
 ## Development
 

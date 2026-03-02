@@ -20,6 +20,11 @@ import { registerSearchHotels } from "./tools/search-hotels";
 import { registerUpdateTrip } from "./tools/update-trip";
 import { registerUpdateItineraryActivity } from "./tools/update-itinerary-activity";
 import { registerPing } from "./tools/ping";
+import { registerUserPreferencesResource } from "./resources/user-preferences";
+import { registerTripDetailsResource } from "./resources/trip-details";
+import { registerDestinationDetailsResource } from "./resources/destination-details";
+import { registerTripItineraryResource } from "./resources/trip-itinerary";
+import { registerUserTripsResource } from "./resources/user-trips";
 
 /**
  * Creates an MCP server instance with an authenticated Eden client.
@@ -30,11 +35,12 @@ import { registerPing } from "./tools/ping";
 export function createMcpServer(accessToken: string) {
   const server = new McpServer(
     { name: "triploom", version: "1.0.0" },
-    { capabilities: { logging: {} } },
+    { capabilities: { logging: {}, resources: {} } },
   );
 
   const apiClient = createApiClient(accessToken);
 
+  // Tools
   registerPing(server);
   registerGetUserPreferences(server, apiClient);
   registerGetTripDetails(server, apiClient);
@@ -55,6 +61,13 @@ export function createMcpServer(accessToken: string) {
   registerCreatePaymentIntent(server, apiClient);
   registerCreateTrip(server, apiClient);
   registerUpdateTrip(server, apiClient);
+
+  // Resources
+  registerUserPreferencesResource(server, apiClient);
+  registerTripDetailsResource(server, apiClient);
+  registerDestinationDetailsResource(server, apiClient);
+  registerTripItineraryResource(server, apiClient);
+  registerUserTripsResource(server, apiClient);
 
   return server;
 }

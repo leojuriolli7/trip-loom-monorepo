@@ -39,7 +39,7 @@ export function registerSearchHotels(server: McpServer, apiClient: ApiClient) {
         amenity: z
           .enum(amenityValues)
           .optional()
-          .describe("Optional required amenity filter."),
+          .describe("Optional amenity filter."),
         limit: z
           .number()
           .int()
