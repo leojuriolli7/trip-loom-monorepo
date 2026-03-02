@@ -465,7 +465,6 @@ Sampling lets the MCP server request LLM completions from the client. Potential 
 - [x] Implement MCP Server + Authentication
 - [x] Implement all MCP tools (18 tools, API wrapper layer)
 - [x] Implement MCP Resources
-- [ ] Remove `create_payment_intent` MCP tool (payment is now a frontend action)
 - [ ] Implement LangGraph supervisor agent + sub-agents
 - [ ] Implement agent tools: `suggest_destinations`, `suggest_flight`, `suggest_hotel_booking`, `suggest_itinerary`, `request_payment`, `request_confirmation`
 - [ ] Connect agents to MCP server via `langchain-mcp-adapters`

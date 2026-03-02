@@ -7,7 +7,6 @@ import { registerCancelFlightBooking } from "./tools/cancel-flight-booking";
 import { registerCancelHotelBooking } from "./tools/cancel-hotel-booking";
 import { registerCreateHotelBooking } from "./tools/create-hotel-booking";
 import { registerCreateItinerary } from "./tools/create-itinerary";
-import { registerCreatePaymentIntent } from "./tools/create-payment-intent";
 import { registerCreateTrip } from "./tools/create-trip";
 import { registerDeleteItineraryActivity } from "./tools/delete-itinerary-activity";
 import { registerGetDestinationDetails } from "./tools/get-destination-details";
@@ -58,7 +57,6 @@ export function createMcpServer(accessToken: string) {
   registerAddItineraryActivity(server, apiClient);
   registerUpdateItineraryActivity(server, apiClient);
   registerDeleteItineraryActivity(server, apiClient);
-  registerCreatePaymentIntent(server, apiClient);
   registerCreateTrip(server, apiClient);
   registerUpdateTrip(server, apiClient);
 
