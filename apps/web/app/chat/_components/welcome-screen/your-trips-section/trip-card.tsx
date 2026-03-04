@@ -3,6 +3,7 @@ import { CalendarIcon, MapPinIcon } from "lucide-react";
 import Image from "next/image";
 import type { TripWithDestinationDTO } from "@trip-loom/api/dto";
 import { useMemo } from "react";
+import { parseIsoDate } from "@/lib/parse-iso-date";
 import { format } from "date-fns";
 import { TripFeatureBadge } from "@/components/trip-feature-badge";
 import { TripStatusBadge } from "@/components/trip-status-badge";
@@ -34,14 +35,14 @@ export function TripCard({ trip }: TripCardProps) {
       return "Dates pending";
     }
 
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const start = parseIsoDate(startDate);
+    const end = parseIsoDate(endDate);
 
     if (start.getFullYear() !== end.getFullYear()) {
       return `${format(start, "MMM d, yyyy")} - ${format(end, "MMM d, yyyy")}`;
     }
 
-    return `${format(start, "MMM d")} - ${format(endDate, "MMM d, yyyy")}`;
+    return `${format(start, "MMM d")} - ${format(end, "MMM d, yyyy")}`;
   }, [trip]);
 
   return (

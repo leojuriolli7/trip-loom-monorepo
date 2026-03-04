@@ -11,8 +11,11 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { useQueryClient } from "@tanstack/react-query";
+import { tripQueries } from "@/lib/api/react-query/trips";
+import { parseIsoDate } from "@/lib/parse-iso-date";
 
 const tripIcons: Record<TripStatus, LucideIcon> = {
   draft: PenLineIcon,
@@ -79,8 +82,8 @@ function formatTripDates(trip: TripWithDestinationDTO): string {
     return "Dates pending";
   }
 
-  const startDate = new Date(trip.startDate);
-  const endDate = new Date(trip.endDate);
+  const startDate = parseIsoDate(trip.startDate);
+  const endDate = parseIsoDate(trip.endDate);
 
   if (startDate.getFullYear() !== endDate.getFullYear()) {
     return `${format(startDate, "MMM d, yyyy")} - ${format(endDate, "MMM d, yyyy")}`;
@@ -100,14 +103,24 @@ export const ChatSidebarTripCard = memo(function ChatSidebarTripCard({
   trip,
   isActive,
 }: ChatSidebarTripCardProps) {
-  const Icon = tripIcons[variant];
   const isDraft = variant === "draft";
+  const Icon = useMemo(() => tripIcons[variant], [variant]);
+
   const subtitle = isDraft
     ? `Updated ${formatDistanceToNow(new Date(trip.updatedAt), { addSuffix: true })}`
     : formatTripDates(trip);
 
+  const queryClient = useQueryClient();
+
   return (
-    <SidebarMenuItem>
+    <SidebarMenuItem
+      onMouseOver={() => {
+        void queryClient.prefetchQuery(tripQueries.getChatHistory(trip.id));
+      }}
+      onTouchStart={() => {
+        void queryClient.prefetchQuery(tripQueries.getChatHistory(trip.id));
+      }}
+    >
       <SidebarMenuButton asChild className="h-auto py-2" isActive={isActive}>
         <Link href={`/chat/${trip.id}`}>
           <Icon className={tripCardIconVariants({ variant })} />

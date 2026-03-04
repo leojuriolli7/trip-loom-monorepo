@@ -5,7 +5,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { MessageSquarePlusIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useMemo, type UIEvent } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -46,11 +46,18 @@ function groupTripsByStatus(trips: TripWithDestinationDTO[]) {
   return groups;
 }
 
+function getChatId(pathname: string): string | null {
+  if (!pathname.startsWith("/chat/")) {
+    return null;
+  }
+
+  return pathname.split("/")[2] ?? null;
+}
+
 export function ChatSidebar() {
   const router = useRouter();
   const pathname = usePathname();
-  const params = useParams();
-  const activeChatId = params.id as string;
+  const activeChatId = getChatId(pathname);
 
   const {
     data: trips = [],

@@ -2,6 +2,7 @@
 
 import type { TripWithDestinationDTO } from "@trip-loom/api/dto";
 import { useQuery } from "@tanstack/react-query";
+import { parseIsoDate } from "@/lib/parse-iso-date";
 import { format } from "date-fns";
 import { Spinner } from "@/components/ui/spinner";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -37,8 +38,8 @@ function formatTripDates(trip: TripWithDestinationDTO): string {
     return "Dates pending";
   }
 
-  const startDate = new Date(trip.startDate);
-  const endDate = new Date(trip.endDate);
+  const startDate = parseIsoDate(trip.startDate);
+  const endDate = parseIsoDate(trip.endDate);
 
   if (startDate.getFullYear() !== endDate.getFullYear()) {
     return `${format(startDate, "MMM d, yyyy")} - ${format(endDate, "MMM d, yyyy")}`;
