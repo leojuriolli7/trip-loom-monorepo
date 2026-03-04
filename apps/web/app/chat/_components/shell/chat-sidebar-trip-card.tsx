@@ -2,7 +2,7 @@
 
 import type { TripStatus, TripWithDestinationDTO } from "@trip-loom/api/dto";
 import { cva } from "class-variance-authority";
-import { format, formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import {
   CalendarIcon,
   MapPinIcon,
@@ -14,8 +14,9 @@ import Link from "next/link";
 import { memo, useMemo } from "react";
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { useQueryClient } from "@tanstack/react-query";
-import { tripQueries } from "@/lib/api/react-query/trips";
-import { parseIsoDate } from "@/lib/parse-iso-date";
+import { getTripTitle } from "@/lib/get-trip-title";
+import { formatTripDates } from "@/lib/format-trip-dates";
+import { prefetchChatHistory } from "@/lib/prefetch-chat-history";
 
 const tripIcons: Record<TripStatus, LucideIcon> = {
   draft: PenLineIcon,
@@ -61,37 +62,6 @@ const tripCardSubtitleVariants = cva("text-xs", {
   },
 });
 
-function getTripTitle(trip: TripWithDestinationDTO): string {
-  if (trip.title) {
-    return trip.title;
-  }
-
-  if (trip.destination?.name && trip.destination?.country) {
-    return `${trip.destination.name}, ${trip.destination.country}`;
-  }
-
-  if (trip.destination?.name) {
-    return trip.destination.name;
-  }
-
-  return "Untitled Trip";
-}
-
-function formatTripDates(trip: TripWithDestinationDTO): string {
-  if (!trip.startDate || !trip.endDate) {
-    return "Dates pending";
-  }
-
-  const startDate = parseIsoDate(trip.startDate);
-  const endDate = parseIsoDate(trip.endDate);
-
-  if (startDate.getFullYear() !== endDate.getFullYear()) {
-    return `${format(startDate, "MMM d, yyyy")} - ${format(endDate, "MMM d, yyyy")}`;
-  }
-
-  return `${format(startDate, "MMM d")} - ${format(endDate, "MMM d, yyyy")}`;
-}
-
 type ChatSidebarTripCardProps = {
   variant: TripStatus;
   trip: TripWithDestinationDTO;
@@ -114,12 +84,9 @@ export const ChatSidebarTripCard = memo(function ChatSidebarTripCard({
 
   return (
     <SidebarMenuItem
-      onMouseOver={() => {
-        void queryClient.prefetchQuery(tripQueries.getChatHistory(trip.id));
-      }}
-      onTouchStart={() => {
-        void queryClient.prefetchQuery(tripQueries.getChatHistory(trip.id));
-      }}
+      onMouseOver={() => prefetchChatHistory(queryClient, trip.id)}
+      onTouchStart={() => prefetchChatHistory(queryClient, trip.id)}
+      onFocusCapture={() => prefetchChatHistory(queryClient, trip.id)}
     >
       <SidebarMenuButton asChild className="h-auto py-2" isActive={isActive}>
         <Link href={`/chat/${trip.id}`}>

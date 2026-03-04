@@ -4,8 +4,8 @@ import { TripFeatureBadge } from "./trip-feature-badge";
 import { Button } from "./ui/button";
 import type { TripWithDestinationDTO } from "@trip-loom/api/dto";
 import { getCoverImage } from "@/lib/get-cover-image";
-import { tripQueries } from "@/lib/api/react-query/trips";
 import { useQueryClient } from "@tanstack/react-query";
+import { prefetchChatHistory } from "@/lib/prefetch-chat-history";
 
 type CurrentTripCardProps = {
   trip: TripWithDestinationDTO;
@@ -22,12 +22,9 @@ export function CurrentTripCard({ trip, onContinue }: CurrentTripCardProps) {
 
   return (
     <div
-      onMouseOver={() => {
-        void queryClient.prefetchQuery(tripQueries.getChatHistory(trip.id));
-      }}
-      onTouchStart={() => {
-        void queryClient.prefetchQuery(tripQueries.getChatHistory(trip.id));
-      }}
+      onMouseOver={() => prefetchChatHistory(queryClient, trip.id)}
+      onTouchStart={() => prefetchChatHistory(queryClient, trip.id)}
+      onFocusCapture={() => prefetchChatHistory(queryClient, trip.id)}
       className="group relative mb-4 overflow-hidden rounded-2xl border border-primary/30 bg-linear-to-br from-primary/8 via-card to-chart-2/10 shadow-[0_18px_30px_-28px_rgba(15,23,42,0.8)]"
     >
       <div className="pointer-events-none absolute -right-10 -top-12 size-32 rounded-full bg-primary/16 blur-3xl" />
