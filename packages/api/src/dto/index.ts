@@ -126,3 +126,5 @@ export {
   type UpdateTripInput,
   type TripQuery,
 } from "./trips";
+
+export { tripStatusValues, type TripStatus } from "../enums";

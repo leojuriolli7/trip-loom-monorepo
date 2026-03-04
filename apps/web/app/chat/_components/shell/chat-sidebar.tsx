@@ -1,19 +1,12 @@
 "use client";
 
-import type { TripWithDestinationDTO } from "@trip-loom/api/dto";
+import type { TripStatus, TripWithDestinationDTO } from "@trip-loom/api/dto";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { format, formatDistanceToNow } from "date-fns";
-import {
-  CalendarIcon,
-  MapPinIcon,
-  MessageSquarePlusIcon,
-  PenLineIcon,
-  PlaneIcon,
-} from "lucide-react";
+import { MessageSquarePlusIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { useParams, usePathname, useRouter } from "next/navigation";
+import { useCallback, useMemo, type UIEvent } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -21,86 +14,43 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { UserAvatar } from "@/components/user-avatar";
 import { tripQueries } from "@/lib/api/react-query/trips";
-import { EmailVerificationBanner } from "./email-verification-banner";
 import { focusChatInput } from "../chat-input-focus";
+import { ChatSidebarSection } from "./chat-sidebar-section";
+import { EmailVerificationBanner } from "./email-verification-banner";
 
-function getActiveChatId(pathname: string): string | null {
-  if (!pathname.startsWith("/chat/")) {
-    return null;
+const sectionOrder: TripStatus[] = [
+  "draft",
+  "current",
+  "upcoming",
+  "past",
+  "cancelled",
+];
+
+function groupTripsByStatus(trips: TripWithDestinationDTO[]) {
+  const groups: Record<TripStatus, TripWithDestinationDTO[]> = {
+    draft: [],
+    current: [],
+    upcoming: [],
+    past: [],
+    cancelled: [],
+  };
+
+  for (const trip of trips) {
+    groups[trip.status].push(trip);
   }
 
-  return pathname.split("/")[2] ?? null;
-}
-
-function getTripTitle(trip: TripWithDestinationDTO): string {
-  if (trip.title) {
-    return trip.title;
-  }
-
-  if (trip.destination?.name && trip.destination?.country) {
-    return `${trip.destination.name}, ${trip.destination.country}`;
-  }
-
-  if (trip.destination?.name) {
-    return trip.destination.name;
-  }
-
-  return "Untitled Trip";
-}
-
-function formatTripDates(trip: TripWithDestinationDTO): string {
-  if (!trip.startDate || !trip.endDate) {
-    return "Dates pending";
-  }
-
-  const startDate = new Date(trip.startDate);
-  const endDate = new Date(trip.endDate);
-
-  if (startDate.getFullYear() !== endDate.getFullYear()) {
-    return `${format(startDate, "MMM d, yyyy")} - ${format(endDate, "MMM d, yyyy")}`;
-  }
-
-  return `${format(startDate, "MMM d")} - ${format(endDate, "MMM d, yyyy")}`;
-}
-
-type TripGroups = {
-  draft: TripWithDestinationDTO[];
-  current: TripWithDestinationDTO[];
-  upcoming: TripWithDestinationDTO[];
-  past: TripWithDestinationDTO[];
-  cancelled: TripWithDestinationDTO[];
-};
-
-function groupTripsByStatus(trips: TripWithDestinationDTO[]): TripGroups {
-  return trips.reduce<TripGroups>(
-    (groups, trip) => {
-      groups[trip.status].push(trip);
-      return groups;
-    },
-    {
-      draft: [],
-      current: [],
-      upcoming: [],
-      past: [],
-      cancelled: [],
-    },
-  );
+  return groups;
 }
 
 export function ChatSidebar() {
   const router = useRouter();
   const pathname = usePathname();
-  const activeChatId = getActiveChatId(pathname);
+  const params = useParams();
+  const activeChatId = params.id as string;
 
   const {
     data: trips = [],
@@ -112,14 +62,29 @@ export function ChatSidebar() {
 
   const tripGroups = useMemo(() => groupTripsByStatus(trips), [trips]);
 
-  const handlePlanNewTrip = () => {
+  const handlePlanNewTrip = useCallback(() => {
     if (pathname === "/chat") {
       focusChatInput();
       return;
     }
 
     router.push("/chat", { scroll: false });
-  };
+  }, [pathname, router]);
+
+  const handleContentScroll = useCallback(
+    (event: UIEvent<HTMLDivElement>) => {
+      const element = event.currentTarget;
+      const distanceToBottom =
+        element.scrollHeight - element.scrollTop - element.clientHeight;
+
+      if (distanceToBottom > 160 || !hasNextPage || isFetchingNextPage) {
+        return;
+      }
+
+      void fetchNextPage();
+    },
+    [fetchNextPage, hasNextPage, isFetchingNextPage],
+  );
 
   return (
     <Sidebar className="border-r border-sidebar-border">
@@ -140,20 +105,7 @@ export function ChatSidebar() {
         </Button>
       </SidebarHeader>
 
-      <SidebarContent
-        className="px-2"
-        onScroll={(event) => {
-          const element = event.currentTarget;
-          const distanceToBottom =
-            element.scrollHeight - element.scrollTop - element.clientHeight;
-
-          if (distanceToBottom > 160 || !hasNextPage || isFetchingNextPage) {
-            return;
-          }
-
-          void fetchNextPage();
-        }}
-      >
+      <SidebarContent className="px-2" onScroll={handleContentScroll}>
         {status === "pending" && (
           <div className="flex h-20 items-center justify-center">
             <Spinner className="size-5" />
@@ -172,177 +124,14 @@ export function ChatSidebar() {
           </div>
         )}
 
-        {tripGroups.draft.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-xs font-medium text-muted-foreground">
-              Drafts
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {tripGroups.draft.map((trip) => (
-                  <SidebarMenuItem key={trip.id}>
-                    <SidebarMenuButton
-                      asChild
-                      className="h-auto py-2"
-                      isActive={activeChatId === trip.id}
-                    >
-                      <Link href={`/chat/${trip.id}`}>
-                        <PenLineIcon className="size-4 shrink-0 text-muted-foreground" />
-                        <div className="flex min-w-0 flex-col items-start gap-0.5 overflow-hidden">
-                          <span className="truncate text-sm">
-                            {getTripTitle(trip)}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            Updated{" "}
-                            {formatDistanceToNow(new Date(trip.updatedAt), {
-                              addSuffix: true,
-                            })}
-                          </span>
-                        </div>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {tripGroups.current.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-xs font-medium text-muted-foreground">
-              Current
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {tripGroups.current.map((trip) => (
-                  <SidebarMenuItem key={trip.id}>
-                    <SidebarMenuButton
-                      asChild
-                      className="h-auto py-2"
-                      isActive={activeChatId === trip.id}
-                    >
-                      <Link href={`/chat/${trip.id}`}>
-                        <PlaneIcon className="size-4 shrink-0" />
-                        <div className="flex min-w-0 flex-col items-start gap-0.5 overflow-hidden">
-                          <span className="truncate text-sm font-medium">
-                            {getTripTitle(trip)}
-                          </span>
-                          <span className="flex items-center gap-1 text-xs">
-                            <CalendarIcon className="size-3" />
-                            {formatTripDates(trip)}
-                          </span>
-                        </div>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {tripGroups.upcoming.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-xs font-medium text-muted-foreground">
-              Upcoming
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {tripGroups.upcoming.map((trip) => (
-                  <SidebarMenuItem key={trip.id}>
-                    <SidebarMenuButton
-                      asChild
-                      className="h-auto py-2"
-                      isActive={activeChatId === trip.id}
-                    >
-                      <Link href={`/chat/${trip.id}`}>
-                        <MapPinIcon className="size-4 shrink-0 text-muted-foreground" />
-                        <div className="flex min-w-0 flex-col items-start gap-0.5 overflow-hidden">
-                          <span className="truncate text-sm">
-                            {getTripTitle(trip)}
-                          </span>
-                          <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <CalendarIcon className="size-3" />
-                            {formatTripDates(trip)}
-                          </span>
-                        </div>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {tripGroups.past.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-xs font-medium text-muted-foreground">
-              Past
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {tripGroups.past.map((trip) => (
-                  <SidebarMenuItem key={trip.id}>
-                    <SidebarMenuButton
-                      asChild
-                      className="h-auto py-2"
-                      isActive={activeChatId === trip.id}
-                    >
-                      <Link href={`/chat/${trip.id}`}>
-                        <MapPinIcon className="size-4 shrink-0 text-muted-foreground/60" />
-                        <div className="flex min-w-0 flex-col items-start gap-0.5 overflow-hidden">
-                          <span className="truncate text-sm text-muted-foreground">
-                            {getTripTitle(trip)}
-                          </span>
-                          <span className="flex items-center gap-1 text-xs text-muted-foreground/60">
-                            <CalendarIcon className="size-3" />
-                            {formatTripDates(trip)}
-                          </span>
-                        </div>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {tripGroups.cancelled.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-xs font-medium text-muted-foreground">
-              Cancelled
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {tripGroups.cancelled.map((trip) => (
-                  <SidebarMenuItem key={trip.id}>
-                    <SidebarMenuButton
-                      asChild
-                      className="h-auto py-2"
-                      isActive={activeChatId === trip.id}
-                    >
-                      <Link href={`/chat/${trip.id}`}>
-                        <MapPinIcon className="size-4 shrink-0 text-muted-foreground/60" />
-                        <div className="flex min-w-0 flex-col items-start gap-0.5 overflow-hidden">
-                          <span className="truncate text-sm text-muted-foreground">
-                            {getTripTitle(trip)}
-                          </span>
-                          <span className="flex items-center gap-1 text-xs text-muted-foreground/60">
-                            <CalendarIcon className="size-3" />
-                            {formatTripDates(trip)}
-                          </span>
-                        </div>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+        {sectionOrder.map((variant) => (
+          <ChatSidebarSection
+            key={variant}
+            variant={variant}
+            trips={tripGroups[variant]}
+            activeChatId={activeChatId}
+          />
+        ))}
 
         {isFetchingNextPage && (
           <div className="flex justify-center px-2 py-2">

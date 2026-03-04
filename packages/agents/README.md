@@ -48,7 +48,7 @@ Configurable per agent via environment variables (e.g. `SUPERVISOR_MODEL`, `DEST
 ### Polish
 - [ ] Rename /chat pages to /trips
 - [ ] Better organize chat page components (Remove `_components` pattern)
-- [ ] Componentize chat sidebar items + include preload inside each one on hover
+- [x] Componentize chat sidebar items + include preload inside each one on hover
 - [x] Preload chat history for trip cards on hover/on touch start
 - [x] Empty state on chat page and sidebar listing
   - [x] On sidebar, there's no empty state
