@@ -32,7 +32,7 @@ export const suggestFlightTool = tool(
   {
     name: "suggest_flight",
     description:
-      "Present flight options to the user as a visual comparison widget. Use this after searching flights to let the user compare and pick one.",
+      "Present flight options to the user as a visual comparison widget. Use this after searching flights to let the user compare and pick one. After calling this tool, avoid restating all card details in plain text.",
     schema,
   },
 );

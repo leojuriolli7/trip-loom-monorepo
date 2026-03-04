@@ -33,7 +33,7 @@ export const suggestHotelBookingTool = tool(
   {
     name: "suggest_hotel_booking",
     description:
-      "Present hotel options to the user as a visual comparison widget. Use this after searching hotels to let the user compare and pick one.",
+      "Present hotel options to the user as a visual comparison widget. Use this after searching hotels to let the user compare and pick one. After calling this tool, avoid repeating full hotel details in plain text.",
     schema,
   },
 );
