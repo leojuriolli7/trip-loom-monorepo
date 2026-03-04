@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { MailIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
 import { authClient } from "@/lib/api/auth-client";

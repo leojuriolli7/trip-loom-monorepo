@@ -12,11 +12,16 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { memo, useMemo } from "react";
-import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import {
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from "@/components/ui/sidebar";
 import { useQueryClient } from "@tanstack/react-query";
 import { getTripTitle } from "@/lib/get-trip-title";
 import { formatTripDates } from "@/lib/format-trip-dates";
 import { prefetchChatHistory } from "@/lib/prefetch-chat-history";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const tripIcons: Record<TripStatus, LucideIcon> = {
   draft: PenLineIcon,
@@ -38,7 +43,7 @@ const tripCardIconVariants = cva("size-4 shrink-0", {
   },
 });
 
-const tripCardTitleVariants = cva("truncate text-sm", {
+const tripCardTitleVariants = cva("text-sm", {
   variants: {
     variant: {
       draft: "",
@@ -81,12 +86,19 @@ export const ChatSidebarTripCard = memo(function ChatSidebarTripCard({
     : formatTripDates(trip);
 
   const queryClient = useQueryClient();
+  const { toggleSidebar } = useSidebar();
+  const isMobile = useIsMobile();
 
   return (
     <SidebarMenuItem
       onMouseOver={() => prefetchChatHistory(queryClient, trip.id)}
       onTouchStart={() => prefetchChatHistory(queryClient, trip.id)}
       onFocusCapture={() => prefetchChatHistory(queryClient, trip.id)}
+      onClick={() => {
+        if (isMobile) {
+          toggleSidebar();
+        }
+      }}
     >
       <SidebarMenuButton asChild className="h-auto py-2" isActive={isActive}>
         <Link href={`/chat/${trip.id}`}>

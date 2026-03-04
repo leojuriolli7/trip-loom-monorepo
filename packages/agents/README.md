@@ -48,23 +48,15 @@ Configurable per agent via environment variables (e.g. `SUPERVISOR_MODEL`, `DEST
 ### Polish
 - [ ] Rename /chat pages to /trips
 - [ ] Better organize chat page components (Remove `_components` pattern)
-- [x] Add collapse option for trips list in chat sidebar
-- [x] Remove repetition of functions throughout trip title and date formatting
-- [x] Componentize chat sidebar items + include preload inside each one on hover
-- [x] Preload chat history for trip cards on hover/on touch start
-- [x] UI: Dates are rendered with 1 day behind (eg: starts at 14 Apr, renders 13 Apr)
-- [x] Empty state on chat page and sidebar listing
-  - [x] On sidebar, there's no empty state
-  - [x] On chat details, first render shows error instead of loading
 - [ ] Improve agent behavior: 
   - [ ] Supervisor parrotting the specialist answer
   - [ ] Read MCP resources and tools more, eg: Check user past trips for context before proceeding
   - [ ] Improve prompts for real-world usage
-
+  - [ ] Refine system prompts based on testing
+  
 ### Cross-Session Memory
 
 - [ ] Wire PostgresStore: read/write user preferences namespaced by userId
-- [ ] Refine system prompts based on testing
 
 ### Agent Evaluation
 
