@@ -4,7 +4,6 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { tripQueries } from "@/lib/api/react-query/trips";
 import { CurrentTripCard } from "@/components/current-trip-card";
 import { useRouter } from "next/navigation";
-import { focusChatInput } from "../chat-input-focus";
 
 export function CurrentTripCta() {
   const router = useRouter();
@@ -24,7 +23,6 @@ export function CurrentTripCta() {
     }
 
     router.push(`/chat/${currentTrip.id}`);
-    focusChatInput();
   };
 
   if (!currentTrip) {

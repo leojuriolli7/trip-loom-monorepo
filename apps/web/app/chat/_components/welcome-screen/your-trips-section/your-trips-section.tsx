@@ -36,9 +36,18 @@ export function YourTripsSection() {
       cancelled: 4,
     };
 
-    return [...trips].sort((a, b) => {
-      return (statusOrder[a.status] ?? 99) - (statusOrder[b.status] ?? 99);
-    });
+    return trips
+      .filter((t) => {
+        const hasDates = t.startDate && t.endDate;
+
+        if (!t.title && !hasDates && !t.destinationId) {
+          return false;
+        }
+        return true;
+      })
+      .sort((a, b) => {
+        return (statusOrder[a.status] ?? 99) - (statusOrder[b.status] ?? 99);
+      });
   }, [trips]);
 
   const isDesktop = useMediaQuery("(min-width: 640px)");

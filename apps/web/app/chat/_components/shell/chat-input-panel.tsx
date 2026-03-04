@@ -2,19 +2,18 @@
 
 import {
   PromptInput,
-  PromptInputFooter,
+  type PromptInputMessage,
   PromptInputSubmit,
   PromptInputTextarea,
 } from "@/components/ai-elements/prompt-input";
-import { usePathname } from "next/navigation";
+import { useChatStream } from "@/context/chat";
 import { CHAT_INPUT_ID } from "../chat-input-focus";
 
 export function ChatInputPanel() {
-  const pathname = usePathname();
-  const isActiveChatRoute = pathname.startsWith("/chat/");
+  const { stream, submitMessage } = useChatStream();
 
-  const handleSubmit = () => {
-    // TODO: Wire this input to AI flow and route-based chat creation.
+  const handleSubmit = async ({ text }: PromptInputMessage) => {
+    await submitMessage(text);
   };
 
   return (
@@ -26,15 +25,16 @@ export function ChatInputPanel() {
         >
           <PromptInputTextarea
             id={CHAT_INPUT_ID}
-            placeholder={
-              isActiveChatRoute
-                ? "Ask about your trip..."
-                : "Where would you like to go?"
-            }
+            placeholder="Ask about your trip..."
             className="min-h-4 max-h-32 resize-none border-0 bg-transparent focus-visible:ring-0"
           />
 
-          <PromptInputSubmit />
+          <PromptInputSubmit
+            onStop={() => {
+              void stream.stop();
+            }}
+            status={stream.isLoading ? "streaming" : "idle"}
+          />
         </PromptInput>
       </div>
     </div>

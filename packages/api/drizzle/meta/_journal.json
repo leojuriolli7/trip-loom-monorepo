@@ -113,6 +113,20 @@
       "when": 1772385115622,
       "tag": "0015_magical_firelord",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1772472565560,
+      "tag": "0016_serious_stature",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1772587135416,
+      "tag": "0017_special_maginty",
+      "breakpoints": true
     }
   ]
 }

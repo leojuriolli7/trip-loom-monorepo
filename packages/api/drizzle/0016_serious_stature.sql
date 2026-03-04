@@ -1,0 +1,1 @@
+ALTER TABLE "trip" ADD COLUMN "thread_id" text;

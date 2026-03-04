@@ -1,4 +1,6 @@
-export type BackendApiEnv = {
+import type { AgentsEnv } from "@trip-loom/agents/env";
+
+export interface BackendApiEnv extends AgentsEnv {
   DATABASE_URL: string;
   API_BASE_URL: string;
   BETTER_AUTH_SECRET: string;
@@ -14,7 +16,8 @@ export type BackendApiEnv = {
   VERIFY_EMAIL_BASE_URL: string;
   FORGOT_PASSWORD_EMAIL_BASE_URL: string;
   FRONTEND_BASE_URL: string;
-};
+  MCP_SERVER_URL: string;
+}
 
 declare global {
   namespace NodeJS {

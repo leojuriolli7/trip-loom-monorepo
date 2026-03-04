@@ -57,7 +57,7 @@ export function createMcpServer(accessToken: string) {
   registerAddItineraryActivity(server, apiClient);
   registerUpdateItineraryActivity(server, apiClient);
   registerDeleteItineraryActivity(server, apiClient);
-  registerCreateTrip(server, apiClient);
+  // registerCreateTrip(server, apiClient);
   registerUpdateTrip(server, apiClient);
 
   // Resources

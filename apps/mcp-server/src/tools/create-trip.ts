@@ -21,7 +21,9 @@ export function registerCreateTrip(server: McpServer, apiClient: ApiClient) {
             .min(1)
             .nullable()
             .optional()
-            .describe("Optional destination ID to associate with the trip."),
+            .describe(
+              "Optional destination ID to associate with the trip. Must be an exact ID from search_destinations or get_destination_details (e.g. 'dest_br_porto-alegre'). Do NOT guess IDs.",
+            ),
           title: z
             .string()
             .trim()
@@ -66,8 +68,9 @@ export function registerCreateTrip(server: McpServer, apiClient: ApiClient) {
         let message = `Failed to create trip: ${error.status ?? "unknown error"}`;
 
         if (error.status === 400) {
-          message =
-            "Invalid trip creation payload (for example, invalid destination or invalid date range).";
+          const detail = error.value?.message || "invalid payload";
+
+          message = `Invalid trip creation: ${detail}. Make sure you use exact IDs returned by search tools (e.g. destinationId from search_destinations).`;
         } else if (error.status === 401) {
           message = "User is not authenticated to create a trip.";
         }

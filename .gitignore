@@ -14,3 +14,6 @@ dist
 
 # don't commit plans
 plans/*
+
+# opensrc - source code for packages
+opensrc/

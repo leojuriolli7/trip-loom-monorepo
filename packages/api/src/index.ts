@@ -11,6 +11,7 @@ import { flightRoutes } from "./routes/flights";
 import { hotelBookingRoutes } from "./routes/hotel-bookings";
 import { itineraryRoutes } from "./routes/itineraries";
 import { paymentRoutes } from "./routes/payments";
+import { chatRoutes } from "./routes/chat";
 import { auth } from "./lib/auth";
 import {
   BadRequestError,
@@ -18,6 +19,7 @@ import {
   ForbiddenError,
   NotFoundError,
 } from "./errors";
+import { initPersistence } from "@trip-loom/agents";
 
 const isDev = process.env.NODE_ENV !== "production";
 
@@ -83,6 +85,13 @@ export const createApp = (options?: AppConfig) =>
       const response = await fetch(url);
       return response.json();
     })
+    // Initialize LangGraph persistence (checkpointer + store tables)
+    .onStart(async () => {
+      if (process.env.DATABASE_URL) {
+        await initPersistence(process.env.DATABASE_URL);
+        console.log("LangGraph persistence initialized");
+      }
+    })
     // Auth handler routes (/auth/*)
     .mount(auth.handler)
     // Routes
@@ -94,6 +103,7 @@ export const createApp = (options?: AppConfig) =>
     .use(flightRoutes)
     .use(hotelBookingRoutes)
     .use(itineraryRoutes)
-    .use(paymentRoutes);
+    .use(paymentRoutes)
+    .use(chatRoutes);
 
 export type App = ReturnType<typeof createApp>;

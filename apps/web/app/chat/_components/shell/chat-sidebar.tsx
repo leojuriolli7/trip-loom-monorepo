@@ -1,5 +1,8 @@
 "use client";
 
+import type { TripWithDestinationDTO } from "@trip-loom/api/dto";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { format, formatDistanceToNow } from "date-fns";
 import {
   CalendarIcon,
   MapPinIcon,
@@ -10,9 +13,10 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-
+import { useMemo } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Sidebar,
   SidebarContent,
@@ -26,11 +30,11 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { UserAvatar } from "@/components/user-avatar";
+import { tripQueries } from "@/lib/api/react-query/trips";
 import { EmailVerificationBanner } from "./email-verification-banner";
 import { focusChatInput } from "../chat-input-focus";
-import { currentTrips, drafts, pastTrips, upcomingTrips } from "../../_mocks";
 
-function getActiveChatId(pathname: string) {
+function getActiveChatId(pathname: string): string | null {
   if (!pathname.startsWith("/chat/")) {
     return null;
   }
@@ -38,14 +42,84 @@ function getActiveChatId(pathname: string) {
   return pathname.split("/")[2] ?? null;
 }
 
+function getTripTitle(trip: TripWithDestinationDTO): string {
+  if (trip.title) {
+    return trip.title;
+  }
+
+  if (trip.destination?.name && trip.destination?.country) {
+    return `${trip.destination.name}, ${trip.destination.country}`;
+  }
+
+  if (trip.destination?.name) {
+    return trip.destination.name;
+  }
+
+  return "Untitled Trip";
+}
+
+function formatTripDates(trip: TripWithDestinationDTO): string {
+  if (!trip.startDate || !trip.endDate) {
+    return "Dates pending";
+  }
+
+  const startDate = new Date(trip.startDate);
+  const endDate = new Date(trip.endDate);
+
+  if (startDate.getFullYear() !== endDate.getFullYear()) {
+    return `${format(startDate, "MMM d, yyyy")} - ${format(endDate, "MMM d, yyyy")}`;
+  }
+
+  return `${format(startDate, "MMM d")} - ${format(endDate, "MMM d, yyyy")}`;
+}
+
+type TripGroups = {
+  draft: TripWithDestinationDTO[];
+  current: TripWithDestinationDTO[];
+  upcoming: TripWithDestinationDTO[];
+  past: TripWithDestinationDTO[];
+  cancelled: TripWithDestinationDTO[];
+};
+
+function groupTripsByStatus(trips: TripWithDestinationDTO[]): TripGroups {
+  return trips.reduce<TripGroups>(
+    (groups, trip) => {
+      groups[trip.status].push(trip);
+      return groups;
+    },
+    {
+      draft: [],
+      current: [],
+      upcoming: [],
+      past: [],
+      cancelled: [],
+    },
+  );
+}
+
 export function ChatSidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const activeChatId = getActiveChatId(pathname);
 
+  const {
+    data: trips = [],
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isPending,
+    status,
+  } = useInfiniteQuery(tripQueries.listTrips({ limit: 20 }));
+
+  const tripGroups = useMemo(() => groupTripsByStatus(trips), [trips]);
+
   const handlePlanNewTrip = () => {
+    if (pathname === "/chat") {
+      focusChatInput();
+      return;
+    }
+
     router.push("/chat", { scroll: false });
-    focusChatInput();
   };
 
   return (
@@ -67,29 +141,57 @@ export function ChatSidebar() {
         </Button>
       </SidebarHeader>
 
-      <SidebarContent className="px-2">
-        {drafts.length > 0 && (
+      <SidebarContent
+        className="px-2"
+        onScroll={(event) => {
+          const element = event.currentTarget;
+          const distanceToBottom =
+            element.scrollHeight - element.scrollTop - element.clientHeight;
+
+          if (distanceToBottom > 160 || !hasNextPage || isFetchingNextPage) {
+            return;
+          }
+
+          void fetchNextPage();
+        }}
+      >
+        {isPending && (
+          <div className="flex h-20 items-center justify-center">
+            <Spinner className="size-5" />
+          </div>
+        )}
+
+        {status === "error" && (
+          <div className="px-2 py-3 text-xs text-destructive">
+            Could not load trips.
+          </div>
+        )}
+
+        {tripGroups.draft.length > 0 && (
           <SidebarGroup>
             <SidebarGroupLabel className="text-xs font-medium text-muted-foreground">
               Drafts
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {drafts.map((draft) => (
-                  <SidebarMenuItem key={draft.id}>
+                {tripGroups.draft.map((trip) => (
+                  <SidebarMenuItem key={trip.id}>
                     <SidebarMenuButton
                       asChild
                       className="h-auto py-2"
-                      isActive={activeChatId === draft.id}
+                      isActive={activeChatId === trip.id}
                     >
-                      <Link href={`/chat/${draft.id}`}>
+                      <Link href={`/chat/${trip.id}`}>
                         <PenLineIcon className="size-4 shrink-0 text-muted-foreground" />
                         <div className="flex min-w-0 flex-col items-start gap-0.5 overflow-hidden">
                           <span className="truncate text-sm">
-                            {draft.title}
+                            {getTripTitle(trip)}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            {draft.updatedAt}
+                            Updated{" "}
+                            {formatDistanceToNow(new Date(trip.updatedAt), {
+                              addSuffix: true,
+                            })}
                           </span>
                         </div>
                       </Link>
@@ -101,14 +203,14 @@ export function ChatSidebar() {
           </SidebarGroup>
         )}
 
-        {currentTrips.length > 0 && (
+        {tripGroups.current.length > 0 && (
           <SidebarGroup>
             <SidebarGroupLabel className="text-xs font-medium text-muted-foreground">
               Current
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {currentTrips.map((trip) => (
+                {tripGroups.current.map((trip) => (
                   <SidebarMenuItem key={trip.id}>
                     <SidebarMenuButton
                       asChild
@@ -119,11 +221,11 @@ export function ChatSidebar() {
                         <PlaneIcon className="size-4 shrink-0" />
                         <div className="flex min-w-0 flex-col items-start gap-0.5 overflow-hidden">
                           <span className="truncate text-sm font-medium">
-                            {trip.destination}, {trip.country}
+                            {getTripTitle(trip)}
                           </span>
                           <span className="flex items-center gap-1 text-xs">
                             <CalendarIcon className="size-3" />
-                            {trip.dates}
+                            {formatTripDates(trip)}
                           </span>
                         </div>
                       </Link>
@@ -135,14 +237,14 @@ export function ChatSidebar() {
           </SidebarGroup>
         )}
 
-        {upcomingTrips.length > 0 && (
+        {tripGroups.upcoming.length > 0 && (
           <SidebarGroup>
             <SidebarGroupLabel className="text-xs font-medium text-muted-foreground">
               Upcoming
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {upcomingTrips.map((trip) => (
+                {tripGroups.upcoming.map((trip) => (
                   <SidebarMenuItem key={trip.id}>
                     <SidebarMenuButton
                       asChild
@@ -153,11 +255,11 @@ export function ChatSidebar() {
                         <MapPinIcon className="size-4 shrink-0 text-muted-foreground" />
                         <div className="flex min-w-0 flex-col items-start gap-0.5 overflow-hidden">
                           <span className="truncate text-sm">
-                            {trip.destination}, {trip.country}
+                            {getTripTitle(trip)}
                           </span>
                           <span className="flex items-center gap-1 text-xs text-muted-foreground">
                             <CalendarIcon className="size-3" />
-                            {trip.dates}
+                            {formatTripDates(trip)}
                           </span>
                         </div>
                       </Link>
@@ -169,14 +271,14 @@ export function ChatSidebar() {
           </SidebarGroup>
         )}
 
-        {pastTrips.length > 0 && (
+        {tripGroups.past.length > 0 && (
           <SidebarGroup>
             <SidebarGroupLabel className="text-xs font-medium text-muted-foreground">
               Past
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {pastTrips.map((trip) => (
+                {tripGroups.past.map((trip) => (
                   <SidebarMenuItem key={trip.id}>
                     <SidebarMenuButton
                       asChild
@@ -187,11 +289,11 @@ export function ChatSidebar() {
                         <MapPinIcon className="size-4 shrink-0 text-muted-foreground/60" />
                         <div className="flex min-w-0 flex-col items-start gap-0.5 overflow-hidden">
                           <span className="truncate text-sm text-muted-foreground">
-                            {trip.destination}, {trip.country}
+                            {getTripTitle(trip)}
                           </span>
                           <span className="flex items-center gap-1 text-xs text-muted-foreground/60">
                             <CalendarIcon className="size-3" />
-                            {trip.dates}
+                            {formatTripDates(trip)}
                           </span>
                         </div>
                       </Link>
@@ -202,9 +304,49 @@ export function ChatSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         )}
+
+        {tripGroups.cancelled.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-xs font-medium text-muted-foreground">
+              Cancelled
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {tripGroups.cancelled.map((trip) => (
+                  <SidebarMenuItem key={trip.id}>
+                    <SidebarMenuButton
+                      asChild
+                      className="h-auto py-2"
+                      isActive={activeChatId === trip.id}
+                    >
+                      <Link href={`/chat/${trip.id}`}>
+                        <MapPinIcon className="size-4 shrink-0 text-muted-foreground/60" />
+                        <div className="flex min-w-0 flex-col items-start gap-0.5 overflow-hidden">
+                          <span className="truncate text-sm text-muted-foreground">
+                            {getTripTitle(trip)}
+                          </span>
+                          <span className="flex items-center gap-1 text-xs text-muted-foreground/60">
+                            <CalendarIcon className="size-3" />
+                            {formatTripDates(trip)}
+                          </span>
+                        </div>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {isFetchingNextPage && (
+          <div className="flex justify-center px-2 py-2">
+            <Spinner className="size-4" />
+          </div>
+        )}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border p-3 min-h-[73px]">
+      <SidebarFooter className="min-h-[73px] border-t border-sidebar-border p-3">
         <EmailVerificationBanner />
 
         <div className="flex items-center justify-between gap-2">

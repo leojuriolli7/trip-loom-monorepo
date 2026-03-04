@@ -37,11 +37,23 @@ type DestinationSummaryRow = {
   imagesUrls: Array<{ url: string; isCover: boolean; caption: string }> | null;
 } | null;
 
+type TripBaseRow = Pick<
+  typeof trip.$inferSelect,
+  | "id"
+  | "userId"
+  | "destinationId"
+  | "title"
+  | "startDate"
+  | "endDate"
+  | "createdAt"
+  | "updatedAt"
+>;
+
 /**
  * Row type returned from trip queries with computed status.
  * Note: status is computed via SQL CASE, not stored in DB.
  */
-type TripWithDestinationRow = Omit<typeof trip.$inferSelect, "cancelledAt"> & {
+type TripWithDestinationRow = TripBaseRow & {
   status: TripStatus;
   cancelledAt: Date | null;
   destination: DestinationSummaryRow;

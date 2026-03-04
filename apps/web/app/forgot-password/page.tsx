@@ -26,6 +26,8 @@ import {
   validateSpecialCharacter,
 } from "@/lib/password";
 
+export const dynamic = "force-dynamic";
+
 const resetPasswordSchema = z
   .object({
     password: z
@@ -98,7 +100,8 @@ export default function ResetPasswordPage() {
 
       if (error) {
         toast.error(
-          error.message || "Failed to reset password. The link may have expired.",
+          error.message ||
+            "Failed to reset password. The link may have expired.",
         );
         return;
       }
@@ -162,7 +165,10 @@ export default function ResetPasswordPage() {
           </p>
         </div>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} data-testid="reset-password-form">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          data-testid="reset-password-form"
+        >
           <FieldGroup>
             <Controller
               name="password"

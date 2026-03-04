@@ -225,6 +225,7 @@ This package requires the following environment variables (provided by the app t
 | `FRONTEND_BASE_URL` | Yes (MCP) | Base URL for our web frontend, used for MCP server to redirect to login page (e.g., `http://localhost:3000`) |
 | `TRUSTED_ORIGINS` | Prod | Comma-separated list of trusted origins |
 | `CORS_ORIGINS` | Prod | Comma-separated list of CORS origins |
+| `MCP_SERVER_URL` | Yes (MCP) | Base URL where the MCP server is (eg: "http://localhost:3002/mcp") |
 
 Environment files (`.env`) live in **apps**, not packages. See `apps/server/.env.example`.
 

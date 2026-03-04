@@ -1,6 +1,5 @@
 "use client";
 
-import type { ChatStatus, FileUIPart, SourceDocumentUIPart } from "ai";
 import type {
   ChangeEvent,
   ChangeEventHandler,
@@ -73,6 +72,25 @@ import {
   useRef,
   useState,
 } from "react";
+
+type ChatStatus = "idle" | "streaming" | "submitted" | "error";
+
+type FileUIPart = {
+  type: "file";
+  filename: string;
+  mediaType: string;
+  url: string;
+};
+
+type SourceDocumentUIPart = {
+  type: "source";
+  source: {
+    sourceType: string;
+    id: string;
+    url?: string;
+    title?: string;
+  };
+};
 
 // ============================================================================
 // Helpers

@@ -1,3 +1,5 @@
+/// <reference types="bun-types" />
+
 import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({

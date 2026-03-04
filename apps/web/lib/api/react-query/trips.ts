@@ -18,6 +18,7 @@ const KEYS = {
   create: () => [...KEYS.base(), "create"],
   update: (tripId: string) => [...KEYS.base(), "update", tripId],
   remove: (tripId: string) => [...KEYS.base(), "delete", tripId],
+  chatHistory: (tripId: string) => [...KEYS.base(), "chat", "history", tripId],
 };
 
 type UpdateTripVars = {
@@ -81,5 +82,20 @@ export const tripQueries = {
       mutationKey: KEYS.remove("any"),
       mutationFn: async (vars: DeleteTripVars) =>
         apiClient.api.trips(vars).delete(),
+    }),
+  getChatHistory: (tripId: string) =>
+    queryOptions({
+      queryKey: KEYS.chatHistory(tripId),
+      queryFn: async ({ signal }) => {
+        const result = await apiClient.api
+          .trips({ id: tripId })
+          .chat.history.get({ fetch: { signal } });
+
+        if (!result.data) {
+          throw new Error("Could not load chat history");
+        }
+
+        return result.data;
+      },
     }),
 };

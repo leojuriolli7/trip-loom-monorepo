@@ -1,74 +1,82 @@
 "use client";
 
-import { PenLineIcon, PlaneIcon } from "lucide-react";
+import type { TripWithDestinationDTO } from "@trip-loom/api/dto";
+import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { Spinner } from "@/components/ui/spinner";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { tripQueries } from "@/lib/api/react-query/trips";
 import { usePathname } from "next/navigation";
 
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { currentTrips, drafts, pastTrips, upcomingTrips } from "../../_mocks";
-
-type HeaderMeta = {
-  title: string;
-  subtitle?: string;
-  isDraft?: boolean;
-};
-
-function getHeaderMeta(pathname: string): HeaderMeta | null {
+function getChatId(pathname: string): string | null {
   if (!pathname.startsWith("/chat/")) {
     return null;
   }
 
-  const chatId = pathname.split("/")[2] ?? "";
-  if (!chatId) {
-    return null;
+  return pathname.split("/")[2] ?? null;
+}
+
+function getTripTitle(trip: TripWithDestinationDTO): string {
+  if (trip.title) {
+    return trip.title;
   }
 
-  const draft = drafts.find((item) => item.id === chatId);
-
-  if (draft) {
-    return {
-      title: draft.title,
-      subtitle: `Updated ${draft.updatedAt}`,
-      isDraft: true,
-    };
+  if (trip.destination?.name && trip.destination?.country) {
+    return `${trip.destination.name}, ${trip.destination.country}`;
   }
 
-  // TODO: Will get from react-query cache here
-  const trip = [...currentTrips, ...upcomingTrips, ...pastTrips].find(
-    (item) => item.id === chatId,
-  );
-
-  if (trip) {
-    return {
-      title: `${trip.destination}, ${trip.country}`,
-      subtitle: trip.dates,
-    };
+  if (trip.destination?.name) {
+    return trip.destination.name;
   }
 
-  return {
-    title: "Trip conversation",
-    subtitle: "Mocked conversation details",
-  };
+  return "Untitled Trip";
+}
+
+function formatTripDates(trip: TripWithDestinationDTO): string {
+  if (!trip.startDate || !trip.endDate) {
+    return "Dates pending";
+  }
+
+  const startDate = new Date(trip.startDate);
+  const endDate = new Date(trip.endDate);
+
+  if (startDate.getFullYear() !== endDate.getFullYear()) {
+    return `${format(startDate, "MMM d, yyyy")} - ${format(endDate, "MMM d, yyyy")}`;
+  }
+
+  return `${format(startDate, "MMM d")} - ${format(endDate, "MMM d, yyyy")}`;
 }
 
 export function ChatTopbar() {
   const pathname = usePathname();
-  const meta = getHeaderMeta(pathname);
+  const chatId = getChatId(pathname);
+
+  const { data: tripResult, isLoading } = useQuery({
+    ...tripQueries.getTripById(chatId ?? ""),
+    enabled: Boolean(chatId),
+  });
+
+  const trip = tripResult?.data ?? null;
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border/60 px-4">
       <div className="flex min-w-0 items-center gap-2">
         <SidebarTrigger />
 
-        {meta ? (
+        {chatId ? (
           <div className="flex min-w-0 items-center gap-2">
-            <div>
-              <p className="truncate font-medium">{meta.title}</p>
-              {meta.subtitle ? (
-                <p className="truncate text-sm text-muted-foreground leading-none">
-                  {meta.subtitle}
+            {isLoading ? (
+              <Spinner className="size-4" />
+            ) : (
+              <div>
+                <p className="truncate font-medium">
+                  {trip ? getTripTitle(trip) : "Trip conversation"}
                 </p>
-              ) : null}
-            </div>
+                <p className="truncate text-sm leading-none text-muted-foreground">
+                  {trip ? formatTripDates(trip) : "Trip details unavailable"}
+                </p>
+              </div>
+            )}
           </div>
         ) : null}
       </div>
