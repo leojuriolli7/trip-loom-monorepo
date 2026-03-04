@@ -9,9 +9,9 @@ import {
   PromptInputSubmit,
   PromptInputTextarea,
 } from "@/components/ai-elements/prompt-input";
+import { CHAT_INPUT_ID } from "@/lib/focus-chat-input";
 import { apiClient } from "@/lib/api/api-client";
 import { tripQueries } from "@/lib/api/react-query/trips";
-import { CHAT_INPUT_ID } from "./chat-input-focus";
 
 export function NewChatInputPanel() {
   const router = useRouter();

@@ -19,7 +19,7 @@ export function ChatTopbar() {
   const pathname = usePathname();
   const chatId = getChatId(pathname);
 
-  const { data: tripResult } = useQuery({
+  const { data: tripResult, status } = useQuery({
     ...tripQueries.getTripById(chatId ?? ""),
     enabled: Boolean(chatId),
   });
@@ -31,7 +31,7 @@ export function ChatTopbar() {
       <div className="flex min-w-0 items-center gap-2">
         <SidebarTrigger />
 
-        {chatId ? (
+        {chatId && status !== "pending" ? (
           <div>
             <p className="truncate font-medium">
               {trip ? getTripTitle(trip) : "Trip conversation"}

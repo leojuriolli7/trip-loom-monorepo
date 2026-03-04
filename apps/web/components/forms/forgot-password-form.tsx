@@ -55,7 +55,10 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
 
   if (emailSent) {
     return (
-      <div className="flex flex-col items-center text-center" data-testid="forgot-password-email-sent">
+      <div
+        className="flex flex-col items-center text-center"
+        data-testid="forgot-password-email-sent"
+      >
         <div className="mb-5 flex size-16 items-center justify-center rounded-2xl bg-primary/10">
           <MailCheckIcon className="size-8 text-primary" />
         </div>
@@ -81,7 +84,10 @@ export function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordFormProps) {
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} data-testid="forgot-password-form">
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      data-testid="forgot-password-form"
+    >
       <FieldGroup>
         <Controller
           name="email"

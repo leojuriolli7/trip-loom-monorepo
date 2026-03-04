@@ -31,9 +31,9 @@ import {
   PlaneIcon,
   XIcon,
 } from "lucide-react";
+import { focusChatInput } from "@/lib/focus-chat-input";
 import { destinationQueries } from "@/lib/api/react-query/destinations";
 import { getCoverImage } from "@/lib/get-cover-image";
-import { focusChatInput } from "../../chat-input-focus";
 
 type DestinationDetailContentProps = {
   destinationId: string;

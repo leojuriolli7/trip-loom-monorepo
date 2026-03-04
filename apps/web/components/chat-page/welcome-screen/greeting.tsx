@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { ArrowUpRightIcon } from "lucide-react";
-import { focusChatInput } from "../chat-input-focus";
+import { focusChatInput } from "@/lib/focus-chat-input";
 
 interface GreetingProps {
   userName: string;

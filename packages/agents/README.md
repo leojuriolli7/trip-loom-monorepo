@@ -68,7 +68,6 @@ Custom-event surface is intentionally removed right now. Re-enabling it requires
 ## TODOS
 
 ### Polish
-- [ ] Better organize chat page components (Remove `_components` pattern)
 - [ ] Improve agent behavior: 
   - [ ] Supervisor parrotting the specialist answer
   - [ ] Read MCP resources and tools more, eg: Check user past trips for context before proceeding
@@ -91,12 +90,16 @@ Custom-event surface is intentionally removed right now. Re-enabling it requires
 Build the actual frontend UI for all tool calls and build the general frontend experience
 
 - [ ] Add UI for each tool the agent calls + secondary tools like webSearch, get user preferences...
-- [ ] Add more E2E testing
+- [ ] Add more frontend E2E testing
 - [ ] Improve UI for each trip stage: upcoming trips vs draft trips vs current trips with different widgets visible (like weather widget -- or get_weather tool?)
 - [ ] Add suggestion prompts above chat input prompt (follow-up suggestions for current conversation)
 - [ ] Add integration with MCP prompts and more in each component: Destination details dialog, greetings page suggestion cards, etc...
 - [ ] Finalize README's and ensure up-to-date documentation for general reading + deployments
 - [ ] Github workflow for each PR: Run tests
+- [ ] Option to delete trip
+- [ ] Option to archive a trip
+- [ ] Option to share a trip conversation (read-only, later forkable)
+- [ ] Option to book multiple hotels/flights for a trip -- Almost a DB + API only change, since agents dictate frontend interaction with trips
 
 
 ## Dependencies

@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/sidebar";
 import { UserAvatar } from "@/components/user-avatar";
 import { tripQueries } from "@/lib/api/react-query/trips";
-import { focusChatInput } from "../chat-input-focus";
+import { focusChatInput } from "@/lib/focus-chat-input";
 import { ChatSidebarSection } from "./chat-sidebar-section";
 import { EmailVerificationBanner } from "./email-verification-banner";
 

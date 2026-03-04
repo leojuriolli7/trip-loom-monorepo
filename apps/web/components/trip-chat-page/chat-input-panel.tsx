@@ -7,7 +7,7 @@ import {
   PromptInputTextarea,
 } from "@/components/ai-elements/prompt-input";
 import { useChatStream } from "@/context/chat";
-import { CHAT_INPUT_ID } from "../chat-input-focus";
+import { CHAT_INPUT_ID } from "@/lib/focus-chat-input";
 
 export function ChatInputPanel() {
   const { stream, submitMessage } = useChatStream();

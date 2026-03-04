@@ -3,14 +3,17 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
-import { SignInForm } from "./_components/sign-in-form";
-import { SignUpForm } from "./_components/sign-up-form";
-import { ForgotPasswordForm } from "./_components/forgot-password-form";
-import { VerifyEmailScreen } from "./_components/verify-email-screen";
+import { SignInForm } from "@/components/forms/sign-in-form";
+import { SignUpForm } from "@/components/forms/sign-up-form";
+import { ForgotPasswordForm } from "@/components/forms/forgot-password-form";
+import { VerifyEmailForm } from "@/components/forms/verify-email-form";
 
 type AuthMode = "sign-in" | "sign-up" | "forgot-password" | "verify-email";
 
-const modeHeaders: Record<AuthMode, { title: string; subtitle: string; testId: string }> = {
+const modeHeaders: Record<
+  AuthMode,
+  { title: string; subtitle: string; testId: string }
+> = {
   "sign-in": {
     title: "Welcome back",
     subtitle: "Sign in to continue your journey",
@@ -35,7 +38,12 @@ const modeHeaders: Record<AuthMode, { title: string; subtitle: string; testId: s
 
 const modeFooter: Record<
   AuthMode,
-  { text: string; actionLabel: string; targetMode: AuthMode; testId: string } | null
+  {
+    text: string;
+    actionLabel: string;
+    targetMode: AuthMode;
+    testId: string;
+  } | null
 > = {
   "sign-in": {
     text: "Don't have an account?",
@@ -213,7 +221,7 @@ export default function EnterPage() {
                   />
                 )}
                 {mode === "verify-email" && (
-                  <VerifyEmailScreen email={signUpEmail} />
+                  <VerifyEmailForm email={signUpEmail} />
                 )}
 
                 {footer && (
