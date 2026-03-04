@@ -7,6 +7,8 @@ import { format } from "date-fns";
 import { TripFeatureBadge } from "@/components/trip-feature-badge";
 import { TripStatusBadge } from "@/components/trip-status-badge";
 import { getCoverImage } from "@/lib/get-cover-image";
+import { useQueryClient } from "@tanstack/react-query";
+import { tripQueries } from "@/lib/api/react-query/trips";
 
 interface TripCardProps {
   trip: TripWithDestinationDTO;
@@ -18,6 +20,8 @@ export function TripCard({ trip }: TripCardProps) {
 
   const destinationPlace = `${trip.destination?.name}, ${trip.destination?.country}`;
   const hasAnyFeature = trip.hasFlights || trip.hasHotel || trip.hasItinerary;
+
+  const queryClient = useQueryClient();
 
   /**
    * Formats date string to `Jan 3 - Feb 4` or `Dec 14 - Jan 24 2027`
@@ -41,7 +45,15 @@ export function TripCard({ trip }: TripCardProps) {
   }, [trip]);
 
   return (
-    <Card className="group cursor-pointer overflow-hidden rounded-3xl border border-border/70 bg-linear-to-b from-card to-secondary/25 p-0 shadow-[0_18px_28px_-24px_rgba(15,23,42,0.7)] transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_30px_42px_-26px_rgba(209,116,49,0.35)]">
+    <Card
+      onMouseOver={() => {
+        void queryClient.prefetchQuery(tripQueries.getChatHistory(trip.id));
+      }}
+      onTouchStart={() => {
+        void queryClient.prefetchQuery(tripQueries.getChatHistory(trip.id));
+      }}
+      className="group cursor-pointer overflow-hidden rounded-3xl border border-border/70 bg-linear-to-b from-card to-secondary/25 p-0 shadow-[0_18px_28px_-24px_rgba(15,23,42,0.7)] transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_30px_42px_-26px_rgba(209,116,49,0.35)]"
+    >
       <div className="relative aspect-4/3 overflow-hidden">
         <Image
           src={getCoverImage(trip.destination?.imagesUrls)}

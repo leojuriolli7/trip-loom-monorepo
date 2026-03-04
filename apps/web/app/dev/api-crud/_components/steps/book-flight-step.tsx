@@ -31,14 +31,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { AirplaneSeatView } from "@/components/tools-ui/airplane-seat-view";
+import { AirplaneSeatView } from "@/components/airplane-seat-view";
 import { flightQueries } from "@/lib/api/react-query/flights";
 import { useWizard } from "../wizard-context";
 
-const CABIN_CLASS_LABELS: Record<
-  (typeof cabinClassValues)[number],
-  string
-> = {
+const CABIN_CLASS_LABELS: Record<(typeof cabinClassValues)[number], string> = {
   economy: "Economy",
   business: "Business",
   first: "First Class",
@@ -50,7 +47,9 @@ type BookFlightStepProps = {
 
 type Step = "search" | "select-seat";
 
-const getMinimumAvailableSeatPriceInCents = (flight: FlightOptionDTO): number => {
+const getMinimumAvailableSeatPriceInCents = (
+  flight: FlightOptionDTO,
+): number => {
   let minimumPrice = Number.POSITIVE_INFINITY;
 
   for (const row of flight.seatMap) {
@@ -360,7 +359,10 @@ export function BookFlightStep({ flightType }: BookFlightStepProps) {
                               <div className="flex items-center gap-4 text-sm">
                                 <div>
                                   <div className="font-medium">
-                                    {format(new Date(flight.departureTime), "HH:mm")}
+                                    {format(
+                                      new Date(flight.departureTime),
+                                      "HH:mm",
+                                    )}
                                   </div>
                                   <div className="text-muted-foreground">
                                     {flight.departureAirportCode}
@@ -372,7 +374,10 @@ export function BookFlightStep({ flightType }: BookFlightStepProps) {
                                 </div>
                                 <div>
                                   <div className="font-medium">
-                                    {format(new Date(flight.arrivalTime), "HH:mm")}
+                                    {format(
+                                      new Date(flight.arrivalTime),
+                                      "HH:mm",
+                                    )}
                                   </div>
                                   <div className="text-muted-foreground">
                                     {flight.arrivalAirportCode}

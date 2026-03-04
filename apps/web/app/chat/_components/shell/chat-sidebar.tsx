@@ -107,7 +107,6 @@ export function ChatSidebar() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    isPending,
     status,
   } = useInfiniteQuery(tripQueries.listTrips({ limit: 20 }));
 
@@ -155,7 +154,7 @@ export function ChatSidebar() {
           void fetchNextPage();
         }}
       >
-        {isPending && (
+        {status === "pending" && (
           <div className="flex h-20 items-center justify-center">
             <Spinner className="size-5" />
           </div>
@@ -164,6 +163,12 @@ export function ChatSidebar() {
         {status === "error" && (
           <div className="px-2 py-3 text-xs text-destructive">
             Could not load trips.
+          </div>
+        )}
+
+        {status === "success" && !trips.length && (
+          <div className="px-2 py-3 text-xs text-destructive">
+            You have no trips yet. Get started by planning a trip!
           </div>
         )}
 
@@ -346,7 +351,7 @@ export function ChatSidebar() {
         )}
       </SidebarContent>
 
-      <SidebarFooter className="min-h-[73px] border-t border-sidebar-border p-3">
+      <SidebarFooter className="min-h-18.25 border-t border-sidebar-border p-3">
         <EmailVerificationBanner />
 
         <div className="flex items-center justify-between gap-2">

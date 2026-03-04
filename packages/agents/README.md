@@ -48,6 +48,11 @@ Configurable per agent via environment variables (e.g. `SUPERVISOR_MODEL`, `DEST
 ### Polish
 - [ ] Rename /chat pages to /trips
 - [ ] Better organize chat page components (Remove `_components` pattern)
+- [ ] Componentize chat sidebar items + include preload inside each one on hover
+- [x] Preload chat history for trip cards on hover/on touch start
+- [x] Empty state on chat page and sidebar listing
+  - [x] On sidebar, there's no empty state
+  - [x] On chat details, first render shows error instead of loading
 - [ ] Improve agent behavior: 
   - [ ] Supervisor parrotting the specialist answer
   - [ ] Read MCP resources and tools more, eg: Check user past trips for context before proceeding
