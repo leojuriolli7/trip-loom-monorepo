@@ -9,7 +9,7 @@ const schema = z.object({
         name: z.string().describe("Hotel name"),
         imageUrl: z
           .string()
-          .optional()
+          .nullable()
           .describe("Cover image URL (pick the first item from imagesUrls)"),
         starRating: z.number().describe("Star rating (1-5)"),
         pricePerNight: z.number().describe("Price per night"),

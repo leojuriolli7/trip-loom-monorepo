@@ -131,7 +131,7 @@ export function ItineraryToolCard({ args }: ItineraryToolCardProps) {
   const itinerary = parseSuggestedItineraryArgs(args);
 
   if (!itinerary) {
-    throw new Error("Invalid itinerary");
+    return null;
   }
 
   const totalActivities = itinerary.days.reduce(

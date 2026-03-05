@@ -68,8 +68,10 @@ Custom-event surface is intentionally removed right now. Re-enabling it requires
 ## TODOS
 
 ### Polish
+
 - [ ] Facing difficulty with typesafety repeating schema types from MCP: Could be better if shared in a package OR if full typesafety for args and return types for each tool were exported from `packages/agents`. Also facing issues from importing from `@trip-loom/api/dto` and accidentally importing server code. For this it could be interesting to have `packages/dto` too.
 - [ ] Improve agent behavior: 
+  - [ ] Under no circumstances mention internal code information such as destination IDs and similar
   - [ ] Supervisor parrotting the specialist answer
   - [ ] Read MCP resources and tools more, eg: Check user past trips for context before proceeding
   - [ ] Improve prompts for real-world usage

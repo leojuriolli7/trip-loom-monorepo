@@ -34,7 +34,7 @@ export function SuggestHotelBookingToolCard({
   const parsed = parseSuggestHotelBookingArgs(args);
 
   if (!parsed) {
-    throw new Error("Invalid hotel suggestions");
+    return null;
   }
 
   const hotels = parsed.hotels;
