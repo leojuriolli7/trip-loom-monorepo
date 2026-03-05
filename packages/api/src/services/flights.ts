@@ -9,7 +9,7 @@ import type {
   FlightBookingDetailDTO,
   FlightOptionDTO,
   FlightSearchQuery,
-} from "../dto/flights";
+} from "@trip-loom/contracts/dto/flights";
 import { generateId } from "../lib/nanoid";
 import {
   generateFlightOptions,

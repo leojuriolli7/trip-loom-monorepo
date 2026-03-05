@@ -159,7 +159,7 @@ See `app/dev/api-crud/_components/steps/pay-flight-step.tsx` for a full example.
 
 ## Shared DTO and Schema Reuse
 
-Always reuse backend DTO types and schema values from `@trip-loom/api/dto`. Do not redefine enums, literal unions, or DTO types in `apps/web`.
+Always reuse backend DTO types and schema values from `@trip-loom/contracts/dto`. Do not redefine enums, literal unions, or DTO types in `apps/web`.
 
 ```ts
 import {
@@ -168,7 +168,7 @@ import {
   travelInterestValues,
   regionValues,
   type UserPreferenceDTO,
-} from "@trip-loom/api/dto";
+} from "@trip-loom/contracts/dto";
 ```
 
 ## Frontend Design

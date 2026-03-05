@@ -3,7 +3,7 @@ import type {
   HotelDTO,
   HotelQuery,
   PaginatedResponse,
-} from "@trip-loom/api/dto";
+} from "@trip-loom/contracts/dto";
 import { apiClient } from "../api-client";
 
 const KEYS = {

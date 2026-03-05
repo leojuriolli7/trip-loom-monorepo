@@ -81,6 +81,11 @@ MCP Server (Elysia + Streamable HTTP, port 3002)
 TripLoom API (Elysia, port 3001)
 ```
 
+### Typing
+
+- Tool input schemas are defined in MCP tool files with Zod.
+- Shared enum/DTO contracts come from `@trip-loom/contracts` to stay aligned with API and frontend types.
+
 ## Testing with Claude Desktop
 
 Claude Desktop requires `mcp-remote` as a stdio-to-HTTP bridge. Add the following to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
@@ -108,5 +113,21 @@ Make sure both the API server and MCP server are running. On first connection, `
 | Tool | Description |
 |------|-------------|
 | `ping` | Health check — returns "pong" |
-
-More tools will be added as the MCP server is built out (destinations, flights, hotels, itineraries, payments).
+| `create_trip` | Create a trip |
+| `get_trip_details` | Get full trip details |
+| `update_trip` | Update trip fields |
+| `get_user_preferences` | Get user preferences |
+| `search_destinations` | Search destinations |
+| `get_destination_details` | Get destination detail |
+| `get_recommended_destinations` | Get recommended destinations |
+| `search_flights` | Search flights |
+| `book_flight` | Create flight booking |
+| `cancel_flight_booking` | Cancel flight booking |
+| `search_hotels` | Search hotels |
+| `create_hotel_booking` | Create hotel booking |
+| `cancel_hotel_booking` | Cancel hotel booking |
+| `create_itinerary` | Create itinerary |
+| `add_itinerary_day` | Add itinerary day |
+| `add_itinerary_activity` | Add itinerary activity |
+| `update_itinerary_activity` | Update itinerary activity |
+| `delete_itinerary_activity` | Delete itinerary activity |

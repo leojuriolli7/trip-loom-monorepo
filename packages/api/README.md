@@ -61,13 +61,13 @@ const app = createApp({
 app.listen(3001);
 ```
 
-### `@trip-loom/api/dto`
+### `@trip-loom/contracts`
 
-Shared API DTOs and enum values for consumers (frontend, MCP server, etc).
+Shared API DTOs and enum values for consumers (frontend, MCP server, agents, etc).
 
 ```typescript
-import type { TripWithDestinationDTO } from "@trip-loom/api/dto";
-import { tripStatusValues } from "@trip-loom/api/enums";
+import type { TripWithDestinationDTO } from "@trip-loom/contracts/dto";
+import { tripStatusValues } from "@trip-loom/contracts/enums";
 ```
 
 ## Structure
@@ -78,8 +78,8 @@ src/
 ├── index.ts                # Main Elysia app factory, exports `createApp` and `type App`
 ├── db/
 │   ├── index.ts            # Database connection (Drizzle + Postgres)
-│   └── schema.ts           # Drizzle schema (includes Better Auth tables)
-├── dto/                    # API contracts (zod schemas + TS types)
+│   └── schema.ts           # Drizzle schema (includes Better Auth tables, enums sourced from @trip-loom/contracts/enums)
+├── dto/                    # API-local chat DTO schema for streaming/history
 ├── mappers/                # Select field sets + row-to-DTO mappers
 ├── services/               # DB orchestration and business logic
 ├── routes/                 # Route modules
@@ -92,6 +92,14 @@ src/
     ├── otel/               # OpenTelemetry tracing + log export plugin
     ├── wide-events/        # Structured logging plugin (1 JSON log per request)
     └── [domain]/           # Domain rules (eg. `lib/trips/rules.ts`)
+```
+
+Shared contracts package:
+
+```
+packages/contracts/
+├── src/enums.ts            # Canonical enum values used by DB + DTOs
+└── src/dto/                # Shared DTO Zod schemas + TS types
 ```
 
 ## Adding Routes

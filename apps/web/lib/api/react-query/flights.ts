@@ -1,5 +1,5 @@
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
-import type { FlightSearchQuery } from "@trip-loom/api/dto";
+import type { FlightSearchQuery } from "@trip-loom/contracts/dto";
 import { apiClient } from "../api-client";
 
 const KEYS = {

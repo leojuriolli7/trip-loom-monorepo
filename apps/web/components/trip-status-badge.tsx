@@ -1,4 +1,4 @@
-import type { TripStatus } from "@trip-loom/api/enums";
+import type { TripStatus } from "@trip-loom/contracts/enums";
 import { cva } from "class-variance-authority";
 import { Badge } from "./ui/badge";
 

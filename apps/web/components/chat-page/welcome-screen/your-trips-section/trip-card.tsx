@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { CalendarIcon, MapPinIcon } from "lucide-react";
 import Image from "next/image";
-import type { TripWithDestinationDTO } from "@trip-loom/api/dto";
+import type { TripWithDestinationDTO } from "@trip-loom/contracts/dto";
 import { useMemo } from "react";
 import { parseIsoDate } from "@/lib/parse-iso-date";
 import { format } from "date-fns";

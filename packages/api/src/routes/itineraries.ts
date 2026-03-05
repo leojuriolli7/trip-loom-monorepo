@@ -1,6 +1,6 @@
 import { Elysia } from "elysia";
 import { z } from "zod";
-import { errorResponseSchema } from "../dto/common";
+import { errorResponseSchema } from "@trip-loom/contracts/dto/common";
 import {
   createActivityInputSchema,
   createDayInputSchema,
@@ -8,7 +8,7 @@ import {
   itineraryDetailSchema,
   updateActivityInputSchema,
   updateDayInputSchema,
-} from "../dto/itineraries";
+} from "@trip-loom/contracts/dto/itineraries";
 import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
 import {

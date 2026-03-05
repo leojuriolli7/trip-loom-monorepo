@@ -13,8 +13,8 @@ import {
   destinationDetailSchema,
   recommendedDestinationSchema,
   recommendedDestinationsQuerySchema,
-} from "../dto/destinations";
-import { errorResponseSchema, paginatedResponseSchema } from "../dto/common";
+} from "@trip-loom/contracts/dto/destinations";
+import { errorResponseSchema, paginatedResponseSchema } from "@trip-loom/contracts/dto/common";
 import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
 

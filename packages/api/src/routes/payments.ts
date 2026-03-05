@@ -1,6 +1,6 @@
 import { Elysia } from "elysia";
 import { z } from "zod";
-import { errorResponseSchema } from "../dto/common";
+import { errorResponseSchema } from "@trip-loom/contracts/dto/common";
 import {
   confirmPaymentInputSchema,
   createPaymentIntentInputSchema,
@@ -8,7 +8,7 @@ import {
   paymentSchema,
   refundPaymentInputSchema,
   stripeWebhookResponseSchema,
-} from "../dto/payments";
+} from "@trip-loom/contracts/dto/payments";
 import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
 import {

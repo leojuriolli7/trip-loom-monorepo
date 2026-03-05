@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import type { FlightSeat } from "@trip-loom/api/dto";
+import type { FlightSeat } from "@trip-loom/contracts/dto";
 import { cn } from "@/lib/utils";
 import { priceTierColors, type PriceTier } from "./utils";
 

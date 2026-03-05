@@ -14,6 +14,19 @@ import {
   jsonb,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
+import {
+  amenityValues,
+  bookingStatusValues,
+  cabinClassValues,
+  flightTypeValues,
+  hotelRoomTypeValues,
+  hotelStyleValues,
+  paymentStatusValues,
+  priceRangeValues,
+  regionValues,
+  travelInterestValues,
+  tripStatusValues,
+} from "@trip-loom/contracts/enums";
 
 // =============================================================================
 // Custom Types
@@ -33,235 +46,30 @@ const tsvector = customType<{ data: string }>({
 // Enums
 // =============================================================================
 
-export const tripStatusEnum = pgEnum("trip_status", [
-  "draft",
-  "upcoming",
-  "current",
-  "past",
-  "cancelled",
-]);
+export const tripStatusEnum = pgEnum("trip_status", tripStatusValues);
 
-export const flightTypeEnum = pgEnum("flight_type", ["outbound", "inbound"]);
+export const flightTypeEnum = pgEnum("flight_type", flightTypeValues);
 
-export const cabinClassEnum = pgEnum("cabin_class", [
-  "economy",
-  "business",
-  "first",
-]);
+export const cabinClassEnum = pgEnum("cabin_class", cabinClassValues);
 
-export const bookingStatusEnum = pgEnum("booking_status", [
-  "pending",
-  "confirmed",
-  "cancelled",
-]);
+export const bookingStatusEnum = pgEnum("booking_status", bookingStatusValues);
 
-export const priceRangeEnum = pgEnum("price_range", [
-  "budget", // $
-  "moderate", // $$ - $$$
-  "upscale", // $$$$
-  "luxury", // $$$$+
-]);
+export const priceRangeEnum = pgEnum("price_range", priceRangeValues);
 
-export const paymentStatusEnum = pgEnum("payment_status", [
-  "pending",
-  "processing",
-  "succeeded",
-  "failed",
-  "refunded",
-  "partially_refunded",
-]);
+export const paymentStatusEnum = pgEnum("payment_status", paymentStatusValues);
 
-export const travelInterestEnum = pgEnum("travel_interest", [
-  "beaches",
-  "culture",
-  "food",
-  "nightlife",
-  "adventure",
-  "history",
-  "nature",
-  "shopping",
-  "relaxation",
-  "architecture",
-  "wildlife",
-  "mountains",
-  "islands",
-  "temples",
-  "art",
-  "wine",
-  "skiing",
-  "diving",
-  "hiking",
-  "photography",
-]);
+export const travelInterestEnum = pgEnum(
+  "travel_interest",
+  travelInterestValues,
+);
 
-export const amenityEnum = pgEnum("amenity", [
-  // Core amenities
-  "wifi",
-  "free-wifi",
-  "pool",
-  "indoor-pool",
-  "outdoor-pool",
-  "heated-pool",
-  "infinity-pool",
-  "rooftop-pool",
-  "spa",
-  "sauna",
-  "steam-room",
-  "hot-tub",
-  "gym",
-  "fitness-center",
-  "restaurant",
-  "bar",
-  "rooftop-bar",
-  "coffee-shop",
-  "parking",
-  "free-parking",
-  "valet-parking",
-  "airport-shuttle",
-  "free-airport-transportation",
-  "room-service",
-  "concierge",
-  "beach-access",
-  "beachfront",
-  "private-beach",
-  "pet-friendly",
-  "business-center",
-  "meeting-rooms",
-  "conference-facilities",
-  "kids-club",
-  "kids-pool",
-  "laundry",
-  "dry-cleaning",
-  "air-conditioning",
-  "balcony",
-  "private-balcony",
-  "ocean-view",
-  "city-view",
-  "mountain-view",
-  // Additional popular amenities
-  "24-hour-front-desk",
-  "24-hour-security",
-  "accessible-rooms",
-  "wheelchair-access",
-  "all-inclusive",
-  "babysitting",
-  "baggage-storage",
-  "bathrobes",
-  "breakfast-included",
-  "breakfast-buffet",
-  "casino",
-  "currency-exchange",
-  "doorperson",
-  "electric-vehicle-charging",
-  "executive-lounge",
-  "express-check-in",
-  "family-rooms",
-  "fireplace",
-  "gift-shop",
-  "golf-course",
-  "hair-dryer",
-  "housekeeping",
-  "kitchenette",
-  "minibar",
-  "non-smoking-rooms",
-  "non-smoking-hotel",
-  "on-demand-movies",
-  "outdoor-furniture",
-  "patio",
-  "private-bathroom",
-  "refrigerator",
-  "safe",
-  "shuttle-service",
-  "soundproof-rooms",
-  "suites",
-  "sun-terrace",
-  "tennis-court",
-  "tv",
-  "flatscreen-tv",
-  // Activities
-  "bicycle-rental",
-  "diving",
-  "snorkeling",
-  "water-sports",
-  "hiking",
-  "yoga-classes",
-  "massage",
-  "couples-massage",
-  // Dining
-  "poolside-bar",
-  "snack-bar",
-  "special-diet-menus",
-  // Tech
-  "telephone",
-  "iron",
-]);
+export const amenityEnum = pgEnum("amenity", amenityValues);
 
-export const regionEnum = pgEnum("region", [
-  "Europe",
-  "East Asia",
-  "Southeast Asia",
-  "South Asia",
-  "North America",
-  "South America",
-  "Central America",
-  "Caribbean",
-  "Middle East",
-  "North Africa",
-  "Sub-Saharan Africa",
-  "Oceania",
-  "Central Asia",
-]);
+export const regionEnum = pgEnum("region", regionValues);
 
-export const hotelRoomTypeEnum = pgEnum("hotel_room_type", [
-  "standard",
-  "deluxe",
-  "suite",
-  "junior-suite",
-  "double",
-  "twin",
-  "single",
-  "king",
-  "queen",
-  "family",
-  "penthouse",
-  "villa",
-]);
+export const hotelRoomTypeEnum = pgEnum("hotel_room_type", hotelRoomTypeValues);
 
-export const hotelStyleEnum = pgEnum("hotel_style", [
-  "art-deco",
-  "bay-view",
-  "boutique",
-  "budget",
-  "business",
-  "centrally-located",
-  "charming",
-  "city-view",
-  "classic",
-  "family",
-  "family-resort",
-  "great-view",
-  "green",
-  "harbor-view",
-  "hidden-gem",
-  "historic",
-  "lagoon-view",
-  "lake-view",
-  "luxury",
-  "marina-view",
-  "mid-range",
-  "modern",
-  "mountain-view",
-  "ocean-view",
-  "park-view",
-  "quaint",
-  "quiet",
-  "quirky",
-  "residential",
-  "river-view",
-  "romantic",
-  "trendy",
-  "value",
-]);
+export const hotelStyleEnum = pgEnum("hotel_style", hotelStyleValues);
 
 // =============================================================================
 // Auth Tables (Better Auth - existing)

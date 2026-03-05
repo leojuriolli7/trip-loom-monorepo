@@ -1,11 +1,11 @@
 import { Elysia } from "elysia";
 import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
-import { errorResponseSchema } from "../dto/common";
+import { errorResponseSchema } from "@trip-loom/contracts/dto/common";
 import {
   userPreferenceInputSchema,
   userPreferenceSchema,
-} from "../dto/user-preferences";
+} from "@trip-loom/contracts/dto/user-preferences";
 import {
   getOrCreateUserPreferences,
   upsertUserPreferences,

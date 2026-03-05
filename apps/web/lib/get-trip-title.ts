@@ -1,4 +1,4 @@
-import type { TripWithDestinationDTO } from "@trip-loom/api/dto";
+import type { TripWithDestinationDTO } from "@trip-loom/contracts/dto";
 
 export function getTripTitle(trip: TripWithDestinationDTO): string {
   if (trip.title) {

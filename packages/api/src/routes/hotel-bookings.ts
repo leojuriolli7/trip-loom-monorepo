@@ -1,10 +1,10 @@
 import { Elysia } from "elysia";
 import { z } from "zod";
-import { errorResponseSchema } from "../dto/common";
+import { errorResponseSchema } from "@trip-loom/contracts/dto/common";
 import {
   createHotelBookingInputSchema,
   hotelBookingSchema,
-} from "../dto/hotel-bookings";
+} from "@trip-loom/contracts/dto/hotel-bookings";
 import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
 import {

@@ -1,11 +1,11 @@
 import { desc, eq, or, sql } from "drizzle-orm";
-import { db } from "../../db";
-import { destination, trip, userPreference } from "../../db/schema";
 import type {
   DestinationDTO,
   RecommendedDestinationDTO,
-} from "../../dto/destinations";
-import type { Region, TravelInterest } from "../../enums";
+} from "@trip-loom/contracts/dto/destinations";
+import type { Region, TravelInterest } from "@trip-loom/contracts/enums";
+import { db } from "../../db";
+import { destination, trip, userPreference } from "../../db/schema";
 import { destinationSelectFields } from "../../mappers/destinations";
 import { combineConditions } from "../pagination";
 import { computedTripStatusSql } from "./status";

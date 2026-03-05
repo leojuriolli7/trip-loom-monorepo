@@ -2,7 +2,6 @@
 
 import { FetchStreamTransport } from "@langchain/langgraph-sdk/react";
 import { useQueryClient } from "@tanstack/react-query";
-import type { ChatHistoryResponse, ChatMessageDTO } from "@trip-loom/api/dto";
 import type {
   TripLoomChatState,
   TripLoomMessage,
@@ -33,8 +32,12 @@ type ChatContextValue = {
 
 type ChatProviderProps = {
   tripId: string;
-  initialMessages: ChatMessageDTO[];
+  initialMessages: TripLoomMessage[];
   children: React.ReactNode;
+};
+
+type ChatHistoryResponse = {
+  messages: TripLoomMessage[];
 };
 
 const ChatContext = createContext<ChatContextValue | null>(null);

@@ -14,7 +14,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { tripQueries } from "@/lib/api/react-query/trips";
 import { Spinner } from "@/components/ui/spinner";
 import { useMemo } from "react";
-import { TripStatus } from "@trip-loom/api/enums";
+import { TripStatus } from "@trip-loom/contracts/enums";
 import { PersonalizeCtaCard } from "./personalize-cta-card";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/use-media-query";

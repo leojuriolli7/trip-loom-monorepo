@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { userPreference } from "../db/schema";
 import { generateId } from "../lib/nanoid";
-import type { UserPreferenceDTO, UserPreferenceInput } from "../dto/user-preferences";
+import type { UserPreferenceDTO, UserPreferenceInput } from "@trip-loom/contracts/dto/user-preferences";
 
 export async function getOrCreateUserPreferences(
   userId: string,

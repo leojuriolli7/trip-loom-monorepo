@@ -4,7 +4,7 @@ import type {
   FlightOptionDTO,
   FlightSearchQuery,
   FlightSeatMap,
-} from "../../dto/flights";
+} from "@trip-loom/contracts/dto/flights";
 
 type CabinClass = (typeof cabinClassEnum.enumValues)[number];
 

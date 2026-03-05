@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { and, desc, eq, lt, or, sql, type SQL } from "drizzle-orm";
 import type { PgColumn } from "drizzle-orm/pg-core";
-import type { PaginatedResponse } from "../dto/common";
+import type { PaginatedResponse } from "@trip-loom/contracts/dto/common";
 
 // =============================================================================
 // Cursor Schema

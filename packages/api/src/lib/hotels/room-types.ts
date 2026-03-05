@@ -1,4 +1,4 @@
-import type { HotelRoomType } from "../../enums";
+import type { HotelRoomType } from "@trip-loom/contracts/enums";
 
 /**
  * Price multiplier per room type, applied on top of the base price

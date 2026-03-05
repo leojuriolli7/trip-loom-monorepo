@@ -1,6 +1,6 @@
 "use client";
 
-import type { TripStatus, TripWithDestinationDTO } from "@trip-loom/api/dto";
+import type { TripStatus, TripWithDestinationDTO } from "@trip-loom/contracts/dto";
 import { cva } from "class-variance-authority";
 import { formatDistanceToNow } from "date-fns";
 import {

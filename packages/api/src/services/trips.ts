@@ -8,14 +8,14 @@ import {
   payment,
   trip,
 } from "../db/schema";
-import type { PaginatedResponse } from "../dto/common";
+import type { PaginatedResponse } from "@trip-loom/contracts/dto/common";
 import type {
   CreateTripInput,
   TripDetailDTO,
   TripQuery,
   TripWithDestinationDTO,
   UpdateTripInput,
-} from "../dto/trips";
+} from "@trip-loom/contracts/dto/trips";
 import { isValidDateRange } from "../lib/date-range";
 import { buildComputedStatusCondition } from "../lib/trips/status";
 import { BadRequestError } from "../errors";

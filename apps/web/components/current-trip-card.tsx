@@ -2,7 +2,7 @@ import { ArrowRightIcon, MapPinIcon } from "lucide-react";
 import Image from "next/image";
 import { TripFeatureBadge } from "./trip-feature-badge";
 import { Button } from "./ui/button";
-import type { TripWithDestinationDTO } from "@trip-loom/api/dto";
+import type { TripWithDestinationDTO } from "@trip-loom/contracts/dto";
 import { getCoverImage } from "@/lib/get-cover-image";
 import { useQueryClient } from "@tanstack/react-query";
 import { prefetchChatHistory } from "@/lib/prefetch-chat-history";

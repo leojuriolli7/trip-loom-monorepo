@@ -7,6 +7,7 @@ import { ToolCallJsonFallback } from "./tool-call-json-fallback";
 import { SearchDestinationsToolCard } from "../search-destinations-card";
 import { UpdateTripToolCallCard } from "../update-trip-tool-card";
 import { GetDestinationDetailsToolCard } from "../get-destination-details-tool-card";
+import { SearchHotelsToolCard } from "../search-hotels-card";
 
 export function ToolCallRenderer({ toolCall }: { toolCall: TripLoomToolCall }) {
   switch (toolCall.name) {
@@ -24,6 +25,8 @@ export function ToolCallRenderer({ toolCall }: { toolCall: TripLoomToolCall }) {
       return <GetDestinationDetailsToolCard args={toolCall.args} />;
     case "update_trip":
       return <UpdateTripToolCallCard args={toolCall.args} />;
+    case "search_hotels":
+      return <SearchHotelsToolCard args={toolCall.args} />;
     default:
       return <ToolCallJsonFallback toolCall={toolCall} />;
   }

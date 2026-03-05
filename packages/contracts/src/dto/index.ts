@@ -1,9 +1,3 @@
-/**
- * This file is the entry-point for external applications/libraries importing the API DTO.
- *
- * To avoid leaking any server-side code, only types are exported from this folder.
- */
-
 export {
   type UserPreferenceDTO,
   type UserPreferenceInput,
@@ -58,12 +52,6 @@ export {
   type ConfirmPaymentInput,
   type RefundPaymentInput,
 } from "./payments";
-
-export {
-  type ChatInput,
-  type ChatMessageDTO,
-  type ChatHistoryResponse,
-} from "./chat";
 
 export {
   type TripDTO,

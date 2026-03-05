@@ -1,6 +1,6 @@
 import { Elysia } from "elysia";
 import { z } from "zod";
-import { errorResponseSchema } from "../dto/common";
+import { errorResponseSchema } from "@trip-loom/contracts/dto/common";
 import {
   chatInputSchema,
   chatHistoryResponseSchema,

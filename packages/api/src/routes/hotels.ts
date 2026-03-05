@@ -5,8 +5,8 @@ import {
   hotelQuerySchema,
   hotelSchema,
   hotelWithDestinationSchema,
-} from "../dto/hotels";
-import { errorResponseSchema, paginatedResponseSchema } from "../dto/common";
+} from "@trip-loom/contracts/dto/hotels";
+import { errorResponseSchema, paginatedResponseSchema } from "@trip-loom/contracts/dto/common";
 import { createWideEventPlugin } from "../lib/wide-events";
 
 export const hotelRoutes = new Elysia({

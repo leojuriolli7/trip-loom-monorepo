@@ -1,6 +1,6 @@
 "use client";
 
-import type { TripStatus, TripWithDestinationDTO } from "@trip-loom/api/dto";
+import type { TripStatus, TripWithDestinationDTO } from "@trip-loom/contracts/dto";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { MessageSquarePlusIcon } from "lucide-react";
 import Image from "next/image";

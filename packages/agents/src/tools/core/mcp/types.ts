@@ -9,7 +9,7 @@ import type {
   RecommendedDestinationsQuery,
   UpdateActivityInput,
   UpdateTripInput,
-} from "@trip-loom/api/dto";
+} from "@trip-loom/contracts/dto";
 import type { TripLoomMcpToolName } from "../registry";
 
 type WithOptionalKeys<Type, Keys extends keyof Type> = Omit<Type, Keys> &

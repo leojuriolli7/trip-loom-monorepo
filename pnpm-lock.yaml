@@ -23,6 +23,9 @@ importers:
       '@trip-loom/api':
         specifier: workspace:*
         version: link:../../packages/api
+      '@trip-loom/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       better-auth:
         specifier: ^1.5.0
         version: 1.5.0(4de31e2798b7697a8354e5f616abcc60)
@@ -100,6 +103,9 @@ importers:
       '@trip-loom/api':
         specifier: workspace:*
         version: link:../../packages/api
+      '@trip-loom/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       better-auth:
         specifier: ^1.5.0
         version: 1.5.0(ea9a898c67baae3d0126c43279c3e9e1)
@@ -245,13 +251,13 @@ importers:
       '@langchain/openai':
         specifier: ^1.2.11
         version: 1.2.11(@langchain/core@1.1.29(@opentelemetry/api@1.9.0)(@opentelemetry/exporter-trace-otlp-proto@0.212.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.5.1(@opentelemetry/api@1.9.0))(openai@6.25.0(zod@4.3.6)))
+      '@trip-loom/contracts':
+        specifier: workspace:*
+        version: link:../contracts
       zod:
         specifier: ^4.3.6
         version: 4.3.6
     devDependencies:
-      '@trip-loom/api':
-        specifier: workspace:*
-        version: link:../api
       bun-types:
         specifier: ^1.3.10
         version: 1.3.10
@@ -297,6 +303,9 @@ importers:
       '@trip-loom/agents':
         specifier: workspace:*
         version: link:../agents
+      '@trip-loom/contracts':
+        specifier: workspace:*
+        version: link:../contracts
       better-auth:
         specifier: ^1.5.0
         version: 1.5.0(4de31e2798b7697a8354e5f616abcc60)
@@ -342,6 +351,19 @@ importers:
         version: 4.21.0
       typescript:
         specifier: ^5.7.0
+        version: 5.9.3
+
+  packages/contracts:
+    dependencies:
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
+    devDependencies:
+      '@types/node':
+        specifier: ^20.19.24
+        version: 20.19.35
+      typescript:
+        specifier: ^5.9.3
         version: 5.9.3
 
 packages:

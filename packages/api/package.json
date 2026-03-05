@@ -6,9 +6,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./env": "./src/env.d.ts",
-    "./auth/types": "./src/lib/auth/types.ts",
-    "./enums": "./src/enums.ts",
-    "./dto": "./src/dto/index.ts"
+    "./auth/types": "./src/lib/auth/types.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -36,6 +34,7 @@
     "@opentelemetry/sdk-trace-node": "^2.5.1",
     "@opentelemetry/semantic-conventions": "^1.39.0",
     "@trip-loom/agents": "workspace:*",
+    "@trip-loom/contracts": "workspace:*",
     "better-auth": "^1.5.0",
     "dotenv": "^17.3.1",
     "drizzle-orm": "^0.45.1",

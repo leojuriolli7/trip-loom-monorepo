@@ -1,6 +1,6 @@
 import { trip, destination } from "../db/schema";
-import type { TripWithDestinationDTO } from "../dto/trips";
-import type { TripStatus } from "../enums";
+import type { TripWithDestinationDTO } from "@trip-loom/contracts/dto/trips";
+import type { TripStatus } from "@trip-loom/contracts/enums";
 import { computedTripStatusSql } from "../lib/trips/status";
 
 /**

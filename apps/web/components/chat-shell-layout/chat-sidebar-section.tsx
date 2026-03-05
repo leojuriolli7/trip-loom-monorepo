@@ -1,6 +1,6 @@
 "use client";
 
-import type { TripWithDestinationDTO } from "@trip-loom/api/dto";
+import type { TripWithDestinationDTO } from "@trip-loom/contracts/dto";
 import { ChevronDownIcon } from "lucide-react";
 import { memo, useState } from "react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { ChatSidebarTripCard } from "./chat-sidebar-trip-card";
-import type { TripStatus } from "@trip-loom/api/enums";
+import type { TripStatus } from "@trip-loom/contracts/enums";
 
 const sectionLabels: Record<TripStatus, string> = {
   draft: "Drafts",

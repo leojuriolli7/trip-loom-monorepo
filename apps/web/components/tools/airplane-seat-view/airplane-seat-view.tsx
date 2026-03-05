@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { format } from "date-fns";
-import type { FlightOptionDTO, FlightSeat } from "@trip-loom/api/dto";
+import type { FlightOptionDTO, FlightSeat } from "@trip-loom/contracts/dto";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRightIcon,

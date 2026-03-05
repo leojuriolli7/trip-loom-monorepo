@@ -9,7 +9,7 @@ import type {
   ItineraryDetailDTO,
   UpdateActivityInput,
   UpdateDayInput,
-} from "../dto/itineraries";
+} from "@trip-loom/contracts/dto/itineraries";
 import { ConflictError, NotFoundError } from "../errors";
 import { generateId } from "../lib/nanoid";
 import { getOwnedTripMeta } from "../lib/trips/ownership";

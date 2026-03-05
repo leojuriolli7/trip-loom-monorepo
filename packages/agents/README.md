@@ -54,7 +54,7 @@ MCP tools are loaded dynamically by `@langchain/mcp-adapters`, so compile-time a
 - `packages/agents/src/tools/core/mcp/types.ts` (MCP tool name -> args type map)
 - `packages/agents/src/tools/core/contract.ts` (builds `TripLoomMcpToolCall` discriminated union from that map)
 
-The MCP args map reuses `@trip-loom/api/dto` input/query types whenever possible and wraps route params (`tripId`, `dayId`, etc.) where needed.
+The MCP args map reuses `@trip-loom/contracts/dto` input/query types whenever possible and wraps route params (`tripId`, `dayId`, etc.) where needed.
 
 If a tool cannot be mapped yet, keep it as `Record<string, unknown>` in the MCP args map.
 
@@ -127,7 +127,7 @@ Current steps:
 
 1. Add/register the tool in `apps/mcp-server`.
 2. Add the MCP tool name to the target agent in `packages/agents/src/tools/core/registry.ts`.
-3. Add the arg type in `packages/agents/src/tools/core/mcp/types.ts` (reuse `@trip-loom/api/dto` types when possible).
+3. Add the arg type in `packages/agents/src/tools/core/mcp/types.ts` (reuse `@trip-loom/contracts/dto` types when possible).
 
 After this, frontend `TripLoomToolCall`/`TripLoomToolArgsByName` narrowing is automatic via `toolCall.name`.
 
@@ -141,43 +141,9 @@ Custom-event surface is intentionally removed right now. Re-enabling it requires
 4. Add a UI renderer for that event.
 5. Re-add `"custom"` stream mode in API.
 
-## TODOS
+## Roadmap
 
-### Polish
-
-- [ ] Read MCP resources and tools more, eg: Check user past trips for context before proceeding, call get_trip_details and so on...
-- [ ] Refine system prompts based on testing
-
-### Cross-Session Memory
-
-- [ ] Wire PostgresStore: read/write user preferences namespaced by userId
-
-### Agent Evaluation
-
-- [ ] Choose eval framework (Evalite, LangSmith, or Vitest-based)
-- [ ] Test scenarios per agent domain
-- [ ] Evaluate routing accuracy, tool call correctness, response quality
-- [ ] Add OTEL and concrete logging to all agent messages + MCP server
-
-### Frontend Finish Line
-
-Build the actual frontend UI for all tool calls and build the general frontend experience
-
-- [ ] Empty messages in UI (empty space)
-- [ ] Add destination details dialog to get destination detail card + move dialog to layout
-- [ ] Organize ToolCallCard components better: introduce a HeaderSideContent or something for the pattern of image + side content in header.
-- [ ] Add UI for each tool card
-- [ ] Look at "streaming" tool calls eg loading state for cards
-- [ ] Add more frontend E2E testing
-- [ ] Improve UI for each trip stage: upcoming trips vs draft trips vs current trips with different widgets visible (like weather widget -- or get_weather tool?)
-- [ ] Add suggestion prompts above chat input prompt (follow-up suggestions for current conversation)
-- [ ] Add integration with MCP prompts and more in each component: Destination details dialog, greetings page suggestion cards, etc...
-- [ ] Finalize README's and ensure up-to-date documentation for general reading + deployments
-- [ ] Github workflow for each PR: Run tests
-- [ ] Option to delete trip
-- [ ] Option to archive a trip
-- [ ] Option to share a trip conversation (read-only, later forkable)
-- [ ] Option to book multiple hotels/flights for a trip -- Almost a DB + API only change, since agents dictate frontend interaction with trips
+Project-level TODOs and roadmap items live in the repository root `README.md`.
 
 ## Dependencies
 

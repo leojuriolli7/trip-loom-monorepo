@@ -1,4 +1,4 @@
-import type { HotelRoomType, PriceRange } from "../../enums";
+import type { HotelRoomType, PriceRange } from "@trip-loom/contracts/enums";
 import { ROOM_TYPE_MULTIPLIERS } from "./room-types";
 
 /**

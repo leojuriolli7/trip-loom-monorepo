@@ -26,12 +26,8 @@ function formatSearchDestinationsSummary(
     filters.push(`highlight ${args.highlight}`);
   }
 
-  if (args.cursor) {
-    filters.push("next page cursor");
-  }
-
   const limit = args.limit ?? 20;
-  const searchScope = `up to ${limit} destination${limit === 1 ? "" : "s"}`;
+  const searchScope = `${limit} destination${limit === 1 ? "" : "s"}`;
 
   if (filters.length === 0) {
     return `Searched ${searchScope} with default filters.`;

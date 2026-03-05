@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { generatePricePerNight, getPriceBounds } from "./pricing";
 import { ROOM_TYPE_MULTIPLIERS } from "./room-types";
-import type { HotelRoomType, PriceRange } from "../../enums";
+import type { HotelRoomType, PriceRange } from "@trip-loom/contracts/enums";
 
 describe("Hotel Pricing", () => {
   describe("generatePricePerNight", () => {

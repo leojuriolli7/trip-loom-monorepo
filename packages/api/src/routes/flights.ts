@@ -1,13 +1,13 @@
 import { Elysia } from "elysia";
 import { z } from "zod";
-import { errorResponseSchema } from "../dto/common";
+import { errorResponseSchema } from "@trip-loom/contracts/dto/common";
 import {
   createFlightBookingInputSchema,
   flightBookingSchema,
   flightBookingDetailSchema,
   flightOptionSchema,
   flightSearchSchema,
-} from "../dto/flights";
+} from "@trip-loom/contracts/dto/flights";
 import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
 import {

@@ -5,8 +5,8 @@ import type {
   CreateHotelBookingInput,
   HotelBookingDTO,
   HotelSummaryDTO,
-} from "../dto/hotel-bookings";
-import type { HotelRoomType, PriceRange } from "../enums";
+} from "@trip-loom/contracts/dto/hotel-bookings";
+import type { HotelRoomType, PriceRange } from "@trip-loom/contracts/enums";
 import { BadRequestError, NotFoundError } from "../errors";
 import { isValidDateRange } from "../lib/date-range";
 import { generatePricePerNight } from "../lib/hotels/pricing";

@@ -1,5 +1,5 @@
-import type { DestinationHotelSummaryDTO } from "@trip-loom/api/dto";
-import type { PriceRange } from "@trip-loom/api/enums";
+import type { DestinationHotelSummaryDTO } from "@trip-loom/contracts/dto";
+import type { PriceRange } from "@trip-loom/contracts/enums";
 import { amenityIcons } from "@/lib/amenity-icons";
 import { WifiIcon } from "lucide-react";
 import Image from "next/image";

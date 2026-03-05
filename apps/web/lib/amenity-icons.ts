@@ -1,4 +1,4 @@
-import type { Amenity } from "@trip-loom/api/enums";
+import type { Amenity } from "@trip-loom/contracts/enums";
 import {
   StarIcon,
   WifiIcon,

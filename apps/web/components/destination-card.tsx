@@ -11,7 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { MapPinIcon } from "lucide-react";
 import Image from "next/image";
-import type { RecommendedDestinationDTO } from "@trip-loom/api/dto";
+import type { RecommendedDestinationDTO } from "@trip-loom/contracts/dto";
 import { useQueryClient } from "@tanstack/react-query";
 import { destinationQueries } from "@/lib/api/react-query/destinations";
 import { getCoverImage } from "@/lib/get-cover-image";

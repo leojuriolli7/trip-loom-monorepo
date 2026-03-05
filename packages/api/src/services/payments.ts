@@ -13,7 +13,7 @@ import type {
   PaymentDTO,
   PaymentIntentResponse,
   RefundPaymentInput,
-} from "../dto/payments";
+} from "@trip-loom/contracts/dto/payments";
 import { BadRequestError, ConflictError } from "../errors";
 import { generateId } from "../lib/nanoid";
 import { paymentProvider } from "../lib/payments/provider";

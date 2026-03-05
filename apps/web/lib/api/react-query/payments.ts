@@ -2,7 +2,7 @@ import { mutationOptions, queryOptions } from "@tanstack/react-query";
 import type {
   ConfirmPaymentInput,
   CreatePaymentIntentInput,
-} from "@trip-loom/api/dto";
+} from "@trip-loom/contracts/dto";
 import { apiClient } from "../api-client";
 
 const KEYS = {

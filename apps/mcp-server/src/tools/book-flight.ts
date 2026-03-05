@@ -1,5 +1,5 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { cabinClassValues, flightTypeValues } from "@trip-loom/api/enums";
+import { cabinClassValues, flightTypeValues } from "@trip-loom/contracts/enums";
 import { z } from "zod";
 import type { ApiClient } from "../api-client";
 

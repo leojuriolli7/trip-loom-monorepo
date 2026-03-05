@@ -1,4 +1,4 @@
-import type { FlightSeatMap } from "@trip-loom/api/dto";
+import type { FlightSeatMap } from "@trip-loom/contracts/dto";
 
 export type PriceTier = "cheap" | "medium" | "expensive";
 

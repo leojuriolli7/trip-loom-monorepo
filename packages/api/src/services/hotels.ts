@@ -5,8 +5,8 @@ import type {
   HotelDTO,
   HotelQuery,
   HotelWithDestinationDTO,
-} from "../dto/hotels";
-import type { PaginatedResponse } from "../dto/common";
+} from "@trip-loom/contracts/dto/hotels";
+import type { PaginatedResponse } from "@trip-loom/contracts/dto/common";
 import {
   paginate,
   buildCursorCondition,

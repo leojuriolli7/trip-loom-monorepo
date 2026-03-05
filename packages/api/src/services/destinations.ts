@@ -7,8 +7,8 @@ import type {
   DestinationWithStatsDTO,
   DestinationDetailDTO,
   DestinationHotelSummaryDTO,
-} from "../dto/destinations";
-import type { PaginatedResponse } from "../dto/common";
+} from "@trip-loom/contracts/dto/destinations";
+import type { PaginatedResponse } from "@trip-loom/contracts/dto/common";
 import { recommendationEngine } from "../lib/trips/recommendation-engine";
 import {
   buildCursorCondition,

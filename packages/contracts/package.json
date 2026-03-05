@@ -1,0 +1,22 @@
+{
+  "name": "@trip-loom/contracts",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./dto": "./src/dto/index.ts",
+    "./dto/*": "./src/dto/*.ts",
+    "./enums": "./src/enums.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.24",
+    "typescript": "^5.9.3"
+  }
+}

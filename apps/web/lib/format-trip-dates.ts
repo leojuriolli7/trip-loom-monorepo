@@ -1,4 +1,4 @@
-import type { TripWithDestinationDTO } from "@trip-loom/api/dto";
+import type { TripWithDestinationDTO } from "@trip-loom/contracts/dto";
 import { parseIsoDate } from "./parse-iso-date";
 import { format } from "date-fns";
 

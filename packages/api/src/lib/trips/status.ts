@@ -1,6 +1,6 @@
 import { sql, type SQL } from "drizzle-orm";
 import { trip } from "../../db/schema";
-import type { TripStatus } from "../../enums";
+import type { TripStatus } from "@trip-loom/contracts/enums";
 
 /**
  * SQL expression that computes trip status at query time.

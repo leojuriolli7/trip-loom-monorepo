@@ -1,5 +1,5 @@
 import type { DB_NewDestination, DB_NewHotel } from "../../db/types";
-import type { Region } from "../../enums";
+import type { Region } from "@trip-loom/contracts/enums";
 import { generateId } from "../../lib/nanoid";
 
 /**
