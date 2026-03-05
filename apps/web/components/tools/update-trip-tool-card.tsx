@@ -37,12 +37,12 @@ export function UpdateTripToolCallCard({ args }: UpdateTripToolCallCardProps) {
       <ToolCallCard.Header>
         <ToolCallCard.Image src="/pencil.png" alt="Pencil" className="p-1" />
 
-        <div className="mt-0.5">
+        <ToolCallCard.HeaderContent className="pt-0.5">
           <ToolCallCard.Title>Updated your trip</ToolCallCard.Title>
           <ToolCallCard.Description>
             {formatUpdateTripSummary(args)}
           </ToolCallCard.Description>
-        </div>
+        </ToolCallCard.HeaderContent>
       </ToolCallCard.Header>
     </ToolCallCard>
   );

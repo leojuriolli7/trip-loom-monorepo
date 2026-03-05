@@ -47,12 +47,12 @@ export function SearchDestinationsToolCard({
           alt="Magnifying glass"
         />
 
-        <div className="space-y-0.5">
+        <ToolCallCard.HeaderContent>
           <ToolCallCard.Title>Searched destinations</ToolCallCard.Title>
           <ToolCallCard.Description>
             {formatSearchDestinationsSummary(args)}
           </ToolCallCard.Description>
-        </div>
+        </ToolCallCard.HeaderContent>
       </ToolCallCard.Header>
     </ToolCallCard>
   );

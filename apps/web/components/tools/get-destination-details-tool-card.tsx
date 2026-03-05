@@ -31,14 +31,14 @@ export function GetDestinationDetailsToolCard({
           className={"object-cover w-12 h-12 rounded-2xl shrink-0"}
         />
 
-        <div className="space-y-0.5">
+        <ToolCallCard.HeaderContent>
           <ToolCallCard.Title>
             In-depth look at {destinationDetails?.data?.name}
           </ToolCallCard.Title>
           <ToolCallCard.Description>
             {destinationDetails?.data?.description}
           </ToolCallCard.Description>
-        </div>
+        </ToolCallCard.HeaderContent>
       </ToolCallCard.Header>
     </ToolCallCard>
   );

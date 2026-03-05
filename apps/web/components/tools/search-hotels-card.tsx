@@ -47,12 +47,12 @@ export function SearchHotelsToolCard({ args }: SearchHotelsToolCardProps) {
           alt="Magnifying glass"
         />
 
-        <div className="space-y-0.5">
+        <ToolCallCard.HeaderContent>
           <ToolCallCard.Title>Looked up hotels</ToolCallCard.Title>
           <ToolCallCard.Description>
             {formatSearchHotelsSummary(args)}
           </ToolCallCard.Description>
-        </div>
+        </ToolCallCard.HeaderContent>
       </ToolCallCard.Header>
     </ToolCallCard>
   );

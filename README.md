@@ -99,8 +99,6 @@ pnpm dev:web      # Next.js app
 
 ### Product and UX
 
-- [ ] Fix empty messages in between real messages
-- [ ] Organize ToolCallCard components better: introduce a HeaderSideContent or something for the pattern of image + side content in header.
 - [ ] Look at "streaming" tool calls eg loading state for cards
 - [ ] Build complete card UI coverage for remaining MCP tool calls
 - [ ] Improve UI per trip stage: upcoming/current/past with different widgets visible (like weather widget -- or `get_weather` tool?), for completed trip block chat and show a widget talking about how trip was over, "how was your trip?" feedback card for emailing us + CTA to start planning a new trip...

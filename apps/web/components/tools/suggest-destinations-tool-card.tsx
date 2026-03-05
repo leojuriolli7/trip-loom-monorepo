@@ -1,7 +1,6 @@
 "use client";
 
 import type { TripLoomToolArgsByName } from "@trip-loom/agents";
-import { useState } from "react";
 import { DestinationCard } from "@/components/destination-card";
 import { destinationDetailDialogAtom } from "@/components/destination-detail-dialog";
 import { useSetAtom } from "jotai";
@@ -33,20 +32,16 @@ export function SuggestDestinationsToolCard({
 
   return (
     <>
-      <ToolCallCard>
+      <ToolCallCard size="lg">
         <ToolCallCard.Header>
-          <ToolCallCard.Image
-            src="/colliseum.png"
-            alt="Rome Colliseum"
-            size="lg"
-          />
+          <ToolCallCard.Image src="/colliseum.png" alt="Rome Colliseum" />
 
-          <div className="space-y-0.5 mt-2">
+          <ToolCallCard.HeaderContent>
             <ToolCallCard.Title>Destination picks are ready</ToolCallCard.Title>
             <ToolCallCard.Description>
               {`Picked ${destinations.length} options`}
             </ToolCallCard.Description>
-          </div>
+          </ToolCallCard.HeaderContent>
         </ToolCallCard.Header>
 
         <ToolCallCard.Content className="space-y-4">

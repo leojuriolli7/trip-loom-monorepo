@@ -22,12 +22,13 @@ export function SuggestHotelBookingToolCard({
   return (
     <ToolCallCard>
       <ToolCallCard.Header>
-        <div className="space-y-1">
+        <ToolCallCard.HeaderContent className="space-y-1 pt-0">
           <ToolCallCard.Title>Curated hotel options ready</ToolCallCard.Title>
+
           <ToolCallCard.Description>
             {`Compared ${hotels.length} stays so you can pick the one that fits your trip best`}
           </ToolCallCard.Description>
-        </div>
+        </ToolCallCard.HeaderContent>
       </ToolCallCard.Header>
 
       <ToolCallCard.Content className="space-y-4">

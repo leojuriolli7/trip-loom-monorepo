@@ -11,13 +11,13 @@ export function UserPreferencesToolCard(props: UserPreferencesToolCardProps) {
       <ToolCallCard.Header>
         <ToolCallCard.Image src="/duffel.png" alt="Duffel bag" />
 
-        <div className="space-y-0.5">
+        <ToolCallCard.HeaderContent>
           <ToolCallCard.Title>Read your travel preferences</ToolCallCard.Title>
           <ToolCallCard.Description>
             Checked your saved profile so new suggestions match your style,
             budget, and comfort needs
           </ToolCallCard.Description>
-        </div>
+        </ToolCallCard.HeaderContent>
       </ToolCallCard.Header>
     </ToolCallCard>
   );

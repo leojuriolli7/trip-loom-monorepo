@@ -41,12 +41,12 @@ export function WebSearchToolCallCard({
               className="scale-110"
             />
 
-            <div className="mt-0.5 min-w-0">
+            <ToolCallCard.HeaderContent className="min-w-0 pt-0.5">
               <ToolCallCard.Title>Web Search</ToolCallCard.Title>
               <ToolCallCard.Description>
                 {formattedQueryText}
               </ToolCallCard.Description>
-            </div>
+            </ToolCallCard.HeaderContent>
           </div>
 
           <CollapsibleTrigger className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none">
@@ -62,7 +62,10 @@ export function WebSearchToolCallCard({
         <CollapsibleContent className="data-open:animate-collapsible-down data-closed:animate-collapsible-up overflow-hidden">
           <ul className="mt-3 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
             {queryList.map((queryItem, index) => (
-              <li key={`${toolCall.id}-${queryItem}-${index}`} className="leading-4">
+              <li
+                key={`${toolCall.id}-${queryItem}-${index}`}
+                className="leading-4"
+              >
                 {queryItem}
               </li>
             ))}
