@@ -1,8 +1,7 @@
-"use client";
-
 import type { ComponentProps } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 function ToolCallCardRoot({ className, ...props }: ComponentProps<"section">) {
   return (
@@ -13,6 +12,32 @@ function ToolCallCardRoot({ className, ...props }: ComponentProps<"section">) {
       )}
       {...props}
     />
+  );
+}
+
+function ToolCallCardImage({
+  className,
+  src,
+  alt,
+  size = "sm",
+  ...props
+}: ComponentProps<"div"> & { src: string; alt: string; size?: "sm" | "lg" }) {
+  return (
+    <div
+      className={cn(
+        "relative shrink-0 rounded-2xl border border-border/60 bg-background/75 p-2",
+        size === "sm" ? "size-12" : "size-16",
+      )}
+      {...props}
+    >
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes={size === "sm" ? "48px" : "64px"}
+        className={cn("object-contain", className)}
+      />
+    </div>
   );
 }
 
@@ -45,7 +70,7 @@ function ToolCallCardDescription({ className, ...props }: ComponentProps<"p">) {
 }
 
 function ToolCallCardContent({ className, ...props }: ComponentProps<"div">) {
-  return <div className={cn("mt-3", className)} {...props} />;
+  return <div className={cn("mt-2.5 space-y-0.5", className)} {...props} />;
 }
 
 function ToolCallCardFooter({ className, ...props }: ComponentProps<"div">) {
@@ -77,5 +102,6 @@ export const ToolCallCard = Object.assign(ToolCallCardRoot, {
   Description: ToolCallCardDescription,
   Content: ToolCallCardContent,
   Footer: ToolCallCardFooter,
+  Image: ToolCallCardImage,
   Button: ToolCallCardButton,
 });

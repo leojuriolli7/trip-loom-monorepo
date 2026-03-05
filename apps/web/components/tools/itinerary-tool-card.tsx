@@ -61,17 +61,9 @@ export function ItineraryToolCard({ args }: ItineraryToolCardProps) {
     <Sheet>
       <ToolCallCard className="bg-linear-to-br from-card via-card to-primary/5">
         <ToolCallCard.Header>
-          <div className="relative size-16 shrink-0 rounded-2xl border border-border/60 bg-background/75 p-2">
-            <Image
-              src="/map.png"
-              alt=""
-              fill
-              sizes="64px"
-              className="object-contain"
-            />
-          </div>
+          <ToolCallCard.Image src="/map.png" alt="" size="lg" />
 
-          <div className="space-y-1">
+          <div className="space-y-1 mt-2">
             <ToolCallCard.Title>Built your itinerary draft</ToolCallCard.Title>
             <ToolCallCard.Description>
               {`Prepared ${itinerary.days.length} days with ${totalActivities} activities for your review`}

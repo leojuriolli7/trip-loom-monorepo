@@ -2,7 +2,6 @@
 
 import type { TripLoomToolArgsByName } from "@trip-loom/agents";
 import { useState } from "react";
-import Image from "next/image";
 import { DestinationCard } from "@/components/destination-card";
 import { DestinationDetailDialog } from "@/components/destination-detail-dialog";
 import { ToolCallCard } from "@/components/tools/tool-call-card";
@@ -45,17 +44,13 @@ export function SuggestDestinationsToolCard({
     <>
       <ToolCallCard>
         <ToolCallCard.Header>
-          <div className="relative size-16 shrink-0 rounded-2xl border border-border/60 bg-background/75 p-2">
-            <Image
-              src="/colliseum.png"
-              alt=""
-              fill
-              sizes="64px"
-              className="object-contain"
-            />
-          </div>
+          <ToolCallCard.Image
+            src="/colliseum.png"
+            alt="Rome Colliseum"
+            size="lg"
+          />
 
-          <div className="space-y-1">
+          <div className="space-y-0.5 mt-2">
             <ToolCallCard.Title>Destination picks are ready</ToolCallCard.Title>
             <ToolCallCard.Description>
               {`Picked ${destinations.length} options to compare visually`}
