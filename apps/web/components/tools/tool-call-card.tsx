@@ -61,7 +61,7 @@ function ToolCallCardDescription({ className, ...props }: ComponentProps<"p">) {
   return (
     <p
       className={cn(
-        "text-sm leading-[normal] text-muted-foreground",
+        "text-sm leading-[normal] text-muted-foreground first-letter:uppercase",
         className,
       )}
       {...props}

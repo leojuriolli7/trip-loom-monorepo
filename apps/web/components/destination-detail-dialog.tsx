@@ -102,7 +102,7 @@ function DestinationDetailContent({
 
   return (
     <>
-      <div className="relative aspect-video w-[90%] mx-auto rounded-[20px] sm:w-full sm:mx-0 sm:rounded-none shrink-0 overflow-hidden">
+      <div className="relative aspect-video w-[90%] mx-auto rounded-4xl sm:w-full sm:mx-0 sm:rounded-none shrink-0 overflow-hidden">
         <Image
           src={getCoverImage(data.imagesUrls)}
           alt={data.name}

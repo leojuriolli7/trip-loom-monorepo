@@ -53,7 +53,7 @@ export function SuggestDestinationsToolCard({
           <div className="space-y-0.5 mt-2">
             <ToolCallCard.Title>Destination picks are ready</ToolCallCard.Title>
             <ToolCallCard.Description>
-              {`Picked ${destinations.length} options to compare visually`}
+              {`Picked ${destinations.length} options`}
             </ToolCallCard.Description>
           </div>
         </ToolCallCard.Header>

@@ -25,7 +25,7 @@ packages/api ─── POST /api/chat (SSE) ──► packages/agents
 
 ### Key boundaries
 
-- **This package has zero imports from `packages/api`.** No DB access, no internal services, no auth logic. It receives an access token string and an MCP URL — nothing more.
+- **No runtime coupling to `packages/api`.** This package does not call API internals, access DB, or own auth logic. It only receives an access token and MCP URL. The only shared compile-time contract is DTO types used for MCP tool argument typing.
 - **All data access goes through MCP tools.** The agents call the MCP server, which calls the API on behalf of the authenticated user.
 - **The API is the orchestrator.** It handles auth, creates OAuth tokens for agent→MCP auth, assembles the graph, and pipes the LangGraph stream to SSE.
 
@@ -47,16 +47,16 @@ Configurable per agent via environment variables (e.g. `SUPERVISOR_MODEL`, `DEST
 
 ### Tools typesafety
 
-Agent tools have complete typesafety via `TripLoomToolCall` type.
+Agent tools are fully typed via `ToolCallFromTool`.
 
-As for MCP tools, they are dynamic tools and need static schemas/types to be properly typed. For this, we will need to look at:
+MCP tools are loaded dynamically by `@langchain/mcp-adapters`, so compile-time arg typing must come from a static contract in this repo. That contract lives in:
 
-1. Making a MCP server a package, like `packages/api`, exporting its DTOs.
-2. New package `packages/dto` exporting `packages/dto/api` and `packages/dto/mcp` -- This might be useful to stop us importing server code in the client by importing something like a zod schema from the API's `dto` folder.
+- `packages/agents/src/tools/core/mcp/types.ts` (MCP tool name -> args type map)
+- `packages/agents/src/tools/core/contract.ts` (builds `TripLoomMcpToolCall` discriminated union from that map)
 
-The first option would introduce circular dependencies like `api -> agents -> mcp -> api`, so better to introduce `packages/dto`.
+The MCP args map reuses `@trip-loom/api/dto` input/query types whenever possible and wraps route params (`tripId`, `dayId`, etc.) where needed.
 
-`@langchain/mcp-adapters` cannot infer per-tool MCP arg types from a remote server at compile time. That part is dynamic. So the only clean way is a static MCP contract in your monorepo, then reuse it everywhere.
+If a tool cannot be mapped yet, keep it as `Record<string, unknown>` in the MCP args map.
 
 Important constraint: MCP result typing in streamed chat tool messages by tool name: not first-class in LangChain message shape, because tool results are separate messages keyed by tool_call_id (not discriminated by tool name).
 
@@ -111,7 +111,7 @@ When you do have strong types
 
 For now we don't have to worry: MCP tool results are often unimportant, we can render all the UI we need with arguments. eg: `updated your trip's name and dates` --> derived from `update_trip` args; `Booked hotel {name} from {date} to {date}` -\_> derived from `create_hotel_booking` args.
 
-### Add a new tool (example: `suggest-meal`)
+### Add a new local tool (example: `suggest-meal`)
 
 Current steps:
 
@@ -120,6 +120,16 @@ Current steps:
 3. Update that agent prompt so it actually calls the tool when appropriate.
 
 So the required wiring is 2 files plus 1 prompt update for behavior.
+
+### Add a new MCP tool
+
+Current steps:
+
+1. Add/register the tool in `apps/mcp-server`.
+2. Add the MCP tool name to the target agent in `packages/agents/src/tools/core/registry.ts`.
+3. Add the arg type in `packages/agents/src/tools/core/mcp/types.ts` (reuse `@trip-loom/api/dto` types when possible).
+
+After this, frontend `TripLoomToolCall`/`TripLoomToolArgsByName` narrowing is automatic via `toolCall.name`.
 
 ### If the tool needs a custom streaming event
 
@@ -135,8 +145,7 @@ Custom-event surface is intentionally removed right now. Re-enabling it requires
 
 ### Polish
 
-- [ ] Typesafety for MCP tools (Requires monorepo reestructuring)
-- [ ] Read MCP resources and tools more, eg: Check user past trips for context before proceeding
+- [ ] Read MCP resources and tools more, eg: Check user past trips for context before proceeding, call get_trip_details and so on...
 - [ ] Refine system prompts based on testing
 
 ### Cross-Session Memory
@@ -154,8 +163,11 @@ Custom-event surface is intentionally removed right now. Re-enabling it requires
 
 Build the actual frontend UI for all tool calls and build the general frontend experience
 
+- [ ] Empty messages in UI (empty space)
+- [ ] Add destination details dialog to get destination detail card + move dialog to layout
 - [ ] Organize ToolCallCard components better: introduce a HeaderSideContent or something for the pattern of image + side content in header.
-- [ ] Add UI for each tool the agent calls + secondary tools like webSearch, get user preferences...
+- [ ] Add UI for each tool card
+- [ ] Look at "streaming" tool calls eg loading state for cards
 - [ ] Add more frontend E2E testing
 - [ ] Improve UI for each trip stage: upcoming trips vs draft trips vs current trips with different widgets visible (like weather widget -- or get_weather tool?)
 - [ ] Add suggestion prompts above chat input prompt (follow-up suggestions for current conversation)

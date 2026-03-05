@@ -1,6 +1,11 @@
+import type { TripLoomToolArgsByName } from "@trip-loom/agents";
 import { ToolCallCard } from "@/components/tools/tool-call-card";
 
-export function UserPreferencesToolCard() {
+type UserPreferencesToolCardProps = {
+  args: TripLoomToolArgsByName<"get_user_preferences">;
+};
+
+export function UserPreferencesToolCard(props: UserPreferencesToolCardProps) {
   return (
     <ToolCallCard>
       <ToolCallCard.Header>

@@ -6,12 +6,17 @@ import type {
   TripLoomMcpToolName,
   TripLoomToolName,
 } from "./registry";
+import type { TripLoomMcpToolArgsByName } from "./mcp/types";
 import type { TripLoomInterruptValue } from "./types";
 
-export type TripLoomMcpToolCall = ToolCall<
-  TripLoomMcpToolName,
-  Record<string, unknown>
+type TripLoomMcpToolCallByName<Name extends TripLoomMcpToolName> = ToolCall<
+  Name,
+  TripLoomMcpToolArgsByName[Name]
 >;
+
+export type TripLoomMcpToolCall = {
+  [Name in TripLoomMcpToolName]: TripLoomMcpToolCallByName<Name>;
+}[TripLoomMcpToolName];
 
 export type TripLoomLocalToolCall = ToolCallFromTool<TripLoomLocalTool>;
 

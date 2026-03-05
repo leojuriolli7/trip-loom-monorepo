@@ -13,6 +13,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { useChatStream } from "@/context/chat";
 import { ToolCallRenderer } from "../tools";
+import {
+  WebSearchToolCallCard,
+  type WebSearchToolCall,
+} from "../tools/web-search-tool-card";
 
 function getMessageContent(content: TripLoomMessage["content"]): string {
   if (typeof content === "string") {
@@ -68,28 +72,28 @@ export function ChatConversation() {
 
             return (
               <div key={key} className="space-y-3">
+                {webSearchCalls.map(
+                  (
+                    webSearchCall: WebSearchToolCall,
+                    webSearchIndex: number,
+                  ) => {
+                    console.log({ webSearchCall });
+
+                    return (
+                      <WebSearchToolCallCard
+                        key={`${key}-web-search-call-${webSearchCall.id || webSearchIndex}`}
+                        toolCall={webSearchCall}
+                      />
+                    );
+                  },
+                )}
+
                 {toolCalls.map((toolCall, toolIndex: number) => (
                   <ToolCallRenderer
                     key={`${key}-tool-call-${toolIndex}`}
                     toolCall={toolCall}
                   />
                 ))}
-
-                {webSearchCalls.map(
-                  (webSearchCall: unknown, webSearchIndex: number) => (
-                    <div
-                      key={`${key}-web-search-call-${webSearchIndex}`}
-                      className="rounded-lg border border-border/60 bg-card p-4"
-                    >
-                      <h3 className="mb-2 text-sm font-medium">
-                        Provider tool: web_search
-                      </h3>
-                      <pre className="overflow-x-auto text-xs">
-                        {JSON.stringify(webSearchCall, null, 2)}
-                      </pre>
-                    </div>
-                  ),
-                )}
 
                 {content.length > 0 && (
                   <ConversationMessage from="assistant">
@@ -98,29 +102,6 @@ export function ChatConversation() {
                     </MessageContent>
                   </ConversationMessage>
                 )}
-              </div>
-            );
-          }
-
-          if (message.type === "tool") {
-            return (
-              <div
-                key={key}
-                className="rounded-lg border border-border/60 bg-card p-4"
-              >
-                <h3 className="mb-2 text-sm font-medium">
-                  Tool result: {message.name ?? message.tool_call_id}
-                </h3>
-                <pre className="overflow-x-auto text-xs">
-                  {JSON.stringify(
-                    {
-                      content: getMessageContent(message.content),
-                      status: message.status,
-                    },
-                    null,
-                    2,
-                  )}
-                </pre>
               </div>
             );
           }
