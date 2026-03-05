@@ -47,7 +47,7 @@ export const suggestItineraryTool = tool(
   {
     name: "suggest_itinerary",
     description:
-      "Present a proposed itinerary to the user as a visual day-by-day plan. Use this before saving to let the user review and approve the plan. After calling this tool, do not repeat the full day-by-day plan in plain text.",
+      "Present a proposed itinerary to the user as a visual day-by-day plan. Use this before saving to let the user review and approve the plan. After calling this tool, do not repeat the full plan and do not ask follow-up questions; hand off to the supervisor for user questioning.",
     schema,
   },
 );

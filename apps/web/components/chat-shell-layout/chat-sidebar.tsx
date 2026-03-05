@@ -23,8 +23,8 @@ import { ChatSidebarSection } from "./chat-sidebar-section";
 import { EmailVerificationBanner } from "./email-verification-banner";
 
 const sectionOrder: TripStatus[] = [
-  "draft",
   "current",
+  "draft",
   "upcoming",
   "past",
   "cancelled",

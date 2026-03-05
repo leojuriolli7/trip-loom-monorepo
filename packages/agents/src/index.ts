@@ -7,6 +7,7 @@ export type {
   TripLoomResumePayload,
   TripLoomChatState,
   TripLoomStreamBag,
+  TripLoomToolCall,
 } from "./tools/core";
 
 export {

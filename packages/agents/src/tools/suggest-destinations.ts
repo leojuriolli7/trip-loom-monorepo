@@ -30,7 +30,7 @@ export const suggestDestinationsTool = tool(
   {
     name: "suggest_destinations",
     description:
-      "Present destination options to the user as a visual selection widget. Use this after searching destinations to let the user pick interactively. After calling this tool, keep follow-up text short and do not restate full option details already shown in the widget.",
+      "Present destination options to the user as a visual selection widget. Use this after searching destinations to let the user pick interactively. After calling this tool, do not restate full option details and do not ask follow-up questions; hand off to the supervisor for user questioning.",
     schema,
   },
 );

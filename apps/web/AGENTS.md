@@ -179,6 +179,8 @@ Before doing any UI work, read the `frontend-design` skill to ensure production-
 
 For simple icons, we are using the `lucide-react` icons package. NEVER create custom svg's for this use-case, always use Lucide icons.
 
+Do not use `SparklesIcon` in product UI. It is banned across this codebase.
+
 For rich, detailed icons (images), we are using custom stylized, playful 3D icons. They are all localed inside the `public` folder.
 
 - `backpack.png`: Backpack with a map hanging out of its pocket.

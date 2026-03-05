@@ -7,6 +7,10 @@ const schema = z.object({
       z.object({
         id: z.string().describe("The hotel ID from the search results"),
         name: z.string().describe("Hotel name"),
+        imageUrl: z
+          .string()
+          .optional()
+          .describe("Cover image URL (pick the first item from imagesUrls)"),
         starRating: z.number().describe("Star rating (1-5)"),
         pricePerNight: z.number().describe("Price per night"),
         currency: z.string().describe("Currency code (e.g. USD, EUR)"),
@@ -33,7 +37,7 @@ export const suggestHotelBookingTool = tool(
   {
     name: "suggest_hotel_booking",
     description:
-      "Present hotel options to the user as a visual comparison widget. Use this after searching hotels to let the user compare and pick one. After calling this tool, avoid repeating full hotel details in plain text.",
+      "Present hotel options to the user as a visual comparison widget. Use this after searching hotels to let the user compare and pick one. For each hotel, set imageUrl as the first URL from imageUrls. After calling this tool, avoid repeating full hotel details and do not ask follow-up questions; hand off to the supervisor for user questioning.",
     schema,
   },
 );

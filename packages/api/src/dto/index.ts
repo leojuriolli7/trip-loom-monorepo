@@ -101,9 +101,6 @@ export {
 } from "./payments";
 
 export {
-  chatInputSchema,
-  chatMessageSchema,
-  chatHistoryResponseSchema,
   type ChatInput,
   type ChatMessageDTO,
   type ChatHistoryResponse,

@@ -12,6 +12,7 @@ import {
 } from "@/components/ai-elements/message";
 import { Button } from "@/components/ui/button";
 import { useChatStream } from "@/context/chat";
+import { ToolCallRenderer } from "../tools";
 
 function getMessageContent(content: TripLoomMessage["content"]): string {
   if (typeof content === "string") {
@@ -68,17 +69,10 @@ export function ChatConversation() {
             return (
               <div key={key} className="space-y-3">
                 {toolCalls.map((toolCall, toolIndex: number) => (
-                  <div
+                  <ToolCallRenderer
                     key={`${key}-tool-call-${toolIndex}`}
-                    className="rounded-lg border border-border/60 bg-card p-4"
-                  >
-                    <h3 className="mb-2 text-sm font-medium">
-                      Tool: {toolCall.name}
-                    </h3>
-                    <pre className="overflow-x-auto text-xs">
-                      {JSON.stringify(toolCall.args, null, 2)}
-                    </pre>
-                  </div>
+                    toolCall={toolCall}
+                  />
                 ))}
 
                 {webSearchCalls.map(

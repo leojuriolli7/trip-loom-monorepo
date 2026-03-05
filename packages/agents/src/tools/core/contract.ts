@@ -3,7 +3,7 @@ import type { Interrupt, Message } from "@langchain/langgraph-sdk";
 import type { TripLoomToolName } from "./registry";
 import type { TripLoomInterruptValue } from "./types";
 
-type TripLoomToolCall = ToolCall<
+export type TripLoomToolCall = ToolCall<
   TripLoomToolName,
   Record<string, unknown>
 >;
