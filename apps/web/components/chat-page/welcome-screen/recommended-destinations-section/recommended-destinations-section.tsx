@@ -8,8 +8,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { DestinationCard } from "./destination-card";
-import { DestinationDetailDialog } from "./destination-detail-dialog";
+import { DestinationCard } from "@/components/destination-card";
+import { DestinationDetailDialog } from "@/components/destination-detail-dialog";
 import { useQuery } from "@tanstack/react-query";
 import { destinationQueries } from "@/lib/api/react-query/destinations";
 import { Spinner } from "@/components/ui/spinner";

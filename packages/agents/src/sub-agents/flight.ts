@@ -11,6 +11,7 @@ UI contract (critical):
 - After searching, ALWAYS call suggest_flight.
 - After suggest_flight, respond with at most 1 short status sentence.
 - Do NOT repeat full flight-card details that are already visible in the widget.
+- NEVER mention internal IDs or raw payload structures in user-facing text.
 - Do not ask user-facing follow-up questions after suggest_flight; hand control back to supervisor for the next question.
 
 Flight workflow:

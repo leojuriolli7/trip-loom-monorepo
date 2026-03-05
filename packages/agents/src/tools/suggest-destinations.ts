@@ -7,6 +7,10 @@ const schema = z.object({
       z.object({
         id: z.string().describe("The destination ID from the search results"),
         name: z.string().describe("Destination name"),
+        imageUrl: z
+          .string()
+          .nullable()
+          .describe("Cover image URL (pick the first item from imagesUrls)"),
         country: z.string().describe("Country name"),
         description: z
           .string()
@@ -30,7 +34,7 @@ export const suggestDestinationsTool = tool(
   {
     name: "suggest_destinations",
     description:
-      "Present destination options to the user as a visual selection widget. Use this after searching destinations to let the user pick interactively. After calling this tool, do not restate full option details and do not ask follow-up questions; hand off to the supervisor for user questioning.",
+      "Present destination options to the user as a visual selection widget. Use this after searching destinations to let the user pick interactively. For each destination, set imageUrl as the first URL from imagesUrls. After calling this tool, do not restate full option details and do not ask follow-up questions; hand off to the supervisor for user questioning.",
     schema,
   },
 );

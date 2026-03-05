@@ -1,7 +1,6 @@
 "use client";
 
 import { ToolCallCard } from "@/components/tools/tool-call-card";
-import { Badge } from "@/components/ui/badge";
 import {
   Carousel,
   CarouselContent,
@@ -51,10 +50,6 @@ export function SuggestHotelBookingToolCard({
       </ToolCallCard.Header>
 
       <ToolCallCard.Content className="space-y-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline">{hotels.length} options</Badge>
-        </div>
-
         <TooltipProvider delayDuration={100}>
           <Carousel opts={{ align: "start" }} className="px-2">
             <CarouselContent className="-ml-4">

@@ -9,23 +9,46 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPinIcon, SparklesIcon } from "lucide-react";
+import { MapPinIcon } from "lucide-react";
 import Image from "next/image";
 import type { RecommendedDestinationDTO } from "@trip-loom/api/dto";
 import { useQueryClient } from "@tanstack/react-query";
 import { destinationQueries } from "@/lib/api/react-query/destinations";
 import { getCoverImage } from "@/lib/get-cover-image";
 
+export type DestinationCardData = {
+  id: string;
+  name: string;
+  country: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  imagesUrls?: RecommendedDestinationDTO["imagesUrls"] | null;
+  matchReason?: string | null;
+};
+
 interface DestinationCardProps {
-  destination: RecommendedDestinationDTO;
+  destination: DestinationCardData;
   onClick?: () => void;
+  prefetchOnHover?: boolean;
 }
 
 export function DestinationCard({
   destination,
   onClick,
+  prefetchOnHover = true,
 }: DestinationCardProps) {
   const queryClient = useQueryClient();
+  const coverImage = destination.imageUrl ?? getCoverImage(destination.imagesUrls);
+
+  const prefetchDestinationDetails = () => {
+    if (!prefetchOnHover) {
+      return;
+    }
+
+    void queryClient.prefetchQuery(
+      destinationQueries.getDestinationDetail(destination.id),
+    );
+  };
 
   return (
     <Card
@@ -34,21 +57,13 @@ export function DestinationCard({
       /**
        * Optimization: Prefetch on hover or when touch starts over a card.
        */
-      onMouseOver={() => {
-        void queryClient.prefetchQuery(
-          destinationQueries.getDestinationDetail(destination.id),
-        );
-      }}
-      onTouchStart={() => {
-        void queryClient.prefetchQuery(
-          destinationQueries.getDestinationDetail(destination.id),
-        );
-      }}
+      onMouseOver={prefetchDestinationDetails}
+      onTouchStart={prefetchDestinationDetails}
       data-testid={`destination-card-${destination.id}`}
     >
       <div className="relative aspect-3/4 overflow-hidden">
         <Image
-          src={getCoverImage(destination.imagesUrls)}
+          src={coverImage}
           alt={destination.name}
           fill
           sizes="(max-width: 1024px) 100vw, 25vw"
@@ -79,10 +94,8 @@ export function DestinationCard({
             <CardFooter className="mt-3 p-0">
               <Badge
                 variant="secondary"
-                className="gap-1.5 border-0 bg-white/15 text-xs font-medium text-white backdrop-blur-sm h-auto whitespace-normal"
+                className="border-0 bg-white/15 text-xs font-medium text-white backdrop-blur-sm h-auto whitespace-normal"
               >
-                <SparklesIcon className="size-3 shrink-0" />
-
                 {destination.matchReason}
               </Badge>
             </CardFooter>
