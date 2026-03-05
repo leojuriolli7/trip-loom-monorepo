@@ -4,6 +4,7 @@ export type {
   TripLoomMessage,
   TripLoomChatState,
   TripLoomStreamBag,
+  TripLoomToolArgsByName,
   TripLoomToolCall,
 } from "./contract";
 

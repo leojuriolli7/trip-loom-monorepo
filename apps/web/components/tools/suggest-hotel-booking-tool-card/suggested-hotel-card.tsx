@@ -1,5 +1,6 @@
 "use client";
 
+import type { TripLoomToolArgsByName } from "@trip-loom/agents";
 import { ChevronRightIcon, MapPinIcon } from "lucide-react";
 import Image from "next/image";
 import { Ratings } from "@/components/ui/rating";
@@ -8,7 +9,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import type { SuggestedHotel } from "./schema";
+
+type SuggestedHotel =
+  TripLoomToolArgsByName<"suggest_hotel_booking">["hotels"][number];
 
 function formatNightlyRate(pricePerNight: number, currency: string) {
   try {
@@ -35,7 +38,8 @@ function getAmenitiesCountLabel(count: number) {
 }
 
 export function SuggestedHotelCard({ hotel }: { hotel: SuggestedHotel }) {
-  const amenitiesCount = hotel.amenities.length;
+  const amenities = hotel.amenities ?? [];
+  const amenitiesCount = amenities.length;
 
   return (
     <article className="flex h-full min-h-80 flex-col overflow-hidden rounded-2xl border border-border/60 bg-card">
@@ -91,7 +95,7 @@ export function SuggestedHotelCard({ hotel }: { hotel: SuggestedHotel }) {
                 className="max-w-56 p-4"
               >
                 <div className="space-y-1.5">
-                  {hotel.amenities.map((amenity) => (
+                  {amenities.map((amenity) => (
                     <p
                       key={`${hotel.id}-tooltip-${amenity}`}
                       className="text-md text-background/90 capitalize"

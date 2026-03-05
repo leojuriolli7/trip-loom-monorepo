@@ -66,10 +66,11 @@ const AGENT_TOOL_REGISTRY = {
 
 type AgentRegistry = typeof AGENT_TOOL_REGISTRY;
 
-type AgentName = keyof AgentRegistry;
-type McpToolName = AgentRegistry[AgentName]["mcp"][number];
-type LocalToolName = AgentRegistry[AgentName]["local"][number]["name"];
-export type TripLoomToolName = McpToolName | LocalToolName;
+export type AgentName = keyof AgentRegistry;
+export type TripLoomMcpToolName = AgentRegistry[AgentName]["mcp"][number];
+export type TripLoomLocalTool = AgentRegistry[AgentName]["local"][number];
+export type TripLoomLocalToolName = TripLoomLocalTool["name"];
+export type TripLoomToolName = TripLoomMcpToolName | TripLoomLocalToolName;
 
 const TRIP_LOOM_LOCAL_TOOL_NAMES = [
   requestConfirmationTool.name,
@@ -91,7 +92,7 @@ export const TRIP_LOOM_TOOL_NAMES = [
 
 function filterMcpTools(
   tools: DynamicStructuredTool[],
-  names: readonly McpToolName[],
+  names: readonly TripLoomMcpToolName[],
 ) {
   const nameSet = new Set<string>(names);
   return tools.filter((tool) => nameSet.has(tool.name));

@@ -45,6 +45,15 @@ Configurable per agent via environment variables (e.g. `SUPERVISOR_MODEL`, `DEST
 
 ## Tooling workflow
 
+### Tools typesafety
+
+Agent tools have complete typesafety via `TripLoomToolCall` type. 
+
+As for MCP tools, they are dynamic tools and need static schemas/types to be properly typed. For this, we will need to look at: 
+
+1. Making a MCP server a package, like `packages/api`, exporting its DTOs.
+2. New package `packages/dto` exporting `packages/dto/api` and `packages/dto/mcp` -- This might be useful to stop us importing server code in the client by importing something like a zod schema from the API's `dto` folder.
+
 ### Add a new tool (example: `suggest-meal`)
 
 Current steps:
@@ -68,13 +77,9 @@ Custom-event surface is intentionally removed right now. Re-enabling it requires
 ## TODOS
 
 ### Polish
-
-- [ ] Facing difficulty with typesafety repeating schema types from MCP: Could be better if shared in a package OR if full typesafety for args and return types for each tool were exported from `packages/agents`. Also facing issues from importing from `@trip-loom/api/dto` and accidentally importing server code. For this it could be interesting to have `packages/dto` too.
-- [ ] Improve agent behavior: 
-  - [ ] Supervisor parrotting the specialist answer
-  - [ ] Read MCP resources and tools more, eg: Check user past trips for context before proceeding
-  - [ ] Improve prompts for real-world usage
-  - [ ] Refine system prompts based on testing
+- [ ] Typesafety for MCP tools (Requires monorepo reestructuring)
+- [ ] Read MCP resources and tools more, eg: Check user past trips for context before proceeding
+- [ ] Refine system prompts based on testing
   
 ### Cross-Session Memory
 

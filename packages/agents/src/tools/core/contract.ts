@@ -1,12 +1,29 @@
 import type { ToolCall } from "@langchain/core/messages/tool";
 import type { Interrupt, Message } from "@langchain/langgraph-sdk";
-import type { TripLoomToolName } from "./registry";
+import type { ToolCallFromTool } from "@langchain/langgraph-sdk/react";
+import type {
+  TripLoomLocalTool,
+  TripLoomMcpToolName,
+  TripLoomToolName,
+} from "./registry";
 import type { TripLoomInterruptValue } from "./types";
 
-export type TripLoomToolCall = ToolCall<
-  TripLoomToolName,
+export type TripLoomMcpToolCall = ToolCall<
+  TripLoomMcpToolName,
   Record<string, unknown>
 >;
+
+export type TripLoomLocalToolCall = ToolCallFromTool<TripLoomLocalTool>;
+
+export type TripLoomToolCall = TripLoomLocalToolCall | TripLoomMcpToolCall;
+
+type TripLoomToolCallByName<Name extends TripLoomToolName> = Extract<
+  TripLoomToolCall,
+  { name: Name }
+>;
+
+export type TripLoomToolArgsByName<Name extends TripLoomToolName> =
+  TripLoomToolCallByName<Name>["args"];
 
 /**
  * Canonical message type for TripLoom chat state.

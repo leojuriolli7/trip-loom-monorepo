@@ -1,12 +1,16 @@
 export { initPersistence } from "./persistence";
 
-export { TRIP_LOOM_TOOL_NAMES, type TripLoomToolName } from "./tools/core";
+export {
+  TRIP_LOOM_TOOL_NAMES,
+  type TripLoomToolName,
+} from "./tools/core";
 
 export type {
   TripLoomMessage,
   TripLoomResumePayload,
   TripLoomChatState,
   TripLoomStreamBag,
+  TripLoomToolArgsByName,
   TripLoomToolCall,
 } from "./tools/core";
 

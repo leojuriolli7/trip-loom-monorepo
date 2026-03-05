@@ -1,42 +1,23 @@
 "use client";
 
+import type { TripLoomToolArgsByName } from "@trip-loom/agents";
 import { ToolCallCard } from "@/components/tools/tool-call-card";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/components/ui/carousel";
 import { TooltipProvider } from "@/components/ui/tooltip";
-
-import {
-  SuggestHotelBookingArgs,
-  suggestHotelBookingArgsSchema,
-} from "./schema";
 import { SuggestedHotelCard } from "./suggested-hotel-card";
 
-function parseSuggestHotelBookingArgs(
-  args: Record<string, unknown>,
-): SuggestHotelBookingArgs | null {
-  const result = suggestHotelBookingArgsSchema.safeParse(args);
-  return result.success ? result.data : null;
-}
-
 type SuggestHotelBookingToolCardProps = {
-  args: Record<string, unknown>;
+  args: TripLoomToolArgsByName<"suggest_hotel_booking">;
 };
 
 export function SuggestHotelBookingToolCard({
   args,
 }: SuggestHotelBookingToolCardProps) {
-  const parsed = parseSuggestHotelBookingArgs(args);
-
-  if (!parsed) {
-    return null;
-  }
-
-  const hotels = parsed.hotels;
+  const hotels = args.hotels;
 
   return (
     <ToolCallCard>
@@ -62,13 +43,6 @@ export function SuggestHotelBookingToolCard({
                 </CarouselItem>
               ))}
             </CarouselContent>
-
-            {hotels.length > 1 && (
-              <>
-                <CarouselPrevious className="-left-1 top-1/2 -translate-y-1/2" />
-                <CarouselNext className="-right-1 top-1/2 -translate-y-1/2" />
-              </>
-            )}
           </Carousel>
         </TooltipProvider>
       </ToolCallCard.Content>

@@ -4,7 +4,6 @@ import type { TripStatus, TripWithDestinationDTO } from "@trip-loom/api/dto";
 import { cva } from "class-variance-authority";
 import { formatDistanceToNow } from "date-fns";
 import {
-  CalendarIcon,
   MapPinIcon,
   PenLineIcon,
   PlaneIcon,
@@ -108,7 +107,6 @@ export const ChatSidebarTripCard = memo(function ChatSidebarTripCard({
               {getTripTitle(trip)}
             </span>
             <span className={tripCardSubtitleVariants({ variant })}>
-              {isDraft ? null : <CalendarIcon className="size-3" />}
               {subtitle}
             </span>
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { destinationSchema } from "@trip-loom/api/dto";
+import type { TripLoomToolArgsByName } from "@trip-loom/agents";
 import { useState } from "react";
 import Image from "next/image";
 import { DestinationCard } from "@/components/destination-card";
@@ -10,56 +10,23 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/components/ui/carousel";
-import { z } from "zod";
 
-const suggestDestinationsArgsSchema = z.object({
-  destinations: z
-    .array(
-      destinationSchema
-        .pick({
-          id: true,
-          name: true,
-          country: true,
-        })
-        .extend({
-          imageUrl: z.string().nullable(),
-          description: destinationSchema.shape.description.optional(),
-        }),
-    )
-    .min(1),
-});
-
-type SuggestDestinationsArgs = z.infer<typeof suggestDestinationsArgsSchema>;
+type SuggestDestinationsArgs = TripLoomToolArgsByName<"suggest_destinations">;
 
 type SuggestDestinationsToolCardProps = {
-  args: Record<string, unknown>;
+  args: SuggestDestinationsArgs;
 };
-
-function parseSuggestDestinationsArgs(
-  args: Record<string, unknown>,
-): SuggestDestinationsArgs | null {
-  const result = suggestDestinationsArgsSchema.safeParse(args);
-  return result.success ? result.data : null;
-}
 
 export function SuggestDestinationsToolCard({
   args,
 }: SuggestDestinationsToolCardProps) {
-  const parsed = parseSuggestDestinationsArgs(args);
   const [selectedDestinationId, setSelectedDestinationId] = useState<
     string | null
   >(null);
 
   const [dialogOpen, setDialogOpen] = useState(false);
-
-  if (!parsed) {
-    return null;
-  }
-
-  const destinations = parsed.destinations;
+  const destinations = args.destinations;
 
   const handleDestinationClick = (destinationId: string) => {
     setSelectedDestinationId(destinationId);
@@ -120,12 +87,6 @@ export function SuggestDestinationsToolCard({
                 </CarouselItem>
               ))}
             </CarouselContent>
-            {destinations.length > 3 && (
-              <>
-                <CarouselPrevious className="-left-2 lg:-left-10" />
-                <CarouselNext className="-right-2 lg:-right-10" />
-              </>
-            )}
           </Carousel>
         </ToolCallCard.Content>
       </ToolCallCard>

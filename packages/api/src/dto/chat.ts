@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { TRIP_LOOM_TOOL_NAMES } from "@trip-loom/agents";
+import type { TripLoomToolCall } from "@trip-loom/agents";
 
 // Request body for POST /api/trips/:id/chat
 // Expected shape from LangGraph FetchStreamTransport.
@@ -20,12 +20,7 @@ export const chatInputSchema = z
 
 export type ChatInput = z.infer<typeof chatInputSchema>;
 
-const chatToolCallSchema = z.object({
-  id: z.string().optional(),
-  name: z.enum(TRIP_LOOM_TOOL_NAMES),
-  args: z.record(z.string(), z.unknown()),
-  type: z.literal("tool_call").optional(),
-});
+const chatToolCallSchema = z.custom<TripLoomToolCall>();
 
 const chatMessageContentPartSchema = z.union([
   z.object({

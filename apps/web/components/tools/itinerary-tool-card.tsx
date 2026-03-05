@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  createActivityInputSchema,
-  createDayInputSchema,
-} from "@trip-loom/api/dto";
+import type { TripLoomToolArgsByName } from "@trip-loom/agents";
 import { format } from "date-fns";
 import { ClockIcon, MapPinIcon } from "lucide-react";
 import Image from "next/image";
@@ -18,89 +15,14 @@ import {
 } from "@/components/ui/sheet";
 import { parseIsoDate } from "@/lib/parse-iso-date";
 import { Badge } from "@/components/ui/badge";
-import { z } from "zod";
 
-const suggestItineraryArgsSchema = z.object({
-  days: z
-    .array(
-      z.object({
-        dayNumber: z.number(),
-        date: z.string().optional(),
-        activities: z
-          .array(
-            z.object({
-              name: z.string().trim().min(1),
-              description: z.string().optional(),
-              startTime: z.string().optional(),
-              endTime: z.string().optional(),
-              location: z.string().optional(),
-            }),
-          )
-          .default([]),
-      }),
-    )
-    .min(1),
-});
-
-const apiItineraryValidationSchema = z.object({
-  days: z
-    .array(
-      createDayInputSchema
-        .pick({ dayNumber: true, date: true })
-        .partial({ date: true })
-        .extend({
-          activities: z.array(
-            createActivityInputSchema.pick({
-              orderIndex: true,
-              title: true,
-              description: true,
-              startTime: true,
-              endTime: true,
-              location: true,
-            }),
-          ),
-        }),
-    )
-    .min(1),
-});
-
-type SuggestedItineraryArgs = z.infer<typeof suggestItineraryArgsSchema>;
+type SuggestedItineraryArgs = TripLoomToolArgsByName<"suggest_itinerary">;
 type SuggestedItineraryDay = SuggestedItineraryArgs["days"][number];
 type SuggestedItineraryActivity = SuggestedItineraryDay["activities"][number];
 
 type ItineraryToolCardProps = {
-  args: Record<string, unknown>;
+  args: SuggestedItineraryArgs;
 };
-
-function parseSuggestedItineraryArgs(
-  args: Record<string, unknown>,
-): SuggestedItineraryArgs | null {
-  const parsedArgs = suggestItineraryArgsSchema.safeParse(args);
-  if (!parsedArgs.success) {
-    return null;
-  }
-
-  const apiValidation = apiItineraryValidationSchema.safeParse({
-    days: parsedArgs.data.days.map((day) => ({
-      dayNumber: day.dayNumber,
-      date: day.date,
-      activities: day.activities.map((activity, orderIndex) => ({
-        orderIndex,
-        title: activity.name,
-        description: activity.description,
-        startTime: activity.startTime,
-        endTime: activity.endTime,
-        location: activity.location,
-      })),
-    })),
-  });
-
-  if (!apiValidation.success) {
-    return null;
-  }
-
-  return parsedArgs.data;
-}
 
 function formatItineraryDateLabel(date: string | undefined) {
   if (!date) {
@@ -128,11 +50,7 @@ function getActivityTimeLabel(activity: SuggestedItineraryActivity) {
 }
 
 export function ItineraryToolCard({ args }: ItineraryToolCardProps) {
-  const itinerary = parseSuggestedItineraryArgs(args);
-
-  if (!itinerary) {
-    return null;
-  }
+  const itinerary = args;
 
   const totalActivities = itinerary.days.reduce(
     (sum, day) => sum + day.activities.length,
