@@ -1,25 +1,17 @@
+/**
+ * This file is the entry-point for external applications/libraries importing the API DTO.
+ *
+ * To avoid leaking any server-side code, only types are exported from this folder.
+ */
+
 export {
-  travelInterestSchema,
-  regionSchema,
-  userPreferenceSchema,
-  userPreferenceInputSchema,
   type UserPreferenceDTO,
   type UserPreferenceInput,
 } from "./user-preferences";
 
-export {
-  errorResponseSchema,
-  paginatedResponseSchema,
-  type PaginatedResponse,
-} from "./common";
+export { type PaginatedResponse } from "./common";
 
 export {
-  destinationSchema,
-  destinationQuerySchema,
-  destinationDetailSchema,
-  destinationHotelSummarySchema,
-  recommendedDestinationSchema,
-  recommendedDestinationsQuerySchema,
   type DestinationDTO,
   type DestinationQuery,
   type DestinationDetailDTO,
@@ -28,23 +20,9 @@ export {
   type RecommendedDestinationsQuery,
 } from "./destinations";
 
-export {
-  hotelSchema,
-  hotelQuerySchema,
-  type HotelDTO,
-  type HotelQuery,
-} from "./hotels";
+export { type HotelDTO, type HotelQuery } from "./hotels";
 
 export {
-  airportSummarySchema,
-  flightSeatSchema,
-  flightSeatRowSchema,
-  flightSeatMapSchema,
-  flightSearchSchema,
-  flightOptionSchema,
-  flightBookingSchema,
-  flightBookingDetailSchema,
-  createFlightBookingInputSchema,
   type AirportSummaryDTO,
   type FlightSeat,
   type FlightSeatRow,
@@ -57,23 +35,12 @@ export {
 } from "./flights";
 
 export {
-  hotelSummarySchema,
-  hotelBookingSchema,
-  createHotelBookingInputSchema,
   type HotelSummaryDTO,
   type HotelBookingDTO,
   type CreateHotelBookingInput,
 } from "./hotel-bookings";
 
 export {
-  createActivityInputSchema,
-  createDayInputSchema,
-  createItineraryInputSchema,
-  itineraryActivitySchema,
-  itineraryDaySchema,
-  itineraryDetailSchema,
-  updateActivityInputSchema,
-  updateDayInputSchema,
   type CreateActivityInput,
   type CreateDayInput,
   type CreateItineraryInput,
@@ -85,14 +52,6 @@ export {
 } from "./itineraries";
 
 export {
-  paymentBookingTypeValues,
-  paymentBookingTypeSchema,
-  paymentSchema,
-  createPaymentIntentInputSchema,
-  paymentIntentResponseSchema,
-  confirmPaymentInputSchema,
-  refundPaymentInputSchema,
-  stripeWebhookResponseSchema,
   type PaymentDTO,
   type CreatePaymentIntentInput,
   type PaymentIntentResponse,
@@ -107,12 +66,6 @@ export {
 } from "./chat";
 
 export {
-  tripSchema,
-  tripWithDestinationSchema,
-  tripDetailSchema,
-  createTripInputSchema,
-  updateTripInputSchema,
-  tripQuerySchema,
   type TripDTO,
   type TripWithDestinationDTO,
   type TripFlightBookingDTO,
