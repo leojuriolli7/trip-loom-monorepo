@@ -1,4 +1,5 @@
 import { tool } from "@langchain/core/tools";
+import { amenityValues } from "@trip-loom/contracts";
 import { z } from "zod";
 
 const schema = z.object({
@@ -16,7 +17,7 @@ const schema = z.object({
         currency: z.string().describe("Currency code (e.g. USD, EUR)"),
         location: z.string().describe("Hotel location or neighborhood"),
         amenities: z
-          .array(z.string())
+          .array(z.enum(amenityValues))
           .optional()
           .describe("Key amenities (e.g. pool, WiFi, breakfast)"),
       }),

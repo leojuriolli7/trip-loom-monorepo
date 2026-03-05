@@ -105,7 +105,6 @@ pnpm dev:web      # Next.js app
 - [ ] Build complete card UI coverage for remaining MCP tool calls
 - [ ] Improve UI per trip stage: upcoming/current/past with different widgets visible (like weather widget -- or `get_weather` tool?), for completed trip block chat and show a widget talking about how trip was over, "how was your trip?" feedback card for emailing us + CTA to start planning a new trip...
 - [ ] Add follow-up suggestion prompts above chat input
-- [ ] Add destination detail dialog placement at layout level (use in destination detail tool card)
 - [ ] Allow filtering by multiple amenities or highlights at once in. list hotels/destinations
 - [ ] Option to book multiple hotels/flights for a trip -- Almost a DB + API only change, since agents dictate frontend interaction with trips
 - [ ] Add option to delete a trip
@@ -127,6 +126,7 @@ pnpm dev:web      # Next.js app
 - [ ] Add OpenTelemetry spans for agent and MCP execution
 - [ ] Add structured logging coverage for agents messages and tools + MCP tools
 - [ ] Add CI workflow for typecheck/tests on PRs
+- [ ] API rate limits + DB RLS
 
 ### Data and Content
 

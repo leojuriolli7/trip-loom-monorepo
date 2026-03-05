@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/api/server-session";
 import { ChatShellLayout } from "@/components/chat-shell-layout";
 import { UserPreferencesDialog } from "@/components/user-preferences-dialog";
+import { DestinationDetailDialog } from "@/components/destination-detail-dialog";
 
 export default async function ChatLayout({
   children,
@@ -17,6 +18,7 @@ export default async function ChatLayout({
   return (
     <>
       <UserPreferencesDialog />
+      <DestinationDetailDialog />
       <ChatShellLayout>{children}</ChatShellLayout>
     </>
   );

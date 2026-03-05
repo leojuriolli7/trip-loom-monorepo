@@ -3,7 +3,8 @@
 import type { TripLoomToolArgsByName } from "@trip-loom/agents";
 import { useState } from "react";
 import { DestinationCard } from "@/components/destination-card";
-import { DestinationDetailDialog } from "@/components/destination-detail-dialog";
+import { destinationDetailDialogAtom } from "@/components/destination-detail-dialog";
+import { useSetAtom } from "jotai";
 import { ToolCallCard } from "@/components/tools/tool-call-card";
 import {
   Carousel,
@@ -20,24 +21,14 @@ type SuggestDestinationsToolCardProps = {
 export function SuggestDestinationsToolCard({
   args,
 }: SuggestDestinationsToolCardProps) {
-  const [selectedDestinationId, setSelectedDestinationId] = useState<
-    string | null
-  >(null);
-
-  const [dialogOpen, setDialogOpen] = useState(false);
   const destinations = args.destinations;
 
+  const setDestinationDetailDialogAtom = useSetAtom(
+    destinationDetailDialogAtom,
+  );
+
   const handleDestinationClick = (destinationId: string) => {
-    setSelectedDestinationId(destinationId);
-    setDialogOpen(true);
-  };
-
-  const handleDialogOpenChange = (open: boolean) => {
-    setDialogOpen(open);
-
-    if (!open) {
-      setSelectedDestinationId(null);
-    }
+    setDestinationDetailDialogAtom({ destinationId, isOpen: true });
   };
 
   return (
@@ -85,12 +76,6 @@ export function SuggestDestinationsToolCard({
           </Carousel>
         </ToolCallCard.Content>
       </ToolCallCard>
-
-      <DestinationDetailDialog
-        destinationId={selectedDestinationId}
-        open={dialogOpen}
-        onOpenChange={handleDialogOpenChange}
-      />
     </>
   );
 }

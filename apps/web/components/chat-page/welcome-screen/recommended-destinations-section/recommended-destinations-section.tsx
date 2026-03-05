@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
   Carousel,
   CarouselContent,
@@ -9,7 +8,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { DestinationCard } from "@/components/destination-card";
-import { DestinationDetailDialog } from "@/components/destination-detail-dialog";
+import { destinationDetailDialogAtom } from "@/components/destination-detail-dialog";
+import { useSetAtom } from "jotai";
 import { useQuery } from "@tanstack/react-query";
 import { destinationQueries } from "@/lib/api/react-query/destinations";
 import { Spinner } from "@/components/ui/spinner";
@@ -22,26 +22,16 @@ interface DestinationsSectionProps {
 export function RecommendedDestinationsSection({
   limit = 10,
 }: DestinationsSectionProps) {
-  const [selectedDestinationId, setSelectedDestinationId] = React.useState<
-    string | null
-  >(null);
-  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const setDestinationDetailDialogAtom = useSetAtom(
+    destinationDetailDialogAtom,
+  );
 
   const { data: destinations = [], status } = useQuery(
     destinationQueries.listRecommendedDestinations(limit),
   );
 
   const handleDestinationClick = (destinationId: string) => {
-    setSelectedDestinationId(destinationId);
-    setDialogOpen(true);
-  };
-
-  const handleDialogOpenChange = (open: boolean) => {
-    setDialogOpen(open);
-
-    if (!open) {
-      setSelectedDestinationId(null);
-    }
+    setDestinationDetailDialogAtom({ destinationId, isOpen: true });
   };
 
   return (
@@ -114,12 +104,6 @@ export function RecommendedDestinationsSection({
           </>
         )}
       </Carousel>
-
-      <DestinationDetailDialog
-        destinationId={selectedDestinationId}
-        open={dialogOpen}
-        onOpenChange={handleDialogOpenChange}
-      />
     </section>
   );
 }

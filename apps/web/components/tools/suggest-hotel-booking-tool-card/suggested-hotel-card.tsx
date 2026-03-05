@@ -9,6 +9,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { amenityLabels } from "@/lib/amenity-labels";
 
 type SuggestedHotel =
   TripLoomToolArgsByName<"suggest_hotel_booking">["hotels"][number];
@@ -23,10 +24,6 @@ function formatNightlyRate(pricePerNight: number, currency: string) {
   } catch {
     return `${currency.toUpperCase()} ${pricePerNight}`;
   }
-}
-
-function formatAmenityLabel(amenity: string) {
-  return amenity.replace(/[-_/]+/g, " ").trim();
 }
 
 function getAmenitiesCountLabel(count: number) {
@@ -100,7 +97,7 @@ export function SuggestedHotelCard({ hotel }: { hotel: SuggestedHotel }) {
                       key={`${hotel.id}-tooltip-${amenity}`}
                       className="text-md text-background/90 capitalize"
                     >
-                      {formatAmenityLabel(amenity)}
+                      {amenityLabels[amenity]}
                     </p>
                   ))}
                 </div>

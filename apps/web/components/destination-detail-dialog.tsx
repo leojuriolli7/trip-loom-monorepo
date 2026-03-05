@@ -34,6 +34,17 @@ import {
 import { focusChatInput } from "@/lib/focus-chat-input";
 import { destinationQueries } from "@/lib/api/react-query/destinations";
 import { getCoverImage } from "@/lib/get-cover-image";
+import { atom, useAtom } from "jotai";
+
+type DestinationDetailDialogAtom = {
+  destinationId: string | null;
+  isOpen: boolean;
+};
+
+export const destinationDetailDialogAtom = atom<DestinationDetailDialogAtom>({
+  destinationId: null,
+  isOpen: false,
+});
 
 type DestinationDetailContentProps = {
   destinationId: string;
@@ -272,26 +283,27 @@ function DetailStatCard({
   );
 }
 
-type DestinationDetailDialogProps = {
-  destinationId: string | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-};
+export function DestinationDetailDialog() {
+  const [{ destinationId, isOpen }, setDestinationDetailDialogAtom] = useAtom(
+    destinationDetailDialogAtom,
+  );
 
-export function DestinationDetailDialog({
-  destinationId,
-  open,
-  onOpenChange,
-}: DestinationDetailDialogProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   if (isDesktop === undefined || !destinationId) {
     return null;
   }
 
+  function onOpenChange(val: boolean) {
+    setDestinationDetailDialogAtom((prev) => ({
+      ...prev,
+      isOpen: val,
+    }));
+  }
+
   if (isDesktop) {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={isOpen} onOpenChange={onOpenChange}>
         <DialogContent
           className="flex max-h-[95dvh] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl"
           showCloseButton={false}
@@ -308,7 +320,7 @@ export function DestinationDetailDialog({
   }
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
+    <Drawer open={isOpen} onOpenChange={onOpenChange}>
       <DrawerContent className="p-0" data-testid="destination-detail-drawer">
         <div className="max-h-[90dvh] overflow-y-auto no-scrollbar">
           <DestinationDetailContent

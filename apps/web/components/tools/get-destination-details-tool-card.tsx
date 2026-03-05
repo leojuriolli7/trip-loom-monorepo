@@ -8,7 +8,6 @@ type GetDestinationDetailsToolCardProps = {
   args: TripLoomToolArgsByName<"get_destination_details">;
 };
 
-// TODO: Can render destination details dialog here -- good to put this dialog at the top of a layout and always have it available to open via store
 export function GetDestinationDetailsToolCard({
   args,
 }: GetDestinationDetailsToolCardProps) {
