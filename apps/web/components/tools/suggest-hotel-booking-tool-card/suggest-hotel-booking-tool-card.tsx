@@ -26,7 +26,7 @@ export function SuggestHotelBookingToolCard({
           <ToolCallCard.Title>Curated hotel options ready</ToolCallCard.Title>
 
           <ToolCallCard.Description>
-            {`Compared ${hotels.length} stays so you can pick the one that fits your trip best`}
+            {`Compared ${hotels?.length} stays so you can pick the one that fits your trip best`}
           </ToolCallCard.Description>
         </ToolCallCard.HeaderContent>
       </ToolCallCard.Header>
@@ -35,9 +35,9 @@ export function SuggestHotelBookingToolCard({
         <TooltipProvider delayDuration={100}>
           <Carousel opts={{ align: "start" }} className="px-2">
             <CarouselContent className="-ml-4">
-              {hotels.map((hotel) => (
+              {hotels?.map((hotel, index) => (
                 <CarouselItem
-                  key={hotel.id}
+                  key={hotel?.id || index}
                   className="basis-[92%] pl-4 sm:basis-[72%] md:basis-[56%] xl:basis-[48%]"
                 >
                   <SuggestedHotelCard hotel={hotel} />

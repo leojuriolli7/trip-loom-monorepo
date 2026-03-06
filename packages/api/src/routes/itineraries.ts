@@ -55,7 +55,7 @@ export const itineraryRoutes = new Elysia({
       const result = await getItinerary(user.id, params.id);
       if (!result) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Itinerary not found",
           statusCode: 404,
         });
@@ -81,7 +81,7 @@ export const itineraryRoutes = new Elysia({
       const result = await createItinerary(user.id, params.id, body);
       if (!result) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Trip not found",
           statusCode: 404,
         });
@@ -109,7 +109,7 @@ export const itineraryRoutes = new Elysia({
       const success = await deleteItinerary(user.id, params.id);
       if (!success) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Itinerary not found",
           statusCode: 404,
         });
@@ -137,7 +137,7 @@ export const itineraryRoutes = new Elysia({
       const result = await addDay(user.id, params.id, body);
       if (!result) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Trip not found",
           statusCode: 404,
         });
@@ -165,7 +165,7 @@ export const itineraryRoutes = new Elysia({
       const result = await updateDay(user.id, params.id, params.dayId, body);
       if (!result) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Trip not found",
           statusCode: 404,
         });
@@ -193,7 +193,7 @@ export const itineraryRoutes = new Elysia({
       const result = await deleteDay(user.id, params.id, params.dayId);
       if (!result) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Trip not found",
           statusCode: 404,
         });
@@ -223,7 +223,7 @@ export const itineraryRoutes = new Elysia({
       const result = await addActivity(user.id, params.id, params.dayId, body);
       if (!result) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Trip not found",
           statusCode: 404,
         });
@@ -258,7 +258,7 @@ export const itineraryRoutes = new Elysia({
       );
       if (!result) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Trip not found",
           statusCode: 404,
         });
@@ -292,7 +292,7 @@ export const itineraryRoutes = new Elysia({
       );
       if (!result) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Trip not found",
           statusCode: 404,
         });

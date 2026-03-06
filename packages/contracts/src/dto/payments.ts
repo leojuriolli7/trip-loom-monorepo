@@ -23,7 +23,6 @@ export type PaymentDTO = z.infer<typeof paymentSchema>;
 
 export const createPaymentIntentInputSchema = z.object({
   tripId: z.string().min(1),
-  amountInCents: z.number().int().positive(),
   currency: z.string().trim().length(3).default("usd"),
   description: z.string().trim().min(1).max(500).optional(),
   bookingType: paymentBookingTypeSchema,
@@ -49,6 +48,29 @@ export const confirmPaymentInputSchema = z.object({
 });
 
 export type ConfirmPaymentInput = z.infer<typeof confirmPaymentInputSchema>;
+
+const requestPaymentResultBookingSchema = z.object({
+  bookingType: paymentBookingTypeSchema,
+  bookingId: z.string().min(1),
+});
+
+export const requestPaymentToolResultSchema = z.discriminatedUnion("status", [
+  requestPaymentResultBookingSchema.extend({
+    type: z.literal("request-payment-result"),
+    status: z.literal("paid"),
+    paymentId: z.string().min(1),
+    resolvedAt: z.string().datetime(),
+  }),
+  requestPaymentResultBookingSchema.extend({
+    type: z.literal("request-payment-result"),
+    status: z.literal("cancelled"),
+    resolvedAt: z.string().datetime(),
+  }),
+]);
+
+export type RequestPaymentToolResult = z.infer<
+  typeof requestPaymentToolResultSchema
+>;
 
 export const refundPaymentInputSchema = z.object({
   amountInCents: z.number().int().positive().optional(),

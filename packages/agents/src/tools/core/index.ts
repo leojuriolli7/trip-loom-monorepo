@@ -8,4 +8,8 @@ export type {
   TripLoomToolCall,
 } from "./contract";
 
-export type { TripLoomResumePayload } from "./types";
+export type {
+  TripLoomConfirmationResume,
+  TripLoomPaymentResume,
+  TripLoomResumePayload,
+} from "./types";

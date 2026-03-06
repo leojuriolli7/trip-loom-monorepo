@@ -339,7 +339,7 @@ describe("Itineraries API", () => {
       for (const call of calls) {
         expect(call.res.status).toBe(404);
         expect(call.body).toMatchObject({
-          error: "Not Found",
+          error: "NotFound",
         });
       }
 
@@ -395,7 +395,7 @@ describe("Itineraries API", () => {
 
       expect(res.status).toBe(404);
       expect(body).toMatchObject({
-        error: "Not Found",
+        error: "NotFound",
         message: "Itinerary not found",
       });
     });
@@ -409,7 +409,7 @@ describe("Itineraries API", () => {
 
       expect(res.status).toBe(404);
       expect(body).toMatchObject({
-        error: "Not Found",
+        error: "NotFound",
       });
     });
   });
@@ -560,7 +560,7 @@ describe("Itineraries API", () => {
 
       expect(res.status).toBe(404);
       expect(body).toMatchObject({
-        error: "Not Found",
+        error: "NotFound",
         message: "Trip not found",
       });
     });
@@ -607,7 +607,7 @@ describe("Itineraries API", () => {
 
       expect(res.status).toBe(404);
       expect(body).toMatchObject({
-        error: "Not Found",
+        error: "NotFound",
         message: "Itinerary not found",
       });
     });
@@ -651,7 +651,7 @@ describe("Itineraries API", () => {
 
       expect(res.status).toBe(404);
       expect(body).toMatchObject({
-        error: "Not Found",
+        error: "NotFound",
         message: "Itinerary not found",
       });
     });
@@ -729,7 +729,7 @@ describe("Itineraries API", () => {
 
       expect(res.status).toBe(404);
       expect(body).toMatchObject({
-        error: "Not Found",
+        error: "NotFound",
         message: "Day not found",
       });
     });
@@ -768,7 +768,7 @@ describe("Itineraries API", () => {
 
       expect(res.status).toBe(404);
       expect(body).toMatchObject({
-        error: "Not Found",
+        error: "NotFound",
         message: "Day not found",
       });
     });
@@ -818,7 +818,7 @@ describe("Itineraries API", () => {
 
       expect(res.status).toBe(404);
       expect(body).toMatchObject({
-        error: "Not Found",
+        error: "NotFound",
         message: "Day not found",
       });
     });
@@ -929,7 +929,7 @@ describe("Itineraries API", () => {
 
       expect(res.status).toBe(404);
       expect(body).toMatchObject({
-        error: "Not Found",
+        error: "NotFound",
         message: "Activity not found",
       });
     });
@@ -945,7 +945,7 @@ describe("Itineraries API", () => {
 
       expect(res.status).toBe(404);
       expect(body).toMatchObject({
-        error: "Not Found",
+        error: "NotFound",
         message: "Activity not found",
       });
     });
@@ -986,7 +986,7 @@ describe("Itineraries API", () => {
 
       expect(res.status).toBe(404);
       expect(body).toMatchObject({
-        error: "Not Found",
+        error: "NotFound",
         message: "Activity not found",
       });
     });
@@ -1001,7 +1001,7 @@ describe("Itineraries API", () => {
 
       expect(res.status).toBe(404);
       expect(body).toMatchObject({
-        error: "Not Found",
+        error: "NotFound",
         message: "Activity not found",
       });
 

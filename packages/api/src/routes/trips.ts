@@ -50,7 +50,7 @@ export const tripRoutes = new Elysia({
       const result = await getTripById(user.id, params.id);
       if (!result) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Trip not found",
           statusCode: 404,
         });
@@ -95,7 +95,7 @@ export const tripRoutes = new Elysia({
       const result = await updateTrip(user.id, params.id, body);
       if (!result) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Trip not found",
           statusCode: 404,
         });
@@ -122,7 +122,7 @@ export const tripRoutes = new Elysia({
       const success = await deleteTrip(user.id, params.id);
       if (!success) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Trip not found",
           statusCode: 404,
         });

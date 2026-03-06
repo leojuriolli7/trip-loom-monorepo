@@ -1,9 +1,12 @@
 import { Elysia } from "elysia";
 import {
   BadRequestError,
+  BookingNotPayableError,
   ConflictError,
   ForbiddenError,
   NotFoundError,
+  PaymentAlreadySuccessfulError,
+  PaymentProcessingError,
 } from "../../errors";
 
 /**
@@ -14,22 +17,27 @@ export function createTestApp() {
   return new Elysia()
     .error({
       BadRequestError,
+      BookingNotPayableError,
       NotFoundError,
       ForbiddenError,
       ConflictError,
+      PaymentAlreadySuccessfulError,
+      PaymentProcessingError,
     })
     .onError(({ code, error, status }) => {
       switch (code) {
         case "BadRequestError":
+        case "BookingNotPayableError":
         case "NotFoundError":
         case "ForbiddenError":
         case "ConflictError":
+        case "PaymentAlreadySuccessfulError":
+        case "PaymentProcessingError":
           return status(error.status, {
-            error: error.error,
+            error: error.name,
             message: error.message,
             statusCode: error.status,
           });
       }
     });
 }
-

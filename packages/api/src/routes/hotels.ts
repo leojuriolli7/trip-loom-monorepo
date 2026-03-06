@@ -34,7 +34,7 @@ export const hotelRoutes = new Elysia({
       const result = await getHotelById(params.id);
       if (!result) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Hotel not found",
           statusCode: 404,
         });

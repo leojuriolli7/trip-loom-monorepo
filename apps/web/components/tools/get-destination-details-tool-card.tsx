@@ -2,7 +2,6 @@ import type { TripLoomToolArgsByName } from "@trip-loom/agents";
 import { ToolCallCard } from "@/components/tools/tool-call-card";
 import { useQuery } from "@tanstack/react-query";
 import { destinationQueries } from "@/lib/api/react-query/destinations";
-import Image from "next/image";
 
 type GetDestinationDetailsToolCardProps = {
   args: TripLoomToolArgsByName<"get_destination_details">;
@@ -19,16 +18,14 @@ export function GetDestinationDetailsToolCard({
   if (status !== "success") return null;
 
   return (
-    <ToolCallCard>
+    <ToolCallCard size="lg">
       <ToolCallCard.Header>
-        <Image
+        <ToolCallCard.Image
           src={
             destinationDetails?.data?.imagesUrls?.[0].url || "/placeholder.png"
           }
-          width={48}
-          height={48}
-          alt={""}
-          className={"object-cover w-12 h-12 rounded-2xl shrink-0"}
+          className="object-cover rounded-2xl"
+          alt={"Destination image"}
         />
 
         <ToolCallCard.HeaderContent>

@@ -1,5 +1,8 @@
 import { tool } from "@langchain/core/tools";
 import { interrupt } from "@langchain/langgraph";
+import {
+  type RequestPaymentToolResult,
+} from "@trip-loom/contracts/dto/payments";
 import { z } from "zod";
 
 const requestPaymentInputSchema = z.object({
@@ -20,9 +23,20 @@ export type RequestPaymentInterrupt = {
   type: "request-payment";
 } & RequestPaymentInput;
 
-export const requestPaymentResumeSchema = z.object({
-  status: z.enum(["paid", "cancelled"]),
+const requestPaymentBookingSchema = z.object({
+  bookingType: z.enum(["flight", "hotel"]),
+  bookingId: z.string(),
 });
+
+export const requestPaymentResumeSchema = z.discriminatedUnion("status", [
+  requestPaymentBookingSchema.extend({
+    status: z.literal("paid"),
+    paymentId: z.string(),
+  }),
+  requestPaymentBookingSchema.extend({
+    status: z.literal("cancelled"),
+  }),
+]);
 
 export type RequestPaymentResume = z.infer<typeof requestPaymentResumeSchema>;
 
@@ -44,12 +58,26 @@ export const requestPaymentTool = tool(
 
     // Pause and wait for payment result
     const response = requestPaymentResumeSchema.parse(interrupt(event));
+    const resolvedAt = new Date().toISOString();
 
     if (response.status === "paid") {
-      return `Payment completed for ${input.summary}. The booking is now confirmed.`;
+      return JSON.stringify({
+        type: "request-payment-result",
+        status: "paid",
+        bookingType: response.bookingType,
+        bookingId: response.bookingId,
+        paymentId: response.paymentId,
+        resolvedAt,
+      } satisfies RequestPaymentToolResult);
     }
 
-    return `Payment was cancelled for ${input.summary}. The booking remains unpaid. Ask the user if they want to try again or cancel the booking.`;
+    return JSON.stringify({
+      type: "request-payment-result",
+      status: "cancelled",
+      bookingType: response.bookingType,
+      bookingId: response.bookingId,
+      resolvedAt,
+    } satisfies RequestPaymentToolResult);
   },
   {
     name: "request_payment",

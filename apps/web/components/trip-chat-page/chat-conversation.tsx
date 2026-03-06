@@ -10,9 +10,11 @@ import {
   MessageContent,
   MessageResponse,
 } from "@/components/ai-elements/message";
-import { Button } from "@/components/ui/button";
 import { useChatStream } from "@/context/chat";
-import { ToolCallRenderer } from "../tools";
+import { isRenderableAssistantToolCall, ToolCallRenderer } from "../tools";
+import { ChatActionCard } from "../tools/core/chat-action-card";
+import { ToolMessageRenderer } from "../tools/core/tool-message-renderer";
+import { PaymentRequestCard } from "../tools/payment-request-card";
 import {
   WebSearchToolCallCard,
   type WebSearchToolCall,
@@ -64,7 +66,7 @@ function getAssistantMessageDisplay(
   const content = getMessageContent(message.content).trim();
   const toolCalls =
     "tool_calls" in message && Array.isArray(message.tool_calls)
-      ? message.tool_calls
+      ? message.tool_calls.filter(isRenderableAssistantToolCall)
       : [];
   const webSearchCalls = Array.isArray(message.response_metadata?.output)
     ? message.response_metadata.output.filter(isWebSearchToolCall)
@@ -80,7 +82,7 @@ function getAssistantMessageDisplay(
 }
 
 export function ChatConversation() {
-  const { messages, stream, submitResume } = useChatStream();
+  const { messages, stream, submitResume, tripId } = useChatStream();
 
   return (
     <Conversation className="min-h-0 flex-1">
@@ -135,6 +137,16 @@ export function ChatConversation() {
             );
           }
 
+          if (message.type === "tool") {
+            return (
+              <ToolMessageRenderer
+                key={key}
+                message={message}
+                tripId={tripId}
+              />
+            );
+          }
+
           return null;
         })}
 
@@ -148,61 +160,43 @@ export function ChatConversation() {
 
               if (value?.type === "request-confirmation") {
                 return (
-                  <div key={key} className="space-y-3 rounded-md border p-3">
-                    <p className="text-sm">{value.summary}</p>
-                    <div className="flex gap-2">
-                      <Button
-                        disabled={stream.isLoading}
-                        onClick={() => {
-                          void submitResume({ confirmed: true });
-                        }}
-                        size="sm"
-                      >
-                        Confirm
-                      </Button>
-                      <Button
-                        disabled={stream.isLoading}
-                        onClick={() => {
-                          void submitResume({ confirmed: false });
-                        }}
-                        size="sm"
-                        variant="outline"
-                      >
-                        Deny
-                      </Button>
-                    </div>
-                  </div>
+                  <ChatActionCard
+                    key={key}
+                    cancelDisabled={stream.isLoading}
+                    cancelLabel="Deny"
+                    confirmDisabled={stream.isLoading}
+                    confirmLabel="Confirm"
+                    description={value.summary}
+                    imageAlt="Wallet"
+                    imageSrc="/wallet.png"
+                    onCancel={() => {
+                      void submitResume({ confirmed: false });
+                    }}
+                    onConfirm={() => {
+                      void submitResume({ confirmed: true });
+                    }}
+                    title={value.action}
+                  />
                 );
               }
 
               if (value?.type === "request-payment") {
                 return (
-                  <div key={key} className="space-y-3 rounded-md border p-3">
-                    <p className="text-sm">
-                      {value.summary} ({value.currency} {value.amount})
-                    </p>
-                    <div className="flex gap-2">
-                      <Button
-                        disabled={stream.isLoading}
-                        onClick={() => {
-                          void submitResume({ status: "paid" });
-                        }}
-                        size="sm"
-                      >
-                        Mark paid
-                      </Button>
-                      <Button
-                        disabled={stream.isLoading}
-                        onClick={() => {
-                          void submitResume({ status: "cancelled" });
-                        }}
-                        size="sm"
-                        variant="outline"
-                      >
-                        Cancel payment
-                      </Button>
-                    </div>
-                  </div>
+                  <PaymentRequestCard
+                    key={key}
+                    bookingId={value.bookingId}
+                    bookingType={value.bookingType}
+                    disabled={stream.isLoading}
+                    onCancel={() =>
+                      submitResume({
+                        status: "cancelled",
+                        bookingId: value.bookingId,
+                        bookingType: value.bookingType,
+                      })
+                    }
+                    onPaid={(resume) => submitResume(resume)}
+                    tripId={tripId}
+                  />
                 );
               }
 

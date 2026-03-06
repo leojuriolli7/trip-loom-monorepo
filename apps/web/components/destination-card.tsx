@@ -10,11 +10,11 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPinIcon } from "lucide-react";
-import Image from "next/image";
 import type { RecommendedDestinationDTO } from "@trip-loom/contracts/dto";
 import { useQueryClient } from "@tanstack/react-query";
 import { destinationQueries } from "@/lib/api/react-query/destinations";
 import { getCoverImage } from "@/lib/get-cover-image";
+import { StreamingImage } from "./streaming-image";
 
 export type DestinationCardData = {
   id: string;
@@ -38,7 +38,8 @@ export function DestinationCard({
   prefetchOnHover = true,
 }: DestinationCardProps) {
   const queryClient = useQueryClient();
-  const coverImage = destination.imageUrl ?? getCoverImage(destination.imagesUrls);
+  const coverImage =
+    destination?.imageUrl || getCoverImage(destination?.imagesUrls);
 
   const prefetchDestinationDetails = () => {
     if (!prefetchOnHover) {
@@ -46,7 +47,7 @@ export function DestinationCard({
     }
 
     void queryClient.prefetchQuery(
-      destinationQueries.getDestinationDetail(destination.id),
+      destinationQueries.getDestinationDetail(destination?.id),
     );
   };
 
@@ -59,12 +60,12 @@ export function DestinationCard({
        */
       onMouseOver={prefetchDestinationDetails}
       onTouchStart={prefetchDestinationDetails}
-      data-testid={`destination-card-${destination.id}`}
+      data-testid={`destination-card-${destination?.id}`}
     >
       <div className="relative aspect-3/4 overflow-hidden">
-        <Image
+        <StreamingImage
           src={coverImage}
-          alt={destination.name}
+          alt={destination?.name || "Destination image"}
           fill
           sizes="(max-width: 1024px) 100vw, 25vw"
           fetchPriority="high"
@@ -76,27 +77,29 @@ export function DestinationCard({
         <div className="absolute inset-0 flex flex-col justify-end p-4">
           <CardHeader className="gap-1 p-0">
             <CardTitle className="text-lg font-semibold tracking-tight text-white drop-shadow-sm">
-              {destination.name}
+              {destination?.name}
             </CardTitle>
             <CardDescription className="flex items-center gap-1.5 text-white/80">
               <MapPinIcon className="size-3.5" />
-              <span className="text-sm font-medium">{destination.country}</span>
+              <span className="text-sm font-medium">
+                {destination?.country}
+              </span>
             </CardDescription>
           </CardHeader>
 
           <CardContent className="mt-3 p-0">
             <p className="line-clamp-2 text-sm leading-relaxed text-white/70">
-              {destination.description}
+              {destination?.description}
             </p>
           </CardContent>
 
-          {destination.matchReason && (
+          {destination?.matchReason && (
             <CardFooter className="mt-3 p-0">
               <Badge
                 variant="secondary"
                 className="border-0 bg-white/15 text-xs font-medium text-white backdrop-blur-sm h-auto whitespace-normal"
               >
-                {destination.matchReason}
+                {destination?.matchReason}
               </Badge>
             </CardFooter>
           )}

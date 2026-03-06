@@ -3,7 +3,7 @@ import type { ComponentProps } from "react";
 import { createContext, useContext } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
+import { StreamingImage } from "../streaming-image";
 
 const toolCallCardRootVariants = cva(
   "relative overflow-hidden rounded-3xl border border-border/70 bg-linear-to-b from-card via-card to-secondary/25 shadow-[0_10px_18px_-18px_rgba(15,23,42,0.5)]",
@@ -118,7 +118,7 @@ function ToolCallCardImage({
       className={toolCallCardImageVariants({ size: resolvedSize })}
       {...props}
     >
-      <Image
+      <StreamingImage
         src={src}
         alt={alt}
         fill

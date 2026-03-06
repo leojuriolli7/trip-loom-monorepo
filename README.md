@@ -98,8 +98,6 @@ pnpm dev:web      # Next.js app
 ## Project TODOs
 
 ### Product and UX
-
-- [ ] Look at "streaming" tool calls eg loading state for cards
 - [ ] Build complete card UI coverage for remaining MCP tool calls
 - [ ] Improve UI per trip stage: upcoming/current/past with different widgets visible (like weather widget -- or `get_weather` tool?), for completed trip block chat and show a widget talking about how trip was over, "how was your trip?" feedback card for emailing us + CTA to start planning a new trip...
 - [ ] Add follow-up suggestion prompts above chat input
@@ -130,7 +128,7 @@ pnpm dev:web      # Next.js app
 
 - [ ] Fix destination photos (some are SVG country flags, e.g., Monaco)
 - [ ] Improve destination descriptions via AI (more about culture, less demographics, longer)
-- [ ] Add more destinations worldwide (Maldives, Arraial do Cabo, Trancoso, etc.)
+- [ ] Add more destinations worldwide -- at least 200+ -- Maldives, Arraial do Cabo, Trancoso, Porto de Galinhas, Maragogi, etc.)
 - [ ] Add more hotels per destination from additional sources
 - [ ] Remove data acquisition/generator scripts when data collection is complete
 

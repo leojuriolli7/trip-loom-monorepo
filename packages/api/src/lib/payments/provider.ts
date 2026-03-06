@@ -73,7 +73,7 @@ export interface PaymentProvider {
   constructWebhookEvent(
     signature: string,
     payload: string,
-  ): ProviderWebhookEvent;
+  ): Promise<ProviderWebhookEvent>;
 }
 
 const normalizeMetadata = (
@@ -195,9 +195,11 @@ export const paymentProvider: PaymentProvider = {
     };
   },
 
-  constructWebhookEvent(signature, payload) {
+  async constructWebhookEvent(signature, payload) {
     const stripe = getStripeClient();
-    const event = stripe.webhooks.constructEvent(
+
+    // Stripe with Bun requires using the async version.
+    const event = await stripe.webhooks.constructEventAsync(
       payload,
       signature,
       getStripeWebhookSecret(),

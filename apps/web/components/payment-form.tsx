@@ -175,6 +175,8 @@ function PaymentFormInner({
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = React.useState(false);
+  // The form owns the visible checkout error state while the parent card owns
+  // higher-level lifecycle errors such as create-intent or webhook polling.
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
   const formatPrice = (cents: number) => {
@@ -226,6 +228,14 @@ function PaymentFormInner({
     <form onSubmit={handleSubmit} className={cn("space-y-4", className)}>
       <div className="rounded-xl border border-border bg-card p-4">
         <PaymentElement
+          onLoadError={(event) => {
+            // Surface Element bootstrap failures in the same place as submit
+            // failures so the user only sees one checkout-level error message.
+            const message =
+              event.error.message ?? "Payment form could not be loaded";
+            setErrorMessage(message);
+            onError?.(message);
+          }}
           options={{
             layout: "tabs",
           }}

@@ -1,39 +1,51 @@
 class HttpError extends Error {
   readonly status: number;
-  readonly error: string;
 
-  constructor(status: number, error: string, message: string) {
+  constructor(status: number, name: string, message: string) {
     super(message);
-    this.name = "HttpError";
+    this.name = name;
     this.status = status;
-    this.error = error;
   }
 }
 
 export class BadRequestError extends HttpError {
   constructor(message: string) {
-    super(400, "Bad Request", message);
-    this.name = "BadRequestError";
+    super(400, "BadRequest", message);
   }
 }
 
 export class NotFoundError extends HttpError {
   constructor(message: string) {
-    super(404, "Not Found", message);
-    this.name = "NotFoundError";
+    super(404, "NotFound", message);
   }
 }
 
 export class ForbiddenError extends HttpError {
   constructor(message: string) {
     super(403, "Forbidden", message);
-    this.name = "ForbiddenError";
   }
 }
 
 export class ConflictError extends HttpError {
   constructor(message: string) {
     super(409, "Conflict", message);
-    this.name = "ConflictError";
+  }
+}
+
+export class BookingNotPayableError extends HttpError {
+  constructor(message: string) {
+    super(409, "BookingNotPayable", message);
+  }
+}
+
+export class PaymentAlreadySuccessfulError extends HttpError {
+  constructor(message: string) {
+    super(409, "PaymentAlreadySuccessful", message);
+  }
+}
+
+export class PaymentProcessingError extends HttpError {
+  constructor(message: string) {
+    super(409, "PaymentProcessing", message);
   }
 }

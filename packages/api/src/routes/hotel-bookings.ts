@@ -37,7 +37,7 @@ export const hotelBookingRoutes = new Elysia({
       const result = await listHotelBookings(user.id, params.id);
       if (!result) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Trip not found",
           statusCode: 404,
         });
@@ -63,7 +63,7 @@ export const hotelBookingRoutes = new Elysia({
       const result = await createHotelBooking(user.id, params.id, body);
       if (!result) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Trip not found",
           statusCode: 404,
         });
@@ -97,7 +97,7 @@ export const hotelBookingRoutes = new Elysia({
       );
       if (!result) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Hotel booking not found",
           statusCode: 404,
         });
@@ -128,7 +128,7 @@ export const hotelBookingRoutes = new Elysia({
       );
       if (!success) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Hotel booking not found",
           statusCode: 404,
         });

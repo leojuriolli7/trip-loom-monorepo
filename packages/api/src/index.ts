@@ -15,9 +15,12 @@ import { chatRoutes } from "./routes/chat";
 import { auth } from "./lib/auth";
 import {
   BadRequestError,
+  BookingNotPayableError,
   ConflictError,
   ForbiddenError,
   NotFoundError,
+  PaymentAlreadySuccessfulError,
+  PaymentProcessingError,
 } from "./errors";
 import { initPersistence } from "@trip-loom/agents";
 
@@ -29,18 +32,24 @@ export const createApp = (options?: AppConfig) =>
   new Elysia({ name: "api" })
     .error({
       BadRequestError,
+      BookingNotPayableError,
       NotFoundError,
       ForbiddenError,
       ConflictError,
+      PaymentAlreadySuccessfulError,
+      PaymentProcessingError,
     })
     .onError(({ code, error, status }) => {
       switch (code) {
         case "BadRequestError":
+        case "BookingNotPayableError":
         case "NotFoundError":
         case "ForbiddenError":
         case "ConflictError":
+        case "PaymentAlreadySuccessfulError":
+        case "PaymentProcessingError":
           return status(error.status, {
-            error: error.error,
+            error: error.name,
             message: error.message,
             statusCode: error.status,
           });

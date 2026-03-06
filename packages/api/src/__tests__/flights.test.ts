@@ -445,7 +445,7 @@ describe("Flights API", () => {
 
       expect(res.status).toBe(400);
       expect(body).toMatchObject({
-        error: "Bad Request",
+        error: "BadRequest",
       });
       expect(body.message).toContain("ZZZ");
     });
@@ -652,7 +652,7 @@ describe("Flights API", () => {
       for (const call of calls) {
         expect(call.res.status).toBe(404);
         expect(call.body).toMatchObject({
-          error: "Not Found",
+          error: "NotFound",
         });
       }
 

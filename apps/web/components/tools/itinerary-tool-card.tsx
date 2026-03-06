@@ -52,7 +52,7 @@ function getActivityTimeLabel(activity: SuggestedItineraryActivity) {
 export function ItineraryToolCard({ args }: ItineraryToolCardProps) {
   const itinerary = args;
 
-  const totalActivities = itinerary.days.reduce(
+  const totalActivities = itinerary?.days.reduce(
     (sum, day) => sum + day.activities.length,
     0,
   );
@@ -69,7 +69,7 @@ export function ItineraryToolCard({ args }: ItineraryToolCardProps) {
           <ToolCallCard.HeaderContent>
             <ToolCallCard.Title>Built your itinerary draft</ToolCallCard.Title>
             <ToolCallCard.Description>
-              {`Prepared ${itinerary.days.length} days with ${totalActivities} activities for your review`}
+              {`Prepared ${itinerary?.days.length} days with ${totalActivities} activities for your review`}
             </ToolCallCard.Description>
           </ToolCallCard.HeaderContent>
         </ToolCallCard.Header>
@@ -77,7 +77,7 @@ export function ItineraryToolCard({ args }: ItineraryToolCardProps) {
         <ToolCallCard.Content className="flex justify-between">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="m-0">
-              {itinerary.days.length} days
+              {itinerary?.days.length} days
             </Badge>
 
             <Badge variant="outline">{totalActivities} activities</Badge>
@@ -118,7 +118,7 @@ export function ItineraryToolCard({ args }: ItineraryToolCardProps) {
 
         <div className="flex-1 overflow-y-auto bg-linear-to-b from-background to-secondary/20 px-4 py-5 md:px-7 md:py-6 [&::-webkit-scrollbar]:hidden">
           <div className="mx-auto space-y-5">
-            {itinerary.days.map((day) => (
+            {itinerary?.days.map((day) => (
               <section
                 key={`${day.dayNumber}-${day.date ?? "pending"}`}
                 className="relative overflow-hidden rounded-3xl bg-card/95 ring-1 ring-border/55 shadow-[0_14px_12px_-22px_rgba(15,23,42,0.7)]"

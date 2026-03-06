@@ -50,6 +50,8 @@ export {
   type CreatePaymentIntentInput,
   type PaymentIntentResponse,
   type ConfirmPaymentInput,
+  requestPaymentToolResultSchema,
+  type RequestPaymentToolResult,
   type RefundPaymentInput,
 } from "./payments";
 

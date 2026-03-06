@@ -1,4 +1,5 @@
 import { Elysia } from "elysia";
+import Stripe from "stripe";
 import { z } from "zod";
 import { errorResponseSchema } from "@trip-loom/contracts/dto/common";
 import {
@@ -23,6 +24,10 @@ const paymentParamsSchema = z.object({
   id: z.string().min(1),
 });
 
+const isInvalidStripeWebhookRequest = (error: unknown): boolean =>
+  error instanceof Stripe.errors.StripeSignatureVerificationError ||
+  error instanceof SyntaxError;
+
 export const paymentRoutes = new Elysia({
   name: "payments",
   prefix: "/api",
@@ -36,7 +41,7 @@ export const paymentRoutes = new Elysia({
       const signature = request.headers.get("stripe-signature");
       if (!signature) {
         return status(400, {
-          error: "Bad Request",
+          error: "BadRequest",
           message: "Missing Stripe signature",
           statusCode: 400,
         });
@@ -48,14 +53,15 @@ export const paymentRoutes = new Elysia({
         await handleStripeWebhook(signature, payload);
         return { received: true as const };
       } catch (error) {
+        const isBadRequest = isInvalidStripeWebhookRequest(error);
         const message =
           error instanceof Error
             ? error.message
             : "Unable to process Stripe webhook";
-        return status(400, {
-          error: "Bad Request",
+        return status(isBadRequest ? 400 : 500, {
+          error: isBadRequest ? "BadRequest" : "InternalServerError",
           message,
-          statusCode: 400,
+          statusCode: isBadRequest ? 400 : 500,
         });
       }
     },
@@ -63,6 +69,7 @@ export const paymentRoutes = new Elysia({
       response: {
         200: stripeWebhookResponseSchema,
         400: errorResponseSchema,
+        500: errorResponseSchema,
       },
     },
   )
@@ -74,7 +81,7 @@ export const paymentRoutes = new Elysia({
       const result = await createPaymentIntent(user.id, body);
       if (!result) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Trip not found",
           statusCode: 404,
         });
@@ -103,7 +110,7 @@ export const paymentRoutes = new Elysia({
       const result = await confirmPayment(user.id, body);
       if (!result) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Payment not found",
           statusCode: 404,
         });
@@ -131,7 +138,7 @@ export const paymentRoutes = new Elysia({
       const result = await getPayment(user.id, params.id);
       if (!result) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Payment not found",
           statusCode: 404,
         });
@@ -157,7 +164,7 @@ export const paymentRoutes = new Elysia({
       const result = await refundPayment(user.id, params.id, body);
       if (!result) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Payment not found",
           statusCode: 404,
         });

@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { db } from "../db";
 import {
   flightBooking,
@@ -14,7 +14,12 @@ import type {
   PaymentIntentResponse,
   RefundPaymentInput,
 } from "@trip-loom/contracts/dto/payments";
-import { BadRequestError, ConflictError } from "../errors";
+import {
+  BadRequestError,
+  BookingNotPayableError,
+  PaymentAlreadySuccessfulError,
+  PaymentProcessingError,
+} from "../errors";
 import { generateId } from "../lib/nanoid";
 import { paymentProvider } from "../lib/payments/provider";
 import { getOwnedTripMeta } from "../lib/trips/ownership";
@@ -38,6 +43,22 @@ type ResolvedBooking = {
   paymentId: string | null;
 };
 
+type StoredPayment = Pick<
+  typeof payment.$inferSelect,
+  | "id"
+  | "tripId"
+  | "stripePaymentIntentId"
+  | "stripeCustomerId"
+  | "amountInCents"
+  | "currency"
+  | "status"
+  | "description"
+  | "refundedAmountInCents"
+  | "metadata"
+  | "createdAt"
+  | "updatedAt"
+>;
+
 const TERMINAL_PAYMENT_STATUSES = new Set<PaymentStatus>([
   "succeeded",
   "failed",
@@ -45,8 +66,20 @@ const TERMINAL_PAYMENT_STATUSES = new Set<PaymentStatus>([
   "partially_refunded",
 ]);
 
+const COMPLETED_PAYMENT_STATUSES = new Set<PaymentStatus>([
+  "succeeded",
+  "partially_refunded",
+  "refunded",
+]);
+
 const CREATE_INTENT_PENDING_STATUSES = new Set<ResolvedBooking["status"]>([
   "pending",
+]);
+
+const REUSABLE_PROVIDER_PAYMENT_INTENT_STATUSES = new Set([
+  "requires_payment_method",
+  "requires_action",
+  "requires_confirmation",
 ]);
 
 const isBookingType = (value: string): value is BookingType =>
@@ -55,10 +88,23 @@ const isBookingType = (value: string): value is BookingType =>
 const isTerminalPaymentStatus = (status: PaymentStatus): boolean =>
   TERMINAL_PAYMENT_STATUSES.has(status);
 
+const isCompletedPaymentStatus = (status: PaymentStatus): boolean =>
+  COMPLETED_PAYMENT_STATUSES.has(status);
+
 const normalizeCurrency = (value: string): string => value.toLowerCase();
 
+// Stripe idempotency should be stable within one booking attempt, but not across
+// every future retry forever. Attempt number prevents old terminal intents from
+// being resurrected after a failed or already-completed checkout.
 const buildPaymentIntentIdempotencyKey = (
-  input: CreatePaymentIntentInput,
+  input: {
+    tripId: string;
+    bookingType: BookingType;
+    bookingId: string;
+    amountInCents: number;
+    currency: string;
+    attemptNumber: number;
+  },
 ): string =>
   [
     "payment_intent",
@@ -67,6 +113,7 @@ const buildPaymentIntentIdempotencyKey = (
     input.bookingId,
     String(input.amountInCents),
     normalizeCurrency(input.currency),
+    String(input.attemptNumber),
   ].join(":");
 
 const buildRefundIdempotencyKey = (
@@ -187,6 +234,54 @@ const getResolvedBooking = async (
   return rows[0] ?? null;
 };
 
+const getStoredPaymentById = async (
+  paymentId: string,
+): Promise<StoredPayment | null> => {
+  const rows = await db
+    .select(paymentSelectFields)
+    .from(payment)
+    .where(eq(payment.id, paymentId))
+    .limit(1);
+
+  return rows[0] ?? null;
+};
+
+const getLatestStoredPaymentForBooking = async (
+  bookingReference: BookingReference,
+): Promise<StoredPayment | null> => {
+  const serialized = serializeBookingReference(bookingReference);
+  const rows = await db
+    .select(paymentSelectFields)
+    .from(payment)
+    .where(
+      and(
+        eq(payment.tripId, bookingReference.tripId),
+        eq(payment.metadata, serialized),
+      ),
+    )
+    .orderBy(desc(payment.createdAt), desc(payment.id))
+    .limit(1);
+
+  return rows[0] ?? null;
+};
+
+const countStoredPaymentsForBooking = async (
+  bookingReference: BookingReference,
+): Promise<number> => {
+  const serialized = serializeBookingReference(bookingReference);
+  const rows = await db
+    .select({ id: payment.id })
+    .from(payment)
+    .where(
+      and(
+        eq(payment.tripId, bookingReference.tripId),
+        eq(payment.metadata, serialized),
+      ),
+    );
+
+  return rows.length;
+};
+
 const resolveStripeStatusForClientReconciliation = (
   providerStatus: string,
 ): PaymentStatus | null => {
@@ -201,6 +296,133 @@ const resolveStripeStatusForClientReconciliation = (
     providerStatus === "requires_capture"
   ) {
     return "pending";
+  }
+
+  return null;
+};
+
+const deriveSuccessfulPaymentStatus = (input: {
+  amountInCents: number;
+  refundedAmountInCents: number;
+}): PaymentStatus =>
+  input.refundedAmountInCents >= input.amountInCents
+    ? "refunded"
+    : input.refundedAmountInCents > 0
+      ? "partially_refunded"
+      : "succeeded";
+
+const persistSuccessfulPayment = async (
+  tx: DbTransaction,
+  input: {
+    localPayment: StoredPayment;
+    providerCustomerId: string | null;
+    bookingReference: BookingReference;
+  },
+): Promise<void> => {
+  // Webhooks and client-triggered reconciliation should converge on the same
+  // final local state, so the success transition is centralized here.
+  const nextStatus = deriveSuccessfulPaymentStatus({
+    amountInCents: input.localPayment.amountInCents,
+    refundedAmountInCents: input.localPayment.refundedAmountInCents,
+  });
+
+  await tx
+    .update(payment)
+    .set({
+      status: nextStatus,
+      stripeCustomerId:
+        input.providerCustomerId ?? input.localPayment.stripeCustomerId,
+      updatedAt: new Date(),
+    })
+    .where(eq(payment.id, input.localPayment.id));
+
+  if (nextStatus !== "refunded") {
+    await confirmLinkedBooking(
+      tx,
+      input.bookingReference,
+      input.localPayment.id,
+    );
+  }
+};
+
+const reconcileExistingPaymentAttempt = async (input: {
+  bookingReference: BookingReference;
+  existingPayment: StoredPayment;
+}): Promise<PaymentIntentResponse | null> => {
+  // Before creating a new intent, inspect the latest known Stripe intent for
+  // this booking. Open intents can be reused, terminal intents must be
+  // reflected locally, and only then do we create a fresh attempt.
+  const providerIntent = await paymentProvider.retrievePaymentIntent(
+    input.existingPayment.stripePaymentIntentId,
+  );
+
+  if (providerIntent.status === "succeeded") {
+    await db.transaction(async (tx) => {
+      await persistSuccessfulPayment(tx, {
+        localPayment: input.existingPayment,
+        providerCustomerId: providerIntent.customerId,
+        bookingReference: input.bookingReference,
+      });
+    });
+
+    throw new PaymentAlreadySuccessfulError(
+      "Booking already has a completed payment",
+    );
+  }
+
+  const nextStatus = resolveStripeStatusForClientReconciliation(
+    providerIntent.status,
+  );
+
+  if (providerIntent.status === "processing") {
+    await db
+      .update(payment)
+      .set({
+        status: "processing",
+        stripeCustomerId:
+          providerIntent.customerId ?? input.existingPayment.stripeCustomerId,
+        updatedAt: new Date(),
+      })
+      .where(eq(payment.id, input.existingPayment.id));
+
+    throw new PaymentProcessingError("Payment is still processing");
+  }
+
+  if (REUSABLE_PROVIDER_PAYMENT_INTENT_STATUSES.has(providerIntent.status)) {
+    if (!providerIntent.clientSecret) {
+      throw new BadRequestError(
+        "Payment provider did not return a client secret for this intent",
+      );
+    }
+
+    await db
+      .update(payment)
+      .set({
+        status: nextStatus ?? "pending",
+        stripeCustomerId:
+          providerIntent.customerId ?? input.existingPayment.stripeCustomerId,
+        updatedAt: new Date(),
+      })
+      .where(eq(payment.id, input.existingPayment.id));
+
+    return {
+      clientSecret: providerIntent.clientSecret,
+      paymentId: input.existingPayment.id,
+      amountInCents: input.existingPayment.amountInCents,
+      currency: input.existingPayment.currency,
+    };
+  }
+
+  if (providerIntent.status === "canceled") {
+    await db
+      .update(payment)
+      .set({
+        status: "failed",
+        stripeCustomerId:
+          providerIntent.customerId ?? input.existingPayment.stripeCustomerId,
+        updatedAt: new Date(),
+      })
+      .where(eq(payment.id, input.existingPayment.id));
   }
 
   return null;
@@ -291,19 +513,23 @@ export async function createPaymentIntent(
     throw new BadRequestError("Booking not found for this trip");
   }
 
-  if (booking.paymentId) {
-    throw new ConflictError("Booking already has an associated payment");
-  }
+  const linkedPayment = booking.paymentId
+    ? await getStoredPaymentById(booking.paymentId)
+    : null;
 
-  if (!CREATE_INTENT_PENDING_STATUSES.has(booking.status)) {
-    throw new BadRequestError(
-      "Only pending bookings can start a payment intent",
+  if (linkedPayment && isCompletedPaymentStatus(linkedPayment.status)) {
+    throw new PaymentAlreadySuccessfulError(
+      "Booking already has an associated payment",
     );
   }
 
-  if (booking.amountInCents !== input.amountInCents) {
-    throw new BadRequestError(
-      "amountInCents must exactly match the booking total",
+  if (linkedPayment?.status === "processing") {
+    throw new PaymentProcessingError("Payment is still processing");
+  }
+
+  if (!CREATE_INTENT_PENDING_STATUSES.has(booking.status)) {
+    throw new BookingNotPayableError(
+      "Only pending bookings can start a payment intent",
     );
   }
 
@@ -314,14 +540,37 @@ export async function createPaymentIntent(
     bookingId: input.bookingId,
   };
 
+  const existingPayment =
+    linkedPayment ?? (await getLatestStoredPaymentForBooking(bookingReference));
+
+  if (existingPayment) {
+    const reusablePayment = await reconcileExistingPaymentAttempt({
+      bookingReference,
+      existingPayment,
+    });
+
+    if (reusablePayment) {
+      return reusablePayment;
+    }
+  }
+
+  const attemptNumber =
+    (await countStoredPaymentsForBooking(bookingReference)) + 1;
+
+  // The booking row is the source of truth for charge amount. The client only
+  // identifies which booking is being paid.
   const providerIntent = await paymentProvider.createPaymentIntent({
-    amountInCents: input.amountInCents,
+    amountInCents: booking.amountInCents,
     currency,
     description: input.description,
     metadata: bookingReference,
     idempotencyKey: buildPaymentIntentIdempotencyKey({
-      ...input,
+      tripId: input.tripId,
+      bookingType: input.bookingType,
+      bookingId: input.bookingId,
+      amountInCents: booking.amountInCents,
       currency,
+      attemptNumber,
     }),
   });
 
@@ -338,7 +587,7 @@ export async function createPaymentIntent(
       tripId: input.tripId,
       stripePaymentIntentId: providerIntent.id,
       stripeCustomerId: providerIntent.customerId,
-      amountInCents: input.amountInCents,
+      amountInCents: booking.amountInCents,
       currency,
       status: "pending",
       description: input.description ?? null,
@@ -348,7 +597,7 @@ export async function createPaymentIntent(
     .onConflictDoUpdate({
       target: payment.stripePaymentIntentId,
       set: {
-        amountInCents: input.amountInCents,
+        amountInCents: booking.amountInCents,
         currency,
         description: input.description ?? null,
         metadata: serializeBookingReference(bookingReference),
@@ -496,7 +745,7 @@ export async function handleStripeWebhook(
   signature: string,
   payload: string,
 ): Promise<void> {
-  const webhookEvent = paymentProvider.constructWebhookEvent(
+  const webhookEvent = await paymentProvider.constructWebhookEvent(
     signature,
     payload,
   );
@@ -523,6 +772,7 @@ export async function handleStripeWebhook(
             .select({
               id: payment.id,
               status: payment.status,
+              stripeCustomerId: payment.stripeCustomerId,
             })
             .from(payment)
             .where(
@@ -535,10 +785,18 @@ export async function handleStripeWebhook(
             return;
           }
 
+          const reconciledStatus =
+            resolveStripeStatusForClientReconciliation(
+              webhookEvent.paymentIntent.status,
+            ) ?? "failed";
+
           await tx
             .update(payment)
             .set({
-              status: "failed",
+              status: reconciledStatus,
+              stripeCustomerId:
+                webhookEvent.paymentIntent.customerId ??
+                localPayment.stripeCustomerId,
               updatedAt: new Date(),
             })
             .where(eq(payment.id, localPayment.id));

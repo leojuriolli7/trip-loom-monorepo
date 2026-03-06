@@ -279,7 +279,7 @@ describe("Hotel Bookings API", () => {
       for (const call of calls) {
         expect(call.res.status).toBe(404);
         expect(call.body).toMatchObject({
-          error: "Not Found",
+          error: "NotFound",
         });
       }
 
@@ -398,7 +398,7 @@ describe("Hotel Bookings API", () => {
 
       expect(res.status).toBe(404);
       expect(body).toMatchObject({
-        error: "Not Found",
+        error: "NotFound",
         message: "Hotel not found",
       });
     });
@@ -451,7 +451,7 @@ describe("Hotel Bookings API", () => {
 
       expect(res.status).toBe(404);
       expect(body).toMatchObject({
-        error: "Not Found",
+        error: "NotFound",
         message: "Trip not found",
       });
     });
@@ -525,7 +525,7 @@ describe("Hotel Bookings API", () => {
 
       expect(res.status).toBe(404);
       expect(body).toMatchObject({
-        error: "Not Found",
+        error: "NotFound",
         message: "Hotel booking not found",
       });
     });
@@ -648,7 +648,7 @@ describe("Hotel Bookings API", () => {
 
       expect(res.status).toBe(404);
       expect(body).toMatchObject({
-        error: "Not Found",
+        error: "NotFound",
         message: "Hotel booking not found",
       });
     });

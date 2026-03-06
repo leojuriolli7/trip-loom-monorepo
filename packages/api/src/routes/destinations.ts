@@ -58,7 +58,7 @@ export const destinationRoutes = new Elysia({
       const result = await getDestinationById(params.id);
       if (!result) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Destination not found",
           statusCode: 404,
         });
@@ -81,7 +81,7 @@ export const destinationRoutes = new Elysia({
       const result = await getDestinationDetail(params.id);
       if (!result) {
         return status(404, {
-          error: "Not Found",
+          error: "NotFound",
           message: "Destination not found",
           statusCode: 404,
         });

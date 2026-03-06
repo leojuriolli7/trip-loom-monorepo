@@ -583,7 +583,7 @@ describe("Trips API", () => {
     });
 
     expect(res.status).toBe(404);
-    expect(body.error).toBe("Not Found");
+    expect(body.error).toBe("NotFound");
     expect(body.message).toBe("Trip not found");
   });
 
@@ -714,7 +714,7 @@ describe("Trips API", () => {
     });
 
     expect(res.status).toBe(404);
-    expect(body.error).toBe("Not Found");
+    expect(body.error).toBe("NotFound");
     expect(body.message).toBe("Trip not found");
 
     const secondaryTripRows = await db

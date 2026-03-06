@@ -486,7 +486,6 @@ describe("Payments API", () => {
           path: "/api/payments/create-intent",
           body: {
             tripId: seed.primaryTripId,
-            amountInCents: 42_000,
             currency: "usd",
             bookingType: "flight",
             bookingId: seed.pendingFlightBookingId,
@@ -537,18 +536,17 @@ describe("Payments API", () => {
         userId: seed.primaryUserId,
         body: {
           tripId: seed.primaryTripId,
-          amountInCents: 42_000,
           currency: "usd",
-          description: "Flight checkout",
-          bookingType: "flight",
-          bookingId: seed.pendingFlightBookingId,
+          description: "Hotel checkout",
+          bookingType: "hotel",
+          bookingId: seed.pendingHotelBookingId,
         },
       });
 
       expect(res.status).toBe(200);
       expect(body).toMatchObject({
         clientSecret: `${ctx.prefix}secret_created`,
-        amountInCents: 42_000,
+        amountInCents: 45_000,
         currency: "usd",
       });
       expect(typeof body.paymentId).toBe("string");
@@ -563,6 +561,7 @@ describe("Payments API", () => {
       expect(rows[0]).toMatchObject({
         tripId: seed.primaryTripId,
         stripePaymentIntentId: `${ctx.prefix}pi_created`,
+        amountInCents: 45_000,
         status: "pending",
       });
     });
@@ -574,7 +573,6 @@ describe("Payments API", () => {
         userId: seed.primaryUserId,
         body: {
           tripId: `${ctx.prefix}trip_missing`,
-          amountInCents: 42_000,
           currency: "usd",
           bookingType: "flight",
           bookingId: seed.pendingFlightBookingId,
@@ -583,27 +581,134 @@ describe("Payments API", () => {
 
       expect(res.status).toBe(404);
       expect(body).toMatchObject({
-        error: "Not Found",
+        error: "NotFound",
       });
     });
 
-    it("returns 400 when amount does not match booking amount", async () => {
+    it("reuses an existing open payment intent for the same booking", async () => {
+      retrievePaymentIntentSpy.mockResolvedValue({
+        id: `${ctx.prefix}pi_concurrent`,
+        clientSecret: `${ctx.prefix}secret_reused`,
+        status: "requires_payment_method",
+        customerId: `${ctx.prefix}cus_reused`,
+        metadata: {
+          tripId: seed.primaryTripId,
+          bookingType: "flight",
+          bookingId: seed.pendingFlightBookingId,
+        },
+      });
+
       const { res, body } = await requestJson({
         method: "POST",
         path: "/api/payments/create-intent",
         userId: seed.primaryUserId,
         body: {
           tripId: seed.primaryTripId,
-          amountInCents: 42_001,
           currency: "usd",
           bookingType: "flight",
           bookingId: seed.pendingFlightBookingId,
         },
       });
 
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(200);
       expect(body).toMatchObject({
-        error: "Bad Request",
+        paymentId: seed.concurrentPaymentId,
+        clientSecret: `${ctx.prefix}secret_reused`,
+        amountInCents: 42_000,
+        currency: "usd",
+      });
+      expect(createPaymentIntentSpy).not.toHaveBeenCalled();
+
+      const rows = await db
+        .select({
+          status: payment.status,
+          stripeCustomerId: payment.stripeCustomerId,
+        })
+        .from(payment)
+        .where(eq(payment.id, seed.concurrentPaymentId))
+        .limit(1);
+
+      expect(rows[0]).toMatchObject({
+        status: "pending",
+        stripeCustomerId: `${ctx.prefix}cus_reused`,
+      });
+    });
+
+    it("reconciles stale succeeded payments instead of returning a terminal intent", async () => {
+      retrievePaymentIntentSpy.mockResolvedValue({
+        id: `${ctx.prefix}pi_webhook`,
+        clientSecret: `${ctx.prefix}secret_terminal`,
+        status: "succeeded",
+        customerId: `${ctx.prefix}cus_webhook`,
+        metadata: {
+          tripId: seed.primaryTripId,
+          bookingType: "hotel",
+          bookingId: seed.webhookHotelBookingId,
+        },
+      });
+
+      const { res, body } = await requestJson({
+        method: "POST",
+        path: "/api/payments/create-intent",
+        userId: seed.primaryUserId,
+        body: {
+          tripId: seed.primaryTripId,
+          currency: "usd",
+          bookingType: "hotel",
+          bookingId: seed.webhookHotelBookingId,
+        },
+      });
+
+      expect(res.status).toBe(409);
+      expect(body).toMatchObject({
+        error: "PaymentAlreadySuccessful",
+      });
+
+      const paymentRows = await db
+        .select({
+          status: payment.status,
+          stripeCustomerId: payment.stripeCustomerId,
+        })
+        .from(payment)
+        .where(eq(payment.id, seed.webhookPaymentId))
+        .limit(1);
+
+      expect(paymentRows[0]).toMatchObject({
+        status: "succeeded",
+        stripeCustomerId: `${ctx.prefix}cus_webhook`,
+      });
+
+      const bookingRows = await db
+        .select({
+          paymentId: hotelBooking.paymentId,
+          status: hotelBooking.status,
+        })
+        .from(hotelBooking)
+        .where(eq(hotelBooking.id, seed.webhookHotelBookingId))
+        .limit(1);
+
+      expect(bookingRows[0]).toMatchObject({
+        paymentId: seed.webhookPaymentId,
+        status: "confirmed",
+      });
+    });
+
+    it("returns a payment-specific error when the booking is already paid", async () => {
+      const { res, body } = await requestJson({
+        method: "POST",
+        path: "/api/payments/create-intent",
+        userId: seed.primaryUserId,
+        body: {
+          tripId: seed.primaryTripId,
+          currency: "usd",
+          bookingType: "hotel",
+          bookingId: seed.refundableHotelBookingId,
+        },
+      });
+
+      expect(res.status).toBe(409);
+      expect(body).toMatchObject({
+        error: "PaymentAlreadySuccessful",
       });
     });
   });
@@ -694,7 +799,7 @@ describe("Payments API", () => {
 
       expect(res.status).toBe(404);
       expect(body).toMatchObject({
-        error: "Not Found",
+        error: "NotFound",
       });
     });
   });
@@ -765,7 +870,7 @@ describe("Payments API", () => {
 
   describe("POST /api/webhooks/stripe", () => {
     it("updates payment status and links payment to booking on payment_intent.succeeded", async () => {
-      constructWebhookEventSpy.mockReturnValue({
+      constructWebhookEventSpy.mockResolvedValue({
         kind: "payment_intent",
         id: `${ctx.prefix}evt_succeeded`,
         type: "payment_intent.succeeded",
@@ -819,8 +924,49 @@ describe("Payments API", () => {
       });
     });
 
+    it("keeps retryable failed intents in a pending local state", async () => {
+      constructWebhookEventSpy.mockResolvedValue({
+        kind: "payment_intent",
+        id: `${ctx.prefix}evt_retryable_failed`,
+        type: "payment_intent.payment_failed",
+        payload: JSON.stringify({ type: "payment_intent.payment_failed" }),
+        paymentIntent: {
+          id: `${ctx.prefix}pi_concurrent`,
+          clientSecret: `${ctx.prefix}secret_retryable`,
+          status: "requires_payment_method",
+          customerId: `${ctx.prefix}cus_retryable`,
+          metadata: {
+            tripId: seed.primaryTripId,
+            bookingType: "flight",
+            bookingId: seed.pendingFlightBookingId,
+          },
+        },
+      });
+
+      const { res, body } = await requestWebhook({
+        payload: JSON.stringify({ id: "event_retryable_failed" }),
+      });
+
+      expect(res.status).toBe(200);
+      expect(body).toEqual({ received: true });
+
+      const paymentRows = await db
+        .select({
+          status: payment.status,
+          stripeCustomerId: payment.stripeCustomerId,
+        })
+        .from(payment)
+        .where(eq(payment.id, seed.concurrentPaymentId))
+        .limit(1);
+
+      expect(paymentRows[0]).toMatchObject({
+        status: "pending",
+        stripeCustomerId: `${ctx.prefix}cus_retryable`,
+      });
+    });
+
     it("ignores duplicate webhook event ids (idempotent)", async () => {
-      constructWebhookEventSpy.mockReturnValue({
+      constructWebhookEventSpy.mockResolvedValue({
         kind: "payment_intent",
         id: `${ctx.prefix}evt_duplicate`,
         type: "payment_intent.succeeded",
@@ -865,7 +1011,7 @@ describe("Payments API", () => {
         metadata: {},
       });
 
-      constructWebhookEventSpy.mockReturnValue({
+      constructWebhookEventSpy.mockResolvedValue({
         kind: "payment_intent",
         id: `${ctx.prefix}evt_concurrent`,
         type: "payment_intent.succeeded",

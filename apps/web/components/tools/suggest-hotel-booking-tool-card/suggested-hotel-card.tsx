@@ -2,7 +2,6 @@
 
 import type { TripLoomToolArgsByName } from "@trip-loom/agents";
 import { ChevronRightIcon, MapPinIcon } from "lucide-react";
-import Image from "next/image";
 import { Ratings } from "@/components/ui/rating";
 import {
   Tooltip,
@@ -10,6 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { amenityLabels } from "@/lib/amenity-labels";
+import { StreamingImage } from "@/components/streaming-image";
 
 type SuggestedHotel =
   TripLoomToolArgsByName<"suggest_hotel_booking">["hotels"][number];
@@ -18,11 +18,11 @@ function formatNightlyRate(pricePerNight: number, currency: string) {
   try {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: currency.toUpperCase(),
+      currency: currency?.toUpperCase(),
       maximumFractionDigits: 0,
     }).format(pricePerNight);
   } catch {
-    return `${currency.toUpperCase()} ${pricePerNight}`;
+    return `${currency?.toUpperCase()} ${pricePerNight}`;
   }
 }
 
@@ -35,15 +35,15 @@ function getAmenitiesCountLabel(count: number) {
 }
 
 export function SuggestedHotelCard({ hotel }: { hotel: SuggestedHotel }) {
-  const amenities = hotel.amenities ?? [];
+  const amenities = hotel?.amenities ?? [];
   const amenitiesCount = amenities.length;
 
   return (
     <article className="flex h-full min-h-80 flex-col overflow-hidden rounded-2xl border border-border/60 bg-card">
       <div className="relative aspect-16/10 overflow-hidden">
-        <Image
-          src={hotel.imageUrl || "/placeholder.png"}
-          alt={hotel.name}
+        <StreamingImage
+          src={hotel?.imageUrl || "/placeholder.png"}
+          alt={hotel?.name || "Hotel image"}
           fill
           sizes="(max-width: 768px) 80vw, 40vw"
           className="object-cover"
@@ -52,28 +52,35 @@ export function SuggestedHotelCard({ hotel }: { hotel: SuggestedHotel }) {
 
       <div className="flex flex-1 flex-col p-4">
         <h4 className="line-clamp-2 text-base font-semibold leading-tight tracking-tight">
-          {hotel.name}
+          {hotel?.name}
         </h4>
 
         <div className="mt-1 flex items-center gap-2">
-          <Ratings rating={hotel.starRating} />
+          {typeof hotel?.starRating === "number" && (
+            <Ratings rating={hotel.starRating} />
+          )}
+
           <span className="text-xs text-muted-foreground">
-            {hotel.starRating.toFixed(1)}
+            {hotel?.starRating?.toFixed(1)}
           </span>
         </div>
 
-        <div className="mt-2 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-          <MapPinIcon className="size-3.5 shrink-0" />
-          <span className="line-clamp-1">{hotel.location}</span>
-        </div>
+        {!!hotel?.location ? (
+          <div className="mt-2 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+            <MapPinIcon className="size-3.5 shrink-0" />
+            <span className="line-clamp-1">{hotel?.location}</span>
+          </div>
+        ) : null}
 
         <div className="mt-auto flex items-center justify-between gap-3 pt-4">
-          <p className="text-sm font-semibold text-foreground">
-            {formatNightlyRate(hotel.pricePerNight, hotel.currency)}
-            <span className="ml-1 text-xs font-medium text-muted-foreground">
-              /night
-            </span>
-          </p>
+          {!!hotel?.pricePerNight && !!hotel?.currency ? (
+            <p className="text-sm font-semibold text-foreground">
+              {formatNightlyRate(hotel?.pricePerNight, hotel?.currency)}
+              <span className="ml-1 text-xs font-medium text-muted-foreground">
+                /night
+              </span>
+            </p>
+          ) : null}
 
           {amenitiesCount > 0 && (
             <Tooltip>
@@ -94,7 +101,7 @@ export function SuggestedHotelCard({ hotel }: { hotel: SuggestedHotel }) {
                 <div className="space-y-1.5">
                   {amenities.map((amenity) => (
                     <p
-                      key={`${hotel.id}-tooltip-${amenity}`}
+                      key={`${hotel?.id}-tooltip-${amenity}`}
                       className="text-md text-background/90 capitalize"
                     >
                       {amenityLabels[amenity]}

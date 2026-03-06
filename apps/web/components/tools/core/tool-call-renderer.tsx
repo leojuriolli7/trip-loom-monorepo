@@ -9,7 +9,38 @@ import { UpdateTripToolCallCard } from "../update-trip-tool-card";
 import { GetDestinationDetailsToolCard } from "../get-destination-details-tool-card";
 import { SearchHotelsToolCard } from "../search-hotels-card";
 
+/**
+ * These tool calls can appear on assistant messages, but their UI belongs to a
+ * different rendering layer:
+ * - live approval/payment prompts come from `stream.interrupts`
+ * - persisted payment outcomes come from `tool` messages
+ *
+ * Excluding them here keeps the assistant-message layer focused on previewable
+ * tool calls that can be rendered directly from their args.
+ */
+const NON_RENDERABLE_ASSISTANT_TOOL_CALL_NAMES = new Set([
+  "request_confirmation",
+  "request_payment",
+]);
+
+/**
+ * Assistant `tool_calls` and persisted `tool` messages are distinct message
+ * shapes in the chat history. This helper only answers whether a tool call
+ * should render inside the assistant-message layer.
+ */
+export function isRenderableAssistantToolCall(toolCall: TripLoomToolCall) {
+  return !NON_RENDERABLE_ASSISTANT_TOOL_CALL_NAMES.has(toolCall.name);
+}
+
+/**
+ * Renders cards for assistant `tool_calls`, which are lightweight previews of
+ * tool activity attached to an assistant message.
+ */
 export function ToolCallRenderer({ toolCall }: { toolCall: TripLoomToolCall }) {
+  if (!isRenderableAssistantToolCall(toolCall)) {
+    return null;
+  }
+
   switch (toolCall.name) {
     case "get_user_preferences":
       return <UserPreferencesToolCard args={toolCall.args} />;

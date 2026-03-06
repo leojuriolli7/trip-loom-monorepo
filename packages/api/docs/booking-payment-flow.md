@@ -18,7 +18,8 @@ Bookings are created first as provisional records. Payment completion is what fi
    - `paymentId: null`
 3. Create payment intent:
    - `POST /api/payments/create-intent`
-   - Requires `tripId`, `bookingType`, `bookingId`, and exact `amountInCents`.
+   - Requires `tripId`, `bookingType`, and `bookingId`.
+   - Server derives the authoritative amount from the booking record.
 4. Confirm payment client-side with Stripe using returned `clientSecret`.
 5. Optional reconciliation call:
    - `POST /api/payments/confirm`

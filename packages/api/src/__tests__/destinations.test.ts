@@ -140,7 +140,7 @@ describe("Destinations API", () => {
       const { res, body } = await request.get("/api/destinations/nonexistent123");
 
       expect(res.status).toBe(404);
-      expect(body.error).toBe("Not Found");
+      expect(body.error).toBe("NotFound");
       expect(body.message).toBe("Destination not found");
     });
   });
