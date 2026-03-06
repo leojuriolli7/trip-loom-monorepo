@@ -16,10 +16,11 @@ interface TripCardProps {
 }
 
 export function TripCard({ trip }: TripCardProps) {
-  const tripTitle =
-    trip.title ?? trip.destination?.name ?? "Destination pending";
+  const tripTitle = trip.title ?? trip.destination?.name ?? "Untitled Trip";
 
-  const destinationPlace = `${trip.destination?.name}, ${trip.destination?.country}`;
+  const destinationPlace = trip?.destination
+    ? `${trip.destination?.name}, ${trip.destination?.country}`
+    : "Destination pending";
   const hasAnyFeature = trip.hasFlights || trip.hasHotel || trip.hasItinerary;
 
   const queryClient = useQueryClient();

@@ -12,8 +12,8 @@ import {
 } from "@/components/ai-elements/message";
 import { useChatStream } from "@/context/chat";
 import { isRenderableAssistantToolCall, ToolCallRenderer } from "../tools";
-import { ChatActionCard } from "../tools/core/chat-action-card";
 import { ToolMessageRenderer } from "../tools/core/tool-message-renderer";
+import { CancellationRequestCard } from "../tools/cancellation-request-card";
 import { PaymentRequestCard } from "../tools/payment-request-card";
 import {
   WebSearchToolCallCard,
@@ -158,24 +158,28 @@ export function ChatConversation() {
               const value = interrupt.value;
               const key = interrupt.id ?? `interrupt-${index}`;
 
-              if (value?.type === "request-confirmation") {
+              if (value?.type === "request-cancellation") {
                 return (
-                  <ChatActionCard
+                  <CancellationRequestCard
                     key={key}
-                    cancelDisabled={stream.isLoading}
-                    cancelLabel="Deny"
-                    confirmDisabled={stream.isLoading}
-                    confirmLabel="Confirm"
-                    description={value.summary}
-                    imageAlt="Wallet"
-                    imageSrc="/wallet.png"
-                    onCancel={() => {
-                      void submitResume({ confirmed: false });
-                    }}
-                    onConfirm={() => {
-                      void submitResume({ confirmed: true });
-                    }}
-                    title={value.action}
+                    bookingId={value.bookingId}
+                    bookingType={value.bookingType}
+                    disabled={stream.isLoading}
+                    onCancel={() =>
+                      submitResume({
+                        confirmed: false,
+                        bookingType: value.bookingType,
+                        bookingId: value.bookingId,
+                      })
+                    }
+                    onConfirm={() =>
+                      submitResume({
+                        confirmed: true,
+                        bookingType: value.bookingType,
+                        bookingId: value.bookingId,
+                      })
+                    }
+                    tripId={tripId}
                   />
                 );
               }

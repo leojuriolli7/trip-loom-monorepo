@@ -38,7 +38,7 @@ export function registerCreateHotelBooking(
         }),
     },
     async ({ tripId, hotelId, checkInDate, checkOutDate, roomType }) => {
-      const { data, error } = await apiClient.api.trips({ id: tripId }).hotels.post({
+      const { data, error, status: httpStatus } = await apiClient.api.trips({ id: tripId }).hotels.post({
         hotelId,
         checkInDate,
         checkOutDate,
@@ -63,9 +63,14 @@ export function registerCreateHotelBooking(
         };
       }
 
+      const isExisting = httpStatus === 200;
+      const prefix = isExisting
+        ? "Returned existing pending booking (already booked at this hotel for this trip). Do NOT create another booking.\n\n"
+        : "";
+
       return {
         content: [
-          { type: "text" as const, text: JSON.stringify(data, null, 2) },
+          { type: "text" as const, text: `${prefix}${JSON.stringify(data, null, 2)}` },
         ],
       };
     },

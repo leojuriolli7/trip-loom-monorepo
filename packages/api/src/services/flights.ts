@@ -1,4 +1,4 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, not } from "drizzle-orm";
 import { db } from "../db";
 import { airport, flightBooking } from "../db/schema";
 import { BadRequestError } from "../errors";
@@ -187,14 +187,33 @@ export async function getFlightBooking(
   };
 }
 
+export type CreateFlightBookingResult = FlightBookingDTO & { existing?: true };
+
 export async function createFlightBooking(
   userId: string,
   tripId: string,
   input: CreateFlightBookingInput,
-): Promise<FlightBookingDTO | null> {
+): Promise<CreateFlightBookingResult | null> {
   const ownedTrip = await getOwnedTripMeta(userId, tripId);
   if (!ownedTrip) {
     return null;
+  }
+
+  // Idempotency guard: return existing active booking for same flight on same trip
+  const existingRows = await db
+    .select(flightBookingSelectFields)
+    .from(flightBooking)
+    .where(
+      and(
+        eq(flightBooking.tripId, tripId),
+        eq(flightBooking.flightNumber, input.flightNumber),
+        not(eq(flightBooking.status, "cancelled")),
+      ),
+    )
+    .limit(1);
+
+  if (existingRows.length > 0) {
+    return { ...existingRows[0], existing: true as const };
   }
 
   const [departureAirport, arrivalAirport] = await Promise.all([

@@ -70,13 +70,15 @@ export const hotelBookingRoutes = new Elysia({
       }
 
       wideEvent.hotel_booking_id = result.id;
-      return status(201, result);
+      const { existing, ...booking } = result;
+      return status(existing ? 200 : 201, booking);
     },
     {
       auth: true,
       params: tripParamsSchema,
       body: createHotelBookingInputSchema,
       response: {
+        200: hotelBookingSchema,
         201: hotelBookingSchema,
         400: errorResponseSchema,
         401: errorResponseSchema,

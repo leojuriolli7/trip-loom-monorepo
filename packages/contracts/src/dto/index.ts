@@ -52,6 +52,8 @@ export {
   type ConfirmPaymentInput,
   requestPaymentToolResultSchema,
   type RequestPaymentToolResult,
+  requestCancellationToolResultSchema,
+  type RequestCancellationToolResult,
   type RefundPaymentInput,
 } from "./payments";
 

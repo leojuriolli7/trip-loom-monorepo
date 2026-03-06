@@ -1,7 +1,14 @@
 "use client";
 
 import type { TripLoomMessage } from "@trip-loom/agents";
-import { requestPaymentToolResultSchema } from "@trip-loom/contracts/dto";
+import { z } from "zod";
+import {
+  requestPaymentToolResultSchema,
+  requestCancellationToolResultSchema,
+} from "@trip-loom/contracts/dto/payments";
+import { hotelBookingSchema } from "@trip-loom/contracts/dto/hotel-bookings";
+import { CreateHotelBookingToolResultCard } from "../create-hotel-booking-tool-result-card";
+import { RequestCancellationToolResultCard } from "../request-cancellation-tool-result-card";
 import { RequestPaymentToolResultCard } from "../request-payment-tool-result-card";
 
 type ToolMessageRendererProps = {
@@ -29,11 +36,14 @@ function getToolMessageTextContent(content: TripLoomMessage["content"]) {
 }
 
 /**
- * `request_payment` writes a structured JSON result into the persisted tool
- * message. This parser keeps the message-rendering layer responsible only for
- * extracting and validating that stored result.
+ * Persisted tool messages store JSON inside their text content. This helper
+ * keeps parsing localized to the tool-message layer so individual cards only
+ * receive validated DTOs.
  */
-function parseRequestPaymentResult(content: TripLoomMessage["content"]) {
+function parseToolMessageJson<TSchema extends z.ZodTypeAny>(
+  content: TripLoomMessage["content"],
+  schema: TSchema,
+): z.infer<TSchema> | null {
   const textContent = getToolMessageTextContent(content);
 
   if (!textContent) {
@@ -42,7 +52,7 @@ function parseRequestPaymentResult(content: TripLoomMessage["content"]) {
 
   try {
     const parsedContent = JSON.parse(textContent);
-    const parsed = requestPaymentToolResultSchema.safeParse(parsedContent);
+    const parsed = schema.safeParse(parsedContent);
 
     return parsed.success ? parsed.data : null;
   } catch {
@@ -62,15 +72,43 @@ export function ToolMessageRenderer({
   message,
   tripId,
 }: ToolMessageRendererProps) {
-  if (message.name !== "request_payment") {
-    return null;
+  if (message.name === "create_hotel_booking") {
+    const booking = parseToolMessageJson(message.content, hotelBookingSchema);
+
+    if (!booking) {
+      return null;
+    }
+
+    return <CreateHotelBookingToolResultCard booking={booking} />;
   }
 
-  const parsed = parseRequestPaymentResult(message.content);
+  if (message.name === "request_payment") {
+    const parsed = parseToolMessageJson(
+      message.content,
+      requestPaymentToolResultSchema,
+    );
 
-  if (!parsed) {
-    return null;
+    if (!parsed) {
+      return null;
+    }
+
+    return <RequestPaymentToolResultCard result={parsed} tripId={tripId} />;
   }
 
-  return <RequestPaymentToolResultCard result={parsed} tripId={tripId} />;
+  if (message.name === "request_cancellation") {
+    const parsed = parseToolMessageJson(
+      message.content,
+      requestCancellationToolResultSchema,
+    );
+
+    if (!parsed) {
+      return null;
+    }
+
+    return (
+      <RequestCancellationToolResultCard result={parsed} tripId={tripId} />
+    );
+  }
+
+  return null;
 }

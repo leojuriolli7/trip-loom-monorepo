@@ -1,0 +1,2 @@
+CREATE UNIQUE INDEX "flight_booking_unique_active" ON "flight_booking" USING btree ("trip_id","flight_number","departure_time") WHERE "flight_booking"."status" != 'cancelled';--> statement-breakpoint
+CREATE UNIQUE INDEX "hotel_booking_unique_active" ON "hotel_booking" USING btree ("trip_id","hotel_id") WHERE "hotel_booking"."status" != 'cancelled';

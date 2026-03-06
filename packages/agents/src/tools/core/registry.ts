@@ -1,5 +1,5 @@
 import type { DynamicStructuredTool } from "@langchain/core/tools";
-import { requestConfirmationTool } from "../request-confirmation";
+import { requestCancellationTool } from "../request-cancellation";
 import { requestPaymentTool } from "../request-payment";
 import { suggestDestinationsTool } from "../suggest-destinations";
 import { suggestFlightTool } from "../suggest-flight";
@@ -22,12 +22,14 @@ const FLIGHT_MCP_TOOLS = [
   "search_flights",
   "book_flight",
   "cancel_flight_booking",
+  "get_trip_details",
 ] as const;
 
 const HOTEL_MCP_TOOLS = [
   "search_hotels",
   "create_hotel_booking",
   "cancel_hotel_booking",
+  "get_trip_details",
 ] as const;
 
 const ITINERARY_MCP_TOOLS = [
@@ -44,7 +46,7 @@ const ITINERARY_MCP_TOOLS = [
 const AGENT_TOOL_REGISTRY = {
   supervisor: {
     mcp: SUPERVISOR_MCP_TOOLS,
-    local: [requestConfirmationTool, requestPaymentTool] as const,
+    local: [requestPaymentTool, requestCancellationTool] as const,
   },
   destination: {
     mcp: DESTINATION_MCP_TOOLS,
@@ -73,7 +75,7 @@ export type TripLoomLocalToolName = TripLoomLocalTool["name"];
 export type TripLoomToolName = TripLoomMcpToolName | TripLoomLocalToolName;
 
 const TRIP_LOOM_LOCAL_TOOL_NAMES = [
-  requestConfirmationTool.name,
+  requestCancellationTool.name,
   requestPaymentTool.name,
   suggestDestinationsTool.name,
   suggestFlightTool.name,

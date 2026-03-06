@@ -1,4 +1,4 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, not } from "drizzle-orm";
 import { db } from "../db";
 import { hotel, hotelBooking } from "../db/schema";
 import type {
@@ -158,14 +158,30 @@ export async function getHotelBooking(
  * - Calculates numberOfNights and totalPriceInCents
  * - Refreshes trip status (may transition draft -> upcoming)
  */
+export type CreateHotelBookingResult = HotelBookingDTO & { existing?: true };
+
 export async function createHotelBooking(
   userId: string,
   tripId: string,
   input: CreateHotelBookingInput,
-): Promise<HotelBookingDTO | null> {
+): Promise<CreateHotelBookingResult | null> {
   const tripMeta = await getOwnedTripMeta(userId, tripId);
   if (!tripMeta) {
     return null;
+  }
+
+  // Idempotency guard: return existing active booking for same hotel on same trip
+  const existingBooking = await db.query.hotelBooking.findFirst({
+    where: and(
+      eq(hotelBooking.tripId, tripId),
+      eq(hotelBooking.hotelId, input.hotelId),
+      not(eq(hotelBooking.status, "cancelled")),
+    ),
+    with: { hotel: { columns: hotelSummaryColumns } },
+  });
+
+  if (existingBooking) {
+    return { ...mapBookingToDTO(existingBooking), existing: true as const };
   }
 
   const hotelInfo = await getHotelForBooking(input.hotelId);

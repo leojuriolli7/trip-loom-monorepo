@@ -99,14 +99,14 @@ pnpm dev:web      # Next.js app
 
 ### Product and UX
 - [ ] Build complete card UI coverage for remaining MCP tool calls
+  - [ ] Get Trip Details
+  - [ ] Transferring back and forth
+  - [ ] Airplane seat picker flow and flight-specific tools
 - [ ] Improve UI per trip stage: upcoming/current/past with different widgets visible (like weather widget -- or `get_weather` tool?), for completed trip block chat and show a widget talking about how trip was over, "how was your trip?" feedback card for emailing us + CTA to start planning a new trip...
 - [ ] Add follow-up suggestion prompts above chat input
 - [ ] Allow filtering by multiple amenities or highlights at once in. list hotels/destinations
-- [ ] Option to book multiple hotels/flights for a trip -- Almost a DB + API only change, since agents dictate frontend interaction with trips
-- [ ] Add option to delete a trip
-- [ ] Add option to archive a trip
-- [ ] Add option to share trip conversations (read-only)
-- [ ] Itinerary could have images and sources for each activity
+- [ ] Option to book multiple hotels/flights for a trip
+- [ ] Add images and sources for each activity for itineraries
 
 ### Agents and Orchestration
 
@@ -134,6 +134,9 @@ pnpm dev:web      # Next.js app
 
 ### Platform and Payments
 
+- [ ] Add option to delete a trip
+- [ ] Add option to archive a trip: Update sidebar to render all trips together with a badge distinguishing status + archived section
+- [ ] Add option to share trip conversations (read-only)
 - [ ] Evaluate optional auto-pay flows vs explicit manual payment each time (eg: Allow always, allow, deny...)
 - [ ] Add persistent "always use this airport" preference in flight confirmation
 

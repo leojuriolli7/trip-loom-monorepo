@@ -94,13 +94,15 @@ export const flightRoutes = new Elysia({
       }
 
       wideEvent.flight_booking_id = result.id;
-      return status(201, result);
+      const { existing, ...booking } = result;
+      return status(existing ? 200 : 201, booking);
     },
     {
       auth: true,
       params: tripParamsSchema,
       body: createFlightBookingInputSchema,
       response: {
+        200: flightBookingSchema,
         201: flightBookingSchema,
         400: errorResponseSchema,
         401: errorResponseSchema,

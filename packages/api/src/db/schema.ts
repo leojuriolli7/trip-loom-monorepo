@@ -9,6 +9,7 @@ import {
   real,
   index,
   unique,
+  uniqueIndex,
   check,
   customType,
   jsonb,
@@ -517,6 +518,9 @@ export const flightBooking = pgTable(
     index("flight_booking_arrival_airport_code_idx").on(
       table.arrivalAirportCode,
     ),
+    uniqueIndex("flight_booking_unique_active")
+      .on(table.tripId, table.flightNumber, table.departureTime)
+      .where(sql`${table.status} != 'cancelled'`),
     check("flight_booking_price_non_negative", sql`${table.priceInCents} >= 0`),
     check(
       "flight_booking_duration_positive",
@@ -559,6 +563,9 @@ export const hotelBooking = pgTable(
     index("hotel_booking_trip_id_idx").on(table.tripId),
     index("hotel_booking_hotel_id_idx").on(table.hotelId),
     index("hotel_booking_payment_id_idx").on(table.paymentId),
+    uniqueIndex("hotel_booking_unique_active")
+      .on(table.tripId, table.hotelId)
+      .where(sql`${table.status} != 'cancelled'`),
     check(
       "hotel_booking_dates_check",
       sql`${table.checkOutDate} > ${table.checkInDate}`,

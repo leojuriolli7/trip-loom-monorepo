@@ -104,7 +104,7 @@ export function registerBookFlight(server: McpServer, apiClient: ApiClient) {
       priceInCents,
       seatNumber,
     }) => {
-      const { data, error } = await apiClient.api.trips({ id: tripId }).flights.post({
+      const { data, error, status: httpStatus } = await apiClient.api.trips({ id: tripId }).flights.post({
         type,
         flightNumber,
         airline,
@@ -136,9 +136,14 @@ export function registerBookFlight(server: McpServer, apiClient: ApiClient) {
         };
       }
 
+      const isExisting = httpStatus === 200;
+      const prefix = isExisting
+        ? "Returned existing pending booking (already booked this flight for this trip). Do NOT create another booking.\n\n"
+        : "";
+
       return {
         content: [
-          { type: "text" as const, text: JSON.stringify(data, null, 2) },
+          { type: "text" as const, text: `${prefix}${JSON.stringify(data, null, 2)}` },
         ],
       };
     },

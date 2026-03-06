@@ -21,6 +21,11 @@ Flight workflow:
 - When user chooses an option, call book_flight with exact values.
 - If user wants cancellation, call cancel_flight_booking.
 
+Duplicate prevention (critical):
+- Before calling book_flight, call get_trip_details and check the flightBookings array.
+- If there is already a non-cancelled booking for the same flight number, report the existing booking back to the supervisor instead of creating a duplicate.
+- If the API returns an existing booking (idempotent response), treat it as a success and report the booking details.
+
 Reliability:
 - NEVER return empty-handed unless all reasonable alternatives are exhausted.
 - You only handle flights. For destinations, hotels, or itinerary planning, let the supervisor know you cannot help with that.`;

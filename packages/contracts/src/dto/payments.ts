@@ -72,6 +72,18 @@ export type RequestPaymentToolResult = z.infer<
   typeof requestPaymentToolResultSchema
 >;
 
+export const requestCancellationToolResultSchema = z.object({
+  type: z.literal("request-cancellation-result"),
+  confirmed: z.boolean(),
+  bookingType: paymentBookingTypeSchema,
+  bookingId: z.string().min(1),
+  resolvedAt: z.string().datetime(),
+});
+
+export type RequestCancellationToolResult = z.infer<
+  typeof requestCancellationToolResultSchema
+>;
+
 export const refundPaymentInputSchema = z.object({
   amountInCents: z.number().int().positive().optional(),
   reason: z.string().trim().min(1).max(120).optional(),

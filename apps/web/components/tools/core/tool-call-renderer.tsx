@@ -13,13 +13,14 @@ import { SearchHotelsToolCard } from "../search-hotels-card";
  * These tool calls can appear on assistant messages, but their UI belongs to a
  * different rendering layer:
  * - live approval/payment prompts come from `stream.interrupts`
- * - persisted payment outcomes come from `tool` messages
+ * - persisted hotel booking/payment outcomes come from `tool` messages
  *
  * Excluding them here keeps the assistant-message layer focused on previewable
  * tool calls that can be rendered directly from their args.
  */
 const NON_RENDERABLE_ASSISTANT_TOOL_CALL_NAMES = new Set([
-  "request_confirmation",
+  "create_hotel_booking",
+  "request_cancellation",
   "request_payment",
 ]);
 

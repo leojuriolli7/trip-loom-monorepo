@@ -61,23 +61,27 @@ export const requestPaymentTool = tool(
     const resolvedAt = new Date().toISOString();
 
     if (response.status === "paid") {
-      return JSON.stringify({
+      const result: RequestPaymentToolResult = {
         type: "request-payment-result",
         status: "paid",
         bookingType: response.bookingType,
         bookingId: response.bookingId,
         paymentId: response.paymentId,
         resolvedAt,
-      } satisfies RequestPaymentToolResult);
+      };
+
+      return `${JSON.stringify(result)}\n\nIMPORTANT: Payment complete. This booking flow is FINISHED. Do NOT delegate to any sub-agent for this booking. Acknowledge payment to the user and ask about next steps.`;
     }
 
-    return JSON.stringify({
+    const result: RequestPaymentToolResult = {
       type: "request-payment-result",
       status: "cancelled",
       bookingType: response.bookingType,
       bookingId: response.bookingId,
       resolvedAt,
-    } satisfies RequestPaymentToolResult);
+    };
+
+    return `${JSON.stringify(result)}\n\nPayment cancelled. The booking remains pending but unpaid. Ask the user what they want to do. Do NOT re-delegate to create a new booking unless the user explicitly asks.`;
   },
   {
     name: "request_payment",

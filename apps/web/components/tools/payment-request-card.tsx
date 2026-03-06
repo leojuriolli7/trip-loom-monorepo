@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { TripLoomPaymentResume } from "@trip-loom/agents";
+import type { RequestPaymentResume } from "@trip-loom/agents";
 import { AlertCircleIcon } from "lucide-react";
 import { PaymentFormWithProvider } from "@/components/payment-form";
+import { HotelBookingSummaryCard } from "@/components/tools/hotel-booking-summary-card";
 import { ToolCallCard } from "@/components/tools/tool-call-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,7 +30,7 @@ type PaymentRequestCardProps = {
   bookingId: string;
   disabled?: boolean;
   onCancel: () => Promise<void>;
-  onPaid: (resume: TripLoomPaymentResume) => Promise<void>;
+  onPaid: (resume: RequestPaymentResume) => Promise<void>;
 };
 
 type PaymentRequestStatus =
@@ -443,6 +444,42 @@ export function PaymentRequestCard({
   };
 
   if (status === "idle") {
+    // Hotels benefit from a richer review step before checkout opens, so the
+    // idle state swaps the generic action card for a full booking summary.
+    if (booking.bookingType === "hotel") {
+      return (
+        <HotelBookingSummaryCard
+          booking={booking.booking}
+          statusLabel="Awaiting payment"
+          summary={`This reservation is already pending. If it looks right, continue to checkout for ${amountLabel}.`}
+          title="Complete your hotel booking"
+          footer={
+            <>
+              <Button
+                disabled={disabled || createPaymentMutation.isPending}
+                onClick={() => {
+                  void handleStartPayment();
+                }}
+                size="sm"
+              >
+                Pay {amountLabel}
+              </Button>
+              <Button
+                disabled={disabled}
+                onClick={() => {
+                  void handleCancel();
+                }}
+                size="sm"
+                variant="outline"
+              >
+                Cancel
+              </Button>
+            </>
+          }
+        />
+      );
+    }
+
     return (
       <ChatActionCard
         cancelDisabled={disabled}

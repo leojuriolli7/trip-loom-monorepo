@@ -1,19 +1,16 @@
 import type {
-  RequestConfirmationInterrupt,
-  RequestConfirmationResume,
-} from "../request-confirmation";
+  RequestCancellationInterrupt,
+  RequestCancellationResume,
+} from "../request-cancellation";
 import type {
   RequestPaymentInterrupt,
   RequestPaymentResume,
 } from "../request-payment";
 
 export type TripLoomInterruptValue =
-  | RequestConfirmationInterrupt
+  | RequestCancellationInterrupt
   | RequestPaymentInterrupt;
 
-export type TripLoomConfirmationResume = RequestConfirmationResume;
-export type TripLoomPaymentResume = RequestPaymentResume;
-
 export type TripLoomResumePayload =
-  | TripLoomConfirmationResume
-  | TripLoomPaymentResume;
+  | RequestCancellationResume
+  | RequestPaymentResume;
