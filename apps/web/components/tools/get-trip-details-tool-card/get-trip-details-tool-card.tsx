@@ -26,17 +26,21 @@ import { formatPaymentAmount } from "@/utils/payments";
 import { BookingStatusBadge } from "./booking-status-badge";
 import { PaymentStatusBadge } from "./payment-status-badge";
 import { SectionHeading } from "./section-heading";
+import { pluralize } from "@/utils/pluralize";
 import {
-  formatDateValue,
   formatEnumLabel,
   formatFlightSchedule,
   formatHotelStaySummary,
   formatPaymentTimestamp,
   formatTripSummary,
-  getActivityTimeLabel,
   getTripImageUrl,
-  pluralize,
 } from "./utils";
+import {
+  createSavedItinerarySheetData,
+  itinerarySheetAtom,
+} from "@/components/itinerary-sheet";
+import { Button } from "@/components/ui/button";
+import { useSetAtom } from "jotai";
 
 type GetTripDetailsToolCardProps = {
   args: TripLoomToolArgsByName<"get_trip_details">;
@@ -44,6 +48,8 @@ type GetTripDetailsToolCardProps = {
 
 export function GetTripDetailsToolCard({ args }: GetTripDetailsToolCardProps) {
   const [isOpen, setIsOpen] = useState(false);
+
+  const setItinerarySheetAtom = useSetAtom(itinerarySheetAtom);
 
   const {
     data: tripResult,
@@ -162,7 +168,7 @@ export function GetTripDetailsToolCard({ args }: GetTripDetailsToolCardProps) {
                         description={`${pluralize(
                           trip.flightBookings.length,
                           "flight",
-                        )} currently linked to this trip.`}
+                        )} currently linked to this trip`}
                       />
 
                       <div className="space-y-2.5">
@@ -221,7 +227,7 @@ export function GetTripDetailsToolCard({ args }: GetTripDetailsToolCardProps) {
                           trip.hotelBookings.length,
                           "hotel stay",
                           "hotel stays",
-                        )} currently linked to this trip.`}
+                        )} currently linked to this trip`}
                       />
 
                       <div className="space-y-2.5">
@@ -269,64 +275,25 @@ export function GetTripDetailsToolCard({ args }: GetTripDetailsToolCardProps) {
                       <SectionHeading
                         icon={ClockIcon}
                         title="Itinerary"
-                        description="The day-by-day plan is in place."
+                        description="The day-by-day plan is in place"
                       />
 
-                      <div className="overflow-hidden rounded-2xl">
-                        <div className="divide-y divide-border/50">
-                          {trip.itinerary!.days.map((day) => {
-                            const preview = day.activities
-                              .map((activity) => {
-                                const timeLabel =
-                                  getActivityTimeLabel(activity);
-
-                                if (timeLabel) {
-                                  return `${activity.title} (${timeLabel})`;
-                                }
-
-                                return activity.title;
-                              })
-                              .join(" • ");
-
-                            return (
-                              <article
-                                key={day.id}
-                                className="space-y-2 px-3.5 py-3"
-                              >
-                                <div className="flex flex-wrap items-start justify-between gap-3">
-                                  <div>
-                                    <p className="text-sm font-semibold tracking-tight text-foreground">
-                                      Day {day.dayNumber}
-                                      {day.title ? ` • ${day.title}` : ""}
-                                    </p>
-                                    <p className="text-sm text-muted-foreground">
-                                      {formatDateValue(day.date)}
-                                    </p>
-                                  </div>
-
-                                  <Badge variant="outline">
-                                    {pluralize(
-                                      day.activities.length,
-                                      "activity",
-                                    )}
-                                  </Badge>
-                                </div>
-
-                                <p className="text-sm leading-relaxed text-muted-foreground">
-                                  {preview ||
-                                    "No activities planned for this day yet."}
-                                </p>
-
-                                {day.notes ? (
-                                  <p className="text-sm leading-relaxed text-muted-foreground">
-                                    {day.notes}
-                                  </p>
-                                ) : null}
-                              </article>
-                            );
-                          })}
-                        </div>
-                      </div>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          if (trip.itinerary) {
+                            setItinerarySheetAtom({
+                              isOpen: true,
+                              itinerary: createSavedItinerarySheetData(
+                                trip.itinerary,
+                              ),
+                            });
+                          }
+                        }}
+                        size="sm"
+                      >
+                        Click to see the full trip itinerary
+                      </Button>
                     </section>
                   ) : null}
 
@@ -338,7 +305,7 @@ export function GetTripDetailsToolCard({ args }: GetTripDetailsToolCardProps) {
                         description={`${pluralize(
                           trip.payments.length,
                           "payment",
-                        )} tracked for this trip.`}
+                        )} tracked for this trip`}
                       />
 
                       <div className="overflow-hidden rounded-2xl">

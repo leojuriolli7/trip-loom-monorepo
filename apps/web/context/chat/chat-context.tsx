@@ -95,9 +95,11 @@ export function ChatProvider({
     threadId: tripId,
     initialValues,
     onToolEvent: (toolEvent) => {
+      const eventsToInvalidateTripQueries = ["update_trip", "create_itinerary"];
+
       if (
         toolEvent.event === "on_tool_end" &&
-        toolEvent.name === "update_trip"
+        eventsToInvalidateTripQueries.includes(toolEvent.name)
       ) {
         invalidateTripCaches();
       }

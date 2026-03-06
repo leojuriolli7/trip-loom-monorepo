@@ -2,18 +2,12 @@ import type {
   ItineraryActivityDTO,
   TripDetailDTO,
 } from "@trip-loom/contracts/dto";
-import { format } from "date-fns";
+import { format, isSameDay } from "date-fns";
 import { parseIsoDate } from "@/lib/parse-iso-date";
 import { formatPaymentAmount } from "@/utils/payments";
+import { pluralize } from "@/utils/pluralize";
 
-export function pluralize(
-  count: number,
-  singular: string,
-  plural = `${singular}s`,
-) {
-  return `${count} ${count === 1 ? singular : plural}`;
-}
-
+// Converts enum-like backend values into readable UI labels.
 export function formatEnumLabel(value: string | null | undefined) {
   if (!value) {
     return "Pending";
@@ -24,6 +18,7 @@ export function formatEnumLabel(value: string | null | undefined) {
     .replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
+// Formats an ISO date string for compact trip detail displays.
 export function formatDateValue(date: string | null | undefined) {
   if (!date) {
     return "Date pending";
@@ -38,6 +33,7 @@ export function formatDateValue(date: string | null | undefined) {
   return format(parsedDate, "MMM d, yyyy");
 }
 
+// Formats date-time values while preserving a safe fallback for invalid inputs.
 function formatDateTimeValue(date: Date | string | null | undefined) {
   if (!date) {
     return "Time pending";
@@ -52,6 +48,7 @@ function formatDateTimeValue(date: Date | string | null | undefined) {
   return format(parsedDate, "EEE, MMM d • h:mm a");
 }
 
+// Collapses optional itinerary start and end times into a single label.
 export function getActivityTimeLabel(activity: ItineraryActivityDTO) {
   if (activity.startTime && activity.endTime) {
     return `${activity.startTime} - ${activity.endTime}`;
@@ -60,6 +57,7 @@ export function getActivityTimeLabel(activity: ItineraryActivityDTO) {
   return activity.startTime ?? activity.endTime ?? null;
 }
 
+// Picks the best available trip image, falling back to the default artwork.
 export function getTripImageUrl(trip: TripDetailDTO | null | undefined) {
   return (
     trip?.destination?.imagesUrls?.find((image) => image.isCover)?.url ??
@@ -68,18 +66,21 @@ export function getTripImageUrl(trip: TripDetailDTO | null | undefined) {
   );
 }
 
+// Builds the destination label shown in the trip summary header.
 export function getTripDestinationLabel(trip: TripDetailDTO) {
   return trip.destination
     ? `${trip.destination.name}, ${trip.destination.country}`
     : "Destination pending";
 }
 
+// Summarizes whether the trip already has an itinerary attached.
 export function formatItinerarySummary(trip: TripDetailDTO) {
   return trip.itinerary?.days.length
     ? "itinerary planned"
     : "no itinerary planned";
 }
 
+// Combines destination, dates, and booking counts into the collapsed card summary.
 export function formatTripSummary(trip: TripDetailDTO, tripDates: string) {
   const planParts = [
     pluralize(trip.flightBookings.length, "flight"),
@@ -90,6 +91,7 @@ export function formatTripSummary(trip: TripDetailDTO, tripDates: string) {
   return `${getTripDestinationLabel(trip)}. ${tripDates}. ${planParts.join(", ")}.`;
 }
 
+// Formats a flight schedule with a shorter same-day layout when possible.
 export function formatFlightSchedule(
   departureTime: Date | string,
   arrivalTime: Date | string,
@@ -101,12 +103,9 @@ export function formatFlightSchedule(
     return `${formatDateTimeValue(departureTime)} to ${formatDateTimeValue(arrivalTime)}`;
   }
 
-  const isSameDay =
-    departure.getFullYear() === arrival.getFullYear() &&
-    departure.getMonth() === arrival.getMonth() &&
-    departure.getDate() === arrival.getDate();
+  const isSameDayDate = isSameDay(departure, arrival);
 
-  if (isSameDay) {
+  if (isSameDayDate) {
     return `${format(departure, "EEE, MMM d")} • ${format(
       departure,
       "h:mm a",
@@ -119,6 +118,7 @@ export function formatFlightSchedule(
   )}`;
 }
 
+// Summarizes hotel stay timing, length, and nightly rate on one line.
 export function formatHotelStaySummary(
   booking: TripDetailDTO["hotelBookings"][number],
 ) {
@@ -130,6 +130,7 @@ export function formatHotelStaySummary(
   )}/night`;
 }
 
+// Normalizes payment timestamps through the shared date-time formatter.
 export function formatPaymentTimestamp(date: Date | string) {
   return formatDateTimeValue(date);
 }

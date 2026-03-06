@@ -3,6 +3,7 @@ import { getServerSession } from "@/lib/api/server-session";
 import { ChatShellLayout } from "@/components/chat-shell-layout";
 import { UserPreferencesDialog } from "@/components/user-preferences-dialog";
 import { DestinationDetailDialog } from "@/components/destination-detail-dialog";
+import { ItinerarySheet } from "@/components/itinerary-sheet";
 
 export default async function ChatLayout({
   children,
@@ -19,6 +20,7 @@ export default async function ChatLayout({
     <>
       <UserPreferencesDialog />
       <DestinationDetailDialog />
+      <ItinerarySheet />
       <ChatShellLayout>{children}</ChatShellLayout>
     </>
   );
