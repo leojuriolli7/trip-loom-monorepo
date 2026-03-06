@@ -98,24 +98,36 @@ pnpm dev:web      # Next.js app
 ## Project TODOs
 
 ### Product and UX
-- [x] Airplane seat picker flow and flight-specific tools. Done but some feedback:
+
+#### Flight Booking
   - [ ] The suggested flights card should separate outbound list from inbound list
   - [ ] Any way to render price of flight inside airplane seat viewer?
-- [ ] Itinerary cards: Same card dealing with created + updated with streaming handling: While tool is streaming, render loading message to tool card
-- [ ] Improve UI per trip stage: upcoming/current/past with different widgets visible (like weather widget -- or `get_weather` tool?), for completed trip block chat and show a widget talking about how trip was over, "how was your trip?" feedback card for emailing us + CTA to start planning a new trip...
-- [ ] Agents not using web-search enough -- especially itinerary agent
-- [ ] Get trip details card can just open a global trip details sheet, instead of collapsible each time, to save on DOM size. Plus show quick itinerary summary in itinerary section: "N activities planned" is enough. then we can have a button on topbar to toggle this sheet too + delete button + archive button 
-- [ ] Update sidebar to render all trips together with a badge distinguishing status + archived section
-- [ ] Destination suggestions comes with custom descriptions. this needs to be highlighted in some way. Currently, the description is cut off by the char limit in the destination-card. We could rework the ui to not use carousels or add a tooltip to destination-card.
-- [ ] Add follow-up suggestion prompts above chat input
-- [ ] Allow filtering by multiple amenities or highlights at once in. list hotels/destinations
-- [ ] Option to book multiple hotels/flights for a trip
+  
+#### Itineraries
+- [ ] Itinerary tool cards: Same card dealing with created + updated with streaming handling: While tool is streaming, render loading message to tool card
 - [ ] Add images and sources for each activity for itineraries
+
+#### Payments
 - [ ] Inconsistent "payment succesful" card: sometimes is visible immediately. Other times it's not visible during chat when payment finalizes, form disappears and card confirming it doesn't appear but appears after chat history refresh -- it should appear immediately.
 
+#### Trips UI
+- [ ] Improve UI per trip stage: upcoming/current/past with different widgets visible (like weather widget -- or `get_weather` tool?), for completed trip block chat and show a widget talking about how trip was over, "how was your trip?" feedback card for emailing us + CTA to start planning a new trip...
+- [ ] Get trip details card can just open a global trip details sheet, instead of collapsible each time, to save on DOM size. Plus show quick itinerary summary in itinerary section: "N activities planned" is enough. then we can have a button on topbar to toggle this sheet too + delete button + archive button
+- [ ] Update sidebar to render all trips together with a badge distinguishing status + archived section
+
+#### Destinations UI
+- [ ] Destination suggestions comes with custom descriptions. this needs to be highlighted in some way. Currently, the description is cut off by the char limit in the destination-card. We could rework the ui to not use carousels or add a tooltip to destination-card.
+
+#### Agents
+- [ ] Agents not using web-search enough -- especially itinerary agent
+
+#### API
+- [ ] Allow filtering by multiple amenities or highlights at once in. list hotels/destinations
+- [ ] Option to book multiple hotels/flights for a trip
 
 ### Agents and Orchestration
 
+- [ ] Add follow-up suggestion prompts above chat input
 - [ ] Refine system prompts from real conversation test runs
 - [ ] Read MCP resources and tools more, eg: Check user past trips for context before proceeding, call get_trip_details and so on...
 - [ ] Wire PostgresStore: read/write user preferences namespaced by userId
