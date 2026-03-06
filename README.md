@@ -99,7 +99,7 @@ pnpm dev:web      # Next.js app
 
 ### Product and UX
 - [ ] Build complete card UI coverage for remaining MCP tool calls
-  - [ ] Get Trip Details
+  - [x] Get Trip Details
   - [x] Transferring back and forth
   - [ ] Airplane seat picker flow and flight-specific tools
 - [ ] Improve UI per trip stage: upcoming/current/past with different widgets visible (like weather widget -- or `get_weather` tool?), for completed trip block chat and show a widget talking about how trip was over, "how was your trip?" feedback card for emailing us + CTA to start planning a new trip...
@@ -107,6 +107,7 @@ pnpm dev:web      # Next.js app
 - [ ] Allow filtering by multiple amenities or highlights at once in. list hotels/destinations
 - [ ] Option to book multiple hotels/flights for a trip
 - [ ] Add images and sources for each activity for itineraries
+- [ ] Get trip details card can just open a global trip details sheet, instead of collapsible each time.
 
 ### Agents and Orchestration
 

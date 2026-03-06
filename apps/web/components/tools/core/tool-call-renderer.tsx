@@ -8,6 +8,7 @@ import { SearchDestinationsToolCard } from "../search-destinations-card";
 import { UpdateTripToolCallCard } from "../update-trip-tool-card";
 import { GetDestinationDetailsToolCard } from "../get-destination-details-tool-card";
 import { SearchHotelsToolCard } from "../search-hotels-card";
+import { GetTripDetailsToolCard } from "../get-trip-details-tool-card/get-trip-details-tool-card";
 import {
   transferToolNames,
   TransferAgentToolCard,
@@ -47,6 +48,8 @@ export function ToolCallRenderer({ toolCall }: { toolCall: TripLoomToolCall }) {
   }
 
   switch (toolCall.name) {
+    case "get_trip_details":
+      return <GetTripDetailsToolCard args={toolCall.args} />;
     case "get_user_preferences":
       return <UserPreferencesToolCard args={toolCall.args} />;
     case "suggest_itinerary":
