@@ -30,7 +30,6 @@ export type AirportSummaryDTO = z.infer<typeof airportSummarySchema>;
 
 export const flightSeatSchema = z.object({
   id: z.string().min(2).max(8),
-  priceInCents: z.number().int().min(0),
   isBooked: z.boolean(),
 });
 
@@ -62,6 +61,7 @@ export type FlightSearchQuery = z.infer<typeof flightSearchSchema>;
 
 export const flightOptionSchema = z.object({
   id: z.string(),
+  priceInCents: z.number().int().min(0),
   flightNumber: z.string(),
   airline: z.string(),
   departureAirportCode: z.string(),

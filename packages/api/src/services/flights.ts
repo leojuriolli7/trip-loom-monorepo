@@ -160,7 +160,6 @@ export async function getFlightBooking(
       cabinClass: booking.cabinClass,
     }),
     cabinClass: booking.cabinClass,
-    baseSeatPriceInCents: booking.priceInCents,
   });
 
   return {

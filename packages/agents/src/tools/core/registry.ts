@@ -1,6 +1,7 @@
 import type { DynamicStructuredTool } from "@langchain/core/tools";
 import { requestCancellationTool } from "../request-cancellation";
 import { requestPaymentTool } from "../request-payment";
+import { requestSeatSelectionTool } from "../request-seat-selection";
 import { suggestDestinationsTool } from "../suggest-destinations";
 import { suggestFlightTool } from "../suggest-flight";
 import { suggestHotelBookingTool } from "../suggest-hotel-booking";
@@ -54,7 +55,7 @@ const AGENT_TOOL_REGISTRY = {
   },
   flight: {
     mcp: FLIGHT_MCP_TOOLS,
-    local: [suggestFlightTool] as const,
+    local: [suggestFlightTool, requestSeatSelectionTool] as const,
   },
   hotel: {
     mcp: HOTEL_MCP_TOOLS,
@@ -77,6 +78,7 @@ export type TripLoomToolName = TripLoomMcpToolName | TripLoomLocalToolName;
 const TRIP_LOOM_LOCAL_TOOL_NAMES = [
   requestCancellationTool.name,
   requestPaymentTool.name,
+  requestSeatSelectionTool.name,
   suggestDestinationsTool.name,
   suggestFlightTool.name,
   suggestHotelBookingTool.name,

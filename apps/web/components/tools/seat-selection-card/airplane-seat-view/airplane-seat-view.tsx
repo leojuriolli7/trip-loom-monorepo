@@ -11,7 +11,6 @@ import {
   PlaneIcon,
 } from "lucide-react";
 
-import { calculatePriceTiers, getPriceTier } from "./utils";
 import { SeatButton } from "./seat-button";
 import { cn } from "@/lib/utils";
 
@@ -28,17 +27,14 @@ interface AirplaneSeatViewProps {
   flight: FlightOptionDTO;
   /**
    * Called when user confirms seat selection.
-   * TODO: Will trigger AI booking flow
    */
-  onConfirm: (seatId: string, seatPriceInCents: number) => void;
+  onConfirm: (seatId: string) => void;
   /**
    * Called when user cancels seat selection.
-   * TODO: Will close the seat picker widget
    */
   onCancel: () => void;
   /**
    * Called when user wants to request changes.
-   * TODO: Will send message to AI for different options
    */
   onRequestChanges?: (message: string) => void;
 }
@@ -90,12 +86,6 @@ export function AirplaneSeatView({
     }
   }, [onRequestChanges]);
 
-  // Calculate price statistics for color coding
-  const priceStats = React.useMemo(
-    () => calculatePriceTiers(seatMap),
-    [seatMap],
-  );
-
   // Find selected seat data
   const selectedSeat = React.useMemo(() => {
     if (!selectedSeatId) return null;
@@ -116,13 +106,11 @@ export function AirplaneSeatView({
 
   const handleConfirm = React.useCallback(() => {
     if (selectedSeat && onConfirm) {
-      // TODO: This will trigger the AI booking flow
-      onConfirm(selectedSeat.id, selectedSeat.priceInCents);
+      onConfirm(selectedSeat.id);
     }
   }, [selectedSeat, onConfirm]);
 
   const handleCancel = React.useCallback(() => {
-    // TODO: This will close the seat picker widget
     if (onCancel) {
       onCancel();
     }
@@ -136,7 +124,6 @@ export function AirplaneSeatView({
 
   const handleSubmitChanges = React.useCallback(() => {
     if (changeMessage.trim() && onRequestChanges) {
-      // TODO: This will send the message to AI for different seat options
       onRequestChanges(changeMessage.trim());
       setChangeMessage("");
       setShowChangeInput(false);
@@ -164,14 +151,6 @@ export function AirplaneSeatView({
       section.map((seat) => seat.id.replace(/[0-9]/g, "")),
     );
   }, [seatMap]);
-
-  const selectedSeatPriceLabel = React.useMemo(() => {
-    if (!selectedSeat) return "$0.00";
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(selectedSeat.priceInCents / 100);
-  }, [selectedSeat]);
 
   return (
     <div className="flex w-full max-w-md flex-col overflow-hidden rounded-2xl border border-border/60 bg-card">
@@ -261,10 +240,6 @@ export function AirplaneSeatView({
                             key={seat.id}
                             seat={seat}
                             isSelected={seat.id === selectedSeatId}
-                            priceTier={getPriceTier(
-                              seat.priceInCents,
-                              priceStats,
-                            )}
                             onSelect={handleSeatSelect}
                           />
                         ))}
@@ -340,13 +315,6 @@ export function AirplaneSeatView({
           <div className="text-center">
             <span className="text-xs text-muted-foreground">Flight No</span>
             <p className="font-semibold">{flightInfo.flightNumber}</p>
-          </div>
-
-          <div className="text-right">
-            <span className="text-xs text-muted-foreground">Total Price</span>
-            <p className="font-semibold text-primary">
-              {selectedSeatPriceLabel}
-            </p>
           </div>
         </div>
 

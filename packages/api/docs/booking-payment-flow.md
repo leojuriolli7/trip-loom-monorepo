@@ -34,6 +34,27 @@ Bookings are created first as provisional records. Payment completion is what fi
      - payment becomes `failed`
      - booking remains `pending`
 
+## Idempotency
+
+Both `POST /api/trips/:id/flights` and `POST /api/trips/:id/hotels` are idempotent for active bookings:
+
+- Before inserting, the service checks for an existing non-cancelled booking with the same key (hotel: `tripId + hotelId`, flight: `tripId + flightNumber + departureTime`).
+- If found, returns the existing booking with HTTP **200** instead of creating a duplicate.
+- New bookings return HTTP **201**.
+- A partial unique index at the DB level (`WHERE status != 'cancelled'`) enforces this as a last line of defense.
+
+This matters for the AI agent flow where graph re-execution after payment interrupts can cause duplicate booking attempts.
+
+## AI Agent Integration
+
+The AI agent system (LangGraph) drives booking creation through MCP tools. See `docs/ai/ai-booking-flow.md` for the full agent flow, tool ownership rules, and HITL interrupt mechanics.
+
+Key points for API consumers:
+- Bookings are always created as `pending` by sub-agents (hotel_agent, flight_agent)
+- Payment is triggered separately by the supervisor agent via a `request_payment` interrupt
+- The frontend handles Stripe checkout and resumes the graph with the payment result
+- Cancellation requires explicit user confirmation via a `request_cancellation` interrupt
+
 ## Refund Flow
 
 1. Request refund:

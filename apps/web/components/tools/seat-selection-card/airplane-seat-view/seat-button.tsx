@@ -3,31 +3,18 @@
 import * as React from "react";
 import type { FlightSeat } from "@trip-loom/contracts/dto";
 import { cn } from "@/lib/utils";
-import { priceTierColors, type PriceTier } from "./utils";
 
 interface SeatButtonProps {
   seat: FlightSeat;
   isSelected: boolean;
-  priceTier: PriceTier;
   onSelect: (seat: FlightSeat) => void;
 }
 
 export const SeatButton = React.memo(function SeatButton({
   seat,
   isSelected,
-  priceTier,
   onSelect,
 }: SeatButtonProps) {
-  const priceLabel = React.useMemo(
-    () =>
-      new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-        maximumFractionDigits: 0,
-      }).format(seat.priceInCents / 100),
-    [seat.priceInCents],
-  );
-
   const handleClick = React.useCallback(() => {
     if (!seat.isBooked) {
       onSelect(seat);
@@ -39,7 +26,7 @@ export const SeatButton = React.memo(function SeatButton({
       type="button"
       onClick={handleClick}
       disabled={seat.isBooked}
-      aria-label={`Seat ${seat.id}, ${seat.isBooked ? "booked" : priceLabel}`}
+      aria-label={`Seat ${seat.id}, ${seat.isBooked ? "booked" : "available"}`}
       aria-pressed={isSelected}
       className={cn(
         "relative flex h-12 w-11 flex-col items-center justify-center rounded-lg transition-all duration-200",
@@ -73,18 +60,6 @@ export const SeatButton = React.memo(function SeatButton({
       >
         {seat.id}
       </span>
-      {!seat.isBooked && (
-        <span
-          className={cn(
-            "text-[9px] font-semibold tabular-nums",
-            isSelected
-              ? "text-primary-foreground/90"
-              : priceTierColors[priceTier],
-          )}
-        >
-          {priceLabel}
-        </span>
-      )}
     </button>
   );
 });

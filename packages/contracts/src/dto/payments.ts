@@ -84,6 +84,15 @@ export type RequestCancellationToolResult = z.infer<
   typeof requestCancellationToolResultSchema
 >;
 
+export const requestSeatSelectionToolResultSchema = z.object({
+  type: z.literal("request-seat-selection-result"),
+  seatId: z.string().nullable(),
+});
+
+export type RequestSeatSelectionToolResult = z.infer<
+  typeof requestSeatSelectionToolResultSchema
+>;
+
 export const refundPaymentInputSchema = z.object({
   amountInCents: z.number().int().positive().optional(),
   reason: z.string().trim().min(1).max(120).optional(),

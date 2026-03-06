@@ -162,6 +162,7 @@ export async function streamChatResponse(
     encoding: "text/event-stream",
     streamMode: ["values", "messages", "tools"],
     configurable: { thread_id: threadId },
+    recursionLimit: 100,
   });
 
   return {
@@ -198,6 +199,7 @@ export async function resumeChatResponse(
     encoding: "text/event-stream",
     streamMode: ["values", "messages", "tools"],
     configurable: { thread_id: threadId },
+    recursionLimit: 100,
   });
 
   return {

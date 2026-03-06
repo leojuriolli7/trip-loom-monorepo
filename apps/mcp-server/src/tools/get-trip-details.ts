@@ -11,7 +11,7 @@ export function registerGetTripDetails(
     {
       title: "Get Trip Details",
       description:
-        "Retrieve full details for a specific trip by its ID. Returns the trip info along with its destination, flight bookings, hotel bookings, itinerary (with daily activities), and payment records. Use this to inspect or summarize a user's trip.",
+        "Retrieve full details for a specific trip by its ID. Returns the trip info along with its destination, flight bookings, hotel bookings, itinerary (with daily activities), and payment records. The frontend renders a rich visual card from the tool call, so when a user asks to see their trip details or wants a summary of the current trip state, call this tool — the card will show them everything at a glance.",
       inputSchema: z.object({
         tripId: z.string().describe("The unique ID of the trip to retrieve"),
       }),

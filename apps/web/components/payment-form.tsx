@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { formatPriceInCents } from "@/utils/format-price-in-cents";
 
 // Initialize Stripe once
 let stripePromise: Promise<Stripe | null> | null = null;
@@ -179,13 +180,6 @@ function PaymentFormInner({
   // higher-level lifecycle errors such as create-intent or webhook polling.
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
-  const formatPrice = (cents: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: currency.toUpperCase(),
-    }).format(cents / 100);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -222,7 +216,8 @@ function PaymentFormInner({
   };
 
   const isReady = stripe && elements;
-  const buttonText = submitText ?? `Pay ${formatPrice(amountInCents)}`;
+  const buttonText =
+    submitText ?? `Pay ${formatPriceInCents(amountInCents, currency)}`;
 
   return (
     <form onSubmit={handleSubmit} className={cn("space-y-4", className)}>

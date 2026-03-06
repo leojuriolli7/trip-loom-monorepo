@@ -15,6 +15,7 @@ import { isRenderableAssistantToolCall, ToolCallRenderer } from "../tools";
 import { ToolMessageRenderer } from "../tools/core/tool-message-renderer";
 import { CancellationRequestCard } from "../tools/cancellation-request-card";
 import { PaymentRequestCard } from "../tools/payment-request-card";
+import { SeatSelectionCard } from "../tools/seat-selection-card";
 import {
   WebSearchToolCallCard,
   type WebSearchToolCall,
@@ -150,13 +151,43 @@ export function ChatConversation() {
           return null;
         })}
 
-        {stream.interrupts.length > 0 && (
+        {stream.interrupts.map((interrupt, index) => {
+          const value = interrupt.value;
+          const key = interrupt.id ?? `interrupt-${index}`;
+
+          if (value?.type === "request-seat-selection") {
+            return (
+              <SeatSelectionCard
+                key={key}
+                value={value}
+                disabled={stream.isLoading}
+                onConfirm={(seatId) =>
+                  submitResume({ seatId })
+                }
+                onCancel={() =>
+                  submitResume({ seatId: null })
+                }
+              />
+            );
+          }
+
+          return null;
+        })}
+
+        {stream.interrupts.some(
+          (i) =>
+            i.value?.type !== "request-seat-selection",
+        ) && (
           <div className="space-y-3 rounded-lg border border-border/60 bg-card p-4">
             <h3 className="text-sm font-medium">Awaiting confirmation</h3>
 
             {stream.interrupts.map((interrupt, index) => {
               const value = interrupt.value;
               const key = interrupt.id ?? `interrupt-${index}`;
+
+              if (value?.type === "request-seat-selection") {
+                return null;
+              }
 
               if (value?.type === "request-cancellation") {
                 return (

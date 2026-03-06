@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { RequestPaymentResume } from "@trip-loom/agents";
 import { AlertCircleIcon } from "lucide-react";
 import { PaymentFormWithProvider } from "@/components/payment-form";
+import { FlightBookingSummaryCard } from "@/components/tools/flight-booking-summary-card";
 import { HotelBookingSummaryCard } from "@/components/tools/hotel-booking-summary-card";
 import { ToolCallCard } from "@/components/tools/tool-call-card";
 import { Badge } from "@/components/ui/badge";
@@ -444,8 +445,42 @@ export function PaymentRequestCard({
   };
 
   if (status === "idle") {
-    // Hotels benefit from a richer review step before checkout opens, so the
-    // idle state swaps the generic action card for a full booking summary.
+    // Hotels and flights benefit from a richer review step before checkout opens,
+    // so the idle state swaps the generic action card for a full booking summary.
+    if (booking.bookingType === "flight") {
+      return (
+        <FlightBookingSummaryCard
+          booking={booking.booking}
+          statusLabel="Awaiting payment"
+          summary={`This flight is already booked and pending. If it looks right, continue to checkout for ${amountLabel}.`}
+          title="Complete your flight booking"
+          footer={
+            <>
+              <Button
+                disabled={disabled || createPaymentMutation.isPending}
+                onClick={() => {
+                  void handleStartPayment();
+                }}
+                size="sm"
+              >
+                Pay {amountLabel}
+              </Button>
+              <Button
+                disabled={disabled}
+                onClick={() => {
+                  void handleCancel();
+                }}
+                size="sm"
+                variant="outline"
+              >
+                Cancel
+              </Button>
+            </>
+          }
+        />
+      );
+    }
+
     if (booking.bookingType === "hotel") {
       return (
         <HotelBookingSummaryCard

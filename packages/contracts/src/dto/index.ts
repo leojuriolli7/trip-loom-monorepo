@@ -54,6 +54,8 @@ export {
   type RequestPaymentToolResult,
   requestCancellationToolResultSchema,
   type RequestCancellationToolResult,
+  requestSeatSelectionToolResultSchema,
+  type RequestSeatSelectionToolResult,
   type RefundPaymentInput,
 } from "./payments";
 

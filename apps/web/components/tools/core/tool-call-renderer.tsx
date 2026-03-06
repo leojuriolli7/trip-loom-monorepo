@@ -1,12 +1,14 @@
 import type { TripLoomToolCall } from "@trip-loom/agents";
 import { SuggestedItineraryToolCard } from "@/components/tools/suggested-itinerary-tool-card";
 import { SuggestDestinationsToolCard } from "@/components/tools/suggest-destinations-tool-card";
+import { SuggestFlightToolCard } from "@/components/tools/suggest-flight-tool-card";
 import { SuggestHotelBookingToolCard } from "@/components/tools/suggest-hotel-booking-tool-card";
 import { UserPreferencesToolCard } from "@/components/tools/user-preferences-tool-card";
 import { ToolCallJsonFallback } from "./tool-call-json-fallback";
 import { SearchDestinationsToolCard } from "../search-destinations-card";
 import { UpdateTripToolCallCard } from "../update-trip-tool-card";
 import { GetDestinationDetailsToolCard } from "../get-destination-details-tool-card";
+import { SearchFlightsToolCard } from "../search-flights-card";
 import { SearchHotelsToolCard } from "../search-hotels-card";
 import { GetTripDetailsToolCard } from "../get-trip-details-tool-card/get-trip-details-tool-card";
 import {
@@ -24,9 +26,11 @@ import {
  * tool calls that can be rendered directly from their args.
  */
 const NON_RENDERABLE_ASSISTANT_TOOL_CALL_NAMES = new Set([
+  "book_flight",
   "create_hotel_booking",
   "request_cancellation",
   "request_payment",
+  "request_seat_selection",
 ]);
 
 /**
@@ -64,6 +68,10 @@ export function ToolCallRenderer({ toolCall }: { toolCall: TripLoomToolCall }) {
       return <GetDestinationDetailsToolCard args={toolCall.args} />;
     case "update_trip":
       return <UpdateTripToolCallCard args={toolCall.args} />;
+    case "suggest_flight":
+      return <SuggestFlightToolCard args={toolCall.args} />;
+    case "search_flights":
+      return <SearchFlightsToolCard args={toolCall.args} />;
     case "search_hotels":
       return <SearchHotelsToolCard args={toolCall.args} />;
     default: {
