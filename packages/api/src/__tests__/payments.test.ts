@@ -107,7 +107,9 @@ const seedFixtureData = async () => {
   const secondaryTripId = `${ctx.prefix}trip_secondary`;
 
   const destinationId = `${ctx.prefix}destination`;
-  const hotelId = `${ctx.prefix}hotel`;
+  const pendingHotelId = `${ctx.prefix}hotel_pending_ref`;
+  const refundableHotelId = `${ctx.prefix}hotel_refundable_ref`;
+  const webhookHotelId = `${ctx.prefix}hotel_webhook_ref`;
 
   const pendingFlightBookingId = `${ctx.prefix}flight_pending`;
   const pendingHotelBookingId = `${ctx.prefix}hotel_pending`;
@@ -182,18 +184,44 @@ const seedFixtureData = async () => {
     updatedAt: new Date(baseTime),
   });
 
-  await db.insert(hotel).values({
-    id: hotelId,
-    destinationId,
-    name: "Payment Test Hotel",
-    address: "123 Test Street",
-    rating: 4,
-    amenities: ["wifi", "pool"],
-    priceRange: "moderate",
-    avgPricePerNightInCents: 20_000,
-    createdAt: new Date(baseTime + 1_000),
-    updatedAt: new Date(baseTime + 1_000),
-  });
+  await db.insert(hotel).values([
+    {
+      id: pendingHotelId,
+      destinationId,
+      name: "Payment Test Hotel Pending",
+      address: "123 Test Street",
+      rating: 4,
+      amenities: ["wifi", "pool"],
+      priceRange: "moderate",
+      avgPricePerNightInCents: 20_000,
+      createdAt: new Date(baseTime + 1_000),
+      updatedAt: new Date(baseTime + 1_000),
+    },
+    {
+      id: refundableHotelId,
+      destinationId,
+      name: "Payment Test Hotel Refundable",
+      address: "124 Test Street",
+      rating: 4,
+      amenities: ["wifi", "pool"],
+      priceRange: "moderate",
+      avgPricePerNightInCents: 20_000,
+      createdAt: new Date(baseTime + 1_100),
+      updatedAt: new Date(baseTime + 1_100),
+    },
+    {
+      id: webhookHotelId,
+      destinationId,
+      name: "Payment Test Hotel Webhook",
+      address: "125 Test Street",
+      rating: 4,
+      amenities: ["wifi", "pool"],
+      priceRange: "moderate",
+      avgPricePerNightInCents: 20_000,
+      createdAt: new Date(baseTime + 1_200),
+      updatedAt: new Date(baseTime + 1_200),
+    },
+  ]);
 
   await db.insert(trip).values([
     {
@@ -378,7 +406,7 @@ const seedFixtureData = async () => {
     {
       id: pendingHotelBookingId,
       tripId: primaryTripId,
-      hotelId,
+      hotelId: pendingHotelId,
       paymentId: null,
       checkInDate: dateWithOffset(30),
       checkOutDate: dateWithOffset(33),
@@ -393,7 +421,7 @@ const seedFixtureData = async () => {
     {
       id: refundableHotelBookingId,
       tripId: primaryTripId,
-      hotelId,
+      hotelId: refundableHotelId,
       paymentId: fullRefundPaymentId,
       checkInDate: dateWithOffset(34),
       checkOutDate: dateWithOffset(37),
@@ -408,7 +436,7 @@ const seedFixtureData = async () => {
     {
       id: webhookHotelBookingId,
       tripId: primaryTripId,
-      hotelId,
+      hotelId: webhookHotelId,
       paymentId: null,
       checkInDate: dateWithOffset(38),
       checkOutDate: dateWithOffset(41),
