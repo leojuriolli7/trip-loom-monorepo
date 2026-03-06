@@ -8,6 +8,10 @@ import { SearchDestinationsToolCard } from "../search-destinations-card";
 import { UpdateTripToolCallCard } from "../update-trip-tool-card";
 import { GetDestinationDetailsToolCard } from "../get-destination-details-tool-card";
 import { SearchHotelsToolCard } from "../search-hotels-card";
+import {
+  transferToolNames,
+  TransferAgentToolCard,
+} from "../transfer-agent-tool-card";
 
 /**
  * These tool calls can appear on assistant messages, but their UI belongs to a
@@ -59,7 +63,12 @@ export function ToolCallRenderer({ toolCall }: { toolCall: TripLoomToolCall }) {
       return <UpdateTripToolCallCard args={toolCall.args} />;
     case "search_hotels":
       return <SearchHotelsToolCard args={toolCall.args} />;
-    default:
+    default: {
+      if (transferToolNames.some((name) => toolCall.name === name)) {
+        return <TransferAgentToolCard toolName={toolCall.name} />;
+      }
+
       return <ToolCallJsonFallback toolCall={toolCall} />;
+    }
   }
 }

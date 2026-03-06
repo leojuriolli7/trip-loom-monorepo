@@ -100,7 +100,7 @@ pnpm dev:web      # Next.js app
 ### Product and UX
 - [ ] Build complete card UI coverage for remaining MCP tool calls
   - [ ] Get Trip Details
-  - [ ] Transferring back and forth
+  - [x] Transferring back and forth
   - [ ] Airplane seat picker flow and flight-specific tools
 - [ ] Improve UI per trip stage: upcoming/current/past with different widgets visible (like weather widget -- or `get_weather` tool?), for completed trip block chat and show a widget talking about how trip was over, "how was your trip?" feedback card for emailing us + CTA to start planning a new trip...
 - [ ] Add follow-up suggestion prompts above chat input
