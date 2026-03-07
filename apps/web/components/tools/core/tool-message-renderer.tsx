@@ -53,7 +53,9 @@ function parseToolMessageJson<TSchema extends z.ZodTypeAny>(
   }
 
   try {
-    const parsedContent = JSON.parse(textContent);
+    // Tools return "JSON\n\nAgent instructions" — extract just the JSON portion.
+    const jsonSegment = textContent.split("\n\n")[0] ?? textContent;
+    const parsedContent = JSON.parse(jsonSegment);
     const parsed = schema.safeParse(parsedContent);
 
     return parsed.success ? parsed.data : null;
