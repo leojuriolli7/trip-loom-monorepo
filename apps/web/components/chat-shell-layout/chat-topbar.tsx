@@ -68,7 +68,16 @@ export function ChatTopbar() {
           <SidebarTrigger />
 
           {chatId && status !== "pending" ? (
-            <div className="min-w-0 flex-1">
+            <div
+              role="button"
+              className="min-w-0 flex-1 hover:underline cursor-pointer"
+              onClick={() => {
+                setTripDetailsSheet({
+                  tripId: trip.id,
+                  isOpen: true,
+                });
+              }}
+            >
               <div className="flex min-w-0 items-center gap-2">
                 <p className="truncate font-medium">
                   {trip ? getTripTitle(trip) : ""}

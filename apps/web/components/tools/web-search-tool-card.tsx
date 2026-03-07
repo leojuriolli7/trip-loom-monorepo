@@ -2,8 +2,13 @@
 
 import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
+import { pluralize } from "@/lib/pluralize";
 import { ToolCallCard } from "./tool-call-card";
 
 export type WebSearchToolCall = {
@@ -19,16 +24,11 @@ export function WebSearchToolCallCard({
   const [isOpen, setIsOpen] = useState(true);
   const { action } = toolCall || {};
   const { queries, query } = action || {};
-  const queryList = (queries?.length ? queries : query ? [query] : []).filter(
-    (queryItem): queryItem is string => Boolean(queryItem?.trim()),
-  );
+  const queryList = queries?.length ? queries : query ? [query] : [];
 
   if (queryList.length === 0) return null;
 
-  const formattedQueryText =
-    queryList.length === 1
-      ? "Performed online search"
-      : `Performed ${queryList.length} online searches`;
+  const formattedQueryText = `Performed ${pluralize(queryList.length, "online search", "online searches")}`;
 
   return (
     <ToolCallCard>

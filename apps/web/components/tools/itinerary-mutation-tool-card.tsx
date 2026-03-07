@@ -76,7 +76,7 @@ export function ItineraryMutationToolCard({
       className="bg-linear-to-br from-card via-card to-primary/5"
     >
       <ToolCallCard.Header>
-        <ToolCallCard.Image src="/map.png" alt="Map" />
+        <ToolCallCard.Image src="/calendar.png" alt="Map" />
 
         <ToolCallCard.HeaderContent>
           <ToolCallCard.Title>

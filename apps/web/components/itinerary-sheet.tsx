@@ -161,7 +161,7 @@ export function ItinerarySheet() {
           <div className="relative flex items-start gap-4">
             <div className="relative size-16 shrink-0 rounded-2xl border border-border/60 bg-background/75 p-2">
               <Image
-                src="/map.png"
+                src="/calendar.png"
                 alt=""
                 fill
                 sizes="64px"

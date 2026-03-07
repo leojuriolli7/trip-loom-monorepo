@@ -22,7 +22,7 @@ export function TransferAgentToolCard({ toolName }: { toolName: string }) {
     transfer_to_destination_agent: "/statue-liberty.png",
     transfer_to_flight_agent: "/plane.png",
     transfer_to_itinerary_agent: "/map.png",
-    transfer_back_to_supervisor: "/globe.png",
+    transfer_back_to_supervisor: "/compass.png",
   };
 
   return (

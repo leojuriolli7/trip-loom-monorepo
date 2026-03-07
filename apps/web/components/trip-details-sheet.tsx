@@ -107,7 +107,10 @@ function TripDetailsSheetBody({ trip }: { trip: TripDetailDTO }) {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
           <div className="relative aspect-5/4 w-full overflow-hidden rounded-3xl border border-border/60 bg-secondary/20 sm:w-56">
             <Image
-              src={getCoverImage(trip?.destination?.imagesUrls, "/globe-glass.png")}
+              src={getCoverImage(
+                trip?.destination?.imagesUrls,
+                "/globe-glass.png",
+              )}
               alt={trip.destination?.name ?? "Trip details"}
               fill
               sizes="(max-width: 640px) 100vw, 224px"
@@ -170,7 +173,7 @@ function TripDetailsSheetBody({ trip }: { trip: TripDetailDTO }) {
         ) : (
           <div className="space-y-4">
             {trip.flightBookings.length > 0 ? (
-              <section className="rounded-3xl border border-border/60 bg-card/95 p-5 sm:p-6">
+              <section className="rounded-3xl p-5 sm:p-6">
                 <TripDetailsSectionHeading
                   iconSrc="/plane.png"
                   iconAlt="3D airplane icon"
@@ -185,7 +188,7 @@ function TripDetailsSheetBody({ trip }: { trip: TripDetailDTO }) {
                   {trip.flightBookings.map((flight) => (
                     <article
                       key={flight.id}
-                      className="rounded-2xl bg-background/70 px-3.5 py-3"
+                      className="rounded-2xl bg-background/70 px-3.5 py-3 border border-border/60 bg-card/95 "
                     >
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="min-w-0">
@@ -226,11 +229,11 @@ function TripDetailsSheetBody({ trip }: { trip: TripDetailDTO }) {
             ) : null}
 
             {trip.hotelBookings.length > 0 ? (
-              <section className="rounded-3xl border border-border/60 bg-card/95 p-5 sm:p-6">
+              <section className="rounded-3xl p-5 sm:p-6">
                 <TripDetailsSectionHeading
                   iconSrc="/hotel-bell.png"
                   iconAlt="3D hotel bell icon"
-                  title="Hotel stays"
+                  title="Hotel Stays"
                   description={`${pluralize(
                     trip.hotelBookings.length,
                     "hotel stay",
@@ -242,7 +245,7 @@ function TripDetailsSheetBody({ trip }: { trip: TripDetailDTO }) {
                   {trip.hotelBookings.map((booking) => (
                     <article
                       key={booking.id}
-                      className="rounded-2xl bg-background/70 px-3.5 py-3"
+                      className="rounded-2xl bg-background/70 px-3.5 py-3 border border-border/60 bg-card/95 "
                     >
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="min-w-0">
@@ -279,7 +282,7 @@ function TripDetailsSheetBody({ trip }: { trip: TripDetailDTO }) {
             ) : null}
 
             {trip.payments.length > 0 ? (
-              <section className="rounded-3xl border border-border/60 bg-card/95 p-5 sm:p-6">
+              <section className="rounded-3xl p-5 sm:p-6">
                 <TripDetailsSectionHeading
                   iconSrc="/wallet.png"
                   iconAlt="3D wallet icon"
@@ -294,7 +297,7 @@ function TripDetailsSheetBody({ trip }: { trip: TripDetailDTO }) {
                   {trip.payments.map((payment) => (
                     <article
                       key={payment.id}
-                      className="flex flex-wrap items-start justify-between gap-3 rounded-2xl bg-background/70 px-3.5 py-3"
+                      className="flex flex-wrap items-start justify-between gap-3 rounded-2xl bg-background/70 px-3.5 py-3 border border-border/60 bg-card/95 "
                     >
                       <div className="min-w-0">
                         <p className="text-sm font-semibold tracking-tight text-foreground">
