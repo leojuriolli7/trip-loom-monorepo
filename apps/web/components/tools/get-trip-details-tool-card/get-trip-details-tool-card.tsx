@@ -11,8 +11,8 @@ import { pluralize } from "@/lib/pluralize";
 import {
   getTripActivityCount,
   getTripDestinationLabel,
-  getTripImageUrl,
-} from "@/lib/trip-details";
+} from "@/lib/trip-summary";
+import { getCoverImage } from "@/lib/get-cover-image";
 
 type GetTripDetailsToolCardProps = {
   args: TripLoomToolArgsByName<"get_trip_details">;
@@ -69,7 +69,7 @@ export function GetTripDetailsToolCard({ args }: GetTripDetailsToolCardProps) {
     >
       <ToolCallCard.Header className="gap-4">
         <ToolCallCard.Image
-          src={getTripImageUrl(trip)}
+          src={getCoverImage(trip?.destination?.imagesUrls, "/globe-glass.png")}
           alt={trip.destination?.name ?? "Trip plans"}
           className="rounded-2xl object-cover"
         />

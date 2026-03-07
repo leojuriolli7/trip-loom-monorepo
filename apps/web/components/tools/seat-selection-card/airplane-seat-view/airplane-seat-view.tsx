@@ -2,7 +2,11 @@
 
 import * as React from "react";
 import { format } from "date-fns";
-import type { FlightOptionDTO, FlightSeat } from "@trip-loom/contracts/dto";
+import type {
+  FlightSeat,
+  FlightSeatMap,
+} from "@trip-loom/contracts/dto";
+import type { CabinClass } from "@trip-loom/contracts";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRightIcon,
@@ -13,18 +17,26 @@ import {
 
 import { SeatButton } from "./seat-button";
 import { cn } from "@/lib/utils";
+import { cabinClassLabels } from "@/lib/labels/cabin-class-labels";
+import { formatDurationMinutes } from "@/lib/format-duration";
 
-const CABIN_CLASS_LABELS: Record<FlightOptionDTO["cabinClass"], string> = {
-  economy: "Economy",
-  business: "Business",
-  first: "First Class",
+type SeatViewFlight = {
+  id: string;
+  flightNumber: string;
+  departureAirportCode: string;
+  departureCity: string;
+  departureTime: string;
+  arrivalAirportCode: string;
+  arrivalCity: string;
+  arrivalTime: string;
+  durationMinutes: number;
+  cabinClass: CabinClass;
+  seatMap: FlightSeatMap;
 };
 
 interface AirplaneSeatViewProps {
-  /** Header title */
   title?: string;
-  /** Flight option DTO from API */
-  flight: FlightOptionDTO;
+  flight: SeatViewFlight;
   /**
    * Called when user confirms seat selection.
    */
@@ -49,18 +61,15 @@ export function AirplaneSeatView({
   const seatMap = flight.seatMap;
 
   const flightInfo = React.useMemo(() => {
-    const hours = Math.floor(flight.durationMinutes / 60);
-    const minutes = flight.durationMinutes % 60;
-
     return {
       departureTime: format(new Date(flight.departureTime), "HH:mm"),
       fromCode: flight.departureAirportCode,
       fromCity: flight.departureCity,
-      duration: `${hours}h ${minutes}m`,
+      duration: formatDurationMinutes(flight.durationMinutes),
       arrivalTime: format(new Date(flight.arrivalTime), "HH:mm"),
       toCode: flight.arrivalAirportCode,
       toCity: flight.arrivalCity,
-      cabinClass: CABIN_CLASS_LABELS[flight.cabinClass],
+      cabinClass: cabinClassLabels[flight.cabinClass],
       flightNumber: flight.flightNumber,
     };
   }, [flight]);
@@ -86,35 +95,15 @@ export function AirplaneSeatView({
     }
   }, [onRequestChanges]);
 
-  // Find selected seat data
-  const selectedSeat = React.useMemo(() => {
-    if (!selectedSeatId) return null;
-    for (const row of seatMap) {
-      for (const section of row.sections) {
-        for (const seat of section) {
-          if (seat.id === selectedSeatId) return seat;
-        }
-      }
-    }
-    return null;
-  }, [seatMap, selectedSeatId]);
-
-  // Handlers
   const handleSeatSelect = React.useCallback((seat: FlightSeat) => {
     setSelectedSeatId(seat.id);
   }, []);
 
   const handleConfirm = React.useCallback(() => {
-    if (selectedSeat && onConfirm) {
-      onConfirm(selectedSeat.id);
+    if (selectedSeatId) {
+      onConfirm(selectedSeatId);
     }
-  }, [selectedSeat, onConfirm]);
-
-  const handleCancel = React.useCallback(() => {
-    if (onCancel) {
-      onCancel();
-    }
-  }, [onCancel]);
+  }, [selectedSeatId, onConfirm]);
 
   const handleRequestChanges = React.useCallback(() => {
     setShowChangeInput(true);
@@ -262,46 +251,42 @@ export function AirplaneSeatView({
       </div>
 
       <div className="border-t border-border/60 bg-card p-4">
-        {flightInfo && (
-          <div className="mb-4 flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2.5">
-            <div className="text-center">
-              <p className="text-lg font-bold tabular-nums">
-                {flightInfo.departureTime}
-              </p>
-              <p className="text-xs font-semibold text-muted-foreground">
-                {flightInfo.fromCode}
-              </p>
-              <p className="text-[10px] text-muted-foreground/70">
-                {flightInfo.fromCity}
-              </p>
-            </div>
-
-            <div className="flex flex-1 flex-col items-center px-3">
-              <div className="flex w-full items-center gap-1">
-                <div className="h-px flex-1 bg-border" />
-                <PlaneIcon className="size-4 text-primary" />
-                <div className="h-px flex-1 bg-border" />
-              </div>
-              {flightInfo.duration && (
-                <p className="mt-1 text-[10px] text-muted-foreground">
-                  {flightInfo.duration}
-                </p>
-              )}
-            </div>
-
-            <div className="text-center">
-              <p className="text-lg font-bold tabular-nums">
-                {flightInfo.arrivalTime}
-              </p>
-              <p className="text-xs font-semibold text-muted-foreground">
-                {flightInfo.toCode}
-              </p>
-              <p className="text-[10px] text-muted-foreground/70">
-                {flightInfo.toCity}
-              </p>
-            </div>
+        <div className="mb-4 flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2.5">
+          <div className="text-center">
+            <p className="text-lg font-bold tabular-nums">
+              {flightInfo.departureTime}
+            </p>
+            <p className="text-xs font-semibold text-muted-foreground">
+              {flightInfo.fromCode}
+            </p>
+            <p className="text-[10px] text-muted-foreground/70">
+              {flightInfo.fromCity}
+            </p>
           </div>
-        )}
+
+          <div className="flex flex-1 flex-col items-center px-3">
+            <div className="flex w-full items-center gap-1">
+              <div className="h-px flex-1 bg-border" />
+              <PlaneIcon className="size-4 text-primary" />
+              <div className="h-px flex-1 bg-border" />
+            </div>
+            <p className="mt-1 text-[10px] text-muted-foreground">
+              {flightInfo.duration}
+            </p>
+          </div>
+
+          <div className="text-center">
+            <p className="text-lg font-bold tabular-nums">
+              {flightInfo.arrivalTime}
+            </p>
+            <p className="text-xs font-semibold text-muted-foreground">
+              {flightInfo.toCode}
+            </p>
+            <p className="text-[10px] text-muted-foreground/70">
+              {flightInfo.toCity}
+            </p>
+          </div>
+        </div>
 
         <div className="mb-4 flex items-center justify-between text-sm">
           <div>
@@ -310,7 +295,7 @@ export function AirplaneSeatView({
           </div>
           <div className="text-center">
             <span className="text-xs text-muted-foreground">Selected Seat</span>
-            <p className="font-semibold">{selectedSeat?.id ?? "—"}</p>
+            <p className="font-semibold">{selectedSeatId ?? "—"}</p>
           </div>
           <div className="text-center">
             <span className="text-xs text-muted-foreground">Flight No</span>
@@ -343,33 +328,31 @@ export function AirplaneSeatView({
         )}
 
         {!showChangeInput && (
-          <>
-            <div className="flex items-center justify-end gap-2">
-              <Button variant="ghost" size="sm" onClick={handleCancel}>
-                Cancel
-              </Button>
-              {onRequestChanges && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleRequestChanges}
-                  className="gap-1.5"
-                >
-                  <MessageSquareIcon className="size-3.5" />
-                  Request changes
-                </Button>
-              )}
+          <div className="flex items-center justify-end gap-2">
+            <Button variant="ghost" size="sm" onClick={onCancel}>
+              Cancel
+            </Button>
+            {onRequestChanges && (
               <Button
+                variant="outline"
                 size="sm"
-                onClick={handleConfirm}
-                disabled={!selectedSeat}
+                onClick={handleRequestChanges}
                 className="gap-1.5"
               >
-                Confirm
-                <ArrowRightIcon className="size-3.5" />
+                <MessageSquareIcon className="size-3.5" />
+                Request changes
               </Button>
-            </div>
-          </>
+            )}
+            <Button
+              size="sm"
+              onClick={handleConfirm}
+              disabled={!selectedSeatId}
+              className="gap-1.5"
+            >
+              Confirm
+              <ArrowRightIcon className="size-3.5" />
+            </Button>
+          </div>
         )}
       </div>
     </div>

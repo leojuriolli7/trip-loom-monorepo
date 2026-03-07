@@ -17,6 +17,7 @@
     "typecheck:web": "pnpm --filter web typecheck",
     "typecheck:api": "pnpm --filter @trip-loom/api typecheck",
     "typecheck:mcp": "pnpm --filter mcp-server typecheck",
+    "typecheck:agents": "pnpm --filter @trip-loom/agents typecheck",
     "test:e2e": "pnpm --filter web test:e2e",
     "test:e2e:ui": "pnpm --filter web test:e2e:ui",
     "test:api": "pnpm --filter @trip-loom/api test",

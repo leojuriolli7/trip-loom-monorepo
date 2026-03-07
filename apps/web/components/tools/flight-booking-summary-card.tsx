@@ -4,7 +4,9 @@ import type { FlightBookingDetailDTO } from "@trip-loom/contracts/dto";
 import { PlaneIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatPaymentAmount } from "@/lib/payments";
+import { formatDurationMinutes } from "@/lib/format-duration";
 import { ToolCallCard } from "./tool-call-card";
+import { cabinClassLabels } from "@/lib/labels/cabin-class-labels";
 
 type FlightBookingSummaryCardProps = {
   booking: FlightBookingDetailDTO;
@@ -15,13 +17,6 @@ type FlightBookingSummaryCardProps = {
   children?: ReactNode;
 };
 
-const CABIN_CLASS_LABELS: Record<FlightBookingDetailDTO["cabinClass"], string> =
-  {
-    economy: "Economy",
-    business: "Business",
-    first: "First Class",
-  };
-
 function formatFlightTime(date: Date) {
   return format(date, "HH:mm");
 }
@@ -30,11 +25,6 @@ function formatFlightDate(date: Date) {
   return format(date, "MMM d, yyyy");
 }
 
-function formatDuration(minutes: number) {
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  return `${hours}h ${mins}m`;
-}
 
 export function FlightBookingSummaryCard({
   booking,
@@ -53,7 +43,7 @@ export function FlightBookingSummaryCard({
               {statusLabel}
             </Badge>
             <Badge variant="outline">
-              {CABIN_CLASS_LABELS[booking.cabinClass]}
+              {cabinClassLabels[booking.cabinClass]}
             </Badge>
             {booking.seatNumber && (
               <Badge variant="outline">Seat {booking.seatNumber}</Badge>
@@ -99,7 +89,7 @@ export function FlightBookingSummaryCard({
                 <div className="h-px flex-1 bg-border" />
               </div>
               <p className="mt-1 text-[10px] text-muted-foreground">
-                {formatDuration(booking.durationMinutes)}
+                {formatDurationMinutes(booking.durationMinutes)}
               </p>
             </div>
 

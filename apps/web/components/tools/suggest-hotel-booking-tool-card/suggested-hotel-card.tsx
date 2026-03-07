@@ -10,29 +10,12 @@ import {
 } from "@/components/ui/tooltip";
 import { amenityLabels } from "@/lib/labels/amenity-labels";
 import { StreamingImage } from "@/components/streaming-image";
+import { formatPrice } from "@/lib/format-price-in-cents";
+import { pluralize } from "@/lib/pluralize";
 
 type SuggestedHotel =
   TripLoomToolArgsByName<"suggest_hotel_booking">["hotels"][number];
 
-function formatNightlyRate(pricePerNight: number, currency: string) {
-  try {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: currency?.toUpperCase(),
-      maximumFractionDigits: 0,
-    }).format(pricePerNight);
-  } catch {
-    return `${currency?.toUpperCase()} ${pricePerNight}`;
-  }
-}
-
-function getAmenitiesCountLabel(count: number) {
-  if (count === 1) {
-    return "1 amenity";
-  }
-
-  return `${count} amenities`;
-}
 
 export function SuggestedHotelCard({ hotel }: { hotel: SuggestedHotel }) {
   const amenities = hotel?.amenities ?? [];
@@ -75,7 +58,7 @@ export function SuggestedHotelCard({ hotel }: { hotel: SuggestedHotel }) {
         <div className="mt-auto flex items-center justify-between gap-3 pt-4">
           {!!hotel?.pricePerNight && !!hotel?.currency ? (
             <p className="text-sm font-semibold text-foreground">
-              {formatNightlyRate(hotel?.pricePerNight, hotel?.currency)}
+              {formatPrice(hotel?.pricePerNight, hotel?.currency)}
               <span className="ml-1 text-xs font-medium text-muted-foreground">
                 /night
               </span>
@@ -89,7 +72,7 @@ export function SuggestedHotelCard({ hotel }: { hotel: SuggestedHotel }) {
                   type="button"
                   className="inline-flex items-center gap-1 rounded-full border border-border/70 bg-background px-2.5 py-1 text-xs font-medium text-muted-foreground"
                 >
-                  {getAmenitiesCountLabel(amenitiesCount)}
+                  {pluralize(amenitiesCount, "amenity", "amenities")}
                   <ChevronRightIcon className="size-3.5" />
                 </button>
               </TooltipTrigger>

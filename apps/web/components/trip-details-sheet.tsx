@@ -25,16 +25,13 @@ import {
 import { tripQueries } from "@/lib/api/react-query/trips";
 import { formatTripDates } from "@/lib/format-trip-dates";
 import { getTripTitle } from "@/lib/get-trip-title";
-import {
-  formatFlightSchedule,
-  formatHotelStaySummary,
-  formatPaymentTimestamp,
-  formatTripSummary,
-  getTripImageUrl,
-} from "@/lib/trip-details";
+import { formatFlightSchedule } from "@/lib/format-flight-schedule";
+import { formatHotelStaySummary } from "@/lib/format-hotel-stay-summary";
+import { formatTripSummary } from "@/lib/trip-summary";
+import { getCoverImage } from "@/lib/get-cover-image";
 import { cabinClassLabels } from "@/lib/labels/cabin-class-labels";
 import { hotelRoomTypeLabels } from "@/lib/labels/hotel-room-type-labels";
-import { formatPaymentAmount } from "@/lib/payments";
+import { formatPaymentAmount, formatPaymentTimestamp } from "@/lib/payments";
 import { pluralize } from "@/lib/pluralize";
 import { ArrowRightIcon } from "lucide-react";
 import { useCallback } from "react";
@@ -110,7 +107,7 @@ function TripDetailsSheetBody({ trip }: { trip: TripDetailDTO }) {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
           <div className="relative aspect-5/4 w-full overflow-hidden rounded-3xl border border-border/60 bg-secondary/20 sm:w-56">
             <Image
-              src={getTripImageUrl(trip)}
+              src={getCoverImage(trip?.destination?.imagesUrls, "/globe-glass.png")}
               alt={trip.destination?.name ?? "Trip details"}
               fill
               sizes="(max-width: 640px) 100vw, 224px"

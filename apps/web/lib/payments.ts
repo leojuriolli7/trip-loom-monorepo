@@ -55,6 +55,16 @@ export function formatPaymentAmount(amountInCents: number, currency: string) {
   }).format(amountInCents / 100);
 }
 
+export function formatPaymentTimestamp(date: Date | string) {
+  const parsedDate = new Date(date);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return typeof date === "string" ? date : "Time pending";
+  }
+
+  return format(parsedDate, "EEE, MMM d • h:mm a");
+}
+
 export function formatPaymentResolvedAt(resolvedAt: string) {
   const date = new Date(resolvedAt);
 

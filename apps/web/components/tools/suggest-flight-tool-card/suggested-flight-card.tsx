@@ -4,21 +4,10 @@ import type { TripLoomToolArgsByName } from "@trip-loom/agents";
 import { ClockIcon, PlaneIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format, isValid } from "date-fns";
+import { formatPrice } from "@/lib/format-price-in-cents";
 
 type SuggestedFlight =
   TripLoomToolArgsByName<"suggest_flight">["flights"][number];
-
-function formatPrice(price: number, currency: string) {
-  try {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: currency?.toUpperCase(),
-      maximumFractionDigits: 0,
-    }).format(price);
-  } catch {
-    return `${currency?.toUpperCase()} ${price}`;
-  }
-}
 
 function formatTime(isoString: string) {
   try {

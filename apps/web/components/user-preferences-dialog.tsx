@@ -10,7 +10,6 @@ import {
   budgetRangeValues,
   travelInterestValues,
   regionValues,
-  CabinClass,
   BudgetRange,
 } from "@trip-loom/contracts/enums";
 import type { UserPreferenceDTO } from "@trip-loom/contracts/dto";
@@ -53,15 +52,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { XIcon } from "lucide-react";
 import { userPreferencesQueries } from "@/lib/api/react-query/user-preferences";
+import { cabinClassLabels } from "@/lib/labels/cabin-class-labels";
 import { atom, useAtom } from "jotai";
 
 export const userPreferencesDialogOpenAtom = atom(false);
 
-const CABIN_CLASS_LABELS: Record<CabinClass, string> = {
-  economy: "Economy",
-  business: "Business",
-  first: "First Class",
-};
 
 const BUDGET_RANGE_LABELS: Record<BudgetRange, string> = {
   budget: "Budget-Friendly",
@@ -320,7 +315,7 @@ function PreferencesForm({
                   <SelectItem value="none">No preference</SelectItem>
                   {cabinClassValues.map((cabin) => (
                     <SelectItem key={cabin} value={cabin}>
-                      {CABIN_CLASS_LABELS[cabin]}
+                      {cabinClassLabels[cabin]}
                     </SelectItem>
                   ))}
                 </SelectContent>
