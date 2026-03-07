@@ -16,10 +16,7 @@ const schema = z.object({
                 .string()
                 .optional()
                 .describe("Brief description of the activity"),
-              startTime: z
-                .string()
-                .optional()
-                .describe("Start time (HH:MM)"),
+              startTime: z.string().optional().describe("Start time (HH:MM)"),
               endTime: z.string().optional().describe("End time (HH:MM)"),
               location: z.string().optional().describe("Activity location"),
             }),
@@ -42,7 +39,7 @@ export const suggestItineraryTool = tool(
       (sum, day) => sum + day.activities.length,
       0,
     );
-    return `Presented a ${input.days.length}-day itinerary with ${totalActivities} activities to the user for review.`;
+    return `Presented a ${input.days.length}-day itinerary with ${totalActivities} activities to the user for review`;
   },
   {
     name: "suggest_itinerary",

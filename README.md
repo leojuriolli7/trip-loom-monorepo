@@ -104,7 +104,6 @@ pnpm dev:web      # Next.js app
   - [ ] Any way to render price of flight inside airplane seat viewer?
   
 #### Itineraries
-- [ ] Itinerary tool cards: Same card dealing with created + updated with streaming handling: While tool is streaming, render loading message to tool card
 - [ ] Add images and sources for each activity for itineraries
 
 #### Trips UI

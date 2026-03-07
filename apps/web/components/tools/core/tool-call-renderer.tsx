@@ -1,4 +1,5 @@
 import type { TripLoomToolCall } from "@trip-loom/agents";
+import { ItineraryMutationToolCard } from "@/components/tools/itinerary-mutation-tool-card";
 import { SuggestedItineraryToolCard } from "@/components/tools/suggested-itinerary-tool-card";
 import { SuggestDestinationsToolCard } from "@/components/tools/suggest-destinations-tool-card";
 import { SuggestFlightToolCard } from "@/components/tools/suggest-flight-tool-card";
@@ -57,7 +58,18 @@ export function ToolCallRenderer({ toolCall }: { toolCall: TripLoomToolCall }) {
     case "get_user_preferences":
       return <UserPreferencesToolCard args={toolCall.args} />;
     case "suggest_itinerary":
-      return <SuggestedItineraryToolCard args={toolCall.args} />;
+      return (
+        <SuggestedItineraryToolCard
+          args={toolCall.args}
+          toolCallId={toolCall.id}
+        />
+      );
+    case "create_itinerary":
+    case "add_itinerary_day":
+    case "add_itinerary_activity":
+    case "update_itinerary_activity":
+    case "delete_itinerary_activity":
+      return <ItineraryMutationToolCard toolCall={toolCall} />;
     case "suggest_destinations":
       return <SuggestDestinationsToolCard args={toolCall.args} />;
     case "suggest_hotel_booking":

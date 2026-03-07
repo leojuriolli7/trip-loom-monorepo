@@ -137,12 +137,12 @@ export function ItinerarySheet() {
     itinerary.source === "suggested" ? "Suggested itinerary" : "Trip itinerary";
   const description =
     itinerary.source === "suggested"
-      ? `A day-by-day draft with ${totalActivities} activities ready to review.`
+      ? `A day-by-day draft with ${totalActivities} activities ready to review`
       : `${pluralize(itinerary.days.length, "day")} with ${pluralize(
           totalActivities,
           "activity",
           "activities",
-        )} currently planned.`;
+        )} currently planned`;
 
   function onOpenChange(nextOpen: boolean) {
     setItinerarySheetAtom((prev) => ({

@@ -16,6 +16,7 @@ import React, {
   useMemo,
   useRef,
 } from "react";
+import { itineraryQueries } from "@/lib/api/react-query/itineraries";
 import { tripQueries } from "@/lib/api/react-query/trips";
 import {
   useTypedTripLoomStream,
@@ -67,6 +68,9 @@ export function ChatProvider({
       queryClient.invalidateQueries({
         queryKey: [...tripQueries.base(), "detail", tripId],
       }),
+      queryClient.invalidateQueries({
+        queryKey: itineraryQueries.base(),
+      }),
     ]);
   }, [queryClient, tripId]);
 
@@ -95,7 +99,14 @@ export function ChatProvider({
     threadId: tripId,
     initialValues,
     onToolEvent: (toolEvent) => {
-      const eventsToInvalidateTripQueries = ["update_trip", "create_itinerary"];
+      const eventsToInvalidateTripQueries = [
+        "update_trip",
+        "create_itinerary",
+        "add_itinerary_day",
+        "add_itinerary_activity",
+        "update_itinerary_activity",
+        "delete_itinerary_activity",
+      ];
 
       if (
         toolEvent.event === "on_tool_end" &&

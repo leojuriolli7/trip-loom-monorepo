@@ -88,6 +88,22 @@ export function ChatTopbar() {
               variant="ghost"
               size="icon-sm"
               className="rounded-full border border-border/60"
+              aria-label={`Open details for ${getTripTitle(trip)}`}
+              onClick={() =>
+                setTripDetailsSheet({
+                  tripId: trip.id,
+                  isOpen: true,
+                })
+              }
+            >
+              <InfoIcon className="size-4" />
+            </Button>
+
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className="rounded-full border border-border/60"
               aria-label={
                 trip.archived
                   ? `Unarchive ${getTripTitle(trip)}`
@@ -101,22 +117,6 @@ export function ChatTopbar() {
               ) : (
                 <ArchiveIcon className="size-4" />
               )}
-            </Button>
-
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              className="rounded-full border border-border/60"
-              aria-label={`Open details for ${getTripTitle(trip)}`}
-              onClick={() =>
-                setTripDetailsSheet({
-                  tripId: trip.id,
-                  isOpen: true,
-                })
-              }
-            >
-              <InfoIcon className="size-4" />
             </Button>
 
             <DeleteTripButton tripId={trip.id} tripTitle={getTripTitle(trip)} />

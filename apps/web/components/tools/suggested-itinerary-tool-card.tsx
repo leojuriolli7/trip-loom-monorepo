@@ -8,23 +8,35 @@ import {
 } from "@/components/itinerary-sheet";
 import { ToolCallCard } from "@/components/tools/tool-call-card";
 import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
+import { useToolCallProgress } from "@/hooks/use-tool-call-progress";
 
 type SuggestedItineraryArgs = TripLoomToolArgsByName<"suggest_itinerary">;
 
 type ItineraryToolCardProps = {
   args: SuggestedItineraryArgs;
+  toolCallId?: string;
 };
 
-export function SuggestedItineraryToolCard({ args }: ItineraryToolCardProps) {
+export function SuggestedItineraryToolCard({
+  args,
+  toolCallId,
+}: ItineraryToolCardProps) {
   const setItinerarySheetAtom = useSetAtom(itinerarySheetAtom);
+  const { isInProgress } = useToolCallProgress(toolCallId);
   const itinerary = args;
 
-  const totalActivities = itinerary.days.reduce(
-    (sum, day) => sum + day.activities.length,
+  // Args may be partially streamed — guard against missing days
+  const days = itinerary?.days ?? [];
+  const totalActivities = days.reduce(
+    (sum, day) => sum + (day.activities?.length ?? 0),
     0,
   );
+  const isReady = !isInProgress && days.length > 0;
 
   const handleOpenItinerary = () => {
+    if (!isReady) return;
+
     setItinerarySheetAtom({
       isOpen: true,
       itinerary: createSuggestedItinerarySheetData(itinerary),
@@ -40,25 +52,41 @@ export function SuggestedItineraryToolCard({ args }: ItineraryToolCardProps) {
         <ToolCallCard.Image src="/map.png" alt="Map" />
 
         <ToolCallCard.HeaderContent>
-          <ToolCallCard.Title>Built your itinerary draft</ToolCallCard.Title>
-          <ToolCallCard.Description>
-            {`Prepared ${itinerary.days.length} days with ${totalActivities} activities for your review`}
-          </ToolCallCard.Description>
+          <ToolCallCard.Title>
+            {isReady
+              ? "Built your itinerary draft"
+              : "Building your itinerary..."}
+          </ToolCallCard.Title>
+
+          {isReady && (
+            <ToolCallCard.Description>
+              {`Prepared ${days.length} days with ${totalActivities} activities for your review`}
+            </ToolCallCard.Description>
+          )}
         </ToolCallCard.HeaderContent>
       </ToolCallCard.Header>
 
-      <ToolCallCard.Content className="flex justify-between">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline" className="m-0">
-            {itinerary.days.length} days
-          </Badge>
+      <ToolCallCard.Content className="flex items-center justify-between">
+        {!isReady ? (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Spinner />
+            <span>Working on it...</span>
+          </div>
+        ) : (
+          <>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="outline" className="m-0">
+                {days.length} days
+              </Badge>
 
-          <Badge variant="outline">{totalActivities} activities</Badge>
-        </div>
+              <Badge variant="outline">{totalActivities} activities</Badge>
+            </div>
 
-        <ToolCallCard.Button onClick={handleOpenItinerary}>
-          See suggested itinerary
-        </ToolCallCard.Button>
+            <ToolCallCard.Button onClick={handleOpenItinerary}>
+              See suggested itinerary
+            </ToolCallCard.Button>
+          </>
+        )}
       </ToolCallCard.Content>
     </ToolCallCard>
   );

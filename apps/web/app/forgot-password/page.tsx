@@ -6,6 +6,7 @@ import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { z } from "zod";
 import { Check, X, KeyRoundIcon } from "lucide-react";
 import { toast } from "sonner";
+import { Suspense } from "react";
 import Image from "next/image";
 import { motion } from "motion/react";
 
@@ -73,7 +74,7 @@ function PasswordRequirements({ password }: { password: string }) {
   );
 }
 
-export default function ResetPasswordPage() {
+function ForgotPasswordPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
@@ -248,5 +249,13 @@ export default function ResetPasswordPage() {
         </p>
       </motion.div>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense>
+      <ForgotPasswordPage />
+    </Suspense>
   );
 }
