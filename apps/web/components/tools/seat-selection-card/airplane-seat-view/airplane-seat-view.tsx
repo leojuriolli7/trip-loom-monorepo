@@ -19,6 +19,7 @@ import { SeatButton } from "./seat-button";
 import { cn } from "@/lib/utils";
 import { cabinClassLabels } from "@/lib/labels/cabin-class-labels";
 import { formatDurationMinutes } from "@/lib/format-duration";
+import { formatPriceInCents } from "@/lib/format-price-in-cents";
 
 type SeatViewFlight = {
   id: string;
@@ -31,6 +32,7 @@ type SeatViewFlight = {
   arrivalTime: string;
   durationMinutes: number;
   cabinClass: CabinClass;
+  priceInCents?: number;
   seatMap: FlightSeatMap;
 };
 
@@ -301,6 +303,14 @@ export function AirplaneSeatView({
             <span className="text-xs text-muted-foreground">Flight No</span>
             <p className="font-semibold">{flightInfo.flightNumber}</p>
           </div>
+          {flight.priceInCents != null && (
+            <div className="text-right">
+              <span className="text-xs text-muted-foreground">Price</span>
+              <p className="font-semibold text-primary">
+                {formatPriceInCents(flight.priceInCents)}
+              </p>
+            </div>
+          )}
         </div>
 
         {onRequestChanges && showChangeInput && (

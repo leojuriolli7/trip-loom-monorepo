@@ -654,6 +654,9 @@ export const itineraryActivity = pgTable(
     location: text("location"),
     locationUrl: text("location_url"), // Google Maps link
     estimatedCostInCents: integer("estimated_cost_in_cents"),
+    imageUrl: text("image_url"),
+    sourceUrl: text("source_url"),
+    sourceName: text("source_name"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at")
       .notNull()

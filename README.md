@@ -99,17 +99,6 @@ pnpm dev:web      # Next.js app
 
 ### Product and UX
 
-#### UI/UX
-- [ ] Add a "..." indicator while no message started streaming in chat messages
-- [ ] Add animation via motion/react to chat messages like in landing page demo
-
-#### Flight Booking
-- [ ] The suggested flights card should separate outbound list from inbound list
-- [ ] Any way to render price of flight inside airplane seat viewer?
-  
-#### Itineraries
-- [ ] Add images and sources for each activity for itineraries
-
 #### Trips UI
 - [ ] Improve UI per trip stage: upcoming/current/past with different widgets visible (like weather widget -- or `get_weather` tool via OpenMeteo API), for completed trip block chat and show a widget talking about how trip was over, "how was your trip?" feedback card for emailing us + CTA to start planning a new trip...
 

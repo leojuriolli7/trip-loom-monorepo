@@ -5,7 +5,7 @@ import { pluralize } from "@/lib/pluralize";
 import type { ItineraryDetailDTO } from "@trip-loom/contracts/dto";
 import { format } from "date-fns";
 import { atom, useAtom } from "jotai";
-import { ClockIcon, MapPinIcon } from "lucide-react";
+import { ClockIcon, ExternalLinkIcon, MapPinIcon } from "lucide-react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -26,6 +26,9 @@ export type ItinerarySheetActivity = {
   startTime: string | null;
   endTime: string | null;
   location: string | null;
+  imageUrl: string | null;
+  sourceUrl: string | null;
+  sourceName: string | null;
 };
 
 export type ItinerarySheetDay = {
@@ -74,6 +77,22 @@ function getActivityTimeLabel(activity: ItinerarySheetActivity) {
   return activity.startTime ?? activity.endTime ?? null;
 }
 
+function getActivitySourceLabel(activity: ItinerarySheetActivity) {
+  if (activity.sourceName) {
+    return activity.sourceName;
+  }
+
+  if (!activity.sourceUrl) {
+    return null;
+  }
+
+  try {
+    return new URL(activity.sourceUrl).hostname.replace(/^www\./, "");
+  } catch {
+    return "Source";
+  }
+}
+
 export function createSuggestedItinerarySheetData(
   itinerary: SuggestedItineraryArgs,
 ): ItinerarySheetData {
@@ -92,6 +111,9 @@ export function createSuggestedItinerarySheetData(
         startTime: activity.startTime ?? null,
         endTime: activity.endTime ?? null,
         location: activity.location ?? null,
+        imageUrl: activity.imageUrl ?? null,
+        sourceUrl: activity.sourceUrl ?? null,
+        sourceName: activity.sourceName ?? null,
       })),
     })),
   };
@@ -115,6 +137,9 @@ export function createSavedItinerarySheetData(
         startTime: activity.startTime,
         endTime: activity.endTime,
         location: activity.location,
+        imageUrl: activity.imageUrl,
+        sourceUrl: activity.sourceUrl,
+        sourceName: activity.sourceName,
       })),
     })),
   };
@@ -217,14 +242,28 @@ export function ItinerarySheet() {
 
                     {day.activities.map((activity) => {
                       const timeLabel = getActivityTimeLabel(activity);
+                      const sourceLabel = getActivitySourceLabel(activity);
 
                       return (
                         <article
                           key={activity.id}
                           className="rounded-2xl px-4 py-3"
                         >
-                          <div className="flex items-start justify-between gap-4">
-                            <div>
+                          <div className="flex items-start gap-4">
+                            {activity.imageUrl ? (
+                              <div className="size-14 shrink-0 overflow-hidden rounded-2xl border border-border/50 bg-muted/40">
+                                {/* eslint-disable-next-line @next/next/no-img-element -- itinerary thumbnails come from arbitrary third-party sources */}
+                                <img
+                                  src={activity.imageUrl}
+                                  alt={activity.title}
+                                  className="h-full w-full object-cover"
+                                  loading="lazy"
+                                  referrerPolicy="no-referrer"
+                                />
+                              </div>
+                            ) : null}
+
+                            <div className="min-w-0 flex-1">
                               <h4 className="text-[15px] font-semibold leading-snug tracking-tight text-foreground">
                                 {activity.title}
                               </h4>
@@ -237,7 +276,9 @@ export function ItinerarySheet() {
                             </div>
                           </div>
 
-                          {timeLabel || activity.location ? (
+                          {timeLabel ||
+                          activity.location ||
+                          activity.sourceUrl ? (
                             <div className="mt-2.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                               {timeLabel ? (
                                 <Badge variant="outline">
@@ -250,6 +291,19 @@ export function ItinerarySheet() {
                                 <Badge variant="outline">
                                   <MapPinIcon className="size-3.5 shrink-0" />
                                   {activity.location}
+                                </Badge>
+                              ) : null}
+
+                              {activity.sourceUrl ? (
+                                <Badge asChild variant="outline">
+                                  <a
+                                    href={activity.sourceUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >
+                                    <ExternalLinkIcon className="size-3.5 shrink-0" />
+                                    {sourceLabel ?? "Source"}
+                                  </a>
                                 </Badge>
                               ) : null}
                             </div>

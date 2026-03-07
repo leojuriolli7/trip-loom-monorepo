@@ -19,6 +19,18 @@ const schema = z.object({
               startTime: z.string().optional().describe("Start time (HH:MM)"),
               endTime: z.string().optional().describe("End time (HH:MM)"),
               location: z.string().optional().describe("Activity location"),
+              imageUrl: z
+                .string()
+                .optional()
+                .describe("Optional thumbnail image URL for the activity"),
+              sourceUrl: z
+                .string()
+                .optional()
+                .describe("Optional source URL for practical details about the activity"),
+              sourceName: z
+                .string()
+                .optional()
+                .describe("Optional source name for the activity details"),
             }),
           )
           .describe("Activities planned for this day"),
@@ -44,7 +56,7 @@ export const suggestItineraryTool = tool(
   {
     name: "suggest_itinerary",
     description:
-      "Present a proposed itinerary to the user as a visual day-by-day plan. Use this before saving to let the user review and approve the plan. After calling this tool, do not repeat the full plan and do not ask follow-up questions; hand off to the supervisor for user questioning.",
+      "Present a proposed itinerary to the user as a visual day-by-day plan. Use this before saving to let the user review and approve the plan. Include imageUrl, sourceUrl, and sourceName for key activities whenever available. After calling this tool, do not repeat the full plan and do not ask follow-up questions; hand off to the supervisor for user questioning.",
     schema,
   },
 );

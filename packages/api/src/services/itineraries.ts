@@ -229,6 +229,9 @@ export async function createItinerary(
             location: activityInput.location ?? null,
             locationUrl: activityInput.locationUrl ?? null,
             estimatedCostInCents: activityInput.estimatedCostInCents ?? null,
+            imageUrl: activityInput.imageUrl ?? null,
+            sourceUrl: activityInput.sourceUrl ?? null,
+            sourceName: activityInput.sourceName ?? null,
           });
         }
       }
@@ -460,6 +463,9 @@ export async function addActivity(
     location: input.location ?? null,
     locationUrl: input.locationUrl ?? null,
     estimatedCostInCents: input.estimatedCostInCents ?? null,
+    imageUrl: input.imageUrl ?? null,
+    sourceUrl: input.sourceUrl ?? null,
+    sourceName: input.sourceName ?? null,
   });
 
   return getItineraryDetailsByTripId(tripId);
@@ -513,6 +519,15 @@ export async function updateActivity(
   }
   if (input.estimatedCostInCents !== undefined) {
     updateData.estimatedCostInCents = input.estimatedCostInCents;
+  }
+  if (input.imageUrl !== undefined) {
+    updateData.imageUrl = input.imageUrl;
+  }
+  if (input.sourceUrl !== undefined) {
+    updateData.sourceUrl = input.sourceUrl;
+  }
+  if (input.sourceName !== undefined) {
+    updateData.sourceName = input.sourceName;
   }
 
   await db

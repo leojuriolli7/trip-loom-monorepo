@@ -54,13 +54,13 @@ export function SuggestedItineraryToolCard({
         <ToolCallCard.HeaderContent>
           <ToolCallCard.Title>
             {isReady
-              ? "Built your itinerary draft"
+              ? "Drafted an itinerary for you"
               : "Building your itinerary..."}
           </ToolCallCard.Title>
 
           {isReady && (
             <ToolCallCard.Description>
-              {`Prepared ${days.length} days with ${totalActivities} activities for your review`}
+              {`Prepared ${days.length} days with ${totalActivities} activities for your review, ready to commit?`}
             </ToolCallCard.Description>
           )}
         </ToolCallCard.HeaderContent>

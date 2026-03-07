@@ -38,6 +38,9 @@ export const itineraryActivitySelectFields = {
   location: itineraryActivity.location,
   locationUrl: itineraryActivity.locationUrl,
   estimatedCostInCents: itineraryActivity.estimatedCostInCents,
+  imageUrl: itineraryActivity.imageUrl,
+  sourceUrl: itineraryActivity.sourceUrl,
+  sourceName: itineraryActivity.sourceName,
   createdAt: itineraryActivity.createdAt,
   updatedAt: itineraryActivity.updatedAt,
 } as const;
@@ -72,6 +75,9 @@ export const itineraryActivityColumns = {
   location: true,
   locationUrl: true,
   estimatedCostInCents: true,
+  imageUrl: true,
+  sourceUrl: true,
+  sourceName: true,
   createdAt: true,
   updatedAt: true,
 } as const;

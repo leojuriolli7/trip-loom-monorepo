@@ -22,6 +22,9 @@ export const itineraryActivitySchema = z.object({
   location: z.string().nullable(),
   locationUrl: z.string().nullable(),
   estimatedCostInCents: z.number().int().min(0).nullable(),
+  imageUrl: z.string().nullable(),
+  sourceUrl: z.string().nullable(),
+  sourceName: z.string().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -66,6 +69,9 @@ const activityInputSchema = z.object({
   location: z.string().max(500).optional(),
   locationUrl: z.string().url().max(2000).optional(),
   estimatedCostInCents: z.number().int().min(0).optional(),
+  imageUrl: z.string().url().max(2000).optional(),
+  sourceUrl: z.string().url().max(2000).optional(),
+  sourceName: z.string().max(200).optional(),
 });
 
 // Day input (nested in itinerary creation)
@@ -114,6 +120,9 @@ export const createActivityInputSchema = z.object({
   location: z.string().max(500).optional(),
   locationUrl: z.string().url().max(2000).optional(),
   estimatedCostInCents: z.number().int().min(0).optional(),
+  imageUrl: z.string().url().max(2000).optional(),
+  sourceUrl: z.string().url().max(2000).optional(),
+  sourceName: z.string().max(200).optional(),
 });
 
 export type CreateActivityInput = z.infer<typeof createActivityInputSchema>;
@@ -128,6 +137,9 @@ export const updateActivityInputSchema = z.object({
   location: z.string().max(500).nullable().optional(),
   locationUrl: z.string().url().max(2000).nullable().optional(),
   estimatedCostInCents: z.number().int().min(0).nullable().optional(),
+  imageUrl: z.string().url().max(2000).nullable().optional(),
+  sourceUrl: z.string().url().max(2000).nullable().optional(),
+  sourceName: z.string().max(200).nullable().optional(),
 });
 
 export type UpdateActivityInput = z.infer<typeof updateActivityInputSchema>;

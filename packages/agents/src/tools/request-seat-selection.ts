@@ -16,6 +16,11 @@ const requestSeatSelectionInputSchema = z.object({
   arrivalTime: z.string().describe("Arrival time (ISO 8601)"),
   durationMinutes: z.number().describe("Flight duration in minutes"),
   cabinClass: z.enum(cabinClassValues).describe("Cabin class"),
+  priceInCents: z
+    .number()
+    .int()
+    .min(0)
+    .describe("Total flight price in cents from search results"),
   seatMap: flightSeatMapSchema.describe("Full seat map for the picker widget"),
 });
 
@@ -60,6 +65,7 @@ export const requestSeatSelectionTool = tool(
       arrivalTime: input.arrivalTime,
       durationMinutes: input.durationMinutes,
       cabinClass: input.cabinClass,
+      priceInCents: input.priceInCents,
       seatMap: input.seatMap,
     };
 

@@ -1,4 +1,5 @@
 import { tool } from "@langchain/core/tools";
+import { flightTypeValues } from "@trip-loom/contracts";
 import { z } from "zod";
 
 const schema = z.object({
@@ -6,6 +7,9 @@ const schema = z.object({
     .array(
       z.object({
         id: z.string().describe("The flight booking ID or search result ID"),
+        type: z
+          .enum(flightTypeValues)
+          .describe("Whether this is an outbound or inbound (return) flight"),
         airline: z.string().describe("Airline name"),
         origin: z.string().describe("Departure airport or city"),
         destination: z.string().describe("Arrival airport or city"),

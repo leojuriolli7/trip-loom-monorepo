@@ -41,6 +41,23 @@ const activityInputSchema = z.object({
     .min(0)
     .optional()
     .describe("Optional estimated activity cost in cents."),
+  imageUrl: z
+    .string()
+    .url()
+    .max(2000)
+    .optional()
+    .describe("Optional image URL for this activity."),
+  sourceUrl: z
+    .string()
+    .url()
+    .max(2000)
+    .optional()
+    .describe("Optional source URL where activity info was found."),
+  sourceName: z
+    .string()
+    .max(200)
+    .optional()
+    .describe("Optional source name (e.g. 'TripAdvisor', 'Lonely Planet')."),
 });
 
 const dayInputSchema = z.object({

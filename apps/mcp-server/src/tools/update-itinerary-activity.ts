@@ -66,6 +66,26 @@ export function registerUpdateItineraryActivity(
           .nullable()
           .optional()
           .describe("Optional new estimated cost in cents; use null to clear."),
+        imageUrl: z
+          .string()
+          .url()
+          .max(2000)
+          .nullable()
+          .optional()
+          .describe("Optional new image URL; use null to clear."),
+        sourceUrl: z
+          .string()
+          .url()
+          .max(2000)
+          .nullable()
+          .optional()
+          .describe("Optional new source URL; use null to clear."),
+        sourceName: z
+          .string()
+          .max(200)
+          .nullable()
+          .optional()
+          .describe("Optional new source name; use null to clear."),
       }),
     },
     async ({
@@ -80,6 +100,9 @@ export function registerUpdateItineraryActivity(
       location,
       locationUrl,
       estimatedCostInCents,
+      imageUrl,
+      sourceUrl,
+      sourceName,
     }) => {
       const { data, error } = await apiClient.api
         .trips({ id: tripId })
@@ -94,6 +117,9 @@ export function registerUpdateItineraryActivity(
           location,
           locationUrl,
           estimatedCostInCents,
+          imageUrl,
+          sourceUrl,
+          sourceName,
         });
 
       if (error) {

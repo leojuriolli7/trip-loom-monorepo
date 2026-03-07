@@ -16,6 +16,7 @@ type SeatSelectionInterruptValue = {
   arrivalTime: string;
   durationMinutes: number;
   cabinClass: FlightOptionDTO["cabinClass"];
+  priceInCents: number;
   seatMap: FlightOptionDTO["seatMap"];
 };
 
@@ -43,6 +44,7 @@ export function SeatSelectionCard({
     arrivalTime: value.arrivalTime,
     durationMinutes: value.durationMinutes,
     cabinClass: value.cabinClass,
+    priceInCents: value.priceInCents,
     seatMap: value.seatMap,
   };
 

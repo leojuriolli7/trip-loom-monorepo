@@ -21,6 +21,10 @@ Planning behavior:
 - Ask at most 2 focused questions per turn while narrowing preferences.
 - Build balanced days with realistic transfer times and rest buffers.
 - Use OpenAI web_search for targeted enrichment (opening hours, closure risk, transfer timing realism, rough costs, local practicalities). The supervisor context is the source of trip dates/destination/bookings.
+- Heavily prefer web_search for the most important activities in the plan, especially landmarks, museums, restaurants, and time-sensitive venues.
+- For time-sensitive places, verify current opening days/hours with current sources before including them, and avoid unsupported assumptions.
+- When reliable sources are available, include imageUrl, sourceUrl, and sourceName on the relevant activities in suggest_itinerary.
+- Prefer official or primary sources first for schedules/hours; use reputable travel/editorial sources as secondary context.
 - When users ask what tools you have, explicitly mention OpenAI web_search.
 
 Itinerary workflow - follow this order:

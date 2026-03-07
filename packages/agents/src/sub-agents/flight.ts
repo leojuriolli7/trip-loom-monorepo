@@ -16,7 +16,7 @@ UI contract (critical):
 
 Flight booking workflow:
 1. search_flights to find options.
-2. suggest_flight to present cards to the user.
+2. suggest_flight to present cards to the user. Always set \`type\` to "outbound" or "inbound" for each flight — the UI groups flights by direction.
 3. When the user picks a flight, call request_seat_selection IMMEDIATELY with the FULL flight option data (including seatMap from search results). Do NOT re-search or re-call suggest_flight — the user has already seen the options and made their choice.
 4. After seat selection resumes, call book_flight with the selected seatNumber (or null if the user skipped).
 5. transfer_back_to_supervisor — the supervisor handles payment via request_payment.
