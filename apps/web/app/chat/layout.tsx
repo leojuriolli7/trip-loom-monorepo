@@ -19,6 +19,8 @@ export default async function ChatLayout({
 
   return (
     <>
+      <div id="chat-layout-user-name" data-user-name={session.user.name} />
+
       <UserPreferencesDialog />
       <DestinationDetailDialog />
       <ItinerarySheet />

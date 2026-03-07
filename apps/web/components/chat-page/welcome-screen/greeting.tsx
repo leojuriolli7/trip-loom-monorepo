@@ -1,14 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { ArrowUpRightIcon } from "lucide-react";
 import { focusChatInput } from "@/lib/focus-chat-input";
+import { GreetingUserNameScript } from "./greeting-user-name-script";
 
-interface GreetingProps {
-  userName: string;
-}
+export function Greeting() {
+  const [userName] = useState(() => {
+    if (typeof document !== "undefined") {
+      const el = document.getElementById("chat-layout-user-name");
+      return el?.getAttribute("data-user-name") ?? "";
+    }
 
-export function Greeting({ userName }: GreetingProps) {
+    return "";
+  });
+
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return "Good morning";
@@ -30,8 +37,14 @@ export function Greeting({ userName }: GreetingProps) {
                 data-testid="greeting-message"
                 className="text-3xl font-semibold tracking-tight text-foreground lg:text-4xl"
               >
-                {getGreeting()}, {userName}
+                {getGreeting()}
+                <span id="greeting-user-name">
+                  {userName ? `, ${userName}` : ""}
+                </span>
               </h1>
+
+              <GreetingUserNameScript />
+
               <p className="max-w-xl text-base leading-6 text-muted-foreground sm:text-lg sm:leading-7">
                 Where would you like to go next? Let me help you book your
                 perfect trip with richer, better-tailored suggestions.
@@ -46,7 +59,7 @@ export function Greeting({ userName }: GreetingProps) {
           </div>
         </div>
 
-        <div className="mt-6 grid lg:grid-cols-2 gap-4 grid-cols-1 xl:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
           <QuickAction
             icon="/island.png"
             hoverIcon="/japanese-temple.png"
@@ -78,10 +91,6 @@ interface QuickActionProps {
   description: string;
 }
 
-/**
- * TODO: Each one of these could be an MCP prompt implementation, or could
- * just redirect to the chat page, with suggestions there on the input box on what to write...
- */
 function QuickAction({
   icon,
   hoverIcon,
@@ -118,6 +127,7 @@ function QuickAction({
           />
         ) : null}
       </div>
+
       <div className="relative flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="truncate font-medium text-foreground">{title}</span>
         <span className="text-sm text-muted-foreground">{description}</span>

@@ -99,9 +99,13 @@ pnpm dev:web      # Next.js app
 
 ### Product and UX
 
+#### UI/UX
+- [ ] Add a "..." indicator while no message started streaming in chat messages
+- [ ] Add animation via motion/react to chat messages like in landing page demo
+
 #### Flight Booking
-  - [ ] The suggested flights card should separate outbound list from inbound list
-  - [ ] Any way to render price of flight inside airplane seat viewer?
+- [ ] The suggested flights card should separate outbound list from inbound list
+- [ ] Any way to render price of flight inside airplane seat viewer?
   
 #### Itineraries
 - [ ] Add images and sources for each activity for itineraries
