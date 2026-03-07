@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArchiveIcon, InfoIcon } from "lucide-react";
+import { ArchiveIcon, InfoIcon, ArchiveRestoreIcon } from "lucide-react";
 import { useSetAtom } from "jotai";
 import { usePathname } from "next/navigation";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import { tripQueries } from "@/lib/api/react-query/trips";
 import { formatTripDates } from "@/lib/format-trip-dates";
 import { getTripTitle } from "@/lib/get-trip-title";
 
+// Because this shell is rendered outside /chat/:id route, we need this workaround
 function getChatId(pathname: string): string | null {
   if (!pathname.startsWith("/chat/")) {
     return null;
@@ -35,26 +36,28 @@ export function ChatTopbar() {
 
   const trip = tripResult?.data ?? null;
 
-  const handleArchiveTrip = async () => {
-    if (!trip || trip.archived || archiveTripMutation.isPending) {
+  const toggleTripArchived = async (shouldArchive: boolean) => {
+    if (!trip || archiveTripMutation.isPending) {
       return;
     }
 
     try {
       const result = await archiveTripMutation.mutateAsync({
         tripId: trip.id,
-        body: { archived: true },
+        body: { archived: shouldArchive },
       });
 
       if (result.error) {
-        throw new Error("Could not archive trip");
+        throw new Error("Could not toggle archive status");
       }
 
       await queryClient.invalidateQueries({
         queryKey: tripQueries.base(),
       });
     } catch {
-      toast.error("Could not archive this trip. Please try again.");
+      toast.error(
+        "Could not toggle archive status on this trip. Please try again.",
+      );
     }
   };
 
@@ -68,11 +71,11 @@ export function ChatTopbar() {
             <div className="min-w-0 flex-1">
               <div className="flex min-w-0 items-center gap-2">
                 <p className="truncate font-medium">
-                  {trip ? getTripTitle(trip) : "Trip conversation"}
+                  {trip ? getTripTitle(trip) : ""}
                 </p>
               </div>
               <p className="truncate text-sm leading-none text-muted-foreground">
-                {trip ? formatTripDates(trip) : "Trip details unavailable"}
+                {trip ? formatTripDates(trip) : ""}
               </p>
             </div>
           ) : null}
@@ -87,13 +90,17 @@ export function ChatTopbar() {
               className="rounded-full border border-border/60"
               aria-label={
                 trip.archived
-                  ? `${getTripTitle(trip)} is archived`
+                  ? `Unarchive ${getTripTitle(trip)}`
                   : `Archive ${getTripTitle(trip)}`
               }
-              onClick={handleArchiveTrip}
-              disabled={trip.archived || archiveTripMutation.isPending}
+              onClick={() => toggleTripArchived(!trip.archived)}
+              disabled={archiveTripMutation.isPending}
             >
-              <ArchiveIcon className="size-4" />
+              {trip.archived ? (
+                <ArchiveRestoreIcon className="size-4" />
+              ) : (
+                <ArchiveIcon className="size-4" />
+              )}
             </Button>
 
             <Button

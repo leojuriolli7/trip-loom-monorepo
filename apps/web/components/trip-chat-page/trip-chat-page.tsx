@@ -41,17 +41,11 @@ export function TripChatPage() {
   const params = useParams<{ id: string }>();
   const tripId = params.id;
 
-  const { data: tripResult, status: tripStatus } = useQuery({
-    ...tripQueries.getTripById(tripId),
-    enabled: Boolean(tripId),
-  });
+  const { data: historyResult, status: historyStatus } = useQuery(
+    tripQueries.getChatHistory(tripId),
+  );
 
-  const { data: historyResult, status: historyStatus } = useQuery({
-    ...tripQueries.getChatHistory(tripId),
-    enabled: Boolean(tripId),
-  });
-
-  if (tripStatus === "pending" || historyStatus === "pending") {
+  if (historyStatus === "pending") {
     return (
       <div className="flex h-full items-center justify-center">
         <Spinner className="size-6" />
@@ -59,7 +53,7 @@ export function TripChatPage() {
     );
   }
 
-  if (tripStatus === "error" || historyStatus === "error") {
+  if (historyStatus === "error") {
     return (
       <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
         Could not load this chat right now.
@@ -69,8 +63,8 @@ export function TripChatPage() {
 
   return (
     <ChatProvider
-      key={tripResult!.data!.id}
-      tripId={tripResult!.data!.id}
+      key={tripId}
+      tripId={tripId}
       initialMessages={historyResult.messages}
     >
       <div className="relative flex h-full min-h-0 flex-col">

@@ -9,6 +9,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { MapPinIcon } from "lucide-react";
 import type { RecommendedDestinationDTO } from "@trip-loom/contracts/dto";
 import { useQueryClient } from "@tanstack/react-query";
@@ -55,9 +60,6 @@ export function DestinationCard({
     <Card
       className="group cursor-pointer overflow-hidden border-border/60 p-0 transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
       onClick={onClick}
-      /**
-       * Optimization: Prefetch on hover or when touch starts over a card.
-       */
       onMouseOver={prefetchDestinationDetails}
       onTouchStart={prefetchDestinationDetails}
       data-testid={`destination-card-${destination?.id}`}
@@ -88,18 +90,31 @@ export function DestinationCard({
           </CardHeader>
 
           <CardContent className="mt-3 p-0">
-            <p className="line-clamp-2 text-sm leading-relaxed text-white/70">
-              {destination?.description}
-            </p>
+            {destination?.description ? (
+              <Tooltip delayDuration={150}>
+                <TooltipTrigger asChild>
+                  <p className="line-clamp-2 text-sm leading-relaxed text-white/70">
+                    {destination.description}
+                  </p>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="top"
+                  align="start"
+                  className="max-w-xs whitespace-normal text-sm"
+                >
+                  {destination.description}
+                </TooltipContent>
+              </Tooltip>
+            ) : null}
           </CardContent>
 
           {destination?.matchReason && (
             <CardFooter className="mt-3 p-0">
               <Badge
                 variant="secondary"
-                className="border-0 bg-white/15 text-xs font-medium text-white backdrop-blur-sm h-auto whitespace-normal"
+                className="h-auto whitespace-normal border-0 bg-white/15 text-xs font-medium text-white backdrop-blur-sm"
               >
-                {destination?.matchReason}
+                {destination.matchReason}
               </Badge>
             </CardFooter>
           )}

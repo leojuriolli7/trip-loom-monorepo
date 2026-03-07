@@ -107,14 +107,11 @@ pnpm dev:web      # Next.js app
 - [ ] Itinerary tool cards: Same card dealing with created + updated with streaming handling: While tool is streaming, render loading message to tool card
 - [ ] Add images and sources for each activity for itineraries
 
-#### Payments
-- [ ] Add a "payment successful" card in conversation: payment form closes and a card confirming it doesn't appear, something like ToolCallCard + wallet icon + success message to indicate in chat history that payment was successful.
-
 #### Trips UI
 - [ ] Improve UI per trip stage: upcoming/current/past with different widgets visible (like weather widget -- or `get_weather` tool?), for completed trip block chat and show a widget talking about how trip was over, "how was your trip?" feedback card for emailing us + CTA to start planning a new trip...
 
 #### Destinations UI
-- [ ] Destination suggestions comes with custom descriptions. this needs to be highlighted in some way. Currently, the description is cut off by the char limit in the destination-card. We could rework the ui to not use carousels or add a tooltip to destination-card.
+- [ ] Destination suggestions comes with custom descriptions. this needs to be highlighted in some way. Currently, the description is cut off by the char limit in the destination-card. We could rework the ui to not use carousels.
 
 #### Agents
 - [ ] Agents not using web-search enough -- especially itinerary agent
