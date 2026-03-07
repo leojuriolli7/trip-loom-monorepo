@@ -125,7 +125,27 @@ pnpm dev:web      # Next.js app
 - [ ] Add OpenTelemetry spans for agent and MCP execution
 - [ ] Add structured logging coverage for agents messages and tools + MCP tools
 - [ ] Add CI workflow for typecheck/tests on PRs
-- [ ] API rate limits + DB RLS
+- [ ] API rate limits
+- [ ] Add RLS to DB + separate database pools and roles
+    1. Split DB roles first.
+      app_owner for migrations, app_runtime for normal API/MCP business queries, app_internal for
+      Better Auth, OAuth token minting, Stripe webhooks, and LangGraph persistence.
+    2. Stop using the owner connection for normal app queries.
+      Your current drizzle.config.ts:5 can keep using the owner for migrations, but runtime code
+      should move to a non-owner role.
+    3. Add request-scoped DB context for authenticated business queries.
+      Because the app uses one DB login, current_user is not enough. Use transaction-local
+      set_config('app.user_id', ..., true) and policies that read current_setting('app.user_id',
+      true).
+    
+    A safe shape is:
+
+    ```ts
+      await dbRuntime.transaction(async (tx) => {
+        await tx.execute(sql`select set_config('app.user_id', ${userId}, true)`);
+        return runBusinessQuery(tx);
+      });
+    ```
 
 ### Data and Content
 

@@ -5,7 +5,9 @@ export { type RequestSeatSelectionResume } from "./tools/request-seat-selection"
 
 export {
   TRIP_LOOM_TOOL_NAMES,
+  TRANSFER_TOOL_NAMES,
   type TripLoomToolName,
+  type TransferToolName,
 } from "./tools/core";
 
 export type {

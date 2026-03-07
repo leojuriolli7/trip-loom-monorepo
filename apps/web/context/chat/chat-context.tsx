@@ -122,6 +122,8 @@ export function ChatProvider({
       : historyMessages;
   const wasLoadingRef = useRef(stream.isLoading);
 
+  console.log("messages from stream", stream.values?.messages);
+
   useEffect(() => {
     if (wasLoadingRef.current && !stream.isLoading) {
       syncChatHistoryCache(stream.values.messages);

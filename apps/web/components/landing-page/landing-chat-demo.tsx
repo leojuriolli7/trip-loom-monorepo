@@ -124,10 +124,7 @@ function MockSuggestDestinations() {
 
 function MockSuggestHotel() {
   return (
-    <ToolCallCard
-      size="lg"
-      className="border-amber-200/50 bg-linear-to-b from-amber-50/50 to-background shadow-xl shadow-amber-900/5"
-    >
+    <ToolCallCard size="lg" className="shadow-xl shadow-amber-900/5">
       <ToolCallCard.Header className="gap-4">
         <div className="relative size-24 shrink-0 overflow-hidden rounded-2xl border border-amber-200/50 shadow-inner">
           <img
@@ -191,7 +188,7 @@ function MockSuggestHotel() {
 
 function MockItinerary() {
   return (
-    <ToolCallCard size="lg" className="border-emerald-200/50 bg-emerald-50/30">
+    <ToolCallCard size="lg">
       <ToolCallCard.Header>
         <ToolCallCard.Image src="/calendar.png" alt="Itinerary" />
         <ToolCallCard.HeaderContent>

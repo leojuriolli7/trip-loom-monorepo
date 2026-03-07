@@ -19,4 +19,4 @@ plans/*
 opensrc/
 
 # Debugging conversation history
-debug.json
+debug*.json
