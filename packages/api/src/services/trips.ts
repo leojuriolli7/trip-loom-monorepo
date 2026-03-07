@@ -125,7 +125,7 @@ export async function listTrips(
     buildComputedStatusCondition(status),
     destinationId ? eq(trip.destinationId, destinationId) : undefined,
     buildTripSearchCondition(search),
-    buildCursorCondition(cursor, trip.createdAt, trip.id),
+    buildCursorCondition(cursor, trip.updatedAt, trip.id),
   );
 
   const rows = await db
@@ -133,12 +133,15 @@ export async function listTrips(
     .from(trip)
     .leftJoin(destination, eq(trip.destinationId, destination.id))
     .where(whereCondition)
-    .orderBy(...paginationOrderBy(trip.createdAt, trip.id))
+    .orderBy(...paginationOrderBy(trip.updatedAt, trip.id))
     .limit(limit + 1);
 
   return paginate(
     rows.map((row) => mapTripWithDestination(row)),
     limit,
+    {
+      getCursorDate: (item) => item.updatedAt,
+    },
   );
 }
 

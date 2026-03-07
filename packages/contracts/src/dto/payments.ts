@@ -4,6 +4,8 @@ import { paymentStatusValues } from "../enums";
 export const paymentBookingTypeValues = ["flight", "hotel"] as const;
 export const paymentBookingTypeSchema = z.enum(paymentBookingTypeValues);
 
+export type PaymentBookingType = z.infer<typeof paymentBookingTypeSchema>;
+
 export const paymentSchema = z.object({
   id: z.string(),
   tripId: z.string(),

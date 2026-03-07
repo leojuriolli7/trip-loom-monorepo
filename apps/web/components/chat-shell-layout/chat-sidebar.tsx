@@ -1,6 +1,5 @@
 "use client";
 
-import type { TripStatus, TripWithDestinationDTO } from "@trip-loom/contracts/dto";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { MessageSquarePlusIcon } from "lucide-react";
 import Image from "next/image";
@@ -15,36 +14,13 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  SidebarMenu,
 } from "@/components/ui/sidebar";
 import { UserAvatar } from "@/components/user-avatar";
 import { tripQueries } from "@/lib/api/react-query/trips";
 import { focusChatInput } from "@/lib/focus-chat-input";
-import { ChatSidebarSection } from "./chat-sidebar-section";
+import { ChatSidebarTripCard } from "./chat-sidebar-trip-card";
 import { EmailVerificationBanner } from "./email-verification-banner";
-
-const sectionOrder: TripStatus[] = [
-  "current",
-  "draft",
-  "upcoming",
-  "past",
-  "cancelled",
-];
-
-function groupTripsByStatus(trips: TripWithDestinationDTO[]) {
-  const groups: Record<TripStatus, TripWithDestinationDTO[]> = {
-    draft: [],
-    current: [],
-    upcoming: [],
-    past: [],
-    cancelled: [],
-  };
-
-  for (const trip of trips) {
-    groups[trip.status].push(trip);
-  }
-
-  return groups;
-}
 
 function getChatId(pathname: string): string | null {
   if (!pathname.startsWith("/chat/")) {
@@ -67,7 +43,14 @@ export function ChatSidebar() {
     status,
   } = useInfiniteQuery(tripQueries.listTrips({ limit: 20 }));
 
-  const tripGroups = useMemo(() => groupTripsByStatus(trips), [trips]);
+  const orderedTrips = useMemo(
+    () =>
+      [...trips].sort(
+        (left, right) =>
+          new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime(),
+      ),
+    [trips],
+  );
 
   const handlePlanNewTrip = useCallback(() => {
     if (pathname === "/chat") {
@@ -131,14 +114,17 @@ export function ChatSidebar() {
           </div>
         )}
 
-        {sectionOrder.map((variant) => (
-          <ChatSidebarSection
-            key={variant}
-            variant={variant}
-            trips={tripGroups[variant]}
-            activeChatId={activeChatId}
-          />
-        ))}
+        {status === "success" && orderedTrips.length > 0 ? (
+          <SidebarMenu className="px-2 py-2">
+            {orderedTrips.map((trip) => (
+              <ChatSidebarTripCard
+                key={trip.id}
+                trip={trip}
+                isActive={activeChatId === trip.id}
+              />
+            ))}
+          </SidebarMenu>
+        ) : null}
 
         {isFetchingNextPage && (
           <div className="flex justify-center px-2 py-2">

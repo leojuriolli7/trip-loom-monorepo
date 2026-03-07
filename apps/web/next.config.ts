@@ -1,9 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    authInterrupts: true,
-  },
   images: {
     dangerouslyAllowSVG: true,
     maximumResponseBody: 500_000_000, // 500MB

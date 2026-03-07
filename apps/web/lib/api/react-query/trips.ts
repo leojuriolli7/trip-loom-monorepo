@@ -30,6 +30,9 @@ type DeleteTripVars = Parameters<typeof apiClient.api.trips>[0];
 
 export const tripQueries = {
   base: () => KEYS.base(),
+  listKey: (query: Omit<TripQuery, "cursor">) => KEYS.list(query),
+  detailKey: (tripId: string) => KEYS.detail(tripId),
+  chatHistoryKey: (tripId: string) => KEYS.chatHistory(tripId),
   listTrips: (query: TripQuery) => {
     // eslint-disable-next-line
     const { cursor: _cursor, ...queryWithoutCursor } = query;

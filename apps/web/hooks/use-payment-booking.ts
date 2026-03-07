@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { flightQueries } from "@/lib/api/react-query/flights";
 import { hotelBookingQueries } from "@/lib/api/react-query/hotel-bookings";
-import type { PaymentBookingData, PaymentBookingType } from "@/lib/payments";
+import type { PaymentBookingType } from "@trip-loom/contracts/dto/payments";
 
 type UsePaymentBookingParams = {
   tripId: string;
@@ -35,7 +35,7 @@ export function usePaymentBooking({
         ? ({
             bookingType: "flight",
             booking: flightBookingQuery.data.data,
-          } satisfies PaymentBookingData)
+          } as const)
         : null,
       isError: flightBookingQuery.isError,
       isPending: flightBookingQuery.isPending,
@@ -47,7 +47,7 @@ export function usePaymentBooking({
       ? ({
           bookingType: "hotel",
           booking: hotelBookingQuery.data.data,
-        } satisfies PaymentBookingData)
+        } as const)
       : null,
     isError: hotelBookingQuery.isError,
     isPending: hotelBookingQuery.isPending,

@@ -60,10 +60,7 @@ export function SuggestedFlightCard({ flight }: { flight: SuggestedFlight }) {
             {flight?.airline}
           </h4>
 
-          <Badge
-            variant={flight?.stops === 0 ? "default" : "outline"}
-            className="text-xs"
-          >
+          <Badge variant={"outline"} className="text-xs">
             {getStopsLabel(flight?.stops)}
           </Badge>
         </div>
@@ -81,7 +78,7 @@ export function SuggestedFlightCard({ flight }: { flight: SuggestedFlight }) {
           <div className="flex flex-1 flex-col items-center px-2">
             <div className="flex w-full items-center gap-1">
               <div className="h-px flex-1 bg-border" />
-              <PlaneIcon className="size-4 text-primary" />
+              <PlaneIcon className="size-4" />
               <div className="h-px flex-1 bg-border" />
             </div>
             {duration && (

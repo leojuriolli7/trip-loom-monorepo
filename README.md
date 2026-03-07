@@ -112,8 +112,12 @@ pnpm dev:web      # Next.js app
 
 #### Trips UI
 - [ ] Improve UI per trip stage: upcoming/current/past with different widgets visible (like weather widget -- or `get_weather` tool?), for completed trip block chat and show a widget talking about how trip was over, "how was your trip?" feedback card for emailing us + CTA to start planning a new trip...
-- [ ] Get trip details card can just open a global trip details sheet, instead of collapsible each time, to save on DOM size. Plus show quick itinerary summary in itinerary section: "N activities planned" is enough. then we can have a button on topbar to toggle this sheet too + delete button + archive button
-- [ ] Update sidebar to render all trips together with a badge distinguishing status + archived section
+- [ ] Add archived trips support: DB schema change + separate archived sidebar section
+
+#### Code
+- [ ] Claude Code's `/simplify` command to remove unnecessary fallbacks + clean codebase
+- [ ] Dedupe `lib/trip-details.ts` to localize each utility/generalize to `lib/X.ts`
+- [ ] Dedupe `lib/payments.ts` to localize each utility where it's used or separate into different `lib/X.ts`
 
 #### Destinations UI
 - [ ] Destination suggestions comes with custom descriptions. this needs to be highlighted in some way. Currently, the description is cut off by the char limit in the destination-card. We could rework the ui to not use carousels or add a tooltip to destination-card.

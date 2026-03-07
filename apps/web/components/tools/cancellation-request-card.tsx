@@ -7,7 +7,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { ToolCallCard } from "@/components/tools/tool-call-card";
 import { Button } from "@/components/ui/button";
 import { ChatActionCard } from "./core/chat-action-card";
-import type { PaymentBookingType } from "@/lib/payments";
+import type { PaymentBookingType } from "@trip-loom/contracts/dto/payments";
 
 type CancellationRequestCardProps = {
   tripId: string;

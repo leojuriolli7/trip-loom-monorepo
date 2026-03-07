@@ -21,8 +21,8 @@ import {
   getPaymentBookingLabel,
   getPaymentBookingSummary,
   getPaymentIntentDescription,
-  type PaymentBookingType,
 } from "@/lib/payments";
+import type { PaymentBookingType } from "@trip-loom/contracts/dto/payments";
 import { ChatActionCard } from "./core/chat-action-card";
 
 type PaymentRequestCardProps = {

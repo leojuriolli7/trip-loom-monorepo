@@ -1,16 +1,9 @@
 "use client";
 
-import type { TripStatus, TripWithDestinationDTO } from "@trip-loom/contracts/dto";
-import { cva } from "class-variance-authority";
+import type { TripWithDestinationDTO } from "@trip-loom/contracts/dto";
 import { formatDistanceToNow } from "date-fns";
-import {
-  MapPinIcon,
-  PenLineIcon,
-  PlaneIcon,
-  type LucideIcon,
-} from "lucide-react";
 import Link from "next/link";
-import { memo, useMemo } from "react";
+import { memo } from "react";
 import {
   SidebarMenuButton,
   SidebarMenuItem,
@@ -21,68 +14,20 @@ import { getTripTitle } from "@/lib/get-trip-title";
 import { formatTripDates } from "@/lib/format-trip-dates";
 import { prefetchChatHistory } from "@/lib/prefetch-chat-history";
 import { useIsMobile } from "@/hooks/use-mobile";
-
-const tripIcons: Record<TripStatus, LucideIcon> = {
-  draft: PenLineIcon,
-  current: PlaneIcon,
-  upcoming: MapPinIcon,
-  past: MapPinIcon,
-  cancelled: MapPinIcon,
-};
-
-const tripCardIconVariants = cva("size-4 shrink-0", {
-  variants: {
-    variant: {
-      draft: "text-muted-foreground",
-      current: "",
-      upcoming: "text-muted-foreground",
-      past: "text-muted-foreground/60",
-      cancelled: "text-muted-foreground/60",
-    },
-  },
-});
-
-const tripCardTitleVariants = cva("text-sm", {
-  variants: {
-    variant: {
-      draft: "",
-      current: "font-medium",
-      upcoming: "",
-      past: "text-muted-foreground",
-      cancelled: "text-muted-foreground",
-    },
-  },
-});
-
-const tripCardSubtitleVariants = cva("text-xs", {
-  variants: {
-    variant: {
-      draft: "text-muted-foreground",
-      current: "flex items-center gap-1",
-      upcoming: "flex items-center gap-1 text-muted-foreground",
-      past: "flex items-center gap-1 text-muted-foreground/60",
-      cancelled: "flex items-center gap-1 text-muted-foreground/60",
-    },
-  },
-});
+import { TripStatusBadge } from "@/components/trip-status-badge";
 
 type ChatSidebarTripCardProps = {
-  variant: TripStatus;
   trip: TripWithDestinationDTO;
   isActive: boolean;
 };
 
 export const ChatSidebarTripCard = memo(function ChatSidebarTripCard({
-  variant,
   trip,
   isActive,
 }: ChatSidebarTripCardProps) {
-  const isDraft = variant === "draft";
-  const Icon = useMemo(() => tripIcons[variant], [variant]);
-
-  const subtitle = isDraft
-    ? `Updated ${formatDistanceToNow(new Date(trip.updatedAt), { addSuffix: true })}`
-    : formatTripDates(trip);
+  const updatedLabel = `Updated ${formatDistanceToNow(new Date(trip.updatedAt), {
+    addSuffix: true,
+  })}`;
 
   const queryClient = useQueryClient();
   const { toggleSidebar } = useSidebar();
@@ -99,15 +44,31 @@ export const ChatSidebarTripCard = memo(function ChatSidebarTripCard({
         }
       }}
     >
-      <SidebarMenuButton asChild className="h-auto py-2" isActive={isActive}>
+      <SidebarMenuButton
+        asChild
+        className="h-auto rounded-2xl py-3"
+        isActive={isActive}
+      >
         <Link href={`/chat/${trip.id}`}>
-          <Icon className={tripCardIconVariants({ variant })} />
-          <div className="flex min-w-0 flex-col items-start gap-0.5 overflow-hidden">
-            <span className={tripCardTitleVariants({ variant })}>
-              {getTripTitle(trip)}
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5 overflow-hidden">
+            <div className="flex items-start justify-between gap-2">
+              <span className="line-clamp-2 text-sm font-medium leading-tight">
+                {getTripTitle(trip)}
+              </span>
+
+              <TripStatusBadge
+                status={trip.status}
+                size="sm"
+                className="shrink-0"
+              />
+            </div>
+
+            <span className="truncate text-xs text-muted-foreground">
+              {formatTripDates(trip)}
             </span>
-            <span className={tripCardSubtitleVariants({ variant })}>
-              {subtitle}
+
+            <span className="truncate text-[11px] text-muted-foreground/80">
+              {updatedLabel}
             </span>
           </div>
         </Link>

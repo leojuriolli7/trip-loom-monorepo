@@ -141,6 +141,7 @@ export function ItinerarySheet() {
       : `${pluralize(itinerary.days.length, "day")} with ${pluralize(
           totalActivities,
           "activity",
+          "activities",
         )} currently planned.`;
 
   function onOpenChange(nextOpen: boolean) {

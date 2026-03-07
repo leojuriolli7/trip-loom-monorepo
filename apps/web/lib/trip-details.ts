@@ -1,7 +1,4 @@
-import type {
-  ItineraryActivityDTO,
-  TripDetailDTO,
-} from "@trip-loom/contracts/dto";
+import type { TripDetailDTO } from "@trip-loom/contracts/dto";
 import { format, isSameDay } from "date-fns";
 import { parseIsoDate } from "@/lib/parse-iso-date";
 import { formatPaymentAmount } from "@/lib/payments";
@@ -37,13 +34,13 @@ function formatDateTimeValue(date: Date | string | null | undefined) {
   return format(parsedDate, "EEE, MMM d • h:mm a");
 }
 
-// Collapses optional itinerary start and end times into a single label.
-export function getActivityTimeLabel(activity: ItineraryActivityDTO) {
-  if (activity.startTime && activity.endTime) {
-    return `${activity.startTime} - ${activity.endTime}`;
-  }
-
-  return activity.startTime ?? activity.endTime ?? null;
+export function getTripActivityCount(trip: TripDetailDTO) {
+  return (
+    trip.itinerary?.days.reduce(
+      (activityCount, day) => activityCount + day.activities.length,
+      0,
+    ) ?? 0
+  );
 }
 
 // Picks the best available trip image, falling back to the default artwork.
@@ -64,9 +61,15 @@ export function getTripDestinationLabel(trip: TripDetailDTO) {
 
 // Summarizes whether the trip already has an itinerary attached.
 export function formatItinerarySummary(trip: TripDetailDTO) {
-  return trip.itinerary?.days.length
-    ? "itinerary planned"
-    : "no itinerary planned";
+  if (!trip.itinerary?.days.length) {
+    return "no itinerary planned";
+  }
+
+  return `${pluralize(
+    getTripActivityCount(trip),
+    "activity",
+    "activities",
+  )} planned`;
 }
 
 // Combines destination, dates, and booking counts into the collapsed card summary.
@@ -77,7 +80,7 @@ export function formatTripSummary(trip: TripDetailDTO, tripDates: string) {
     formatItinerarySummary(trip),
   ];
 
-  return `${getTripDestinationLabel(trip)}. ${tripDates}. ${planParts.join(", ")}.`;
+  return `${getTripDestinationLabel(trip)}. ${tripDates}. ${planParts.join(", ")}`;
 }
 
 // Formats a flight schedule with a shorter same-day layout when possible.

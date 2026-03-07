@@ -467,6 +467,28 @@ describe("Trips API", () => {
     expect(draftRow?.hasItinerary).toBe(false);
   });
 
+  it("GET /api/trips orders trips by most recent updatedAt first", async () => {
+    const updateResponse = await requestJson({
+      method: "PATCH",
+      path: `/api/trips/${seed.draftTripId}`,
+      userId: seed.primaryUserId,
+      body: {
+        title: "Draft Winter Planning Refined",
+      },
+    });
+
+    expect(updateResponse.res.status).toBe(200);
+
+    const { res, body } = await requestJson({
+      method: "GET",
+      path: "/api/trips",
+      userId: seed.primaryUserId,
+    });
+
+    expect(res.status).toBe(200);
+    expect(body.data[0].id).toBe(seed.draftTripId);
+  });
+
   it("GET /api/trips supports status filtering with single status", async () => {
     const { res, body } = await requestJson({
       method: "GET",

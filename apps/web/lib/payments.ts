@@ -4,9 +4,7 @@ import type {
   HotelBookingDTO,
 } from "@trip-loom/contracts/dto";
 
-export type PaymentBookingType = "flight" | "hotel";
-
-export type PaymentBookingData =
+type PaymentBookingData =
   | {
       bookingType: "flight";
       booking: FlightBookingDetailDTO;

@@ -63,19 +63,24 @@ export const paginationQuerySchema = z.object({
 
 /**
  * Builds cursor condition for pagination.
- * For DESC order: gets rows where (createdAt, id) < cursor
+ * For DESC order: gets rows where (timestamp, id) < cursor.
+ *
+ * Cursor payloads still use the `createdAt` key for backwards compatibility.
  */
 export function buildCursorCondition(
   cursor: string | undefined,
-  createdAtColumn: PgColumn,
+  sortTimestampColumn: PgColumn,
   idColumn: PgColumn
 ): SQL | undefined {
   if (!cursor) return undefined;
 
   const decoded = decodeCursor(cursor);
   return or(
-    lt(createdAtColumn, new Date(decoded.createdAt)),
-    and(eq(createdAtColumn, new Date(decoded.createdAt)), lt(idColumn, decoded.id))
+    lt(sortTimestampColumn, new Date(decoded.createdAt)),
+    and(
+      eq(sortTimestampColumn, new Date(decoded.createdAt)),
+      lt(idColumn, decoded.id)
+    )
   );
 }
 
@@ -107,13 +112,13 @@ export function combineConditions(
 }
 
 /**
- * Standard order by for cursor pagination: createdAt DESC, id DESC
+ * Standard order by for cursor pagination: timestamp DESC, id DESC.
  */
 export function paginationOrderBy(
-  createdAtColumn: PgColumn,
+  sortTimestampColumn: PgColumn,
   idColumn: PgColumn
 ) {
-  return [desc(createdAtColumn), desc(idColumn)] as const;
+  return [desc(sortTimestampColumn), desc(idColumn)] as const;
 }
 
 // =============================================================================
@@ -127,20 +132,34 @@ export function paginationOrderBy(
  * - Query must fetch `limit + 1` rows
  * - Query must use `paginationOrderBy()` for consistent ordering
  */
-export function paginate<T extends { id: string; createdAt: Date | string }>(
+export function paginate<T extends { id: string }>(
   items: T[],
-  limit: number
+  limit: number,
+  options?: {
+    getCursorDate?: (item: T) => Date | string;
+  }
 ): PaginatedResponse<T> {
   const hasMore = items.length > limit;
   const data = hasMore ? items.slice(0, limit) : items;
   const nextItem = hasMore ? data[data.length - 1] : null;
+  const cursorDate =
+    nextItem === null
+      ? null
+      : (options?.getCursorDate?.(nextItem) ??
+        (nextItem as { createdAt?: Date | string }).createdAt ??
+        null);
+  if (nextItem && cursorDate === null) {
+    throw new Error(
+      "paginate requires a createdAt field or getCursorDate option",
+    );
+  }
   const nextCursor = nextItem
     ? encodeCursor({
         id: nextItem.id,
         createdAt:
-          nextItem.createdAt instanceof Date
-            ? nextItem.createdAt.toISOString()
-            : nextItem.createdAt,
+          cursorDate instanceof Date
+            ? cursorDate.toISOString()
+            : String(cursorDate),
       })
     : null;
 
