@@ -1,0 +1,1 @@
+ALTER TABLE "trip" ADD COLUMN "archived" boolean DEFAULT false NOT NULL;

@@ -1,11 +1,11 @@
 "use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { MessageSquarePlusIcon } from "lucide-react";
+import { ArchiveIcon, MessageSquarePlusIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useMemo, type UIEvent } from "react";
+import { useCallback, useMemo, useState, type UIEvent } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -16,6 +16,11 @@ import {
   SidebarHeader,
   SidebarMenu,
 } from "@/components/ui/sidebar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { UserAvatar } from "@/components/user-avatar";
 import { tripQueries } from "@/lib/api/react-query/trips";
 import { focusChatInput } from "@/lib/focus-chat-input";
@@ -34,6 +39,7 @@ export function ChatSidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const activeChatId = getChatId(pathname);
+  const [showArchivedTrips, setShowArchivedTrips] = useState(false);
 
   const {
     data: trips = [],
@@ -41,13 +47,19 @@ export function ChatSidebar() {
     hasNextPage,
     isFetchingNextPage,
     status,
-  } = useInfiniteQuery(tripQueries.listTrips({ limit: 20 }));
+  } = useInfiniteQuery(
+    tripQueries.listTrips({
+      limit: 20,
+      archived: showArchivedTrips,
+    }),
+  );
 
   const orderedTrips = useMemo(
     () =>
       [...trips].sort(
         (left, right) =>
-          new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime(),
+          new Date(right.updatedAt).getTime() -
+          new Date(left.updatedAt).getTime(),
       ),
     [trips],
   );
@@ -84,15 +96,37 @@ export function ChatSidebar() {
           <span className="font-semibold text-foreground">TripLoom</span>
         </Link>
 
-        <Button
-          type="button"
-          className="mt-3 w-full justify-start gap-2"
-          variant="outline"
-          onClick={handlePlanNewTrip}
-        >
-          <MessageSquarePlusIcon className="size-4" />
-          Plan a new Trip
-        </Button>
+        <div className="mt-3 flex items-center gap-2">
+          <Button
+            type="button"
+            className="min-w-0 flex-1 justify-start gap-2"
+            variant="outline"
+            onClick={handlePlanNewTrip}
+          >
+            <MessageSquarePlusIcon className="size-4" />
+            Plan a new Trip
+          </Button>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                size="icon-sm"
+                variant={showArchivedTrips ? "default" : "outline"}
+                className="shrink-0 rounded-full"
+                aria-label={
+                  showArchivedTrips
+                    ? "Show active trips"
+                    : "Show archived trips"
+                }
+                onClick={() => setShowArchivedTrips((prev) => !prev)}
+              >
+                <ArchiveIcon className="size-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Archived trips</TooltipContent>
+          </Tooltip>
+        </div>
       </SidebarHeader>
 
       <SidebarContent className="px-2" onScroll={handleContentScroll}>
@@ -110,7 +144,9 @@ export function ChatSidebar() {
 
         {status === "success" && !trips.length && (
           <div className="px-2 py-3 text-xs text-destructive">
-            You have no trips yet. Get started by planning a trip!
+            {showArchivedTrips
+              ? "You have no archived trips yet."
+              : "You have no trips yet. Get started by planning a trip!"}
           </div>
         )}
 

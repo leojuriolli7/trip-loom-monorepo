@@ -32,6 +32,7 @@ export const tripSchema = z.object({
   userId: z.string(),
   destinationId: z.string().nullable(),
   title: z.string().nullable(),
+  archived: z.boolean(),
   status: z.enum(tripStatusValues),
   startDate: isoDateSchema.nullable(),
   endDate: isoDateSchema.nullable(),
@@ -82,6 +83,7 @@ export const updateTripInputSchema = z
   .object({
     destinationId: z.string().min(1).nullable().optional(),
     title: z.string().trim().min(1).max(120).nullable().optional(),
+    archived: z.boolean().optional(),
     startDate: isoDateSchema.nullable().optional(),
     endDate: isoDateSchema.nullable().optional(),
   })
@@ -100,6 +102,7 @@ const statusSchema = z
 export const tripQuerySchema = paginationQuerySchema.extend({
   status: statusSchema,
   destinationId: z.string().min(1).optional(),
+  archived: z.stringbool().optional(),
 });
 
 export type TripQuery = z.infer<typeof tripQuerySchema>;

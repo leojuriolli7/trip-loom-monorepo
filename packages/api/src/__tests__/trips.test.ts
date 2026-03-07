@@ -47,6 +47,7 @@ type SeedData = {
   draftTripId: string;
   upcomingTripId: string;
   pastTripId: string;
+  archivedTripId: string;
   secondaryUserTripId: string;
   upcomingTripPaymentId: string;
   upcomingTripItineraryId: string;
@@ -71,6 +72,7 @@ const seedTripsFixtureData = async () => {
   const draftTripId = `${ctx.prefix}trip_draft`;
   const upcomingTripId = `${ctx.prefix}trip_upcoming`;
   const pastTripId = `${ctx.prefix}trip_past`;
+  const archivedTripId = `${ctx.prefix}trip_archived`;
   const secondaryUserTripId = `${ctx.prefix}trip_secondary`;
 
   const upcomingTripPaymentId = `${ctx.prefix}payment_upcoming`;
@@ -227,6 +229,17 @@ const seedTripsFixtureData = async () => {
       updatedAt: new Date(baseTime + 6_000),
     },
     {
+      id: archivedTripId,
+      userId: primaryUserId,
+      destinationId: destinationTokyoId,
+      title: "Archived Tokyo Notes",
+      archived: true,
+      startDate: dateWithOffset(70),
+      endDate: dateWithOffset(76),
+      createdAt: new Date(baseTime + 6_500),
+      updatedAt: new Date(baseTime + 6_500),
+    },
+    {
       id: secondaryUserTripId,
       userId: secondaryUserId,
       destinationId: destinationTokyoId,
@@ -373,6 +386,7 @@ const seedTripsFixtureData = async () => {
     draftTripId,
     upcomingTripId,
     pastTripId,
+    archivedTripId,
     secondaryUserTripId,
     upcomingTripPaymentId,
     upcomingTripItineraryId,
@@ -447,6 +461,7 @@ describe("Trips API", () => {
         seed.pastTripId,
       ]),
     );
+    expect(ids).not.toContain(seed.archivedTripId);
     expect(ids).not.toContain(seed.secondaryUserTripId);
 
     const rows = body.data as Array<{
@@ -487,6 +502,30 @@ describe("Trips API", () => {
 
     expect(res.status).toBe(200);
     expect(body.data[0].id).toBe(seed.draftTripId);
+  });
+
+  it("GET /api/trips excludes archived trips by default and supports archived-only filtering", async () => {
+    const activeResponse = await requestJson({
+      method: "GET",
+      path: "/api/trips",
+      userId: seed.primaryUserId,
+    });
+
+    expect(activeResponse.res.status).toBe(200);
+    expect(
+      activeResponse.body.data.map((row: { id: string }) => row.id),
+    ).not.toContain(seed.archivedTripId);
+
+    const archivedResponse = await requestJson({
+      method: "GET",
+      path: "/api/trips?archived=true",
+      userId: seed.primaryUserId,
+    });
+
+    expect(archivedResponse.res.status).toBe(200);
+    expect(archivedResponse.body.data).toHaveLength(1);
+    expect(archivedResponse.body.data[0].id).toBe(seed.archivedTripId);
+    expect(archivedResponse.body.data[0].archived).toBe(true);
   });
 
   it("GET /api/trips supports status filtering with single status", async () => {
@@ -621,6 +660,7 @@ describe("Trips API", () => {
 
     expect(res.status).toBe(201);
     expect(body.userId).toBe(seed.primaryUserId);
+    expect(body.archived).toBe(false);
     expect(body.status).toBe("draft");
     expect(body.title).toBe("Brand New Draft");
     expect(body.destination).toBeNull();
@@ -660,8 +700,44 @@ describe("Trips API", () => {
     expect(res.status).toBe(200);
     expect(body.id).toBe(seed.draftTripId);
     expect(body.title).toBe("Updated draft title");
+    expect(body.archived).toBe(false);
     expect(body.destinationId).toBe(seed.destinationBaliId);
     expect(body.destination.id).toBe(seed.destinationBaliId);
+  });
+
+  it("PATCH /api/trips/:id can archive a trip", async () => {
+    const { res, body } = await requestJson({
+      method: "PATCH",
+      path: `/api/trips/${seed.draftTripId}`,
+      userId: seed.primaryUserId,
+      body: {
+        archived: true,
+      },
+    });
+
+    expect(res.status).toBe(200);
+    expect(body.id).toBe(seed.draftTripId);
+    expect(body.archived).toBe(true);
+
+    const activeResponse = await requestJson({
+      method: "GET",
+      path: "/api/trips",
+      userId: seed.primaryUserId,
+    });
+
+    expect(
+      activeResponse.body.data.map((row: { id: string }) => row.id),
+    ).not.toContain(seed.draftTripId);
+
+    const archivedResponse = await requestJson({
+      method: "GET",
+      path: "/api/trips?archived=true",
+      userId: seed.primaryUserId,
+    });
+
+    expect(
+      archivedResponse.body.data.map((row: { id: string }) => row.id),
+    ).toContain(seed.draftTripId);
   });
 
   it("PATCH /api/trips/:id handles status transition from draft to upcoming", async () => {

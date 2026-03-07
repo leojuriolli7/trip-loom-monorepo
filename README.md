@@ -112,7 +112,6 @@ pnpm dev:web      # Next.js app
 
 #### Trips UI
 - [ ] Improve UI per trip stage: upcoming/current/past with different widgets visible (like weather widget -- or `get_weather` tool?), for completed trip block chat and show a widget talking about how trip was over, "how was your trip?" feedback card for emailing us + CTA to start planning a new trip...
-- [ ] Add archived trips support: DB schema change + separate archived sidebar section
 
 #### Code
 - [ ] Claude Code's `/simplify` command to remove unnecessary fallbacks + clean codebase

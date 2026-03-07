@@ -361,6 +361,7 @@ export const trip = pgTable(
       onDelete: "set null",
     }),
     title: text("title"),
+    archived: boolean("archived").notNull().default(false),
     // Status is computed at query time from cancelledAt + dates + travel plan existence
     // See lib/trips/status.ts for the SQL computation
     cancelledAt: timestamp("cancelled_at"),

@@ -12,6 +12,7 @@ export const tripSelectFields = {
   userId: trip.userId,
   destinationId: trip.destinationId,
   title: trip.title,
+  archived: trip.archived,
   cancelledAt: trip.cancelledAt,
   startDate: trip.startDate,
   endDate: trip.endDate,
@@ -43,6 +44,7 @@ type TripBaseRow = Pick<
   | "userId"
   | "destinationId"
   | "title"
+  | "archived"
   | "startDate"
   | "endDate"
   | "createdAt"

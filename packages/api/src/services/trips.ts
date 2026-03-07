@@ -118,10 +118,11 @@ export async function listTrips(
   userId: string,
   query: TripQuery,
 ): Promise<PaginatedResponse<TripWithDestinationDTO>> {
-  const { cursor, limit, search, status, destinationId } = query;
+  const { cursor, limit, search, status, destinationId, archived } = query;
 
   const whereCondition = combineConditions(
     eq(trip.userId, userId),
+    eq(trip.archived, archived ?? false),
     buildComputedStatusCondition(status),
     destinationId ? eq(trip.destinationId, destinationId) : undefined,
     buildTripSearchCondition(search),
@@ -271,6 +272,10 @@ export async function updateTrip(
 
   if (input.title !== undefined) {
     updateData.title = input.title;
+  }
+
+  if (input.archived !== undefined) {
+    updateData.archived = input.archived;
   }
 
   if (input.startDate !== undefined) {
