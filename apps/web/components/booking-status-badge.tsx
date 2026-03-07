@@ -1,6 +1,6 @@
 import type { BookingStatus } from "@trip-loom/contracts/enums";
 import { Badge } from "@/components/ui/badge";
-import { formatEnumLabel } from "./utils";
+import { bookingStatusLabels } from "@/lib/labels/booking-status-labels";
 
 const bookingStatusClasses: Record<BookingStatus, string> = {
   pending: "border-transparent bg-amber-500/15 text-amber-700",
@@ -11,7 +11,7 @@ const bookingStatusClasses: Record<BookingStatus, string> = {
 export function BookingStatusBadge({ status }: { status: BookingStatus }) {
   return (
     <Badge className={bookingStatusClasses[status]}>
-      {formatEnumLabel(status)}
+      {bookingStatusLabels[status]}
     </Badge>
   );
 }

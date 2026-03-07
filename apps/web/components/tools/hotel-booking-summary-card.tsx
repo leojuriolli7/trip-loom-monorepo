@@ -6,8 +6,9 @@ import { StreamingImage } from "@/components/streaming-image";
 import { Badge } from "@/components/ui/badge";
 import { Ratings } from "@/components/ui/rating";
 import { parseIsoDate } from "@/lib/parse-iso-date";
-import { formatPaymentAmount } from "@/utils/payments";
+import { formatPaymentAmount } from "@/lib/payments";
 import { ToolCallCard } from "./tool-call-card";
+import { hotelRoomTypeLabels } from "@/lib/labels/hotel-room-type-labels";
 
 type HotelBookingSummaryCardProps = {
   booking: HotelBookingDTO;
@@ -17,16 +18,6 @@ type HotelBookingSummaryCardProps = {
   footer?: ReactNode;
   children?: ReactNode;
 };
-
-/**
- * Room types come from API enums, so this keeps the UI label readable without
- * leaking enum formatting into call sites.
- */
-function formatRoomTypeLabel(roomType: HotelBookingDTO["roomType"]) {
-  return roomType
-    .replace(/-/g, " ")
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-}
 
 /**
  * Booking dates are stored as ISO dates; this formats them for the hotel review
@@ -75,7 +66,7 @@ export function HotelBookingSummaryCard({
               {statusLabel}
             </Badge>
             <Badge variant="outline">
-              {formatRoomTypeLabel(booking.roomType)}
+              {hotelRoomTypeLabels[booking.roomType]}
             </Badge>
             <Badge variant="outline">
               {booking.numberOfNights} night

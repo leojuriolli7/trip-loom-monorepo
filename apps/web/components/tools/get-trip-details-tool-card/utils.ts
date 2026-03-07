@@ -4,19 +4,8 @@ import type {
 } from "@trip-loom/contracts/dto";
 import { format, isSameDay } from "date-fns";
 import { parseIsoDate } from "@/lib/parse-iso-date";
-import { formatPaymentAmount } from "@/utils/payments";
-import { pluralize } from "@/utils/pluralize";
-
-// Converts enum-like backend values into readable UI labels.
-export function formatEnumLabel(value: string | null | undefined) {
-  if (!value) {
-    return "Pending";
-  }
-
-  return value
-    .replace(/[-_]/g, " ")
-    .replace(/\b\w/g, (character) => character.toUpperCase());
-}
+import { formatPaymentAmount } from "@/lib/payments";
+import { pluralize } from "@/lib/pluralize";
 
 // Formats an ISO date string for compact trip detail displays.
 export function formatDateValue(date: string | null | undefined) {

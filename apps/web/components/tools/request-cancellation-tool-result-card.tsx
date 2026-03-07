@@ -7,7 +7,7 @@ import { usePaymentBooking } from "@/hooks/use-payment-booking";
 import {
   formatPaymentResolvedAt,
   getPaymentBookingLabel,
-} from "@/utils/payments";
+} from "@/lib/payments";
 
 type RequestCancellationToolResultCardProps = {
   tripId: string;

@@ -17,7 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { formatPriceInCents } from "@/utils/format-price-in-cents";
+import { formatPriceInCents } from "@/lib/format-price-in-cents";
 
 // Initialize Stripe once
 let stripePromise: Promise<Stripe | null> | null = null;

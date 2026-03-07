@@ -5,6 +5,7 @@ import { WifiIcon } from "lucide-react";
 import Image from "next/image";
 import { Ratings } from "./ui/rating";
 import { getCoverImage } from "@/lib/get-cover-image";
+import { amenityLabels } from "@/lib/labels/amenity-labels";
 
 const PRICE_RANGE_LABELS: Record<PriceRange[number], string> = {
   budget: "$",
@@ -53,7 +54,7 @@ export function HotelMiniCard({ hotel }: HotelMiniCardProps) {
                 <div
                   key={amenity}
                   className="flex size-5 items-center justify-center rounded bg-muted/60"
-                  title={amenity.replace("-", " ")}
+                  title={amenityLabels[amenity]}
                 >
                   <Icon className="size-3 text-muted-foreground" />
                 </div>

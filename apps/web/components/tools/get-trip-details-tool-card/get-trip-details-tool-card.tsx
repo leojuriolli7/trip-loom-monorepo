@@ -22,13 +22,12 @@ import {
 import { tripQueries } from "@/lib/api/react-query/trips";
 import { formatTripDates } from "@/lib/format-trip-dates";
 import { cn } from "@/lib/utils";
-import { formatPaymentAmount } from "@/utils/payments";
-import { BookingStatusBadge } from "./booking-status-badge";
-import { PaymentStatusBadge } from "./payment-status-badge";
+import { formatPaymentAmount } from "@/lib/payments";
+import { BookingStatusBadge } from "@/components/booking-status-badge";
+import { PaymentStatusBadge } from "@/components/payment-status-badge";
 import { SectionHeading } from "./section-heading";
-import { pluralize } from "@/utils/pluralize";
+import { pluralize } from "@/lib/pluralize";
 import {
-  formatEnumLabel,
   formatFlightSchedule,
   formatHotelStaySummary,
   formatPaymentTimestamp,
@@ -41,6 +40,8 @@ import {
 } from "@/components/itinerary-sheet";
 import { Button } from "@/components/ui/button";
 import { useSetAtom } from "jotai";
+import { cabinClassLabels } from "@/lib/labels/cabin-class-labels";
+import { hotelRoomTypeLabels } from "@/lib/labels/hotel-room-type-labels";
 
 type GetTripDetailsToolCardProps = {
   args: TripLoomToolArgsByName<"get_trip_details">;
@@ -206,7 +207,7 @@ export function GetTripDetailsToolCard({ args }: GetTripDetailsToolCardProps) {
                             <div className="mt-2 flex flex-wrap gap-2">
                               <BookingStatusBadge status={flight.status} />
                               <Badge variant="outline">
-                                {formatEnumLabel(flight.cabinClass)}
+                                {cabinClassLabels[flight.cabinClass]}
                               </Badge>
                               <Badge variant="outline">
                                 {flight.seatNumber ?? "Seat not selected"}
@@ -261,7 +262,7 @@ export function GetTripDetailsToolCard({ args }: GetTripDetailsToolCardProps) {
                             <div className="mt-2 flex flex-wrap gap-2">
                               <BookingStatusBadge status={booking.status} />
                               <Badge variant="outline">
-                                {formatEnumLabel(booking.roomType)}
+                                {hotelRoomTypeLabels[booking.roomType]}
                               </Badge>
                             </div>
                           </article>

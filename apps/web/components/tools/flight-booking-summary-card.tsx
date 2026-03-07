@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import type { FlightBookingDetailDTO } from "@trip-loom/contracts/dto";
 import { PlaneIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { formatPaymentAmount } from "@/utils/payments";
+import { formatPaymentAmount } from "@/lib/payments";
 import { ToolCallCard } from "./tool-call-card";
 
 type FlightBookingSummaryCardProps = {

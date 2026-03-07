@@ -24,7 +24,7 @@ import {
   validateLength,
   validateNumber,
   validateSpecialCharacter,
-} from "@/lib/password";
+} from "@/lib/password-validation";
 
 export const dynamic = "force-dynamic";
 

@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { flightQueries } from "@/lib/api/react-query/flights";
 import { hotelBookingQueries } from "@/lib/api/react-query/hotel-bookings";
-import type { PaymentBookingData, PaymentBookingType } from "@/utils/payments";
+import type { PaymentBookingData, PaymentBookingType } from "@/lib/payments";
 
 type UsePaymentBookingParams = {
   tripId: string;

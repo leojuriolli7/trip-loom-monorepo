@@ -1,7 +1,7 @@
 "use client";
 
 import type { TripLoomToolArgsByName } from "@trip-loom/agents";
-import { pluralize } from "@/utils/pluralize";
+import { pluralize } from "@/lib/pluralize";
 import type { ItineraryDetailDTO } from "@trip-loom/contracts/dto";
 import { format } from "date-fns";
 import { atom, useAtom } from "jotai";

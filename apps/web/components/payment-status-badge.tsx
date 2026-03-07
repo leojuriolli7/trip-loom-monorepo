@@ -1,6 +1,6 @@
 import type { PaymentStatus } from "@trip-loom/contracts/enums";
 import { Badge } from "@/components/ui/badge";
-import { formatEnumLabel } from "./utils";
+import { paymentStatusLabels } from "@/lib/labels/payment-status-labels";
 
 const paymentStatusClasses: Record<PaymentStatus, string> = {
   pending: "border-transparent bg-amber-500/15 text-amber-700",
@@ -14,7 +14,7 @@ const paymentStatusClasses: Record<PaymentStatus, string> = {
 export function PaymentStatusBadge({ status }: { status: PaymentStatus }) {
   return (
     <Badge className={paymentStatusClasses[status]}>
-      {formatEnumLabel(status)}
+      {paymentStatusLabels[status]}
     </Badge>
   );
 }

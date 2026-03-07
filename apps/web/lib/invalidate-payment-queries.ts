@@ -3,7 +3,7 @@ import { flightQueries } from "@/lib/api/react-query/flights";
 import { hotelBookingQueries } from "@/lib/api/react-query/hotel-bookings";
 import { paymentQueries } from "@/lib/api/react-query/payments";
 import { tripQueries } from "@/lib/api/react-query/trips";
-import type { PaymentBookingType } from "@/utils/payments";
+import type { PaymentBookingType } from "@/lib/payments";
 
 export async function invalidatePaymentConversationQueries(
   queryClient: QueryClient,

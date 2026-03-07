@@ -11,7 +11,7 @@ import {
   formatPaymentResolvedAt,
   getPaymentBookingAmount,
   getPaymentBookingLabel,
-} from "@/utils/payments";
+} from "@/lib/payments";
 
 type RequestPaymentToolResultCardProps = {
   tripId: string;

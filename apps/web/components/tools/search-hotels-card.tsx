@@ -1,6 +1,6 @@
 import type { TripLoomToolArgsByName } from "@trip-loom/agents";
 import { ToolCallCard } from "@/components/tools/tool-call-card";
-import { amenityLabels } from "@/lib/amenity-labels";
+import { amenityLabels } from "@/lib/labels/amenity-labels";
 
 type SearchHotelsToolCardProps = {
   args: TripLoomToolArgsByName<"search_hotels">;

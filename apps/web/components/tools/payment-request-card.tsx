@@ -14,7 +14,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { usePaymentBooking } from "@/hooks/use-payment-booking";
 import { poll } from "@/lib/poll";
 import { paymentQueries } from "@/lib/api/react-query/payments";
-import { invalidatePaymentConversationQueries } from "@/utils/invalidate-payment-queries";
+import { invalidatePaymentConversationQueries } from "@/lib/invalidate-payment-queries";
 import {
   formatPaymentAmount,
   getPaymentBookingAmount,
@@ -22,7 +22,7 @@ import {
   getPaymentBookingSummary,
   getPaymentIntentDescription,
   type PaymentBookingType,
-} from "@/utils/payments";
+} from "@/lib/payments";
 import { ChatActionCard } from "./core/chat-action-card";
 
 type PaymentRequestCardProps = {

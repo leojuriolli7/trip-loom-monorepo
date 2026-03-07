@@ -8,7 +8,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { amenityLabels } from "@/lib/amenity-labels";
+import { amenityLabels } from "@/lib/labels/amenity-labels";
 import { StreamingImage } from "@/components/streaming-image";
 
 type SuggestedHotel =

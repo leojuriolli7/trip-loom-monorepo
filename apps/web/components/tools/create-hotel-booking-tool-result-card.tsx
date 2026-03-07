@@ -1,5 +1,5 @@
 import type { HotelBookingDTO } from "@trip-loom/contracts/dto";
-import { formatPaymentAmount } from "@/utils/payments";
+import { formatPaymentAmount } from "@/lib/payments";
 import { HotelBookingSummaryCard } from "./hotel-booking-summary-card";
 
 type CreateHotelBookingToolResultCardProps = {

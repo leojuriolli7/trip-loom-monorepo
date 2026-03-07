@@ -2,12 +2,12 @@
 
 import { HotelBookingSummaryCard } from "@/components/tools/hotel-booking-summary-card";
 import { usePaymentBooking } from "@/hooks/use-payment-booking";
-import { getPaymentBookingLabel } from "@/utils/payments";
+import { getPaymentBookingLabel } from "@/lib/payments";
 import { Spinner } from "@/components/ui/spinner";
 import { ToolCallCard } from "@/components/tools/tool-call-card";
 import { Button } from "@/components/ui/button";
 import { ChatActionCard } from "./core/chat-action-card";
-import type { PaymentBookingType } from "@/utils/payments";
+import type { PaymentBookingType } from "@/lib/payments";
 
 type CancellationRequestCardProps = {
   tripId: string;
