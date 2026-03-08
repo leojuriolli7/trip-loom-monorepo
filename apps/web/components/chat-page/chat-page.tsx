@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import { NewChatInputPanel } from "./new-chat-input-panel";
 import { WelcomeScreen } from "./welcome-screen/welcome-screen";
+import { SuggestNewTripUrlHandler } from "./suggest-new-trip-url-handler";
 
 export function ChatPage() {
   return (
@@ -9,6 +11,10 @@ export function ChatPage() {
       </div>
 
       <NewChatInputPanel />
+
+      <Suspense>
+        <SuggestNewTripUrlHandler />
+      </Suspense>
     </div>
   );
 }

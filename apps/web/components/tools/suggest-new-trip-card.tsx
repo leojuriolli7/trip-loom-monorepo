@@ -1,16 +1,11 @@
 "use client";
 
 import type { TripLoomToolArgsByName } from "@trip-loom/agents";
-import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { format } from "date-fns";
 import { CalendarIcon, MapPinIcon, PlusIcon } from "lucide-react";
 import { ToolCallCard } from "@/components/tools/tool-call-card";
-import { apiClient } from "@/lib/api/api-client";
 import { parseIsoDate } from "@/lib/parse-iso-date";
-import { tripQueries } from "@/lib/api/react-query/trips";
-import { Spinner } from "../ui/spinner";
 
 type SuggestNewTripArgs = TripLoomToolArgsByName<"suggest_new_trip">;
 
@@ -30,44 +25,38 @@ function formatDateRange(startDate: string | null, endDate: string | null) {
   return `${format(start, "MMM d")} – ${format(end, "MMM d, yyyy")}`;
 }
 
-/**
- * TODO:
- * When context exists: Route to /chat with a prefilled prompt to plan new trip.
- * When context does not exist: Route to /chat and focus chat input.
- */
 export function SuggestNewTripCard({ args }: { args: SuggestNewTripArgs }) {
   const router = useRouter();
-  const queryClient = useQueryClient();
-  const [isCreating, setIsCreating] = useState(false);
 
   const hasContext = args.destinationName || args.title;
   const dateRange = formatDateRange(args.startDate, args.endDate);
 
-  const handleCreate = async () => {
-    if (isCreating) return;
+  const redirectToChatPage = async () => {
+    const { destinationName, startDate, endDate } = args || {};
 
-    setIsCreating(true);
+    // If there's relevant context, route to /chat page with the
+    // destination name and dates, for structured prompt.
+    if (destinationName) {
+      const params = new URLSearchParams();
+      params.set("from", "suggest-new-trip-card");
 
-    try {
-      const body: Record<string, string> = {};
-
-      if (args.title) body.title = args.title;
-      if (args.destinationId) body.destinationId = args.destinationId;
-      if (args.startDate) body.startDate = args.startDate;
-      if (args.endDate) body.endDate = args.endDate;
-
-      const result = await apiClient.api.trips.post(body);
-
-      if (result.error || !result.data?.id) {
-        throw new Error("Could not create trip");
+      if (destinationName) {
+        params.set("destinationName", destinationName);
       }
 
-      void queryClient.invalidateQueries({ queryKey: tripQueries.base() });
-      router.push(`/chat/${result.data.id}`);
-      // TODO: This should also update conversation state: Record that a trip was created here
-    } finally {
-      setIsCreating(false);
+      if (startDate) {
+        params.set("startDate", startDate);
+      }
+
+      if (endDate) {
+        params.set("endDate", endDate);
+      }
+
+      router.push("/chat" + "?" + params.toString());
+      return;
     }
+
+    router.push("/chat");
   };
 
   return (
@@ -110,14 +99,9 @@ export function SuggestNewTripCard({ args }: { args: SuggestNewTripArgs }) {
       </ToolCallCard.Header>
 
       <ToolCallCard.Footer>
-        <ToolCallCard.Button onClick={handleCreate} disabled={isCreating}>
-          {isCreating ? (
-            <Spinner className="size-4" />
-          ) : (
-            <PlusIcon className="size-4" />
-          )}
-
-          {isCreating ? "Creating..." : "Start planning"}
+        <ToolCallCard.Button onClick={redirectToChatPage}>
+          <PlusIcon className="size-4" />
+          Start planning
         </ToolCallCard.Button>
       </ToolCallCard.Footer>
     </ToolCallCard>

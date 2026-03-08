@@ -97,25 +97,19 @@ pnpm dev:web      # Next.js app
 
 ## Project TODOs
 
-### API
+### Immediate
 
-- [ ] Add `get_weather` tool via new API endpoint for weather -- For current trips asking about daily weather
-
-### MCP
-
-- [ ] Finish adding prompts `chat-conversation.tsx` and `suggest-new-trip-card.tsx`
 - [ ] Read MCP resources. For example: Load past trips on conversation start, load user preferences (instead of asking to call `get_user_preferences` on open)
+- [ ] Switch to `evlog` for structured logging + add logging and OpenTelemetry to agents and MCP
+- [ ] Add `get_weather` tool via new API endpoint for weather -- For current trips asking about daily weather
 
 ### Agents and Orchestration
 
 - [ ] Refine system prompts from real conversation test runs
-- [ ] Agents not using web-search enough: Destination agent + hotel agent for enrichment (Itinerary agent uses it fine)
 - [ ] Wire PostgresStore: read/write user preferences namespaced by userId
 
 ### Quality and Observability
 
-- [ ] Switch to `evlog` for structured logging + add logging to agents and MCP
-- [ ] Add OpenTelemetry spans for agent and MCP execution
 - [ ] Add eval suite for routing accuracy and tool-call correctness (choose eval framework: Evalite, LangSmith, or Vitest-based)
 - [ ] Add API rate limits
 - [ ] Add RLS to DB + separate database pools and roles
@@ -149,6 +143,7 @@ pnpm dev:web      # Next.js app
 
 ### Later
 
+- [ ] Agents not using web-search enough: Destination agent + hotel agent for enrichment (Itinerary agent uses it fine)
 - [ ] Destination suggestions comes with custom descriptions. this needs to be highlighted in some way. Currently, the description is cut off by the char limit in the destination-card. We could rework the ui to not use carousels.
 - [ ] Allow filtering by multiple amenities or highlights at once in list hotels/destinations
 - [ ] Option to book multiple hotels/flights for a trip

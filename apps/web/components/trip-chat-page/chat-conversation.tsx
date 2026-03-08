@@ -11,6 +11,7 @@ import {
   MessageResponse,
 } from "@/components/ai-elements/message";
 import { useChatStream } from "@/context/chat";
+import { EmptyStateSuggestions } from "./empty-state-suggestions";
 import { isRenderableAssistantToolCall, ToolCallRenderer } from "../tools";
 import { ToolMessageRenderer } from "../tools/core/tool-message-renderer";
 import { CancellationRequestCard } from "../tools/cancellation-request-card";
@@ -104,7 +105,7 @@ export function ChatConversation() {
             agents.
           </p>
 
-          {/* TODO: Could render MCP prompts here as suggestions. */}
+          <EmptyStateSuggestions />
         </div>
       ) : null}
 
