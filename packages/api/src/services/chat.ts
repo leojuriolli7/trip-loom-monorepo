@@ -9,9 +9,8 @@ import { NotFoundError } from "../errors";
 import { mapChatMessages } from "../mappers/chat";
 import type { ChatHistoryResponse } from "../dto/chat";
 import { getOwnedTripMeta } from "../lib/trips/ownership";
-
-const MCP_SERVER_URL = process.env.MCP_SERVER_URL;
-const DATABASE_URL = process.env.DATABASE_URL;
+import { getAgentsConfig } from "../lib/agents/config";
+import { isBaseMessage } from "../lib/agents/is-base-message";
 
 function buildTripContextMessage(tripId: string): SystemMessage {
   return new SystemMessage(
@@ -22,37 +21,6 @@ function buildTripContextMessage(tripId: string): SystemMessage {
       "Do not ask the user for trip ID unless they explicitly want to switch trips.",
     ].join("\n"),
   );
-}
-
-function getAgentsConfig() {
-  if (!MCP_SERVER_URL) {
-    throw new Error("MCP_SERVER_URL is required for chat streaming");
-  }
-
-  if (!DATABASE_URL) {
-    throw new Error("DATABASE_URL is required for chat streaming");
-  }
-
-  return {
-    mcpServerUrl: MCP_SERVER_URL,
-    databaseUrl: DATABASE_URL,
-  };
-}
-
-function getDatabaseUrl() {
-  if (!DATABASE_URL) {
-    throw new Error("DATABASE_URL is required for chat history");
-  }
-
-  return DATABASE_URL;
-}
-
-function isBaseMessage(value: unknown): value is BaseMessage {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-
-  return typeof Reflect.get(value, "toDict") === "function";
 }
 
 /**
@@ -216,7 +184,7 @@ export async function getChatHistory(
   userId: string,
   tripId: string,
 ): Promise<ChatHistoryResponse> {
-  const databaseUrl = getDatabaseUrl();
+  const { databaseUrl } = getAgentsConfig();
   const ownsTrip = await getOwnedTripMeta(userId, tripId);
 
   if (!ownsTrip) {

@@ -8,6 +8,7 @@ import {
   MessageResponse,
 } from "@/components/ai-elements/message";
 import { ToolCallCard } from "@/components/tools/tool-call-card";
+import { TransferAgentToolCard } from "@/components/tools/transfer-agent-tool-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPinIcon, ArrowRightIcon, SendIcon, StarIcon } from "lucide-react";
@@ -194,7 +195,7 @@ function MockItinerary() {
         <ToolCallCard.HeaderContent>
           <ToolCallCard.Title>Your 10-Day Kyoto Journey</ToolCallCard.Title>
           <ToolCallCard.Description>
-            {`I've woven a mix of temples, tea ceremonies, and bamboo forests.`}
+            {`I planned a mix of temples, tea ceremonies, and bamboo forests.`}
           </ToolCallCard.Description>
         </ToolCallCard.HeaderContent>
       </ToolCallCard.Header>
@@ -245,7 +246,13 @@ function MockItinerary() {
   );
 }
 
-const DEMO_STEPS = [
+type DemoStep = {
+  type: "user" | "assistant";
+  content: string;
+  tool?: React.ReactNode;
+};
+
+const DEMO_STEPS: DemoStep[] = [
   {
     type: "user",
     content:
@@ -258,6 +265,11 @@ const DEMO_STEPS = [
   },
   {
     type: "assistant",
+    content: "",
+    tool: <TransferAgentToolCard toolName="transfer_to_destination_agent" />,
+  },
+  {
+    type: "assistant",
     content:
       "April is the perfect time for Japan\u2014it's cherry blossom season! I'm searching for the best destinations for you.",
     tool: <MockSuggestDestinations />,
@@ -265,6 +277,11 @@ const DEMO_STEPS = [
   {
     type: "user",
     content: "Kyoto looks beautiful. Can you find me a luxury hotel there?",
+  },
+  {
+    type: "assistant",
+    content: "",
+    tool: <TransferAgentToolCard toolName="transfer_to_hotel_agent" />,
   },
   {
     type: "assistant",
@@ -280,6 +297,11 @@ const DEMO_STEPS = [
   {
     type: "assistant",
     content: "",
+    tool: <TransferAgentToolCard toolName="transfer_to_itinerary_agent" />,
+  },
+  {
+    type: "assistant",
+    content: "",
     tool: <MockWebSearch />,
   },
   {
@@ -290,6 +312,12 @@ const DEMO_STEPS = [
   },
 ];
 
+function isTransferStep(step: DemoStep | undefined) {
+  return (
+    React.isValidElement(step?.tool) && step.tool.type === TransferAgentToolCard
+  );
+}
+
 export function LandingChatDemo() {
   const [step, setStep] = React.useState(0);
   const [isTyping, setIsTyping] = React.useState(false);
@@ -297,14 +325,23 @@ export function LandingChatDemo() {
 
   React.useEffect(() => {
     if (step < DEMO_STEPS.length) {
+      const nextStep = DEMO_STEPS[step];
+      const previousStep = DEMO_STEPS[step - 1];
+
+      const isFastTransition =
+        isTransferStep(nextStep) || isTransferStep(previousStep);
+
+      const startDelayMs = isFastTransition ? 650 : 2000;
+      const typingMs = isFastTransition ? 550 : 1500;
+
       const timer = setTimeout(() => {
         setIsTyping(true);
         const typingTimer = setTimeout(() => {
           setIsTyping(false);
           setStep((s) => s + 1);
-        }, 1500);
+        }, typingMs);
         return () => clearTimeout(typingTimer);
-      }, 2000);
+      }, startDelayMs);
       return () => clearTimeout(timer);
     } else {
       // Loop demo

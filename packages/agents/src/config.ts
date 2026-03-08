@@ -1,9 +1,10 @@
 import { ChatOpenAI } from "@langchain/openai";
 
 /**
- * Default model used when no env var override is set.
+ * Default models used when no env var override is set.
  */
 const DEFAULT_MODEL = "gpt-5.2";
+const SUGGESTIONS_MODEL = "gpt-4.1-mini";
 
 /**
  * Per-agent model configuration via environment variables.
@@ -15,6 +16,7 @@ export const modelConfig = {
   flight: process.env.FLIGHT_AGENT_MODEL ?? DEFAULT_MODEL,
   hotel: process.env.HOTEL_AGENT_MODEL ?? DEFAULT_MODEL,
   itinerary: process.env.ITINERARY_AGENT_MODEL ?? DEFAULT_MODEL,
+  suggestions: process.env.SUGGESTIONS_MODEL ?? SUGGESTIONS_MODEL,
 } as const;
 
 /**

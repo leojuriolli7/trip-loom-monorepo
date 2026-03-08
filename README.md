@@ -97,29 +97,26 @@ pnpm dev:web      # Next.js app
 
 ## Project TODOs
 
-### Product and UX
-
-#### Trips UI
-- [ ] Improve UI per trip stage: upcoming/current/past with different widgets visible (like weather widget -- or `get_weather` tool via OpenMeteo API), for completed trip block chat and show a widget talking about how trip was over, "how was your trip?" feedback card for emailing us + CTA to start planning a new trip...
-
-#### Destinations UI
-- [ ] Destination suggestions comes with custom descriptions. this needs to be highlighted in some way. Currently, the description is cut off by the char limit in the destination-card. We could rework the ui to not use carousels.
-
-#### API
+### API
 - [ ] Allow filtering by multiple amenities or highlights at once in. list hotels/destinations
 - [ ] Option to book multiple hotels/flights for a trip
+- [ ] Add `get_weather` tool via new API endpoint for weather -- For current trips asking about daily weather
+
+### MCP
+
+- [ ] Create MCP prompts and wire them to UI (Destination details dialog, greetings page suggestion cards...)
+- [ ] Read MCP resources, eg: Load past trips on conversation start, load user preferences (instead of asking to call `get_user_preferences` on open), load past itineraries...
 
 ### Agents and Orchestration
 
-- [ ] Agents not using web-search enough: Destination agent + hotel agent for enrichment (Itinerary agent uses it fine)
-- [ ] Add follow-up suggestion prompts above chat input
 - [ ] Refine system prompts from real conversation test runs
-- [ ] Read MCP resources and tools more, eg: Check user past trips for context before proceeding
+- [ ] Agents not using web-search enough: Destination agent + hotel agent for enrichment (Itinerary agent uses it fine)
 - [ ] Wire PostgresStore: read/write user preferences namespaced by userId
-- [ ] Add integration with MCP prompts and more in each component: Destination details dialog, greetings page suggestion cards, etc...
+- [ ] Add instructions for the "plan next trip" flow when a trip is completed, plus a `suggest_new_trip` tool rendering a card, optionally with destination and etc... that would create a new trip
 
 ### Quality and Observability
 
+- [ ] Switch to `evlog` for structured logging
 - [ ] Add eval suite for routing accuracy and tool-call correctness (choose eval framework: Evalite, LangSmith, or Vitest-based)
 - [ ] Expand web E2E coverage (Playwright)
 - [ ] Add OpenTelemetry spans for agent and MCP execution
@@ -155,8 +152,9 @@ pnpm dev:web      # Next.js app
 - [ ] Add more hotels per destination from additional sources
 - [ ] Remove data acquisition/generator scripts when data collection is complete
 
-### Platform and Payments
+### Later
 
+- [ ] Destination suggestions comes with custom descriptions. this needs to be highlighted in some way. Currently, the description is cut off by the char limit in the destination-card. We could rework the ui to not use carousels.
 - [ ] Add option to share trip conversations (read-only)
 - [ ] Evaluate optional auto-pay flows vs explicit manual payment each time (eg: Allow always, allow, deny...)
 - [ ] Add persistent "always use this airport" preference in flight confirmation

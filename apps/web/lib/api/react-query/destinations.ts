@@ -23,8 +23,6 @@ export const destinationQueries = {
     const { cursor: _cursor, ...queryWithoutCursor } = query;
 
     return infiniteQueryOptions({
-      // TODO: eventually write a shared util/helper that writes most of the options here for us,
-      // like select, initialPageparam, getNextPageParam etc... but without loosing on typesafety.
       select(data) {
         return data?.pages.flatMap((page) => page.data) || [];
       },

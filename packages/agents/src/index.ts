@@ -26,4 +26,9 @@ export {
   type GraphInstance,
 } from "./graph";
 
+export {
+  generateSuggestions,
+  type SuggestionsContext,
+} from "./suggestions";
+
 export { Command } from "@langchain/langgraph";

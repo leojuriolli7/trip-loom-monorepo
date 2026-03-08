@@ -6,10 +6,7 @@ import { createFlightAgent } from "./sub-agents/flight";
 import { createHotelAgent } from "./sub-agents/hotel";
 import { createItineraryAgent } from "./sub-agents/itinerary";
 import { buildSupervisor } from "./supervisor";
-import {
-  getLocalToolsForAgent,
-  getMcpToolsForAgent,
-} from "./tools";
+import { getLocalToolsForAgent, getMcpToolsForAgent } from "./tools";
 import { tools as openaiTools } from "@langchain/openai";
 import type { MultiServerMCPClient } from "@langchain/mcp-adapters";
 
@@ -61,7 +58,10 @@ export async function createGraph(config: GraphConfig): Promise<GraphInstance> {
     createModel(modelConfig.destination),
   );
   const flightAgent = createFlightAgent(
-    [...getMcpToolsForAgent(allTools, "flight"), ...getLocalToolsForAgent("flight")],
+    [
+      ...getMcpToolsForAgent(allTools, "flight"),
+      ...getLocalToolsForAgent("flight"),
+    ],
     createModel(modelConfig.flight),
   );
   const hotelAgent = createHotelAgent(

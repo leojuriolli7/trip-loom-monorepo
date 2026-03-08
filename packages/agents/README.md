@@ -159,10 +159,11 @@ Project-level TODOs and roadmap items live in the repository root `README.md`.
 
 This package requires the following environment variables (provided by the app that imports it):
 
-| Variable                | Required                 | Description                               |
-| ----------------------- | ------------------------ | ----------------------------------------- |
-| `SUPERVISOR_MODEL`      | No (defaults to GPT 5.2) | OpenAI LLM Model for Supervisor Agent     |
-| `FLIGHT_AGENT_MODEL`    | No (defaults to GPT 5.2) | OpenAI LLM Model for Flight Booking Agent |
-| `ITINERARY_AGENT_MODEL` | No (defaults to GPT 5.2) | OpenAI LLM Model for Itinerary Agent      |
-| `HOTEL_AGENT_MODEL`     | No (defaults to GPT 5.2) | OpenAI LLM Model for Hotel Booking Agent  |
-| `OPENAI_API_KEY`        | Yes                      | OpenAI API Key                            |
+| Variable                | Required                      | Description                                              |
+| ----------------------- | ----------------------------- | -------------------------------------------------------- |
+| `SUPERVISOR_MODEL`      | No (defaults to GPT 5.2)      | OpenAI LLM Model for Supervisor Agent                    |
+| `FLIGHT_AGENT_MODEL`    | No (defaults to GPT 5.2)      | OpenAI LLM Model for Flight Booking Agent                |
+| `ITINERARY_AGENT_MODEL` | No (defaults to GPT 5.2)      | OpenAI LLM Model for Itinerary Agent                     |
+| `HOTEL_AGENT_MODEL`     | No (defaults to GPT 5.2)      | OpenAI LLM Model for Hotel Booking Agent                 |
+| `SUGGESTIONS_MODEl`     | No (defaults to GPT 4.1 Mini) | OpenAI LLM Model for next message suggestions generation |
+| `OPENAI_API_KEY`        | Yes                           | OpenAI API Key                                           |

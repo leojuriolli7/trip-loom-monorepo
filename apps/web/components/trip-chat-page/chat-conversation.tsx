@@ -20,6 +20,7 @@ import {
   WebSearchToolCallCard,
   type WebSearchToolCall,
 } from "../tools/web-search-tool-card";
+import { TripChatSuggestions } from "./trip-chat-suggestions";
 
 type AssistantMessageDisplay = {
   content: string;
@@ -161,12 +162,8 @@ export function ChatConversation() {
                 key={key}
                 value={value}
                 disabled={stream.isLoading}
-                onConfirm={(seatId) =>
-                  submitResume({ seatId })
-                }
-                onCancel={() =>
-                  submitResume({ seatId: null })
-                }
+                onConfirm={(seatId) => submitResume({ seatId })}
+                onCancel={() => submitResume({ seatId: null })}
               />
             );
           }
@@ -175,8 +172,7 @@ export function ChatConversation() {
         })}
 
         {stream.interrupts.some(
-          (i) =>
-            i.value?.type !== "request-seat-selection",
+          (i) => i.value?.type !== "request-seat-selection",
         ) && (
           <div className="space-y-3 rounded-lg border border-border/60 bg-card p-4">
             <h3 className="text-sm font-medium">Awaiting confirmation</h3>
@@ -243,6 +239,8 @@ export function ChatConversation() {
             })}
           </div>
         )}
+
+        <TripChatSuggestions />
       </ConversationContent>
     </Conversation>
   );

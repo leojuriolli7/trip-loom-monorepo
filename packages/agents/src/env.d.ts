@@ -4,6 +4,7 @@ export type AgentsEnv = {
   FLIGHT_AGENT_MODEL: string;
   HOTEL_AGENT_MODEL: string;
   ITINERARY_AGENT_MODEL: string;
+  SUGGESTIONS_MODEL: string;
   OPENAI_API_KEY: string;
 };
 

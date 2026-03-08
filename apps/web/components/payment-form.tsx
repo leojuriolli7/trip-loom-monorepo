@@ -35,7 +35,6 @@ function getStripe(): Promise<Stripe | null> {
 }
 
 // Custom appearance to match the app's design system
-// TODO: See if using CSS variables work
 function getAppearance(isDark: boolean): Appearance {
   return {
     theme: isDark ? "night" : "stripe",
