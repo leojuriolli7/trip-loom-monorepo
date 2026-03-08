@@ -227,7 +227,7 @@ function DestinationDetailContent({
             </div>
           )}
 
-          {/* AI Actions */}
+          {/* AI Actions -- TODO: These could connect to MCP prompts */}
           <div className="rounded-2xl border border-primary/30 bg-linear-to-br from-primary/9 via-background to-background p-4">
             <p className="text-base font-semibold tracking-tight">
               Ready to learn more?

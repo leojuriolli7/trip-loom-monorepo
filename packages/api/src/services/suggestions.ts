@@ -23,7 +23,6 @@ async function getTripContext(tripId: string) {
   return rows[0] ?? null;
 }
 
-// TODO: This could be streamed in later on
 export async function getSuggestions(
   userId: string,
   tripId: string,

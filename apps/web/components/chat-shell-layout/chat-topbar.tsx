@@ -80,12 +80,10 @@ export function ChatTopbar() {
                 }
               }}
             >
-              <div className="flex min-w-0 items-center gap-2">
-                <p className="truncate font-medium">
-                  {trip ? getTripTitle(trip) : ""}
-                </p>
-              </div>
-              <p className="truncate text-sm leading-none text-muted-foreground">
+              <p className="truncate font-medium -mb-1">
+                {trip ? getTripTitle(trip) : ""}
+              </p>
+              <p className="truncate text-sm text-muted-foreground">
                 {trip ? formatTripDates(trip) : ""}
               </p>
             </div>

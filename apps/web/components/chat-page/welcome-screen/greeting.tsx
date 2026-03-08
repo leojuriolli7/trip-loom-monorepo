@@ -91,6 +91,7 @@ interface QuickActionProps {
   description: string;
 }
 
+// TODO: These quick actions could connect to MCP prompts
 function QuickAction({
   icon,
   hoverIcon,

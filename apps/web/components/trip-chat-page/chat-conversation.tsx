@@ -21,6 +21,7 @@ import {
   type WebSearchToolCall,
 } from "../tools/web-search-tool-card";
 import { TripChatSuggestions } from "./trip-chat-suggestions";
+import Image from "next/image";
 
 type AssistantMessageDisplay = {
   content: string;
@@ -88,6 +89,25 @@ export function ChatConversation() {
 
   return (
     <Conversation className="min-h-0 flex-1">
+      {!messages?.length ? (
+        <div className="w-full min-h-full flex-1 flex flex-col gap-4 items-center justify-center">
+          <Image
+            width={192}
+            height={192}
+            alt="Destination"
+            src="/aztec-temple.png"
+            className="w-48 h-48"
+          />
+
+          <p className="text-muted-foreground text-sm">
+            No messages yet. Start planning your trip by chatting with our
+            agents.
+          </p>
+
+          {/* TODO: Could render MCP prompts here. */}
+        </div>
+      ) : null}
+
       <ConversationContent className="mx-auto max-w-3xl px-4 py-6">
         {messages.map((message, index) => {
           const key = message.id ?? `${message.type}-${index}`;
