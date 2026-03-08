@@ -103,8 +103,8 @@ pnpm dev:web      # Next.js app
 
 ### MCP
 
-- [ ] Create MCP prompts and wire them to UI (Destination details dialog, greetings page suggestion cards, suggest new trip tool card...)
-- [ ] Read MCP resources, eg: Load past trips on conversation start, load user preferences (instead of asking to call `get_user_preferences` on open), load past itineraries...
+- [ ] Finish adding prompts `chat-conversation.tsx` and `suggest-new-trip-card.tsx`
+- [ ] Read MCP resources. For example: Load past trips on conversation start, load user preferences (instead of asking to call `get_user_preferences` on open)
 
 ### Agents and Orchestration
 

@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import type { PromptDefinition } from "@trip-loom/contracts/prompts";
+import { PROMPTS } from "@trip-loom/contracts/prompts";
 import { ArrowUpRightIcon } from "lucide-react";
-import { focusChatInput } from "@/lib/focus-chat-input";
+import { focusPromptBlock } from "@/lib/focus-chat-input";
+import { dispatchSetPrompt } from "@/lib/prompt-events";
 import { GreetingUserNameScript } from "./greeting-user-name-script";
 
 export function Greeting() {
@@ -65,18 +68,21 @@ export function Greeting() {
             hoverIcon="/japanese-temple.png"
             title="Explore destinations"
             description="Discover your next adventure"
+            prompt={PROMPTS.explore_destinations}
           />
           <QuickAction
             icon="/bungalow.png"
             hoverIcon="/camping.png"
             title="Book accommodations"
             description="Find the perfect place to stay"
+            prompt={PROMPTS.book_accommodations}
           />
           <QuickAction
             icon="/backpack.png"
             hoverIcon="/map.png"
             title="Plan itinerary"
             description="Create your travel schedule"
+            prompt={PROMPTS.plan_itinerary}
           />
         </div>
       </div>
@@ -89,19 +95,28 @@ interface QuickActionProps {
   hoverIcon?: string;
   title: string;
   description: string;
+  prompt: PromptDefinition;
 }
 
-// TODO: These quick actions could connect to MCP prompts
 function QuickAction({
   icon,
   hoverIcon,
   title,
   description,
+  prompt,
 }: QuickActionProps) {
+  const handleClick = () => {
+    dispatchSetPrompt(prompt);
+
+    requestAnimationFrame(() => {
+      focusPromptBlock();
+    });
+  };
+
   return (
     <button
       type="button"
-      onClick={focusChatInput}
+      onClick={handleClick}
       className="group relative flex items-center gap-4 overflow-hidden rounded-3xl border border-border/70 bg-linear-to-br from-card via-card to-secondary/35 p-4 text-left shadow-[0_18px_30px_-28px_rgba(15,23,42,0.7)] transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_24px_34px_-24px_rgba(208,115,48,0.35)]"
     >
       <div className="pointer-events-none absolute -right-8 -top-8 size-24 rounded-full bg-primary/12 opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100" />

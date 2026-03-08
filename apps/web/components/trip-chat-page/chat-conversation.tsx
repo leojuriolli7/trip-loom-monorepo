@@ -104,7 +104,7 @@ export function ChatConversation() {
             agents.
           </p>
 
-          {/* TODO: Could render MCP prompts here. */}
+          {/* TODO: Could render MCP prompts here as suggestions. */}
         </div>
       ) : null}
 

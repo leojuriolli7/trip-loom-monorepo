@@ -31,10 +31,12 @@ import {
   PlaneIcon,
   XIcon,
 } from "lucide-react";
-import { focusChatInput } from "@/lib/focus-chat-input";
+import { focusPromptBlock } from "@/lib/focus-chat-input";
 import { destinationQueries } from "@/lib/api/react-query/destinations";
 import { getCoverImage } from "@/lib/get-cover-image";
 import { atom, useAtom } from "jotai";
+import { PROMPTS } from "@trip-loom/contracts/prompts";
+import { dispatchSetPrompt } from "@/lib/prompt-events";
 
 type DestinationDetailDialogAtom = {
   destinationId: string | null;
@@ -71,13 +73,6 @@ function DestinationDetailContent({
     () => (isDrawer ? DrawerTitle : DialogTitle),
     [isDrawer],
   );
-
-  const handleChatAction = () => {
-    onClose();
-    requestAnimationFrame(() => {
-      focusChatInput();
-    });
-  };
 
   if (isPending) {
     return (
@@ -227,13 +222,25 @@ function DestinationDetailContent({
             </div>
           )}
 
-          {/* AI Actions -- TODO: These could connect to MCP prompts */}
           <div className="rounded-2xl border border-primary/30 bg-linear-to-br from-primary/9 via-background to-background p-4">
             <p className="text-base font-semibold tracking-tight">
               Ready to learn more?
             </p>
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              <Button className="justify-between" onClick={handleChatAction}>
+              <Button
+                className="justify-between"
+                onClick={() => {
+                  onClose();
+
+                  dispatchSetPrompt(PROMPTS.plan_trip_to_destination, {
+                    destinationName: data.name,
+                  });
+
+                  requestAnimationFrame(() => {
+                    focusPromptBlock();
+                  });
+                }}
+              >
                 <span className="inline-flex items-center gap-1.5">
                   <PlaneIcon className="size-4" />
                   Plan a trip
@@ -243,7 +250,17 @@ function DestinationDetailContent({
               <Button
                 variant="outline"
                 className="justify-between border-border/70 bg-background/80"
-                onClick={handleChatAction}
+                onClick={() => {
+                  onClose();
+
+                  dispatchSetPrompt(PROMPTS.ask_destination_activities, {
+                    destinationName: data.name,
+                  });
+
+                  requestAnimationFrame(() => {
+                    focusPromptBlock();
+                  });
+                }}
               >
                 <span className="inline-flex items-center gap-1.5">
                   <MapIcon className="size-4" />

@@ -31,11 +31,9 @@ function formatDateRange(startDate: string | null, endDate: string | null) {
 }
 
 /**
- * TODO: When context exists (destination, dates), ideally clicking this card
- * should auto-submit a planning prompt in the new chat (e.g. via MCP prompt
- * or app-level prompt like `/chat/:id?prompt=plan_new_trip`). This requires
- * studying MCP prompt integration with LangChain. For now, both cases just
- * redirect to the new trip chat.
+ * TODO:
+ * When context exists: Route to /chat with a prefilled prompt to plan new trip.
+ * When context does not exist: Route to /chat and focus chat input.
  */
 export function SuggestNewTripCard({ args }: { args: SuggestNewTripArgs }) {
   const router = useRouter();
