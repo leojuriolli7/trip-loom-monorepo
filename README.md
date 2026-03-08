@@ -98,13 +98,12 @@ pnpm dev:web      # Next.js app
 ## Project TODOs
 
 ### API
-- [ ] Allow filtering by multiple amenities or highlights at once in. list hotels/destinations
-- [ ] Option to book multiple hotels/flights for a trip
+
 - [ ] Add `get_weather` tool via new API endpoint for weather -- For current trips asking about daily weather
 
 ### MCP
 
-- [ ] Create MCP prompts and wire them to UI (Destination details dialog, greetings page suggestion cards...)
+- [ ] Create MCP prompts and wire them to UI (Destination details dialog, greetings page suggestion cards, suggest new trip tool card...)
 - [ ] Read MCP resources, eg: Load past trips on conversation start, load user preferences (instead of asking to call `get_user_preferences` on open), load past itineraries...
 
 ### Agents and Orchestration
@@ -112,17 +111,13 @@ pnpm dev:web      # Next.js app
 - [ ] Refine system prompts from real conversation test runs
 - [ ] Agents not using web-search enough: Destination agent + hotel agent for enrichment (Itinerary agent uses it fine)
 - [ ] Wire PostgresStore: read/write user preferences namespaced by userId
-- [ ] Add instructions for the "plan next trip" flow when a trip is completed, plus a `suggest_new_trip` tool rendering a card, optionally with destination and etc... that would create a new trip
 
 ### Quality and Observability
 
-- [ ] Switch to `evlog` for structured logging
-- [ ] Add eval suite for routing accuracy and tool-call correctness (choose eval framework: Evalite, LangSmith, or Vitest-based)
-- [ ] Expand web E2E coverage (Playwright)
+- [ ] Switch to `evlog` for structured logging + add logging to agents and MCP
 - [ ] Add OpenTelemetry spans for agent and MCP execution
-- [ ] Add structured logging coverage for agents messages and tools + MCP tools
-- [ ] Add CI workflow for typecheck/tests on PRs
-- [ ] API rate limits
+- [ ] Add eval suite for routing accuracy and tool-call correctness (choose eval framework: Evalite, LangSmith, or Vitest-based)
+- [ ] Add API rate limits
 - [ ] Add RLS to DB + separate database pools and roles
     1. Split DB roles first.
       app_owner for migrations, app_runtime for normal API/MCP business queries, app_internal for
@@ -155,9 +150,9 @@ pnpm dev:web      # Next.js app
 ### Later
 
 - [ ] Destination suggestions comes with custom descriptions. this needs to be highlighted in some way. Currently, the description is cut off by the char limit in the destination-card. We could rework the ui to not use carousels.
+- [ ] Allow filtering by multiple amenities or highlights at once in list hotels/destinations
+- [ ] Option to book multiple hotels/flights for a trip
 - [ ] Add option to share trip conversations (read-only)
-- [ ] Evaluate optional auto-pay flows vs explicit manual payment each time (eg: Allow always, allow, deny...)
-- [ ] Add persistent "always use this airport" preference in flight confirmation
 
 ## Package Documentation
 

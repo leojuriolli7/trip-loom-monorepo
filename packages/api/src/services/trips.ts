@@ -17,7 +17,10 @@ import type {
   UpdateTripInput,
 } from "@trip-loom/contracts/dto/trips";
 import { isValidDateRange } from "../lib/date-range";
-import { buildComputedStatusCondition } from "../lib/trips/status";
+import {
+  buildComputedStatusCondition,
+  computedTripStatusSql,
+} from "../lib/trips/status";
 import { BadRequestError } from "../errors";
 import { generateId } from "../lib/nanoid";
 import {
@@ -241,6 +244,7 @@ export async function updateTrip(
       id: trip.id,
       startDate: trip.startDate,
       endDate: trip.endDate,
+      status: computedTripStatusSql,
     })
     .from(trip)
     .where(and(eq(trip.id, tripId), eq(trip.userId, userId)))
@@ -250,9 +254,14 @@ export async function updateTrip(
     return null;
   }
 
+  const existing = existingRows[0];
+
+  if (existing.status === "past" || existing.status === "cancelled") {
+    throw new BadRequestError("Cannot update a past or cancelled trip");
+  }
+
   await ensureDestinationExists(input.destinationId);
 
-  const existing = existingRows[0];
   const nextStartDate =
     input.startDate !== undefined ? input.startDate : existing.startDate;
   const nextEndDate =

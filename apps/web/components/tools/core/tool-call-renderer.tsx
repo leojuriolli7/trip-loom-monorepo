@@ -12,6 +12,7 @@ import { GetDestinationDetailsToolCard } from "../get-destination-details-tool-c
 import { SearchFlightsToolCard } from "../search-flights-card";
 import { SearchHotelsToolCard } from "../search-hotels-card";
 import { GetTripDetailsToolCard } from "../get-trip-details-tool-card/get-trip-details-tool-card";
+import { SuggestNewTripCard } from "../suggest-new-trip-card";
 import { TransferAgentToolCard } from "../transfer-agent-tool-card";
 
 /**
@@ -83,6 +84,8 @@ export function ToolCallRenderer({ toolCall }: { toolCall: TripLoomToolCall }) {
       return <SearchFlightsToolCard args={toolCall.args} />;
     case "search_hotels":
       return <SearchHotelsToolCard args={toolCall.args} />;
+    case "suggest_new_trip":
+      return <SuggestNewTripCard args={toolCall.args} />;
     case "transfer_to_destination_agent":
     case "transfer_to_flight_agent":
     case "transfer_to_hotel_agent":
