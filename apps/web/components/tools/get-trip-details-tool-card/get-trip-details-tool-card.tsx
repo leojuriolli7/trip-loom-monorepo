@@ -58,7 +58,7 @@ export function GetTripDetailsToolCard({ args }: GetTripDetailsToolCardProps) {
   }
 
   const trip = tripResult.data;
-  const tripDates = formatTripDates(trip);
+  const tripDates = formatTripDates(trip?.startDate, trip?.endDate);
   const totalActivities = getTripActivityCount(trip);
   const hasAnyFeature = trip.hasFlights || trip.hasHotel || trip.hasItinerary;
 

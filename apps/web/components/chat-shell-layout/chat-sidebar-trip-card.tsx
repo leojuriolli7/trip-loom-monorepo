@@ -25,9 +25,12 @@ export const ChatSidebarTripCard = memo(function ChatSidebarTripCard({
   trip,
   isActive,
 }: ChatSidebarTripCardProps) {
-  const updatedLabel = `Updated ${formatDistanceToNow(new Date(trip.updatedAt), {
-    addSuffix: true,
-  })}`;
+  const updatedLabel = `Updated ${formatDistanceToNow(
+    new Date(trip.updatedAt),
+    {
+      addSuffix: true,
+    },
+  )}`;
 
   const queryClient = useQueryClient();
   const { toggleSidebar } = useSidebar();
@@ -64,7 +67,7 @@ export const ChatSidebarTripCard = memo(function ChatSidebarTripCard({
             </div>
 
             <span className="truncate text-xs text-muted-foreground">
-              {formatTripDates(trip)}
+              {formatTripDates(trip.startDate, trip.endDate)}
             </span>
 
             <span className="truncate text-[11px] text-muted-foreground/80">

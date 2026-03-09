@@ -94,7 +94,7 @@ function TripDetailsSectionHeading({
 
 function TripDetailsSheetBody({ trip }: { trip: TripDetailDTO }) {
   const setItinerarySheet = useSetAtom(itinerarySheetAtom);
-  const tripDates = formatTripDates(trip);
+  const tripDates = formatTripDates(trip?.startDate, trip?.endDate);
   const hasExpandedSections = Boolean(
     trip.flightBookings.length ||
       trip.hotelBookings.length ||

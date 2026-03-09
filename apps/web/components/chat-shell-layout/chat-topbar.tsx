@@ -84,7 +84,7 @@ export function ChatTopbar() {
                 {trip ? getTripTitle(trip) : ""}
               </p>
               <p className="truncate text-sm text-muted-foreground">
-                {trip ? formatTripDates(trip) : ""}
+                {trip ? formatTripDates(trip.startDate, trip.endDate) : ""}
               </p>
             </div>
           ) : null}

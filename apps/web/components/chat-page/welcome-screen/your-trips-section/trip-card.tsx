@@ -2,14 +2,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CalendarIcon, MapPinIcon } from "lucide-react";
 import Image from "next/image";
 import type { TripWithDestinationDTO } from "@trip-loom/contracts/dto";
-import { useMemo } from "react";
-import { parseIsoDate } from "@/lib/parse-iso-date";
-import { format } from "date-fns";
 import { TripFeatureBadge } from "@/components/trip-feature-badge";
 import { TripStatusBadge } from "@/components/trip-status-badge";
 import { getCoverImage } from "@/lib/get-cover-image";
 import { useQueryClient } from "@tanstack/react-query";
 import { prefetchChatHistory } from "@/lib/prefetch-chat-history";
+import { formatTripDates } from "@/lib/format-trip-dates";
 
 interface TripCardProps {
   trip: TripWithDestinationDTO;
@@ -24,27 +22,6 @@ export function TripCard({ trip }: TripCardProps) {
   const hasAnyFeature = trip.hasFlights || trip.hasHotel || trip.hasItinerary;
 
   const queryClient = useQueryClient();
-
-  /**
-   * Formats date string to `Jan 3 - Feb 4` or `Dec 14 - Jan 24 2027`
-   */
-  const dateRange = useMemo(() => {
-    const startDate = trip?.startDate;
-    const endDate = trip?.endDate;
-
-    if (!startDate || !endDate) {
-      return "Dates pending";
-    }
-
-    const start = parseIsoDate(startDate);
-    const end = parseIsoDate(endDate);
-
-    if (start.getFullYear() !== end.getFullYear()) {
-      return `${format(start, "MMM d, yyyy")} - ${format(end, "MMM d, yyyy")}`;
-    }
-
-    return `${format(start, "MMM d")} - ${format(end, "MMM d, yyyy")}`;
-  }, [trip]);
 
   return (
     <Card
@@ -85,7 +62,9 @@ export function TripCard({ trip }: TripCardProps) {
       <CardContent className="space-y-3 p-4 pt-0">
         <div className="inline-flex items-center gap-2 rounded-xl border border-border/70 bg-background/80 px-2.5 py-1.5 text-sm text-muted-foreground">
           <CalendarIcon className="size-4" />
-          <span className="font-medium">{dateRange}</span>
+          <span className="font-medium">
+            {formatTripDates(trip.startDate, trip.endDate)}
+          </span>
         </div>
 
         <div className="flex min-h-7 flex-wrap gap-2">

@@ -2,34 +2,17 @@
 
 import type { TripLoomToolArgsByName } from "@trip-loom/agents";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
 import { CalendarIcon, MapPinIcon, PlusIcon } from "lucide-react";
 import { ToolCallCard } from "@/components/tools/tool-call-card";
-import { parseIsoDate } from "@/lib/parse-iso-date";
+import { formatTripDates } from "@/lib/format-trip-dates";
 
 type SuggestNewTripArgs = TripLoomToolArgsByName<"suggest_new_trip">;
-
-function formatDateRange(startDate: string | null, endDate: string | null) {
-  if (!startDate) return null;
-
-  const start = parseIsoDate(startDate);
-
-  if (!endDate) return format(start, "MMM d");
-
-  const end = parseIsoDate(endDate);
-
-  if (start.getFullYear() !== end.getFullYear()) {
-    return `${format(start, "MMM d, yyyy")} – ${format(end, "MMM d, yyyy")}`;
-  }
-
-  return `${format(start, "MMM d")} – ${format(end, "MMM d, yyyy")}`;
-}
 
 export function SuggestNewTripCard({ args }: { args: SuggestNewTripArgs }) {
   const router = useRouter();
 
   const hasContext = args.destinationName || args.title;
-  const dateRange = formatDateRange(args.startDate, args.endDate);
+  const dateRange = formatTripDates(args.startDate, args.endDate);
 
   const redirectToChatPage = async () => {
     const { destinationName, startDate, endDate } = args || {};
