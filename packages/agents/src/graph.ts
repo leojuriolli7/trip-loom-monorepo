@@ -7,7 +7,12 @@ import { createFlightAgent } from "./sub-agents/flight";
 import { createHotelAgent } from "./sub-agents/hotel";
 import { createItineraryAgent } from "./sub-agents/itinerary";
 import { buildSupervisor } from "./supervisor";
-import { getLocalToolsForAgent, getMcpToolsForAgent } from "./tools";
+import {
+  APPROVAL_REQUIRED_TOOLS,
+  getLocalToolsForAgent,
+  getMcpToolsForAgent,
+} from "./tools";
+import { withApproval } from "./tools/core/with-approval";
 import { tools as openaiTools } from "@langchain/openai";
 import type { MultiServerMCPClient } from "@langchain/mcp-adapters";
 
@@ -43,10 +48,15 @@ export async function createGraph(config: GraphConfig): Promise<GraphInstance> {
 
   // 1. Connect to MCP, load tools and read resources in parallel
   const mcpClient = createMcpClient({ mcpUrl, accessToken });
-  const [allTools, mcpResources] = await Promise.all([
+  const [rawTools, mcpResources] = await Promise.all([
     loadMcpTools(mcpClient),
     readMcpResources(mcpClient),
   ]);
+
+  // Wrap approval-required MCP tools with interrupt-based confirmation
+  const allTools = rawTools.map((t) =>
+    APPROVAL_REQUIRED_TOOLS.has(t.name) ? withApproval(t) : t,
+  );
 
   // 2. Create persistence layer
   const checkpointer = createCheckpointer(dbConnectionString);

@@ -13,15 +13,6 @@ Think of this package as an **engine**, not a car:
 
 The API package **defines** the application logic but doesn't **run** anything by itself. Consumers mount it wherever they need to deploy.
 
-## Domain Docs
-
-Cross-domain flow documentation lives in `packages/api/docs`:
-
-- `docs/trip-lifecycle.md`
-- `docs/booking-payment-flow.md`
-- `docs/cancellation-refund-policy.md`
-- `docs/itinerary-lifecycle.md`
-
 ## URL Structure
 
 | Path | Description |
@@ -74,7 +65,6 @@ import { tripStatusValues } from "@trip-loom/contracts/enums";
 
 ```
 src/
-├── docs/                   # Domain and cross-domain behavior docs
 ├── index.ts                # Main Elysia app factory, exports `createApp` and `type App`
 ├── db/
 │   ├── index.ts            # Database connection (Drizzle + Postgres)

@@ -1,11 +1,9 @@
 import type { DynamicStructuredTool } from "@langchain/core/tools";
-import { requestCancellationTool } from "../request-cancellation";
 import { requestPaymentTool } from "../request-payment";
 import { requestSeatSelectionTool } from "../request-seat-selection";
 import { suggestDestinationsTool } from "../suggest-destinations";
 import { suggestFlightTool } from "../suggest-flight";
 import { suggestHotelBookingTool } from "../suggest-hotel-booking";
-import { suggestItineraryTool } from "../suggest-itinerary";
 import { suggestNewTripTool } from "../suggest-new-trip";
 
 const SUPERVISOR_MCP_TOOLS = [
@@ -48,7 +46,7 @@ const ITINERARY_MCP_TOOLS = [
 const AGENT_TOOL_REGISTRY = {
   supervisor: {
     mcp: SUPERVISOR_MCP_TOOLS,
-    local: [requestPaymentTool, requestCancellationTool, suggestNewTripTool] as const,
+    local: [requestPaymentTool, suggestNewTripTool] as const,
   },
   destination: {
     mcp: DESTINATION_MCP_TOOLS,
@@ -64,7 +62,7 @@ const AGENT_TOOL_REGISTRY = {
   },
   itinerary: {
     mcp: ITINERARY_MCP_TOOLS,
-    local: [suggestItineraryTool] as const,
+    local: [] as const,
   },
 } as const;
 
@@ -72,6 +70,27 @@ type AgentRegistry = typeof AGENT_TOOL_REGISTRY;
 
 export type AgentName = keyof AgentRegistry;
 export type TripLoomMcpToolName = AgentRegistry[AgentName]["mcp"][number];
+
+/**
+ * MCP tools that require user approval before execution.
+ * These are wrapped with `withApproval()` to interrupt for confirmation.
+ *
+ * To add approval to a new tool, just add its name here.
+ */
+const APPROVAL_REQUIRED_TOOL_NAMES = [
+  "create_itinerary",
+  "add_itinerary_day",
+  "add_itinerary_activity",
+  "update_itinerary_activity",
+  "delete_itinerary_activity",
+  "cancel_hotel_booking",
+  "cancel_flight_booking",
+] as const satisfies readonly TripLoomMcpToolName[];
+
+export const APPROVAL_REQUIRED_TOOLS: ReadonlySet<string> = new Set(
+  APPROVAL_REQUIRED_TOOL_NAMES,
+);
+
 export type TripLoomLocalTool = AgentRegistry[AgentName]["local"][number];
 export type TripLoomLocalToolName = TripLoomLocalTool["name"];
 export type TransferToolName = (typeof TRANSFER_TOOL_NAMES)[number];
@@ -81,13 +100,11 @@ export type TripLoomToolName =
   | TransferToolName;
 
 const TRIP_LOOM_LOCAL_TOOL_NAMES = [
-  requestCancellationTool.name,
   requestPaymentTool.name,
   requestSeatSelectionTool.name,
   suggestDestinationsTool.name,
   suggestFlightTool.name,
   suggestHotelBookingTool.name,
-  suggestItineraryTool.name,
   suggestNewTripTool.name,
 ] as const;
 

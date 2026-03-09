@@ -1,6 +1,5 @@
 export { initPersistence } from "./persistence";
 export { type RequestPaymentResume } from "./tools/request-payment";
-export { type RequestCancellationResume } from "./tools/request-cancellation";
 export { type RequestSeatSelectionResume } from "./tools/request-seat-selection";
 
 export {
@@ -11,6 +10,8 @@ export {
 } from "./tools/core";
 
 export type {
+  ToolApprovalInterrupt,
+  ToolApprovalResume,
   TripLoomMessage,
   TripLoomResumePayload,
   TripLoomChatState,

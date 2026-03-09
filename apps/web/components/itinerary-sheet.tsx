@@ -1,6 +1,5 @@
 "use client";
 
-import type { TripLoomToolArgsByName } from "@trip-loom/agents";
 import { pluralize } from "@/lib/pluralize";
 import type { ItineraryDetailDTO } from "@trip-loom/contracts/dto";
 import { format } from "date-fns";
@@ -16,8 +15,6 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { parseIsoDate } from "@/lib/parse-iso-date";
-
-type SuggestedItineraryArgs = TripLoomToolArgsByName<"suggest_itinerary">;
 
 export type ItinerarySheetActivity = {
   id: string;
@@ -91,32 +88,6 @@ function getActivitySourceLabel(activity: ItinerarySheetActivity) {
   } catch {
     return "Source";
   }
-}
-
-export function createSuggestedItinerarySheetData(
-  itinerary: SuggestedItineraryArgs,
-): ItinerarySheetData {
-  return {
-    source: "suggested",
-    days: itinerary.days.map((day, dayIndex) => ({
-      id: `suggested-day-${day.dayNumber}-${day.date ?? dayIndex}`,
-      dayNumber: day.dayNumber,
-      date: day.date ?? null,
-      title: null,
-      notes: null,
-      activities: day.activities.map((activity, activityIndex) => ({
-        id: `suggested-activity-${day.dayNumber}-${activityIndex}`,
-        title: activity.name,
-        description: activity.description ?? null,
-        startTime: activity.startTime ?? null,
-        endTime: activity.endTime ?? null,
-        location: activity.location ?? null,
-        imageUrl: activity.imageUrl ?? null,
-        sourceUrl: activity.sourceUrl ?? null,
-        sourceName: activity.sourceName ?? null,
-      })),
-    })),
-  };
 }
 
 export function createSavedItinerarySheetData(

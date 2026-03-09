@@ -1,8 +1,4 @@
 import type {
-  RequestCancellationInterrupt,
-  RequestCancellationResume,
-} from "../request-cancellation";
-import type {
   RequestPaymentInterrupt,
   RequestPaymentResume,
 } from "../request-payment";
@@ -10,13 +6,17 @@ import type {
   RequestSeatSelectionInterrupt,
   RequestSeatSelectionResume,
 } from "../request-seat-selection";
+import type {
+  ToolApprovalInterrupt,
+  ToolApprovalResume,
+} from "./with-approval";
 
 export type TripLoomInterruptValue =
-  | RequestCancellationInterrupt
+  | ToolApprovalInterrupt
   | RequestPaymentInterrupt
   | RequestSeatSelectionInterrupt;
 
 export type TripLoomResumePayload =
-  | RequestCancellationResume
+  | ToolApprovalResume
   | RequestPaymentResume
   | RequestSeatSelectionResume;

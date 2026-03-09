@@ -4,12 +4,10 @@ import type { TripLoomMessage } from "@trip-loom/agents";
 import { z } from "zod";
 import {
   requestPaymentToolResultSchema,
-  requestCancellationToolResultSchema,
   requestSeatSelectionToolResultSchema,
 } from "@trip-loom/contracts/dto/payments";
 import { hotelBookingSchema } from "@trip-loom/contracts/dto/hotel-bookings";
 import { CreateHotelBookingToolResultCard } from "../create-hotel-booking-tool-result-card";
-import { RequestCancellationToolResultCard } from "../request-cancellation-tool-result-card";
 import { RequestPaymentToolResultCard } from "../request-payment-tool-result-card";
 import { SeatSelectionToolResultCard } from "../seat-selection-tool-result-card";
 
@@ -110,21 +108,6 @@ export function ToolMessageRenderer({
     }
 
     return <SeatSelectionToolResultCard result={parsed} />;
-  }
-
-  if (message.name === "request_cancellation") {
-    const parsed = parseToolMessageJson(
-      message.content,
-      requestCancellationToolResultSchema,
-    );
-
-    if (!parsed) {
-      return null;
-    }
-
-    return (
-      <RequestCancellationToolResultCard result={parsed} tripId={tripId} />
-    );
   }
 
   return null;

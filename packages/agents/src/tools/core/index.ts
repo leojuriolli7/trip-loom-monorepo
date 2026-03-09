@@ -14,3 +14,4 @@ export type {
 } from "./contract";
 
 export type { TripLoomResumePayload } from "./types";
+export type { ToolApprovalInterrupt, ToolApprovalResume } from "./with-approval";

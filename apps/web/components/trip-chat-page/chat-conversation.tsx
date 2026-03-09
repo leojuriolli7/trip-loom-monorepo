@@ -1,6 +1,10 @@
 "use client";
 
-import type { TripLoomMessage, TripLoomToolCall } from "@trip-loom/agents";
+import type {
+  ToolApprovalInterrupt,
+  TripLoomMessage,
+  TripLoomToolCall,
+} from "@trip-loom/agents";
 import {
   Conversation,
   ConversationContent,
@@ -14,7 +18,8 @@ import { useChatStream } from "@/context/chat";
 import { EmptyStateSuggestions } from "./empty-state-suggestions";
 import { isRenderableAssistantToolCall, ToolCallRenderer } from "../tools";
 import { ToolMessageRenderer } from "../tools/core/tool-message-renderer";
-import { CancellationRequestCard } from "../tools/cancellation-request-card";
+import { CancellationApprovalCard } from "../tools/cancellation-approval-card";
+import { ItineraryApprovalCard } from "../tools/itinerary-approval-card";
 import { PaymentRequestCard } from "../tools/payment-request-card";
 import { SeatSelectionCard } from "../tools/seat-selection-card";
 import {
@@ -83,6 +88,45 @@ function getAssistantMessageDisplay(
     shouldRender:
       content.length > 0 || toolCalls.length > 0 || webSearchCalls.length > 0,
   };
+}
+
+const CANCELLATION_TOOLS = new Set([
+  "cancel_hotel_booking",
+  "cancel_flight_booking",
+]);
+
+function ToolApprovalInterruptCard({
+  interrupt,
+  disabled,
+  tripId,
+  onApprove,
+  onReject,
+}: {
+  interrupt: ToolApprovalInterrupt;
+  disabled?: boolean;
+  tripId: string;
+  onApprove: () => void;
+  onReject: (message?: string) => void;
+}) {
+  if (CANCELLATION_TOOLS.has(interrupt.toolName)) {
+    return (
+      <CancellationApprovalCard
+        interrupt={interrupt}
+        disabled={disabled}
+        onApprove={onApprove}
+        onReject={onReject}
+      />
+    );
+  }
+
+  return (
+    <ItineraryApprovalCard
+      interrupt={interrupt}
+      disabled={disabled}
+      onApprove={onApprove}
+      onReject={onReject}
+    />
+  );
 }
 
 export function ChatConversation() {
@@ -206,28 +250,17 @@ export function ChatConversation() {
                 return null;
               }
 
-              if (value?.type === "request-cancellation") {
+              if (value?.type === "tool-approval") {
                 return (
-                  <CancellationRequestCard
+                  <ToolApprovalInterruptCard
                     key={key}
-                    bookingId={value.bookingId}
-                    bookingType={value.bookingType}
+                    interrupt={value}
                     disabled={stream.isLoading}
-                    onCancel={() =>
-                      submitResume({
-                        confirmed: false,
-                        bookingType: value.bookingType,
-                        bookingId: value.bookingId,
-                      })
-                    }
-                    onConfirm={() =>
-                      submitResume({
-                        confirmed: true,
-                        bookingType: value.bookingType,
-                        bookingId: value.bookingId,
-                      })
-                    }
                     tripId={tripId}
+                    onApprove={() => submitResume({ approved: true })}
+                    onReject={(message) =>
+                      submitResume({ approved: false, message })
+                    }
                   />
                 );
               }

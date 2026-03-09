@@ -100,7 +100,6 @@ pnpm dev:web      # Next.js app
 ### Immediate
 
 - [ ] Switch to `evlog` for structured logging + add logging and OpenTelemetry to agents and MCP
-- [ ] Add `get_weather` tool via new API endpoint for weather -- For current trips asking about daily weather
 
 ### Agents and Orchestration
 
@@ -142,12 +141,15 @@ pnpm dev:web      # Next.js app
 
 ### Later
 
+- [ ] Add `get_weather` tool via new API endpoint for weather -- For current trips asking about daily weather
 - [ ] File uploads -- images, pdfs
-- [ ] Use Ellicitation for destructive MCP tools that cancel bookings, instead of `request_cancellation` tool?
 - [ ] Agents not using web-search enough: Destination agent + hotel agent for enrichment (Itinerary agent uses it fine)
-- [ ] Destination suggestions comes with custom descriptions. this needs to be highlighted in some way. Currently, the description is cut off by the char limit in the destination-card. We could rework the ui to not use carousels.
+
+### Nitpicks and Improvements
+
 - [ ] Allow filtering by multiple amenities or highlights at once in list hotels/destinations
 - [ ] Option to book multiple hotels/flights for a trip
+- [ ] Destination suggestions comes with custom descriptions. this needs to be highlighted in some way. Currently, the description is cut off by the char limit in the destination-card. We could rework the ui to not use carousels.
 - [ ] Add option to share trip conversations (read-only)
 
 ## Package Documentation

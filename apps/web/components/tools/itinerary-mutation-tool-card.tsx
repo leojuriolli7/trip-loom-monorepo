@@ -18,30 +18,50 @@ type ItineraryMutationToolCardProps = {
 };
 
 function getCardLabels(toolName: string) {
-  if (toolName === "create_itinerary") {
-    return {
-      loadingText: "Saving your itinerary...",
-      title: "Created your itinerary",
-      description: "Your itinerary has been saved and is ready to view.",
-      buttonText: "See created itinerary",
-    };
+  switch (toolName) {
+    case "create_itinerary":
+      return {
+        loadingText: "Creating your itinerary...",
+        title: "Created your itinerary",
+        description: "Your itinerary has been saved and is ready to view.",
+        buttonText: "See created itinerary",
+      };
+    case "add_itinerary_day":
+      return {
+        loadingText: "Adding a day...",
+        title: "Added a new day",
+        description: "A new day has been added to your itinerary.",
+        buttonText: "See updated itinerary",
+      };
+    case "add_itinerary_activity":
+      return {
+        loadingText: "Adding an activity...",
+        title: "Added a new activity",
+        description: "A new activity has been added to your itinerary.",
+        buttonText: "See updated itinerary",
+      };
+    case "update_itinerary_activity":
+      return {
+        loadingText: "Updating activity...",
+        title: "Updated activity",
+        description: "An activity in your itinerary has been updated.",
+        buttonText: "See updated itinerary",
+      };
+    case "delete_itinerary_activity":
+      return {
+        loadingText: "Removing activity...",
+        title: "Removed activity",
+        description: "An activity has been removed from your itinerary.",
+        buttonText: "See updated itinerary",
+      };
+    default:
+      return {
+        loadingText: "Updating your itinerary...",
+        title: "Updated your itinerary",
+        description: "Your itinerary has been updated and is ready to view.",
+        buttonText: "See updated itinerary",
+      };
   }
-
-  if (toolName === "delete_itinerary_activity") {
-    return {
-      loadingText: "Updating your itinerary...",
-      title: "Updated your itinerary",
-      description: "An activity has been removed from your itinerary.",
-      buttonText: "See updated itinerary",
-    };
-  }
-
-  return {
-    loadingText: "Updating your itinerary...",
-    title: "Updated your itinerary",
-    description: "Your itinerary has been updated and is ready to view.",
-    buttonText: "See updated itinerary",
-  };
 }
 
 export function ItineraryMutationToolCard({

@@ -16,7 +16,7 @@ Trips are the center of the product. Bookings, payments, and itineraries are att
 2. A trip cannot stay `upcoming`, `current`, or `past` unless both `startDate` and `endDate` are set.
 3. Booking and itinerary mutations can trigger status re-evaluation.
 4. A trip can move from `draft` to `upcoming` when it has travel plan data and valid dates.
-5. Status transitions are guarded by domain rules in `src/lib/trips/rules.ts`.
+5. Status transitions are guarded by domain rules in `packages/api/src/lib/trips/rules.ts`.
 
 ## What Counts As Travel Plan Data
 

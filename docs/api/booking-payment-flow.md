@@ -47,13 +47,13 @@ This matters for the AI agent flow where graph re-execution after payment interr
 
 ## AI Agent Integration
 
-The AI agent system (LangGraph) drives booking creation through MCP tools. See `docs/ai/ai-booking-flow.md` for the full agent flow, tool ownership rules, and HITL interrupt mechanics.
+The AI agent system (LangGraph) drives booking creation through MCP tools. See [AI Booking Flow](../ai/ai-booking-flow.md) for the full agent flow, tool ownership rules, and HITL interrupt mechanics.
 
 Key points for API consumers:
 - Bookings are always created as `pending` by sub-agents (hotel_agent, flight_agent)
 - Payment is triggered separately by the supervisor agent via a `request_payment` interrupt
 - The frontend handles Stripe checkout and resumes the graph with the payment result
-- Cancellation requires explicit user confirmation via a `request_cancellation` interrupt
+- Cancellation tools (`cancel_hotel_booking`, `cancel_flight_booking`) require user approval via the [tool approval pattern](../ai/tool-approval.md) before executing
 
 ## Refund Flow
 
