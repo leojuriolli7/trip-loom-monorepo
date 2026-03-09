@@ -1,12 +1,19 @@
-import { and, asc, eq, gt, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, sql } from "drizzle-orm";
 import { db } from "../db";
-import { itinerary, itineraryActivity, itineraryDay } from "../db/schema";
+import {
+  destination,
+  itinerary,
+  itineraryActivity,
+  itineraryDay,
+  trip,
+} from "../db/schema";
 import type { DB_NewItineraryActivity, DB_NewItineraryDay } from "../db/types";
 import type {
   CreateActivityInput,
   CreateDayInput,
   CreateItineraryInput,
   ItineraryDetailDTO,
+  ItineraryWithTripDTO,
   UpdateActivityInput,
   UpdateDayInput,
 } from "@trip-loom/contracts/dto/itineraries";
@@ -47,6 +54,56 @@ export async function getItineraryDetailsByTripId(
   }
 
   return row;
+}
+
+/**
+ * Lists the last 20 itineraries for a user, with trip context (title, destination, dates).
+ * Returns full itinerary detail (days + activities) for each.
+ */
+export async function listUserItineraries(
+  userId: string,
+  limit: number,
+): Promise<ItineraryWithTripDTO[]> {
+  // Get trip IDs for this user first, then load itineraries with relations
+  const userTripIds = db
+    .select({ id: trip.id })
+    .from(trip)
+    .where(eq(trip.userId, userId));
+
+  const rows = await db.query.itinerary.findMany({
+    where: sql`${itinerary.tripId} IN (${userTripIds})`,
+    with: {
+      trip: {
+        columns: { id: true, title: true, startDate: true, endDate: true },
+        with: {
+          destination: { columns: { name: true } },
+        },
+      },
+      days: {
+        columns: itineraryDayColumns,
+        orderBy: [asc(itineraryDay.dayNumber)],
+        with: {
+          activities: {
+            columns: itineraryActivityColumns,
+            orderBy: [asc(itineraryActivity.orderIndex)],
+          },
+        },
+      },
+    },
+    orderBy: [desc(itinerary.createdAt)],
+    limit,
+  });
+
+  return rows.map((row) => ({
+    id: row.id,
+    tripId: row.tripId,
+    tripTitle: row.trip.title,
+    tripDestination: row.trip.destination?.name ?? null,
+    tripStartDate: row.trip.startDate,
+    tripEndDate: row.trip.endDate,
+    createdAt: row.createdAt,
+    days: row.days,
+  }));
 }
 
 /**

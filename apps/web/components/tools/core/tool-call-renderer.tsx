@@ -14,6 +14,7 @@ import { SearchHotelsToolCard } from "../search-hotels-card";
 import { GetTripDetailsToolCard } from "../get-trip-details-tool-card/get-trip-details-tool-card";
 import { SuggestNewTripCard } from "../suggest-new-trip-card";
 import { TransferAgentToolCard } from "../transfer-agent-tool-card";
+import { GetRecommendedDestinationsCard } from "../get-recommended-destinations-card";
 
 /**
  * These tool calls can appear on assistant messages, but their UI belongs to a
@@ -62,6 +63,8 @@ export function ToolCallRenderer({ toolCall }: { toolCall: TripLoomToolCall }) {
           toolCallId={toolCall.id}
         />
       );
+    case "get_recommended_destinations":
+      return <GetRecommendedDestinationsCard args={toolCall.args} />;
     case "create_itinerary":
     case "add_itinerary_day":
     case "add_itinerary_activity":

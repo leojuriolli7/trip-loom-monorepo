@@ -11,6 +11,10 @@ import type { ChatHistoryResponse } from "../dto/chat";
 import { getOwnedTripMeta } from "../lib/trips/ownership";
 import { getAgentsConfig } from "../lib/agents/config";
 import { isBaseMessage } from "../lib/agents/is-base-message";
+import {
+  formatPreferencesResource,
+  formatTripsResource,
+} from "../lib/chat/format-resources";
 
 function buildTripContextMessage(tripId: string): SystemMessage {
   return new SystemMessage(
@@ -20,6 +24,29 @@ function buildTripContextMessage(tripId: string): SystemMessage {
       "For trip-scoped actions and lookups, use this trip ID by default.",
       "Do not ask the user for trip ID unless they explicitly want to switch trips.",
     ].join("\n"),
+  );
+}
+
+function buildResourceContextMessage(resources: {
+  userTrips: string | null;
+  userPreferences: string | null;
+}): SystemMessage | null {
+  const sections: string[] = [];
+
+  if (resources.userPreferences) {
+    const formatted = formatPreferencesResource(resources.userPreferences);
+    if (formatted) sections.push(formatted);
+  }
+
+  if (resources.userTrips) {
+    const formatted = formatTripsResource(resources.userTrips);
+    if (formatted) sections.push(formatted);
+  }
+
+  if (sections.length === 0) return null;
+
+  return new SystemMessage(
+    `User context loaded from MCP resources:\n\n${sections.join("\n\n")}`,
   );
 }
 
@@ -88,6 +115,7 @@ async function buildChatInput(
   threadId: string,
   tripId: string,
   message: string,
+  resources: { userTrips: string | null; userPreferences: string | null },
 ): Promise<{ messages: BaseMessage[] }> {
   const threadState = await getThreadState(databaseUrl, threadId);
 
@@ -95,10 +123,18 @@ async function buildChatInput(
     return { messages: [new HumanMessage(message)] };
   }
 
-  // Inject trip context only at conversation start, not on every turn.
-  return {
-    messages: [buildTripContextMessage(tripId), new HumanMessage(message)],
-  };
+  // Inject trip context + MCP resources only at conversation start.
+  const messages: BaseMessage[] = [buildTripContextMessage(tripId)];
+
+  const resourceMsg = buildResourceContextMessage(resources);
+
+  if (resourceMsg) {
+    messages.push(resourceMsg);
+  }
+
+  messages.push(new HumanMessage(message));
+
+  return { messages };
 }
 
 /**
@@ -118,13 +154,19 @@ export async function streamChatResponse(
   const threadId = getThreadIdForTrip(tripId);
   const accessToken = await getOrCreateAgentToken(userId);
 
-  const { graph, mcpClient } = await createGraph({
+  const { graph, mcpClient, mcpResources } = await createGraph({
     mcpUrl: mcpServerUrl,
     accessToken,
     dbConnectionString: databaseUrl,
   });
 
-  const input = await buildChatInput(databaseUrl, threadId, tripId, message);
+  const input = await buildChatInput(
+    databaseUrl,
+    threadId,
+    tripId,
+    message,
+    mcpResources,
+  );
 
   const rawStream = await graph.stream(input, {
     encoding: "text/event-stream",

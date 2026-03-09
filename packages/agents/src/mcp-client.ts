@@ -37,3 +37,34 @@ export async function loadMcpTools(
 ): Promise<DynamicStructuredTool[]> {
   return client.getTools();
 }
+
+export interface McpResources {
+  userTrips: string | null;
+  userPreferences: string | null;
+  userItineraries: string | null;
+}
+
+/**
+ * Reads user-scoped MCP resources (trips + preferences) in parallel.
+ * Returns null for any resource that fails — non-blocking.
+ */
+export async function readMcpResources(
+  client: MultiServerMCPClient,
+): Promise<McpResources> {
+  const [userTrips, userPreferences, userItineraries] = await Promise.all([
+    client
+      .readResource("triploom", "triploom://user/trips")
+      .then((res) => res[0]?.text ?? null)
+      .catch(() => null),
+    client
+      .readResource("triploom", "triploom://user/preferences")
+      .then((res) => res[0]?.text ?? null)
+      .catch(() => null),
+    client
+      .readResource("triploom", "triploom://user/itineraries")
+      .then((res) => res[0]?.text ?? null)
+      .catch(() => null),
+  ]);
+
+  return { userTrips, userPreferences, userItineraries };
+}

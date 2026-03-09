@@ -99,7 +99,6 @@ pnpm dev:web      # Next.js app
 
 ### Immediate
 
-- [ ] Read MCP resources. For example: Load past trips on conversation start, load user preferences (instead of asking to call `get_user_preferences` on open)
 - [ ] Switch to `evlog` for structured logging + add logging and OpenTelemetry to agents and MCP
 - [ ] Add `get_weather` tool via new API endpoint for weather -- For current trips asking about daily weather
 
@@ -143,6 +142,8 @@ pnpm dev:web      # Next.js app
 
 ### Later
 
+- [ ] File uploads -- images, pdfs
+- [ ] Use Ellicitation for destructive MCP tools that cancel bookings, instead of `request_cancellation` tool?
 - [ ] Agents not using web-search enough: Destination agent + hotel agent for enrichment (Itinerary agent uses it fine)
 - [ ] Destination suggestions comes with custom descriptions. this needs to be highlighted in some way. Currently, the description is cut off by the char limit in the destination-card. We could rework the ui to not use carousels.
 - [ ] Allow filtering by multiple amenities or highlights at once in list hotels/destinations

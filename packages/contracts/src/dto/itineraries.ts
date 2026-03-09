@@ -55,6 +55,19 @@ export const itineraryDetailSchema = z.object({
 
 export type ItineraryDetailDTO = z.infer<typeof itineraryDetailSchema>;
 
+export const itineraryWithTripSchema = z.object({
+  id: z.string(),
+  tripId: z.string(),
+  tripTitle: z.string().nullable(),
+  tripDestination: z.string().nullable(),
+  tripStartDate: z.string().nullable(),
+  tripEndDate: z.string().nullable(),
+  createdAt: z.date(),
+  days: z.array(itineraryDaySchema),
+});
+
+export type ItineraryWithTripDTO = z.infer<typeof itineraryWithTripSchema>;
+
 // =============================================================================
 // Input Schemas (for API requests)
 // =============================================================================

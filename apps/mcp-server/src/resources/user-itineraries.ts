@@ -1,27 +1,27 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { ApiClient } from "../api-client";
 
-export function registerUserTripsResource(
+export function registerUserItineraries(
   server: McpServer,
   apiClient: ApiClient,
 ) {
   server.registerResource(
-    "user-trips",
-    "triploom://user/trips",
+    "user-itineraries",
+    "triploom://user/itineraries",
     {
-      title: "User Trips",
+      title: "User Itineraries",
       description:
-        "List of 20 last trips belonging to the authenticated user. Each trip includes its status, dates, destination summary, and planning progress. Useful for getting an overview of past, current, and upcoming trips.",
+        "List of 20 last itineraries belonging to the authenticated user.",
       mimeType: "application/json",
     },
     async (uri) => {
-      const { data, error } = await apiClient.api.trips.get({
-        query: { limit: 20 },
+      const { data, error } = await apiClient.api.trips.itineraries.get({
+        query: { limit: 5 },
       });
 
       if (error) {
         throw new Error(
-          `Failed to fetch user trips: ${error.status ?? "unknown error"}`,
+          `Failed to fetch user itineraries: ${error.status ?? "unknown error"}`,
         );
       }
 

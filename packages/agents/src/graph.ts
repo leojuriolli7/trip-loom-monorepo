@@ -1,4 +1,5 @@
-import { createMcpClient, loadMcpTools } from "./mcp-client";
+import { createMcpClient, loadMcpTools, readMcpResources } from "./mcp-client";
+import type { McpResources } from "./mcp-client";
 import { createModel, modelConfig } from "./config";
 import { createCheckpointer, createStore } from "./persistence";
 import { createDestinationAgent } from "./sub-agents/destination";
@@ -24,6 +25,8 @@ export interface GraphInstance {
   graph: ReturnType<typeof buildSupervisor>;
   /** MCP client — call close() when done to clean up connections */
   mcpClient: MultiServerMCPClient;
+  /** Pre-loaded MCP resources (user trips + preferences) */
+  mcpResources: McpResources;
 }
 
 /**
@@ -38,9 +41,12 @@ export interface GraphInstance {
 export async function createGraph(config: GraphConfig): Promise<GraphInstance> {
   const { mcpUrl, accessToken, dbConnectionString } = config;
 
-  // 1. Connect to MCP and load all tools
+  // 1. Connect to MCP, load tools and read resources in parallel
   const mcpClient = createMcpClient({ mcpUrl, accessToken });
-  const allTools = await loadMcpTools(mcpClient);
+  const [allTools, mcpResources] = await Promise.all([
+    loadMcpTools(mcpClient),
+    readMcpResources(mcpClient),
+  ]);
 
   // 2. Create persistence layer
   const checkpointer = createCheckpointer(dbConnectionString);
@@ -72,14 +78,15 @@ export async function createGraph(config: GraphConfig): Promise<GraphInstance> {
     ],
     createModel(modelConfig.hotel),
   );
-  const itineraryAgent = createItineraryAgent(
-    [
+  const itineraryAgent = createItineraryAgent({
+    tools: [
       ...getMcpToolsForAgent(allTools, "itinerary"),
       ...getLocalToolsForAgent("itinerary"),
       webSearch,
     ],
-    createModel(modelConfig.itinerary),
-  );
+    llm: createModel(modelConfig.itinerary),
+    pastItineraries: mcpResources.userItineraries,
+  });
 
   // 4. Build and compile the supervisor graph
   const graph = buildSupervisor({
@@ -93,7 +100,7 @@ export async function createGraph(config: GraphConfig): Promise<GraphInstance> {
     store,
   });
 
-  return { graph, mcpClient };
+  return { graph, mcpClient, mcpResources };
 }
 
 /**

@@ -6,6 +6,7 @@ import {
   createDayInputSchema,
   createItineraryInputSchema,
   itineraryDetailSchema,
+  itineraryWithTripSchema,
   updateActivityInputSchema,
   updateDayInputSchema,
 } from "@trip-loom/contracts/dto/itineraries";
@@ -19,6 +20,7 @@ import {
   deleteDay,
   deleteItinerary,
   getItinerary,
+  listUserItineraries,
   updateActivity,
   updateDay,
 } from "../services/itineraries";
@@ -44,6 +46,25 @@ export const itineraryRoutes = new Elysia({
 })
   .use(createWideEventPlugin())
   .use(requireAuthMacro)
+  // ==========================================================================
+  // User-level: list all itineraries across trips
+  // ==========================================================================
+  .get(
+    "/trips/itineraries",
+    async ({ user, query }) => {
+      return listUserItineraries(user.id, query.limit);
+    },
+    {
+      auth: true,
+      query: z.object({
+        limit: z.coerce.number().min(1).max(100).default(20),
+      }),
+      response: {
+        200: z.array(itineraryWithTripSchema),
+        401: errorResponseSchema,
+      },
+    },
+  )
   // ==========================================================================
   // Itinerary Level
   // ==========================================================================

@@ -24,6 +24,7 @@ import { registerTripDetailsResource } from "./resources/trip-details";
 import { registerDestinationDetailsResource } from "./resources/destination-details";
 import { registerTripItineraryResource } from "./resources/trip-itinerary";
 import { registerUserTripsResource } from "./resources/user-trips";
+import { registerUserItineraries } from "./resources/user-itineraries";
 import { registerPrompts } from "./prompts";
 
 /**
@@ -67,6 +68,7 @@ export function createMcpServer(accessToken: string) {
   registerDestinationDetailsResource(server, apiClient);
   registerTripItineraryResource(server, apiClient);
   registerUserTripsResource(server, apiClient);
+  registerUserItineraries(server, apiClient);
 
   // Prompts
   registerPrompts(server);
