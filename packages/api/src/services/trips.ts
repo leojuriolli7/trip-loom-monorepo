@@ -17,7 +17,7 @@ import type {
   UpdateTripInput,
 } from "@trip-loom/contracts/dto/trips";
 import type { HotelSummaryDTO } from "@trip-loom/contracts/dto/hotel-bookings";
-import { isValidDateRange } from "../lib/date-range";
+import { isDateTodayOrLater, isValidDateRange } from "../lib/date-range";
 import {
   buildComputedStatusCondition,
   computedTripStatusSql,
@@ -121,6 +121,15 @@ const ensureDestinationExists = async (
 
   if (!(await destinationExists(destinationId))) {
     throw new BadRequestError("Destination not found");
+  }
+};
+
+const ensureTripDatesAreNotInPast = (
+  startDate: string | null | undefined,
+  endDate: string | null | undefined,
+) => {
+  if (!isDateTodayOrLater(startDate) || !isDateTodayOrLater(endDate)) {
+    throw new BadRequestError("Trip dates cannot be before today");
   }
 };
 
@@ -231,6 +240,8 @@ export async function createTrip(
   userId: string,
   input: CreateTripInput,
 ): Promise<TripWithDestinationDTO> {
+  ensureTripDatesAreNotInPast(input.startDate, input.endDate);
+
   if (!isValidDateRange(input.startDate, input.endDate)) {
     throw new BadRequestError("startDate must be before or equal to endDate");
   }
@@ -291,6 +302,8 @@ export async function updateTrip(
     input.startDate !== undefined ? input.startDate : existing.startDate;
   const nextEndDate =
     input.endDate !== undefined ? input.endDate : existing.endDate;
+
+  ensureTripDatesAreNotInPast(nextStartDate, nextEndDate);
 
   if (!isValidDateRange(nextStartDate, nextEndDate)) {
     throw new BadRequestError("startDate must be before or equal to endDate");

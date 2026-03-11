@@ -686,6 +686,25 @@ describe("Trips API", () => {
     expect(body.destination.name).toBe("TestTokyo");
   });
 
+  it("POST /api/trips rejects past dates", async () => {
+    const { res, body } = await requestJson({
+      method: "POST",
+      path: "/api/trips",
+      userId: seed.primaryUserId,
+      body: {
+        title: "Too Late",
+        startDate: dateWithOffset(-1),
+        endDate: dateWithOffset(2),
+      },
+    });
+
+    expect(res.status).toBe(400);
+    expect(body).toMatchObject({
+      error: "BadRequest",
+      message: "Trip dates cannot be before today",
+    });
+  });
+
   it("PATCH /api/trips/:id updates trip fields", async () => {
     const { res, body } = await requestJson({
       method: "PATCH",
@@ -762,6 +781,23 @@ describe("Trips API", () => {
     expect(body.startDate).toBe(startDate);
     expect(body.endDate).toBe(endDate);
     expect(body.status).toBe("upcoming");
+  });
+
+  it("PATCH /api/trips/:id rejects past dates", async () => {
+    const { res, body } = await requestJson({
+      method: "PATCH",
+      path: `/api/trips/${seed.draftTripId}`,
+      userId: seed.primaryUserId,
+      body: {
+        startDate: dateWithOffset(-1),
+      },
+    });
+
+    expect(res.status).toBe(400);
+    expect(body).toMatchObject({
+      error: "BadRequest",
+      message: "Trip dates cannot be before today",
+    });
   });
 
   it("DELETE /api/trips/:id hard deletes trip and related rows", async () => {

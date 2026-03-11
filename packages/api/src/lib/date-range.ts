@@ -8,3 +8,15 @@ export const isValidDateRange = (
 
   return startDate <= endDate;
 };
+
+export const isDateTodayOrLater = (
+  date: string | null | undefined,
+): boolean => {
+  if (!date) {
+    return true;
+  }
+
+  const isoCalendarDate = new Date().toISOString().slice(0, 10);
+
+  return date >= isoCalendarDate;
+};

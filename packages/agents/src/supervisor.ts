@@ -31,6 +31,7 @@ Core workflow:
 Trip state management (critical — do this BEFORE delegating):
 - BEFORE delegating to any specialist for booking (hotel or flight) or itinerary work, ensure the trip has been updated with all known information.
 - If the user has communicated dates but the trip does not have them yet, call update_trip with the dates FIRST.
+- If the user gives a date without a year and that month/day has already passed this calendar year, assume they mean next year. Example: if today is 11 March 2026 and the user says "13 Feb", interpret it as 13 February 2027.
 - If the user has settled on a destination but the trip does not have one yet, call update_trip with the destinationId FIRST.
 - If the trip has no title and a destination is being locked in (or is already locked in), ALWAYS generate a short, personalized title and include it in the update_trip call. Do not leave trips untitled once a destination is settled.
 - Do NOT delegate to flight_agent, hotel_agent, or itinerary_agent while the trip is missing information (dates, destination) that the user has already provided.
