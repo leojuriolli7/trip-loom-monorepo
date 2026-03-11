@@ -57,7 +57,6 @@ import { atom, useAtom } from "jotai";
 
 export const userPreferencesDialogOpenAtom = atom(false);
 
-
 const BUDGET_RANGE_LABELS: Record<BudgetRange, string> = {
   budget: "Budget-Friendly",
   moderate: "Moderate",
@@ -296,7 +295,7 @@ function PreferencesForm({
               invalid={fieldState.invalid}
               htmlFor="cabin-class"
               label="Preferred Cabin Class"
-              description="Choose the seat comfort level you usually book."
+              description="Choose the seat comfort level you usually book"
             >
               <Select
                 value={field.value ?? "none"}
@@ -335,7 +334,7 @@ function PreferencesForm({
               invalid={fieldState.invalid}
               htmlFor="budget-range"
               label="Budget Range"
-              description="Keep destination and stay options aligned with your expected spend."
+              description="Keep destination and stay options aligned with your expected spend"
             >
               <Select
                 value={field.value ?? "none"}

@@ -51,7 +51,9 @@ export function ToolCallRenderer({ toolCall }: { toolCall: TripLoomToolCall }) {
 
   switch (toolCall.name) {
     case "get_trip_details":
-      return <GetTripDetailsToolCard args={toolCall.args} />;
+      return (
+        <GetTripDetailsToolCard args={toolCall.args} toolCallId={toolCall.id} />
+      );
     case "get_user_preferences":
       return <UserPreferencesToolCard args={toolCall.args} />;
     case "get_recommended_destinations":
@@ -73,7 +75,9 @@ export function ToolCallRenderer({ toolCall }: { toolCall: TripLoomToolCall }) {
     case "update_trip":
       return <UpdateTripToolCallCard args={toolCall.args} />;
     case "suggest_flight":
-      return <SuggestFlightToolCard args={toolCall.args} />;
+      return (
+        <SuggestFlightToolCard args={toolCall.args} toolCallId={toolCall.id} />
+      );
     case "search_flights":
       return <SearchFlightsToolCard args={toolCall.args} />;
     case "search_hotels":

@@ -169,7 +169,7 @@ export function ChatSidebar() {
         )}
       </SidebarContent>
 
-      <SidebarFooter className="min-h-18.25 border-t border-sidebar-border p-3">
+      <SidebarFooter className="min-h-18 border-t border-sidebar-border p-3">
         <EmailVerificationBanner />
 
         <div className="flex items-center justify-between gap-2">

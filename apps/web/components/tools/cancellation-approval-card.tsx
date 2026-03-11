@@ -85,7 +85,7 @@ export function CancellationApprovalCard({
         confirmDisabled={disabled}
         confirmLabel="Confirm cancellation"
         cancelLabel="Keep booking"
-        description="We could not load booking details, but you can still proceed."
+        description="We could not load booking details, but you can still proceed"
         imageAlt="Luggage"
         imageSrc="/luggage.png"
         onCancel={handleReject}

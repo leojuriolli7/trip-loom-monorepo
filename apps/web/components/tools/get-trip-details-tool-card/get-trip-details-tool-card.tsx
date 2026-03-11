@@ -4,6 +4,7 @@ import type { TripLoomToolArgsByName } from "@trip-loom/agents";
 import { useQuery } from "@tanstack/react-query";
 import { ToolCallCard } from "@/components/tools/tool-call-card";
 import { Badge } from "@/components/ui/badge";
+import { useToolCallProgress } from "@/hooks/use-tool-call-progress";
 import { tripQueries } from "@/lib/api/react-query/trips";
 import { formatTripDates } from "@/lib/format-trip-dates";
 import { useOpenTripDetailsSheet } from "@/components/trip-details-sheet";
@@ -16,19 +17,29 @@ import { getCoverImage } from "@/lib/get-cover-image";
 
 type GetTripDetailsToolCardProps = {
   args: TripLoomToolArgsByName<"get_trip_details">;
+  toolCallId?: string;
 };
 
-export function GetTripDetailsToolCard({ args }: GetTripDetailsToolCardProps) {
+export function GetTripDetailsToolCard({
+  args,
+  toolCallId,
+}: GetTripDetailsToolCardProps) {
   const openTripDetailsSheet = useOpenTripDetailsSheet();
+  const { isInProgress } = useToolCallProgress(toolCallId);
+
   const {
     data: tripResult,
     isError,
     isPending,
   } = useQuery({
     ...tripQueries.getTripById(args.tripId),
-    enabled: Boolean(args.tripId),
+    enabled: Boolean(args.tripId) && !isInProgress,
     staleTime: 0,
   });
+
+  if (isInProgress) {
+    return null;
+  }
 
   if (isPending) {
     return null;

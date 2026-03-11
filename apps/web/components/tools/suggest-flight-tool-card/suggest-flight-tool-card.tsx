@@ -3,10 +3,13 @@
 import type { TripLoomToolArgsByName } from "@trip-loom/agents";
 import { PlaneTakeoffIcon, PlaneLandingIcon } from "lucide-react";
 import { ToolCallCard } from "@/components/tools/tool-call-card";
+import { Spinner } from "@/components/ui/spinner";
+import { useToolCallProgress } from "@/hooks/use-tool-call-progress";
 import { SuggestedFlightCard } from "./suggested-flight-card";
 
 type SuggestFlightToolCardProps = {
   args: TripLoomToolArgsByName<"suggest_flight">;
+  toolCallId?: string;
 };
 
 type SuggestedFlight =
@@ -46,7 +49,11 @@ function FlightSection({
   );
 }
 
-export function SuggestFlightToolCard({ args }: SuggestFlightToolCardProps) {
+export function SuggestFlightToolCard({
+  args,
+  toolCallId,
+}: SuggestFlightToolCardProps) {
+  const { isInProgress } = useToolCallProgress(toolCallId);
   const flights = args.flights;
 
   const outbound = flights?.filter((f) => f?.type === "outbound") ?? [];
@@ -61,13 +68,24 @@ export function SuggestFlightToolCard({ args }: SuggestFlightToolCardProps) {
     <ToolCallCard>
       <ToolCallCard.Header>
         <ToolCallCard.HeaderContent className="space-y-1 pt-0">
-          <ToolCallCard.Title>Flight options ready</ToolCallCard.Title>
-          <ToolCallCard.Description>{description}</ToolCallCard.Description>
+          <ToolCallCard.Title>
+            {isInProgress ? "Searching flight options" : "Flight options ready"}
+          </ToolCallCard.Title>
+          <ToolCallCard.Description>
+            {isInProgress
+              ? "Hang tight while we compare routes and fares"
+              : description}
+          </ToolCallCard.Description>
         </ToolCallCard.HeaderContent>
       </ToolCallCard.Header>
 
       <ToolCallCard.Content>
-        {hasGroups ? (
+        {isInProgress ? (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Spinner />
+            <span>Finding optimal flights...</span>
+          </div>
+        ) : hasGroups ? (
           <div className="space-y-5">
             <FlightSection
               label="Outbound"

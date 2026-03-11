@@ -27,8 +27,8 @@ export function BookingPaymentResultCard({
 
   const description =
     result.status === "paid"
-      ? "Payment completed successfully and TripLoom saved the booking."
-      : "No payment was completed. You can try again whenever you are ready.";
+      ? "Payment completed successfully and TripLoom saved the booking"
+      : "No payment was completed. You can try again whenever you are ready";
 
   return (
     <ToolCallCard>

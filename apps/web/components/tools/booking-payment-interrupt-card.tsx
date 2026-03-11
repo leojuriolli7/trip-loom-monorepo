@@ -68,7 +68,7 @@ export function BookingPaymentInterruptCard({
         booking={interrupt.booking}
         statusLabel="Payment required"
         title={interrupt.booking.hotel.name}
-        summary="Complete payment to confirm this stay."
+        summary="Complete payment to confirm this stay"
       >
         {paymentForm}
       </HotelBookingSummaryCard>
@@ -80,7 +80,7 @@ export function BookingPaymentInterruptCard({
       booking={interrupt.booking}
       statusLabel="Payment required"
       title={"Completing your booking"}
-      summary="Complete payment to confirm this flight."
+      summary="Complete payment to confirm this flight"
     >
       {paymentForm}
     </FlightBookingSummaryCard>

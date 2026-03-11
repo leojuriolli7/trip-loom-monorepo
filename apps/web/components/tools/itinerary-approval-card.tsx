@@ -44,32 +44,32 @@ function getCardInfo(toolName: string) {
     case "create_itinerary":
       return {
         title: "Create itinerary",
-        description: "Review the proposed itinerary before saving.",
+        description: "Review the proposed itinerary before saving",
       };
     case "add_itinerary_day":
       return {
         title: "Add a day",
-        description: "A new day will be added to your itinerary.",
+        description: "A new day will be added to your itinerary",
       };
     case "add_itinerary_activity":
       return {
         title: "Add an activity",
-        description: "A new activity will be added to your itinerary.",
+        description: "A new activity will be added to your itinerary",
       };
     case "update_itinerary_activity":
       return {
         title: "Update activity",
-        description: "An activity in your itinerary will be updated.",
+        description: "An activity in your itinerary will be updated",
       };
     case "delete_itinerary_activity":
       return {
         title: "Delete activity",
-        description: "An activity will be removed from your itinerary.",
+        description: "An activity will be removed from your itinerary",
       };
     default:
       return {
         title: "Itinerary change",
-        description: "Review this change before it's applied.",
+        description: "Review this change before it's applied",
       };
   }
 }

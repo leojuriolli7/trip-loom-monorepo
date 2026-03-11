@@ -99,8 +99,6 @@ pnpm dev:web      # Next.js app
 
 ### Immediate
 
-- [ ] Trip details card sends multiple wrong requests while still streaming the full ID and flight search lags while streaming
-  - Likely use `useToolCallProgress(toolCall.id)` to not enable requests or render loading until done
 - [ ] General UI tweaks: Streaming indication, loading states, animations
 - [ ] Switch to `evlog` for structured logging + add logging and OpenTelemetry to agents and MCP
 
