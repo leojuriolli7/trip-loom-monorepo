@@ -7,7 +7,7 @@ import {
 } from "@langchain/core/messages";
 import { NotFoundError } from "../errors";
 import { mapChatMessages } from "../mappers/chat";
-import type { ChatHistoryResponse } from "../dto/chat";
+import type { ChatHistoryResponse, ChatInputMessage } from "../dto/chat";
 import { getOwnedTripMeta } from "../lib/trips/ownership";
 import { getAgentsConfig } from "../lib/agents/config";
 import { isBaseMessage } from "../lib/agents/is-base-message";
@@ -114,13 +114,17 @@ async function buildChatInput(
   databaseUrl: string,
   threadId: string,
   tripId: string,
-  message: string,
+  message: ChatInputMessage,
   resources: { userTrips: string | null; userPreferences: string | null },
 ): Promise<{ messages: BaseMessage[] }> {
   const threadState = await getThreadState(databaseUrl, threadId);
 
   if (hasPersistedMessages(threadState)) {
-    return { messages: [new HumanMessage(message)] };
+    return {
+      messages: [
+        new HumanMessage({ content: message.content, id: message.id }),
+      ],
+    };
   }
 
   // Inject trip context + MCP resources only at conversation start.
@@ -132,7 +136,7 @@ async function buildChatInput(
     messages.push(resourceMsg);
   }
 
-  messages.push(new HumanMessage(message));
+  messages.push(new HumanMessage({ content: message.content, id: message.id }));
 
   return { messages };
 }
@@ -143,7 +147,7 @@ async function buildChatInput(
 export async function streamChatResponse(
   userId: string,
   tripId: string,
-  message: string,
+  message: ChatInputMessage,
 ): Promise<{ stream: ReadableStream; threadId: string }> {
   const { mcpServerUrl, databaseUrl } = getAgentsConfig();
   const ownsTrip = await getOwnedTripMeta(userId, tripId);

@@ -157,7 +157,11 @@ export function ChatConversation() {
 
           if (message.type === "human") {
             return (
-              <ConversationMessage key={key} from="user">
+              <ConversationMessage
+                key={key}
+                from="user"
+                className="animate-chat-enter"
+              >
                 <MessageContent>
                   <MessageResponse>
                     {getMessageContent(message.content)}
@@ -176,7 +180,7 @@ export function ChatConversation() {
             }
 
             return (
-              <div key={key} className="space-y-3">
+              <div key={key} className="space-y-3 animate-chat-enter">
                 {webSearchCalls.map((webSearchCall, webSearchIndex) => (
                   <WebSearchToolCallCard
                     key={`${key}-web-search-call-${webSearchCall.id || webSearchIndex}`}
@@ -207,6 +211,7 @@ export function ChatConversation() {
               <ToolMessageRenderer
                 key={key}
                 message={message}
+                className="animate-chat-enter"
               />
             );
           }
@@ -220,26 +225,28 @@ export function ChatConversation() {
 
           if (value?.type === "request-seat-selection") {
             return (
-              <SeatSelectionCard
-                key={key}
-                value={value}
-                disabled={stream.isLoading}
-                onConfirm={(seatId) => submitResume({ seatId })}
-                onCancel={() => submitResume({ seatId: null })}
-              />
+              <div key={key} className="animate-chat-enter">
+                <SeatSelectionCard
+                  value={value}
+                  disabled={stream.isLoading}
+                  onConfirm={(seatId) => submitResume({ seatId })}
+                  onCancel={() => submitResume({ seatId: null })}
+                />
+              </div>
             );
           }
 
           if (value?.type === "request-booking-payment") {
             return (
-              <BookingPaymentInterruptCard
-                key={key}
-                interrupt={value}
-                tripId={tripId}
-                disabled={stream.isLoading}
-                onPaid={() => submitResume({ status: "paid" })}
-                onCancel={() => submitResume({ status: "cancelled" })}
-              />
+              <div key={key} className="animate-chat-enter">
+                <BookingPaymentInterruptCard
+                  interrupt={value}
+                  tripId={tripId}
+                  disabled={stream.isLoading}
+                  onPaid={() => submitResume({ status: "paid" })}
+                  onCancel={() => submitResume({ status: "cancelled" })}
+                />
+              </div>
             );
           }
 
@@ -251,7 +258,7 @@ export function ChatConversation() {
             i.value?.type !== "request-seat-selection" &&
             i.value?.type !== "request-booking-payment",
         ) && (
-          <div className="space-y-3 rounded-lg border border-border/60 bg-card p-4">
+          <div className="space-y-3 rounded-lg border border-border/60 bg-card p-4 animate-chat-enter">
             <h3 className="text-sm font-medium">Awaiting confirmation</h3>
 
             {stream.interrupts.map((interrupt, index) => {
@@ -276,7 +283,7 @@ export function ChatConversation() {
                 );
               }
 
-               return (
+              return (
                 <pre key={key} className="overflow-x-auto text-xs">
                   {JSON.stringify(interrupt, null, 2)}
                 </pre>

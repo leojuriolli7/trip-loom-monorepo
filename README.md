@@ -99,8 +99,6 @@ pnpm dev:web      # Next.js app
 
 ### Immediate
 
-- [ ] General UI tweaks: Streaming indication, loading states, animations
-- [ ] Switch to `evlog` for structured logging + add logging and OpenTelemetry to agents and MCP
 
 ### Agents and Orchestration
 
@@ -109,6 +107,7 @@ pnpm dev:web      # Next.js app
 
 ### Quality and Observability
 
+- [ ] Switch to `evlog` for structured logging + add logging and OpenTelemetry to agents and MCP
 - [ ] Add eval suite for routing accuracy and tool-call correctness (choose eval framework: Evalite, LangSmith, or Vitest-based)
 - [ ] Add RLS to DB + separate database pools and roles
     1. Split DB roles first.
@@ -149,6 +148,7 @@ pnpm dev:web      # Next.js app
 ### Nitpicks and Improvements
 
 - [ ] Allow filtering by multiple amenities or highlights at once in list hotels/destinations
+- [ ] Better "query" functionality for list endpoionts
 - [ ] Option to book multiple hotels/flights for a trip
 - [ ] Destination suggestions comes with custom descriptions. this needs to be highlighted in some way. Currently, the description is cut off by the char limit in the destination-card. We could rework the ui to not use carousels.
 - [ ] Add option to share trip conversations (read-only)

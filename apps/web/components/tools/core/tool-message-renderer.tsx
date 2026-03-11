@@ -10,6 +10,7 @@ import { BookingPaymentResultCard } from "../booking-payment-result-card";
 
 type ToolMessageRendererProps = {
   message: Extract<TripLoomMessage, { type: "tool" }>;
+  className?: string;
 };
 
 /**
@@ -67,6 +68,7 @@ function parseToolMessageJson<TSchema extends z.ZodTypeAny>(
  */
 export function ToolMessageRenderer({
   message,
+  className,
 }: ToolMessageRendererProps) {
   if (message.name === "create_flight_booking") {
     const paidResult = parseToolMessageJson(
@@ -75,7 +77,7 @@ export function ToolMessageRenderer({
     );
 
     if (paidResult) {
-      return <BookingPaymentResultCard result={paidResult} />;
+      return <BookingPaymentResultCard result={paidResult} className={className} />;
     }
 
     return null;
@@ -88,7 +90,7 @@ export function ToolMessageRenderer({
     );
 
     if (paidResult) {
-      return <BookingPaymentResultCard result={paidResult} />;
+      return <BookingPaymentResultCard result={paidResult} className={className} />;
     }
 
     return null;

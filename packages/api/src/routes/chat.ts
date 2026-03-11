@@ -5,6 +5,7 @@ import {
   chatInputSchema,
   chatHistoryResponseSchema,
   type ChatInput,
+  type ChatInputMessage,
 } from "../dto/chat";
 import { extractMessageFromInput } from "../lib/chat/extract-message";
 import { createWideEventPlugin } from "../lib/wide-events";
@@ -25,7 +26,7 @@ const tripIdParamSchema = z.object({
 });
 
 function normalizeChatInput(body: ChatInput): {
-  message?: string;
+  message?: ChatInputMessage;
   resumeData?: unknown;
 } {
   return {

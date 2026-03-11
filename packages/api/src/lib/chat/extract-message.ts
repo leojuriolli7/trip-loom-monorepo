@@ -1,32 +1,26 @@
-export function extractMessageFromInput(input: unknown): string | undefined {
-  if (typeof input === "string" && input.trim()) {
-    return input.trim();
-  }
+import type { ChatInputMessage, ChatStreamInput } from "../../dto/chat";
 
-  if (!input || typeof input !== "object") {
+export function extractMessageFromInput(
+  input: ChatStreamInput | null | undefined,
+): ChatInputMessage | undefined {
+  if (!input) {
     return undefined;
   }
 
-  const messages = Reflect.get(input, "messages");
-  if (!Array.isArray(messages)) {
-    return undefined;
-  }
+  const { messages } = input;
 
   for (let index = messages.length - 1; index >= 0; index -= 1) {
     const message = messages[index];
-    if (!message || typeof message !== "object") {
-      continue;
-    }
-
-    const type = Reflect.get(message, "type");
-    const content = Reflect.get(message, "content");
 
     if (
-      (type === "human" || type === "user") &&
-      typeof content === "string" &&
-      content.trim()
+      (message.type === "human" || message.type === "user") &&
+      message.content.trim()
     ) {
-      return content.trim();
+      return {
+        ...message,
+        content: message.content.trim(),
+        id: message.id && message.id.length > 0 ? message.id : undefined,
+      };
     }
   }
 

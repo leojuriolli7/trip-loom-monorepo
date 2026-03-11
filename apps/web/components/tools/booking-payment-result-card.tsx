@@ -10,10 +10,12 @@ type BookingPaymentResult =
   | HotelBookingPaymentOutcomeDTO;
 
 type BookingPaymentResultCardProps = {
+  className?: string;
   result: BookingPaymentResult;
 };
 
 export function BookingPaymentResultCard({
+  className,
   result,
 }: BookingPaymentResultCardProps) {
   const title =
@@ -31,7 +33,7 @@ export function BookingPaymentResultCard({
       : "No payment was completed. You can try again whenever you are ready";
 
   return (
-    <ToolCallCard>
+    <ToolCallCard className={className}>
       <ToolCallCard.Header>
         <ToolCallCard.Image src="/wallet.png" alt="Wallet" />
         <ToolCallCard.HeaderContent>

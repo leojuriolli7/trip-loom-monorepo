@@ -135,15 +135,17 @@ export function ChatProvider({
       const message = text.trim();
       if (!message) return;
 
+      const messageId = crypto.randomUUID();
+
       const optimisticMessage: TripLoomMessage = {
         content: message,
-        id: crypto.randomUUID(),
+        id: messageId,
         type: "human",
       };
 
       await stream.submit(
         {
-          messages: [{ content: message, type: "human" }],
+          messages: [{ content: message, id: messageId, type: "human" }],
         },
         {
           optimisticValues: {

@@ -3,9 +3,23 @@ import type { TripLoomToolCall } from "@trip-loom/agents";
 
 // Request body for POST /api/trips/:id/chat
 // Expected shape from LangGraph FetchStreamTransport.
+export const chatInputMessageSchema = z.object({
+  content: z.string(),
+  id: z.string().optional(),
+  type: z.string(),
+});
+
+export type ChatInputMessage = z.infer<typeof chatInputMessageSchema>;
+
+export const chatStreamInputSchema = z.object({
+  messages: z.array(chatInputMessageSchema),
+});
+
+export type ChatStreamInput = z.infer<typeof chatStreamInputSchema>;
+
 export const chatInputSchema = z
   .object({
-    input: z.unknown().optional().nullable(),
+    input: chatStreamInputSchema.optional().nullable(),
     context: z.record(z.string(), z.unknown()).optional(),
     command: z
       .object({
