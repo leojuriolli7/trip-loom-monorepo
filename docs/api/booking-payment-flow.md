@@ -1,6 +1,6 @@
 # Booking and Payment Flow
 
-Bookings are created first as provisional records. Payment completion is what finalizes them.
+Bookings are created first as provisional records. Booking endpoints now also create or reuse the payment session that checkout will use.
 
 ## Why This Design
 
@@ -16,15 +16,12 @@ Bookings are created first as provisional records. Payment completion is what fi
 2. Booking is created as:
    - `status: "pending"`
    - `paymentId: null`
-3. Create payment intent:
-   - `POST /api/payments/create-intent`
-   - Requires `tripId`, `bookingType`, and `bookingId`.
-   - Server derives the authoritative amount from the booking record.
-4. Confirm payment client-side with Stripe using returned `clientSecret`.
-5. Optional reconciliation call:
-   - `POST /api/payments/confirm`
-   - Syncs only non-terminal states like `pending` and `processing`.
-6. Stripe webhook finalizes:
+3. Booking response includes:
+   - booking details
+   - payment session details
+   - Stripe client secret / hosted checkout information when available
+4. Confirm payment client-side with Stripe using returned payment-session data.
+5. Stripe webhook finalizes:
    - `POST /api/webhooks/stripe`
    - `payment_intent.succeeded`:
      - payment becomes `succeeded`
@@ -50,10 +47,10 @@ This matters for the AI agent flow where graph re-execution after payment interr
 The AI agent system (LangGraph) drives booking creation through MCP tools. See [AI Booking Flow](../ai/ai-booking-flow.md) for the full agent flow, tool ownership rules, and HITL interrupt mechanics.
 
 Key points for API consumers:
-- Bookings are always created as `pending` by sub-agents (hotel_agent, flight_agent)
-- Payment is triggered separately by the supervisor agent via a `request_payment` interrupt
-- The frontend handles Stripe checkout and resumes the graph with the payment result
-- Cancellation tools (`cancel_hotel_booking`, `cancel_flight_booking`) require user approval via the [tool approval pattern](../ai/tool-approval.md) before executing
+- Booking endpoints create the pending booking and payment session together.
+- The internal LangGraph app pauses inside the booking tool flow for payment rather than using a separate `request_payment` tool.
+- External MCP/API consumers can use the returned payment-session data directly in their own UX.
+- Cancellation tools (`cancel_hotel_booking`, `cancel_flight_booking`) still require user approval via the [tool approval pattern](../ai/tool-approval.md) before executing.
 
 ## Refund Flow
 

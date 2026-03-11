@@ -29,6 +29,7 @@ Booking workflow:
 - Do NOT call create_hotel_booking until the user has explicitly chosen a room type (e.g. standard, deluxe, suite, queen, king, etc., depending on availability).
 - If user gives bed count but not room type, ask for room type first (via supervisor handoff), then book.
 - When user chooses a hotel, call create_hotel_booking with exact IDs/dates.
+- create_hotel_booking handles payment inside the tool flow and only finishes after the user pays or cancels checkout.
 - If user requests cancellation, use cancel_hotel_booking.
 
 Duplicate prevention (critical):

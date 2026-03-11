@@ -1,8 +1,10 @@
 import { z } from "zod";
 import { bookingStatusValues, hotelRoomTypeValues } from "../enums";
 import { isValidDateRange } from "../lib/date-range";
+import { paymentSessionSchema } from "./payments";
 
-const isoDateSchema = z.string().date();
+const isoDateSchema = z.iso.date();
+const isoDateTimeSchema = z.iso.datetime();
 
 const hotelImageSchema = z.object({
   url: z.string(),
@@ -39,8 +41,8 @@ export const hotelBookingSchema = z.object({
   pricePerNightInCents: z.number().int().min(0),
   totalPriceInCents: z.number().int().min(0),
   status: z.enum(bookingStatusValues),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: isoDateTimeSchema,
+  updatedAt: isoDateTimeSchema,
   hotel: hotelSummarySchema,
 });
 
@@ -70,3 +72,11 @@ export const createHotelBookingInputSchema = z
 
 export type CreateHotelBookingInput = z.infer<typeof createHotelBookingInputSchema>;
 
+export const createHotelBookingResultSchema = z.object({
+  booking: hotelBookingSchema,
+  paymentSession: paymentSessionSchema,
+});
+
+export type CreateHotelBookingResultDTO = z.infer<
+  typeof createHotelBookingResultSchema
+>;

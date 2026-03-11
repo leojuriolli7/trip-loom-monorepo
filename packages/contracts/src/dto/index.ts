@@ -26,13 +26,20 @@ export {
   type FlightBookingDTO,
   type FlightBookingDetailDTO,
   type CreateFlightBookingInput,
+  type CreateFlightBookingResultDTO,
 } from "./flights";
 
 export {
   type HotelSummaryDTO,
   type HotelBookingDTO,
   type CreateHotelBookingInput,
+  type CreateHotelBookingResultDTO,
 } from "./hotel-bookings";
+
+export {
+  type HotelBookingPaymentOutcomeDTO,
+  type FlightBookingPaymentOutcomeDTO,
+} from "./booking-payment-flow";
 
 export {
   type CreateActivityInput,
@@ -46,16 +53,12 @@ export {
 } from "./itineraries";
 
 export {
+  type PaymentBookingType,
   type PaymentDTO,
-  type CreatePaymentIntentInput,
-  type PaymentIntentResponse,
-  type ConfirmPaymentInput,
-  requestPaymentToolResultSchema,
-  type RequestPaymentToolResult,
+  type PaymentSessionDTO,
+  type CreatePaymentSessionInput,
   requestCancellationToolResultSchema,
   type RequestCancellationToolResult,
-  requestSeatSelectionToolResultSchema,
-  type RequestSeatSelectionToolResult,
   type RefundPaymentInput,
 } from "./payments";
 

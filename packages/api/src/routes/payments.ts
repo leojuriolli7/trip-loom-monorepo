@@ -3,19 +3,16 @@ import Stripe from "stripe";
 import { z } from "zod";
 import { errorResponseSchema } from "@trip-loom/contracts/dto/common";
 import {
-  confirmPaymentInputSchema,
-  createPaymentIntentInputSchema,
-  paymentIntentResponseSchema,
   paymentSchema,
+  paymentSessionSchema,
   refundPaymentInputSchema,
   stripeWebhookResponseSchema,
 } from "@trip-loom/contracts/dto/payments";
 import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
 import {
-  confirmPayment,
-  createPaymentIntent,
   getPayment,
+  getHostedPaymentSession,
   handleStripeWebhook,
   refundPayment,
 } from "../services/payments";
@@ -73,60 +70,20 @@ export const paymentRoutes = new Elysia({
       },
     },
   )
-  .post(
-    "/payments/create-intent",
-    async ({ user, body, status, wideEvent }) => {
-      wideEvent.trip_id = body.tripId;
+  .get(
+    "/payments/:id/session",
+    async ({ params, wideEvent }) => {
+      wideEvent.payment_id = params.id;
 
-      const result = await createPaymentIntent(user.id, body);
-      if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Trip not found",
-          statusCode: 404,
-        });
-      }
-
-      wideEvent.payment_id = result.paymentId;
-      return result;
+      return getHostedPaymentSession(params.id);
     },
     {
-      auth: true,
-      body: createPaymentIntentInputSchema,
+      params: paymentParamsSchema,
       response: {
-        200: paymentIntentResponseSchema,
-        400: errorResponseSchema,
-        401: errorResponseSchema,
+        200: paymentSessionSchema,
         404: errorResponseSchema,
         409: errorResponseSchema,
-      },
-    },
-  )
-  .post(
-    "/payments/confirm",
-    async ({ user, body, status, wideEvent }) => {
-      wideEvent.payment_intent_id = body.paymentIntentId;
-
-      const result = await confirmPayment(user.id, body);
-      if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Payment not found",
-          statusCode: 404,
-        });
-      }
-
-      wideEvent.payment_id = result.id;
-      return result;
-    },
-    {
-      auth: true,
-      body: confirmPaymentInputSchema,
-      response: {
-        200: paymentSchema,
-        400: errorResponseSchema,
-        401: errorResponseSchema,
-        404: errorResponseSchema,
+        500: errorResponseSchema,
       },
     },
   )

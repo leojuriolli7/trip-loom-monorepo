@@ -4,6 +4,7 @@ import {
   cabinClassValues,
   flightTypeValues,
 } from "../enums";
+import { paymentSessionSchema } from "./payments";
 
 const airportCodeSchema = z
   .string()
@@ -15,6 +16,7 @@ const airportCodeSchema = z
   .transform((value) => value.toUpperCase());
 
 const seatNumberSchema = z.string().trim().min(1).max(12);
+const isoDateTimeSchema = z.iso.datetime();
 
 export const airportSummarySchema = z.object({
   code: airportCodeSchema,
@@ -48,7 +50,7 @@ export const flightSearchSchema = z
   .object({
     from: airportCodeSchema,
     to: airportCodeSchema,
-    date: z.string().date(),
+    date: z.iso.date(),
     cabinClass: z.enum(cabinClassValues).default("economy"),
     passengers: z.coerce.number().int().min(1).max(9).default(1),
   })
@@ -61,17 +63,18 @@ export type FlightSearchQuery = z.infer<typeof flightSearchSchema>;
 
 export const flightOptionSchema = z.object({
   id: z.string(),
+  offerToken: z.string(),
   priceInCents: z.number().int().min(0),
   flightNumber: z.string(),
   airline: z.string(),
   departureAirportCode: z.string(),
   departureCity: z.string(),
   departureAirport: airportSummarySchema,
-  departureTime: z.string().datetime(),
+  departureTime: isoDateTimeSchema,
   arrivalAirportCode: z.string(),
   arrivalCity: z.string(),
   arrivalAirport: airportSummarySchema,
-  arrivalTime: z.string().datetime(),
+  arrivalTime: isoDateTimeSchema,
   durationMinutes: z.number().int().positive(),
   cabinClass: z.enum(cabinClassValues),
   availableSeats: z.number().int().nonnegative(),
@@ -89,17 +92,17 @@ export const flightBookingSchema = z.object({
   airline: z.string(),
   departureAirportCode: z.string(),
   departureCity: z.string(),
-  departureTime: z.date(),
+  departureTime: isoDateTimeSchema,
   arrivalAirportCode: z.string(),
   arrivalCity: z.string(),
-  arrivalTime: z.date(),
+  arrivalTime: isoDateTimeSchema,
   durationMinutes: z.number().int().positive(),
   seatNumber: z.string().nullable(),
   cabinClass: z.enum(cabinClassValues),
   priceInCents: z.number().int().min(0),
   status: z.enum(bookingStatusValues),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: isoDateTimeSchema,
+  updatedAt: isoDateTimeSchema,
 });
 
 export type FlightBookingDTO = z.infer<typeof flightBookingSchema>;
@@ -115,35 +118,19 @@ export type FlightBookingDetailDTO = z.infer<typeof flightBookingDetailSchema>;
 export const createFlightBookingInputSchema = z
   .object({
     type: z.enum(flightTypeValues),
-    flightNumber: z.string().trim().min(1).max(24),
-    airline: z.string().trim().min(1).max(120),
-    departureAirportCode: airportCodeSchema,
-    departureCity: z.string().trim().min(1).max(120).optional(),
-    departureTime: z.string().datetime(),
-    arrivalAirportCode: airportCodeSchema,
-    arrivalCity: z.string().trim().min(1).max(120).optional(),
-    arrivalTime: z.string().datetime(),
-    durationMinutes: z.number().int().positive(),
-    cabinClass: z.enum(cabinClassValues),
-    priceInCents: z.number().int().min(0),
+    offerToken: z.string().trim().min(1),
     seatNumber: seatNumberSchema.nullable().optional(),
-  })
-  .refine((value) => value.departureAirportCode !== value.arrivalAirportCode, {
-    message:
-      "departureAirportCode and arrivalAirportCode must be different values",
-    path: ["arrivalAirportCode"],
-  })
-  .refine(
-    (value) =>
-      new Date(value.arrivalTime).getTime() >
-      new Date(value.departureTime).getTime(),
-    {
-      message: "arrivalTime must be after departureTime",
-      path: ["arrivalTime"],
-    },
-  );
+  });
 
 export type CreateFlightBookingInput = z.infer<
   typeof createFlightBookingInputSchema
 >;
 
+export const createFlightBookingResultSchema = z.object({
+  booking: flightBookingDetailSchema,
+  paymentSession: paymentSessionSchema,
+});
+
+export type CreateFlightBookingResultDTO = z.infer<
+  typeof createFlightBookingResultSchema
+>;

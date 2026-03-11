@@ -18,7 +18,7 @@ export function registerSearchFlights(server: McpServer, apiClient: ApiClient) {
     {
       title: "Search Flights",
       description:
-        "Search available flights for an origin, destination, and travel date. Returns structured flight options with schedules, airport metadata, seat-map availability, and a suggested seat identifier.",
+        "Search available flights for an origin, destination, and travel date. Returns structured flight options with schedules, airport metadata, seat-map availability, and an opaque offer token for deterministic booking.",
       inputSchema: z.object({
         from: airportCodeSchema.describe(
           "Departure airport code (IATA/ICAO style), 3-4 alphanumeric characters.",
@@ -26,10 +26,7 @@ export function registerSearchFlights(server: McpServer, apiClient: ApiClient) {
         to: airportCodeSchema.describe(
           "Arrival airport code (IATA/ICAO style), 3-4 alphanumeric characters.",
         ),
-        date: z
-          .string()
-          .date()
-          .describe("Travel date in YYYY-MM-DD format."),
+        date: z.string().date().describe("Travel date in YYYY-MM-DD format."),
         cabinClass: z
           .enum(cabinClassValues)
           .default("economy")

@@ -19,8 +19,8 @@ import { EmptyStateSuggestions } from "./empty-state-suggestions";
 import { isRenderableAssistantToolCall, ToolCallRenderer } from "../tools";
 import { ToolMessageRenderer } from "../tools/core/tool-message-renderer";
 import { CancellationApprovalCard } from "../tools/cancellation-approval-card";
+import { BookingPaymentInterruptCard } from "../tools/booking-payment-interrupt-card";
 import { ItineraryApprovalCard } from "../tools/itinerary-approval-card";
-import { PaymentRequestCard } from "../tools/payment-request-card";
 import { SeatSelectionCard } from "../tools/seat-selection-card";
 import {
   WebSearchToolCallCard,
@@ -98,13 +98,11 @@ const CANCELLATION_TOOLS = new Set([
 function ToolApprovalInterruptCard({
   interrupt,
   disabled,
-  tripId,
   onApprove,
   onReject,
 }: {
   interrupt: ToolApprovalInterrupt;
   disabled?: boolean;
-  tripId: string;
   onApprove: () => void;
   onReject: (message?: string) => void;
 }) {
@@ -209,7 +207,6 @@ export function ChatConversation() {
               <ToolMessageRenderer
                 key={key}
                 message={message}
-                tripId={tripId}
               />
             );
           }
@@ -233,11 +230,26 @@ export function ChatConversation() {
             );
           }
 
+          if (value?.type === "request-booking-payment") {
+            return (
+              <BookingPaymentInterruptCard
+                key={key}
+                interrupt={value}
+                tripId={tripId}
+                disabled={stream.isLoading}
+                onPaid={() => submitResume({ status: "paid" })}
+                onCancel={() => submitResume({ status: "cancelled" })}
+              />
+            );
+          }
+
           return null;
         })}
 
         {stream.interrupts.some(
-          (i) => i.value?.type !== "request-seat-selection",
+          (i) =>
+            i.value?.type !== "request-seat-selection" &&
+            i.value?.type !== "request-booking-payment",
         ) && (
           <div className="space-y-3 rounded-lg border border-border/60 bg-card p-4">
             <h3 className="text-sm font-medium">Awaiting confirmation</h3>
@@ -256,7 +268,6 @@ export function ChatConversation() {
                     key={key}
                     interrupt={value}
                     disabled={stream.isLoading}
-                    tripId={tripId}
                     onApprove={() => submitResume({ approved: true })}
                     onReject={(message) =>
                       submitResume({ approved: false, message })
@@ -265,27 +276,7 @@ export function ChatConversation() {
                 );
               }
 
-              if (value?.type === "request-payment") {
-                return (
-                  <PaymentRequestCard
-                    key={key}
-                    bookingId={value.bookingId}
-                    bookingType={value.bookingType}
-                    disabled={stream.isLoading}
-                    onCancel={() =>
-                      submitResume({
-                        status: "cancelled",
-                        bookingId: value.bookingId,
-                        bookingType: value.bookingType,
-                      })
-                    }
-                    onPaid={(resume) => submitResume(resume)}
-                    tripId={tripId}
-                  />
-                );
-              }
-
-              return (
+               return (
                 <pre key={key} className="overflow-x-auto text-xs">
                   {JSON.stringify(interrupt, null, 2)}
                 </pre>

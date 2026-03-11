@@ -1,15 +1,9 @@
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
-import type {
-  ConfirmPaymentInput,
-  CreatePaymentIntentInput,
-} from "@trip-loom/contracts/dto";
 import { apiClient } from "../api-client";
 
 const KEYS = {
   base: () => ["payments"],
   detail: (paymentId: string) => [...KEYS.base(), "detail", paymentId],
-  createIntent: () => [...KEYS.base(), "create-intent"],
-  confirm: () => [...KEYS.base(), "confirm"],
   refund: (paymentId: string) => [...KEYS.base(), "refund", paymentId],
 };
 
@@ -28,20 +22,6 @@ export const paymentQueries = {
       queryKey: KEYS.detail(paymentId),
       queryFn: async ({ signal }) =>
         apiClient.api.payments({ id: paymentId }).get({ fetch: { signal } }),
-    }),
-
-  createPaymentIntent: () =>
-    mutationOptions({
-      mutationKey: KEYS.createIntent(),
-      mutationFn: async (vars: CreatePaymentIntentInput) =>
-        apiClient.api.payments["create-intent"].post(vars),
-    }),
-
-  confirmPayment: () =>
-    mutationOptions({
-      mutationKey: KEYS.confirm(),
-      mutationFn: async (vars: ConfirmPaymentInput) =>
-        apiClient.api.payments.confirm.post(vars),
     }),
 
   refundPayment: () =>

@@ -12,6 +12,10 @@ import {
   getLocalToolsForAgent,
   getMcpToolsForAgent,
 } from "./tools";
+import {
+  createFlightBookingFlowTool,
+  createHotelBookingFlowTool,
+} from "./tools/booking-flow";
 import { withApproval } from "./tools/core/with-approval";
 import { tools as openaiTools } from "@langchain/openai";
 import type { MultiServerMCPClient } from "@langchain/mcp-adapters";
@@ -57,6 +61,16 @@ export async function createGraph(config: GraphConfig): Promise<GraphInstance> {
   const allTools = rawTools.map((t) =>
     APPROVAL_REQUIRED_TOOLS.has(t.name) ? withApproval(t) : t,
   );
+  const createHotelBookingMcpTool = allTools.find(
+    (tool) => tool.name === "create_hotel_booking",
+  );
+  const createFlightBookingMcpTool = allTools.find(
+    (tool) => tool.name === "create_flight_booking",
+  );
+
+  if (!createHotelBookingMcpTool || !createFlightBookingMcpTool) {
+    throw new Error("Required booking MCP tools could not be loaded");
+  }
 
   // 2. Create persistence layer
   const checkpointer = createCheckpointer(dbConnectionString);
@@ -75,14 +89,20 @@ export async function createGraph(config: GraphConfig): Promise<GraphInstance> {
   );
   const flightAgent = createFlightAgent(
     [
-      ...getMcpToolsForAgent(allTools, "flight"),
+      ...getMcpToolsForAgent(allTools, "flight").filter(
+        (tool) => tool.name !== "create_flight_booking",
+      ),
+      createFlightBookingFlowTool(createFlightBookingMcpTool),
       ...getLocalToolsForAgent("flight"),
     ],
     createModel(modelConfig.flight),
   );
   const hotelAgent = createHotelAgent(
     [
-      ...getMcpToolsForAgent(allTools, "hotel"),
+      ...getMcpToolsForAgent(allTools, "hotel").filter(
+        (tool) => tool.name !== "create_hotel_booking",
+      ),
+      createHotelBookingFlowTool(createHotelBookingMcpTool),
       ...getLocalToolsForAgent("hotel"),
       webSearch,
     ],

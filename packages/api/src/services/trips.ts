@@ -16,6 +16,7 @@ import type {
   TripWithDestinationDTO,
   UpdateTripInput,
 } from "@trip-loom/contracts/dto/trips";
+import type { HotelSummaryDTO } from "@trip-loom/contracts/dto/hotel-bookings";
 import { isValidDateRange } from "../lib/date-range";
 import {
   buildComputedStatusCondition,
@@ -41,6 +42,30 @@ import {
   hotelSummarySelectFields,
 } from "../mappers/hotel-bookings";
 import { getItineraryDetailsByTripId } from "./itineraries";
+
+const mapTripFlightBooking = (
+  row: typeof flightBooking.$inferSelect,
+) => ({
+  ...row,
+  departureTime: row.departureTime.toISOString(),
+  arrivalTime: row.arrivalTime.toISOString(),
+  createdAt: row.createdAt.toISOString(),
+  updatedAt: row.updatedAt.toISOString(),
+});
+
+const mapTripHotelBooking = (
+  row: typeof hotelBooking.$inferSelect & { hotel: HotelSummaryDTO },
+) => ({
+  ...row,
+  createdAt: row.createdAt.toISOString(),
+  updatedAt: row.updatedAt.toISOString(),
+});
+
+const mapTripPayment = (row: typeof payment.$inferSelect) => ({
+  ...row,
+  createdAt: row.createdAt.toISOString(),
+  updatedAt: row.updatedAt.toISOString(),
+});
 
 const buildTripSearchCondition = (
   search: string | undefined,
@@ -195,10 +220,10 @@ export async function getTripById(
 
   return {
     ...baseTrip,
-    flightBookings,
-    hotelBookings: hotelBookingsWithHotel,
+    flightBookings: flightBookings.map(mapTripFlightBooking),
+    hotelBookings: hotelBookingsWithHotel.map(mapTripHotelBooking),
     itinerary: itineraryDetails,
-    payments,
+    payments: payments.map(mapTripPayment),
   };
 }
 

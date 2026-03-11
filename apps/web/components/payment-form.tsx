@@ -161,6 +161,10 @@ type PaymentFormProps = {
   className?: string;
   /** Whether the form is disabled */
   disabled?: boolean;
+  /** Optional cancel action rendered beside the pay button */
+  onCancel?: () => void;
+  /** Optional cancel label */
+  cancelText?: string;
 };
 
 function PaymentFormInner({
@@ -171,6 +175,8 @@ function PaymentFormInner({
   submitText,
   className,
   disabled,
+  onCancel,
+  cancelText,
 }: PaymentFormProps) {
   const stripe = useStripe();
   const elements = useElements();
@@ -242,25 +248,39 @@ function PaymentFormInner({
         </div>
       )}
 
-      <Button
-        type="submit"
-        className="w-full"
-        disabled={!isReady || isProcessing || disabled}
-      >
-        {isProcessing ? (
-          <>
-            <Spinner />
-            Processing...
-          </>
-        ) : !isReady ? (
-          <>
-            <Spinner />
-            Loading...
-          </>
-        ) : (
-          buttonText
-        )}
-      </Button>
+      <div className="flex items-center gap-3">
+        {onCancel ? (
+          <Button
+            type="button"
+            variant="outline"
+            className="shrink-0 min-w-4/12"
+            onClick={onCancel}
+            disabled={isProcessing || disabled}
+          >
+            {cancelText ?? "Cancel"}
+          </Button>
+        ) : null}
+
+        <Button
+          type="submit"
+          className="flex-1 w-auto"
+          disabled={!isReady || isProcessing || disabled}
+        >
+          {isProcessing ? (
+            <>
+              <Spinner />
+              Processing...
+            </>
+          ) : !isReady ? (
+            <>
+              <Spinner />
+              Loading...
+            </>
+          ) : (
+            buttonText
+          )}
+        </Button>
+      </div>
     </form>
   );
 }

@@ -359,7 +359,9 @@ export function AirplaneSeatView({
               disabled={!selectedSeatId}
               className="gap-1.5"
             >
-              Confirm
+              {flight.priceInCents != null
+                ? `Pay ${formatPriceInCents(flight.priceInCents)}`
+                : "Pay"}
               <ArrowRightIcon className="size-3.5" />
             </Button>
           </div>

@@ -17,13 +17,24 @@ export const paymentSchema = z.object({
   description: z.string().nullable(),
   refundedAmountInCents: z.number().int().min(0),
   metadata: z.string().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
 });
 
 export type PaymentDTO = z.infer<typeof paymentSchema>;
 
-export const createPaymentIntentInputSchema = z.object({
+export const paymentSessionSchema = z.object({
+  id: z.string(),
+  amountInCents: z.number().int().min(0),
+  currency: z.string(),
+  status: z.enum(paymentStatusValues),
+  clientSecret: z.string().nullable(),
+  checkoutUrl: z.string().url().nullable(),
+});
+
+export type PaymentSessionDTO = z.infer<typeof paymentSessionSchema>;
+
+export const createPaymentSessionInputSchema = z.object({
   tripId: z.string().min(1),
   currency: z.string().trim().length(3).default("usd"),
   description: z.string().trim().min(1).max(500).optional(),
@@ -31,47 +42,8 @@ export const createPaymentIntentInputSchema = z.object({
   bookingId: z.string().min(1),
 });
 
-export type CreatePaymentIntentInput = z.infer<
-  typeof createPaymentIntentInputSchema
->;
-
-export const paymentIntentResponseSchema = z.object({
-  clientSecret: z.string(),
-  paymentId: z.string(),
-  amountInCents: z.number().int().positive(),
-  currency: z.string(),
-});
-
-export type PaymentIntentResponse = z.infer<typeof paymentIntentResponseSchema>;
-
-export const confirmPaymentInputSchema = z.object({
-  paymentId: z.string().min(1),
-  paymentIntentId: z.string().min(1),
-});
-
-export type ConfirmPaymentInput = z.infer<typeof confirmPaymentInputSchema>;
-
-const requestPaymentResultBookingSchema = z.object({
-  bookingType: paymentBookingTypeSchema,
-  bookingId: z.string().min(1),
-});
-
-export const requestPaymentToolResultSchema = z.discriminatedUnion("status", [
-  requestPaymentResultBookingSchema.extend({
-    type: z.literal("request-payment-result"),
-    status: z.literal("paid"),
-    paymentId: z.string().min(1),
-    resolvedAt: z.string().datetime(),
-  }),
-  requestPaymentResultBookingSchema.extend({
-    type: z.literal("request-payment-result"),
-    status: z.literal("cancelled"),
-    resolvedAt: z.string().datetime(),
-  }),
-]);
-
-export type RequestPaymentToolResult = z.infer<
-  typeof requestPaymentToolResultSchema
+export type CreatePaymentSessionInput = z.infer<
+  typeof createPaymentSessionInputSchema
 >;
 
 export const requestCancellationToolResultSchema = z.object({
@@ -79,20 +51,11 @@ export const requestCancellationToolResultSchema = z.object({
   confirmed: z.boolean(),
   bookingType: paymentBookingTypeSchema,
   bookingId: z.string().min(1),
-  resolvedAt: z.string().datetime(),
+  resolvedAt: z.iso.datetime(),
 });
 
 export type RequestCancellationToolResult = z.infer<
   typeof requestCancellationToolResultSchema
->;
-
-export const requestSeatSelectionToolResultSchema = z.object({
-  type: z.literal("request-seat-selection-result"),
-  seatId: z.string().nullable(),
-});
-
-export type RequestSeatSelectionToolResult = z.infer<
-  typeof requestSeatSelectionToolResultSchema
 >;
 
 export const refundPaymentInputSchema = z.object({

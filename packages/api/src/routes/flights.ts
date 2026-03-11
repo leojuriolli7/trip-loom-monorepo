@@ -2,6 +2,7 @@ import { Elysia } from "elysia";
 import { z } from "zod";
 import { errorResponseSchema } from "@trip-loom/contracts/dto/common";
 import {
+  createFlightBookingResultSchema,
   createFlightBookingInputSchema,
   flightBookingSchema,
   flightBookingDetailSchema,
@@ -93,17 +94,17 @@ export const flightRoutes = new Elysia({
         });
       }
 
-      wideEvent.flight_booking_id = result.id;
-      const { existing, ...booking } = result;
-      return status(existing ? 200 : 201, booking);
+      wideEvent.flight_booking_id = result.booking.id;
+      const { existing, ...bookingResult } = result;
+      return status(existing ? 200 : 201, bookingResult);
     },
     {
       auth: true,
       params: tripParamsSchema,
       body: createFlightBookingInputSchema,
       response: {
-        200: flightBookingSchema,
-        201: flightBookingSchema,
+        200: createFlightBookingResultSchema,
+        201: createFlightBookingResultSchema,
         400: errorResponseSchema,
         401: errorResponseSchema,
         404: errorResponseSchema,

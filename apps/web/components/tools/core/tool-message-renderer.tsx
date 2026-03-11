@@ -3,17 +3,13 @@
 import type { TripLoomMessage } from "@trip-loom/agents";
 import { z } from "zod";
 import {
-  requestPaymentToolResultSchema,
-  requestSeatSelectionToolResultSchema,
-} from "@trip-loom/contracts/dto/payments";
-import { hotelBookingSchema } from "@trip-loom/contracts/dto/hotel-bookings";
-import { CreateHotelBookingToolResultCard } from "../create-hotel-booking-tool-result-card";
-import { RequestPaymentToolResultCard } from "../request-payment-tool-result-card";
-import { SeatSelectionToolResultCard } from "../seat-selection-tool-result-card";
+  flightBookingPaymentOutcomeSchema,
+  hotelBookingPaymentOutcomeSchema,
+} from "@trip-loom/contracts/dto/booking-payment-flow";
+import { BookingPaymentResultCard } from "../booking-payment-result-card";
 
 type ToolMessageRendererProps = {
   message: Extract<TripLoomMessage, { type: "tool" }>;
-  tripId: string;
 };
 
 /**
@@ -53,8 +49,7 @@ function parseToolMessageJson<TSchema extends z.ZodTypeAny>(
   try {
     // Tools return "JSON\n\nAgent instructions" — extract just the JSON portion.
     const jsonSegment = textContent.split("\n\n")[0] ?? textContent;
-    const parsedContent = JSON.parse(jsonSegment);
-    const parsed = schema.safeParse(parsedContent);
+    const parsed = schema.safeParse(JSON.parse(jsonSegment));
 
     return parsed.success ? parsed.data : null;
   } catch {
@@ -72,42 +67,31 @@ function parseToolMessageJson<TSchema extends z.ZodTypeAny>(
  */
 export function ToolMessageRenderer({
   message,
-  tripId,
 }: ToolMessageRendererProps) {
+  if (message.name === "create_flight_booking") {
+    const paidResult = parseToolMessageJson(
+      message.content,
+      flightBookingPaymentOutcomeSchema,
+    );
+
+    if (paidResult) {
+      return <BookingPaymentResultCard result={paidResult} />;
+    }
+
+    return null;
+  }
+
   if (message.name === "create_hotel_booking") {
-    const booking = parseToolMessageJson(message.content, hotelBookingSchema);
-
-    if (!booking) {
-      return null;
-    }
-
-    return <CreateHotelBookingToolResultCard booking={booking} />;
-  }
-
-  if (message.name === "request_payment") {
-    const parsed = parseToolMessageJson(
+    const paidResult = parseToolMessageJson(
       message.content,
-      requestPaymentToolResultSchema,
+      hotelBookingPaymentOutcomeSchema,
     );
 
-    if (!parsed) {
-      return null;
+    if (paidResult) {
+      return <BookingPaymentResultCard result={paidResult} />;
     }
 
-    return <RequestPaymentToolResultCard result={parsed} tripId={tripId} />;
-  }
-
-  if (message.name === "request_seat_selection") {
-    const parsed = parseToolMessageJson(
-      message.content,
-      requestSeatSelectionToolResultSchema,
-    );
-
-    if (!parsed) {
-      return null;
-    }
-
-    return <SeatSelectionToolResultCard result={parsed} />;
+    return null;
   }
 
   return null;

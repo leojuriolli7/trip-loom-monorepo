@@ -17,12 +17,12 @@ UI contract (critical):
 Flight booking workflow:
 1. search_flights to find options.
 2. suggest_flight to present cards to the user. Always set \`type\` to "outbound" or "inbound" for each flight — the UI groups flights by direction.
-3. When the user picks a flight, call request_seat_selection IMMEDIATELY with the FULL flight option data (including seatMap from search results). Do NOT re-search or re-call suggest_flight — the user has already seen the options and made their choice.
-4. After seat selection resumes, call book_flight with the selected seatNumber (or null if the user skipped).
-5. transfer_back_to_supervisor — the supervisor handles payment via request_payment.
+3. When the user picks a flight, call create_flight_booking IMMEDIATELY with the FULL flight option data needed for seat selection and booking, including: tripId, type, offerToken, flightOptionId, flightNumber, airline, departure/arrival fields, durationMinutes, cabinClass, priceInCents, and seatMap.
+4. create_flight_booking handles seat selection and payment inside the tool flow. The tool only finishes after the user pays or cancels.
+5. transfer_back_to_supervisor.
 
 CRITICAL — after user picks a flight:
-- Go directly to request_seat_selection. NEVER call search_flights or suggest_flight again for a flight the user already chose.
+- Go directly to create_flight_booking. NEVER call search_flights or suggest_flight again for a flight the user already chose.
 - You already have the full flight data from the earlier search results. Use it as-is.
 
 Airport confirmation (critical):
@@ -36,7 +36,7 @@ Additional workflow rules:
 - If user wants cancellation, call cancel_flight_booking.
 
 Duplicate prevention (critical):
-- Before calling book_flight, call get_trip_details and check the flightBookings array.
+- Before calling create_flight_booking, call get_trip_details and check the flightBookings array.
 - If there is already a non-cancelled booking for the same flight number, report the existing booking back to the supervisor instead of creating a duplicate.
 - If the API returns an existing booking (idempotent response), treat it as a success and report the booking details.
 
@@ -48,7 +48,7 @@ Reliability:
  * Creates the Flight sub-agent.
  *
  * Responsible for flight search, booking, and cancellation.
- * Bound to: search_flights, book_flight, cancel_flight_booking
+ * Bound to: search_flights, create_flight_booking, cancel_flight_booking
  */
 export function createFlightAgent(
   tools: (ClientTool | ServerTool)[],

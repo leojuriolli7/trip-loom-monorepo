@@ -8,25 +8,24 @@ import {
   trip,
 } from "../db/schema";
 import type {
-  ConfirmPaymentInput,
-  CreatePaymentIntentInput,
   PaymentDTO,
-  PaymentIntentResponse,
+  PaymentBookingType,
+  PaymentSessionDTO,
   RefundPaymentInput,
 } from "@trip-loom/contracts/dto/payments";
 import {
   BadRequestError,
   BookingNotPayableError,
-  PaymentAlreadySuccessfulError,
+  ConflictError,
+  NotFoundError,
   PaymentProcessingError,
 } from "../errors";
 import { generateId } from "../lib/nanoid";
 import { paymentProvider } from "../lib/payments/provider";
-import { getOwnedTripMeta } from "../lib/trips/ownership";
 import { paymentSelectFields } from "../mappers/payments";
 
 type PaymentStatus = (typeof payment.$inferSelect)["status"];
-type BookingType = CreatePaymentIntentInput["bookingType"];
+type BookingType = PaymentBookingType;
 type DbTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 type BookingReference = {
@@ -58,6 +57,12 @@ type StoredPayment = Pick<
   | "createdAt"
   | "updatedAt"
 >;
+
+const mapPaymentToDTO = (row: typeof payment.$inferSelect): PaymentDTO => ({
+  ...row,
+  createdAt: row.createdAt.toISOString(),
+  updatedAt: row.updatedAt.toISOString(),
+});
 
 const TERMINAL_PAYMENT_STATUSES = new Set<PaymentStatus>([
   "succeeded",
@@ -92,6 +97,12 @@ const isCompletedPaymentStatus = (status: PaymentStatus): boolean =>
   COMPLETED_PAYMENT_STATUSES.has(status);
 
 const normalizeCurrency = (value: string): string => value.toLowerCase();
+
+const buildPaymentCheckoutUrl = (input: {
+  paymentId: string;
+}): string => {
+  return new URL(`/payments/${input.paymentId}`, process.env.FRONTEND_BASE_URL).toString();
+};
 
 // Stripe idempotency should be stable within one booking attempt, but not across
 // every future retry forever. Attempt number prevents old terminal intents from
@@ -192,8 +203,7 @@ const getOwnedPayment = async (
     .innerJoin(trip, eq(payment.tripId, trip.id))
     .where(and(eq(payment.id, paymentId), eq(trip.userId, userId)))
     .limit(1);
-
-  return rows[0] ?? null;
+  return rows[0] ? mapPaymentToDTO(rows[0]) : null;
 };
 
 const getResolvedBooking = async (
@@ -348,7 +358,7 @@ const persistSuccessfulPayment = async (
 const reconcileExistingPaymentAttempt = async (input: {
   bookingReference: BookingReference;
   existingPayment: StoredPayment;
-}): Promise<PaymentIntentResponse | null> => {
+}): Promise<PaymentSessionDTO | null> => {
   // Before creating a new intent, inspect the latest known Stripe intent for
   // this booking. Open intents can be reused, terminal intents must be
   // reflected locally, and only then do we create a fresh attempt.
@@ -365,9 +375,14 @@ const reconcileExistingPaymentAttempt = async (input: {
       });
     });
 
-    throw new PaymentAlreadySuccessfulError(
-      "Booking already has a completed payment",
-    );
+    return {
+      id: input.existingPayment.id,
+      amountInCents: input.existingPayment.amountInCents,
+      currency: input.existingPayment.currency,
+      status: "succeeded",
+      clientSecret: null,
+      checkoutUrl: null,
+    };
   }
 
   const nextStatus = resolveStripeStatusForClientReconciliation(
@@ -406,10 +421,14 @@ const reconcileExistingPaymentAttempt = async (input: {
       .where(eq(payment.id, input.existingPayment.id));
 
     return {
-      clientSecret: providerIntent.clientSecret,
-      paymentId: input.existingPayment.id,
+      id: input.existingPayment.id,
       amountInCents: input.existingPayment.amountInCents,
       currency: input.existingPayment.currency,
+      status: nextStatus ?? "pending",
+      clientSecret: providerIntent.clientSecret,
+      checkoutUrl: buildPaymentCheckoutUrl({
+        paymentId: input.existingPayment.id,
+      }),
     };
   }
 
@@ -494,15 +513,15 @@ const confirmLinkedBooking = async (
     );
 };
 
-export async function createPaymentIntent(
-  userId: string,
-  input: CreatePaymentIntentInput,
-): Promise<PaymentIntentResponse | null> {
-  const tripMeta = await getOwnedTripMeta(userId, input.tripId);
-  if (!tripMeta) {
-    return null;
-  }
-
+export async function createPaymentSessionForBooking(
+  input: {
+    tripId: string;
+    currency: string;
+    description?: string;
+    bookingType: BookingType;
+    bookingId: string;
+  },
+): Promise<PaymentSessionDTO> {
   const booking = await getResolvedBooking(
     input.tripId,
     input.bookingType,
@@ -518,9 +537,14 @@ export async function createPaymentIntent(
     : null;
 
   if (linkedPayment && isCompletedPaymentStatus(linkedPayment.status)) {
-    throw new PaymentAlreadySuccessfulError(
-      "Booking already has an associated payment",
-    );
+    return {
+      id: linkedPayment.id,
+      amountInCents: linkedPayment.amountInCents,
+      currency: linkedPayment.currency,
+      status: linkedPayment.status,
+      clientSecret: null,
+      checkoutUrl: null,
+    };
   }
 
   if (linkedPayment?.status === "processing") {
@@ -611,53 +635,15 @@ export async function createPaymentIntent(
     });
 
   return {
-    clientSecret: providerIntent.clientSecret,
-    paymentId: saved.id,
+    id: saved.id,
     amountInCents: saved.amountInCents,
     currency: saved.currency,
+    status: "pending",
+    clientSecret: providerIntent.clientSecret,
+    checkoutUrl: buildPaymentCheckoutUrl({
+      paymentId: saved.id,
+    }),
   };
-}
-
-export async function confirmPayment(
-  userId: string,
-  input: ConfirmPaymentInput,
-): Promise<PaymentDTO | null> {
-  const ownedPayment = await getOwnedPayment(userId, input.paymentId);
-  if (!ownedPayment) {
-    return null;
-  }
-
-  if (ownedPayment.stripePaymentIntentId !== input.paymentIntentId) {
-    throw new BadRequestError(
-      "paymentIntentId does not match the requested payment",
-    );
-  }
-
-  const providerIntent = await paymentProvider.retrievePaymentIntent(
-    input.paymentIntentId,
-  );
-
-  const nextStatus = resolveStripeStatusForClientReconciliation(
-    providerIntent.status,
-  );
-
-  if (
-    nextStatus &&
-    nextStatus !== ownedPayment.status &&
-    !isTerminalPaymentStatus(ownedPayment.status)
-  ) {
-    await db
-      .update(payment)
-      .set({
-        status: nextStatus,
-        stripeCustomerId:
-          providerIntent.customerId ?? ownedPayment.stripeCustomerId,
-        updatedAt: new Date(),
-      })
-      .where(eq(payment.id, ownedPayment.id));
-  }
-
-  return getOwnedPayment(userId, input.paymentId);
 }
 
 export async function getPayment(
@@ -665,6 +651,48 @@ export async function getPayment(
   paymentId: string,
 ): Promise<PaymentDTO | null> {
   return getOwnedPayment(userId, paymentId);
+}
+
+export async function getHostedPaymentSession(
+  paymentId: string,
+): Promise<PaymentSessionDTO> {
+  const storedPayment = await getStoredPaymentById(paymentId);
+
+  if (!storedPayment) {
+    throw new NotFoundError("Payment session not found");
+  }
+
+  if (isCompletedPaymentStatus(storedPayment.status)) {
+    throw new ConflictError("This payment session has already been completed");
+  }
+
+  if (storedPayment.status === "processing") {
+    throw new PaymentProcessingError("Payment is still processing");
+  }
+
+  const bookingReference = parseBookingReference(storedPayment.metadata);
+  if (!bookingReference) {
+    throw new ConflictError("Payment session is missing booking metadata");
+  }
+
+  const reconciledSession = await reconcileExistingPaymentAttempt({
+    bookingReference,
+    existingPayment: storedPayment,
+  });
+
+  if (!reconciledSession) {
+    throw new ConflictError("This payment session is no longer available");
+  }
+
+  if (reconciledSession.status === "succeeded") {
+    throw new ConflictError("This payment session has already been completed");
+  }
+
+  if (!reconciledSession.clientSecret) {
+    throw new ConflictError("This payment session cannot be resumed");
+  }
+
+  return reconciledSession;
 }
 
 export async function refundPayment(

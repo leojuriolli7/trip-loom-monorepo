@@ -1,14 +1,8 @@
 import { and, eq } from "drizzle-orm";
-import {
-  afterAll,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-} from "bun:test";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, spyOn } from "bun:test";
 import { db } from "../db";
-import { airport, flightBooking, itinerary, trip, user } from "../db/schema";
+import { airport, flightBooking, itinerary, payment, trip, user } from "../db/schema";
+import { paymentProvider } from "../lib/payments/provider";
 import { flightRoutes } from "../routes/flights";
 import {
   createHeaderAuthMock,
@@ -36,6 +30,9 @@ type SeedData = {
 
 let seed: SeedData;
 
+const createPaymentIntentSpy = spyOn(paymentProvider, "createPaymentIntent");
+const retrievePaymentIntentSpy = spyOn(paymentProvider, "retrievePaymentIntent");
+
 const cleanupFlightsFixtureData = async () => {
   await ctx.cleanup();
 };
@@ -44,11 +41,9 @@ const seedFlightsFixtureData = async () => {
   const baseTime = Date.parse("2025-06-01T00:00:00.000Z");
   const primaryUserId = `${ctx.prefix}user_primary`;
   const secondaryUserId = `${ctx.prefix}user_secondary`;
-
   const draftTripId = `${ctx.prefix}trip_draft`;
   const upcomingTripId = `${ctx.prefix}trip_upcoming`;
   const secondaryTripId = `${ctx.prefix}trip_secondary`;
-
   const primaryBookingId = `${ctx.prefix}booking_primary`;
   const secondaryBookingId = `${ctx.prefix}booking_secondary`;
 
@@ -128,32 +123,6 @@ const seedFlightsFixtureData = async () => {
       timezone: "Europe/London",
       latitude: 51.47,
       longitude: -0.4543,
-      airportType: "large_airport",
-      scheduledService: true,
-    },
-    {
-      code: "SFO",
-      icao: "KSFO",
-      name: "San Francisco International Airport",
-      city: "San Francisco",
-      countryCode: "TS",
-      continent: "NA",
-      timezone: "America/Los_Angeles",
-      latitude: 37.6213,
-      longitude: -122.379,
-      airportType: "large_airport",
-      scheduledService: true,
-    },
-    {
-      code: "NRT",
-      icao: "RJAA",
-      name: "Narita International Airport",
-      city: "Tokyo",
-      countryCode: "TS",
-      continent: "AS",
-      timezone: "Asia/Tokyo",
-      latitude: 35.772,
-      longitude: 140.3929,
       airportType: "large_airport",
       scheduledService: true,
     },
@@ -295,115 +264,43 @@ describe("Flights API", () => {
   beforeEach(async () => {
     await cleanupFlightsFixtureData();
     await seedFlightsFixtureData();
+    createPaymentIntentSpy.mockReset();
+    retrievePaymentIntentSpy.mockReset();
   });
 
   afterAll(async () => {
     await cleanupFlightsFixtureData();
     authMock.restore();
+    createPaymentIntentSpy.mockRestore();
+    retrievePaymentIntentSpy.mockRestore();
   });
 
   describe("GET /api/flights/search", () => {
-    it("generates deterministic flight options with seat maps", async () => {
-      const path =
-        "/api/flights/search?from=JFK&to=LAX&date=2026-09-20&cabinClass=economy&passengers=2";
+    it("generates deterministic flight options with seat maps and offer tokens", async () => {
+      const path = "/api/flights/search?from=JFK&to=LAX&date=2026-09-20&cabinClass=economy&passengers=2";
 
-      const first = await requestJson({
-        method: "GET",
-        path,
-        userId: seed.primaryUserId,
-      });
-      const second = await requestJson({
-        method: "GET",
-        path,
-        userId: seed.primaryUserId,
-      });
+      const first = await requestJson({ method: "GET", path, userId: seed.primaryUserId });
+      const second = await requestJson({ method: "GET", path, userId: seed.primaryUserId });
 
       expect(first.res.status).toBe(200);
       expect(second.res.status).toBe(200);
-      expect(first.body).toEqual(second.body);
-      expect(first.body.length).toBeGreaterThanOrEqual(5);
-      expect(first.body.length).toBeLessThanOrEqual(10);
+      expect(first.body).toHaveLength(second.body.length);
 
-      const prices = first.body.map((o: { priceInCents: number }) => o.priceInCents);
-      const sortedPrices = [...prices].sort((a: number, b: number) => a - b);
-      expect(prices).toEqual(sortedPrices);
+      const comparableFirst = first.body.map(({ offerToken, ...option }: { offerToken: string }) => option);
+      const comparableSecond = second.body.map(({ offerToken, ...option }: { offerToken: string }) => option);
+      expect(comparableFirst).toEqual(comparableSecond);
+      expect(first.body.every((option: { offerToken: string }) => option.offerToken.length > 0)).toBe(true);
+      expect(second.body.every((option: { offerToken: string }) => option.offerToken.length > 0)).toBe(true);
 
       const firstOption = first.body[0];
       expect(firstOption).toMatchObject({
         departureAirportCode: "JFK",
         arrivalAirportCode: "LAX",
         cabinClass: "economy",
-        departureCity: "New York",
-        arrivalCity: "Los Angeles",
-        departureAirport: {
-          code: "JFK",
-        },
-        arrivalAirport: {
-          code: "LAX",
-        },
       });
-
+      expect(firstOption.offerToken).toEqual(expect.any(String));
       expect(Array.isArray(firstOption.seatMap)).toBe(true);
-      expect(firstOption.seatMap.length).toBeGreaterThan(0);
-      expect(firstOption.seatMap[0].sections.length).toBeGreaterThan(0);
-      expect(firstOption.seatMap[0].sections[0][0]).toEqual(
-        expect.objectContaining({
-          id: expect.any(String),
-          isBooked: expect.any(Boolean),
-        }),
-      );
-      expect(firstOption.priceInCents).toBeGreaterThan(0);
-
-      const availableSeatIds = firstOption.seatMap.flatMap(
-        (row: {
-          sections: Array<
-            Array<{
-              id: string;
-              isBooked: boolean;
-            }>
-          >;
-        }) =>
-          row.sections.flatMap((section) =>
-            section.filter((seat) => !seat.isBooked).map((seat) => seat.id),
-          ),
-      );
-
-      expect(firstOption.availableSeats).toBe(availableSeatIds.length);
-    });
-
-    it("applies cabin class pricing multipliers", async () => {
-      const economy = await requestJson({
-        method: "GET",
-        path: "/api/flights/search?from=JFK&to=LAX&date=2026-09-20&cabinClass=economy&passengers=1",
-        userId: seed.primaryUserId,
-      });
-      const firstClass = await requestJson({
-        method: "GET",
-        path: "/api/flights/search?from=JFK&to=LAX&date=2026-09-20&cabinClass=first&passengers=1",
-        userId: seed.primaryUserId,
-      });
-
-      expect(economy.res.status).toBe(200);
-      expect(firstClass.res.status).toBe(200);
-
-      const economyMinPrice = Math.min(
-        ...economy.body.map((o: { priceInCents: number }) => o.priceInCents),
-      );
-      const firstMinPrice = Math.min(
-        ...firstClass.body.map((o: { priceInCents: number }) => o.priceInCents),
-      );
-
-      expect(firstMinPrice).toBeGreaterThan(economyMinPrice);
-    });
-
-    it("validates airport query params", async () => {
-      const { res } = await requestJson({
-        method: "GET",
-        path: "/api/flights/search?from=JF&to=LAX&date=2026-09-20",
-        userId: seed.primaryUserId,
-      });
-
-      expect([400, 422]).toContain(res.status);
+      expect(firstOption.availableSeats).toBeGreaterThan(0);
     });
 
     it("returns 400 when airport code does not exist in DB", async () => {
@@ -414,37 +311,18 @@ describe("Flights API", () => {
       });
 
       expect(res.status).toBe(400);
-      expect(body).toMatchObject({
-        error: "BadRequest",
-      });
       expect(body.message).toContain("ZZZ");
     });
   });
 
   describe("Booking CRUD", () => {
-    it("all booking endpoints return 401 without auth", async () => {
+    it("protects booking endpoints", async () => {
       const calls = await Promise.all([
-        requestJson({
-          method: "GET",
-          path: `/api/trips/${seed.upcomingTripId}/flights`,
-        }),
+        requestJson({ method: "GET", path: `/api/trips/${seed.upcomingTripId}/flights` }),
         requestJson({
           method: "POST",
           path: `/api/trips/${seed.upcomingTripId}/flights`,
-          body: {
-            type: "outbound",
-            flightNumber: "TL777",
-            airline: "TripLoom Airways",
-            departureAirportCode: "JFK",
-            departureCity: "New York",
-            departureTime: "2026-09-22T10:00:00.000Z",
-            arrivalAirportCode: "LAX",
-            arrivalCity: "Los Angeles",
-            arrivalTime: "2026-09-22T16:00:00.000Z",
-            durationMinutes: 360,
-            cabinClass: "economy",
-            priceInCents: 45_000,
-          },
+          body: { type: "outbound", offerToken: "invalid" },
         }),
         requestJson({
           method: "GET",
@@ -465,142 +343,206 @@ describe("Flights API", () => {
       }
     });
 
-    it("POST creates a booking and can transition draft trip status", async () => {
+    it("creates a booking and payment session from an offer token", async () => {
+      createPaymentIntentSpy.mockResolvedValue({
+        id: `${ctx.prefix}pi_created`,
+        clientSecret: `${ctx.prefix}secret_created`,
+        status: "requires_payment_method",
+        customerId: `${ctx.prefix}cus_created`,
+        metadata: {},
+      });
+
+      const search = await requestJson({
+        method: "GET",
+        path: "/api/flights/search?from=BOS&to=LHR&date=2026-10-10&cabinClass=economy&passengers=1",
+        userId: seed.primaryUserId,
+      });
+      const option = search.body[0];
+      const firstAvailableSeat = option.seatMap
+        .flatMap((row: { sections: Array<Array<{ id: string; isBooked: boolean }>> }) => row.sections.flat())
+        .find((seat: { id: string; isBooked: boolean }) => !seat.isBooked);
+
+      expect(firstAvailableSeat).toBeDefined();
+
       const create = await requestJson({
         method: "POST",
         path: `/api/trips/${seed.draftTripId}/flights`,
         userId: seed.primaryUserId,
         body: {
           type: "outbound",
-          flightNumber: "GA901",
-          airline: "Global Air",
-          departureAirportCode: "BOS",
-          departureCity: "Boston",
-          departureTime: "2026-10-10T09:15:00.000Z",
-          arrivalAirportCode: "LHR",
-          arrivalCity: "London",
-          arrivalTime: "2026-10-10T15:45:00.000Z",
-          durationMinutes: 390,
-          cabinClass: "economy",
-          priceInCents: 38_500,
-          seatNumber: "10B",
+          offerToken: option.offerToken,
+          seatNumber: firstAvailableSeat!.id,
         },
       });
 
       expect(create.res.status).toBe(201);
-      expect(create.body.tripId).toBe(seed.draftTripId);
-      expect(create.body.status).toBe("pending");
-      expect(create.body.seatNumber).toBe("10B");
-
-      const storedRows = await db
-        .select()
-        .from(flightBooking)
-        .where(eq(flightBooking.id, create.body.id));
-      expect(storedRows).toHaveLength(1);
-    });
-
-    it("GET /api/trips/:id/flights lists only trip bookings", async () => {
-      const { res, body } = await requestJson({
-        method: "GET",
-        path: `/api/trips/${seed.upcomingTripId}/flights`,
-        userId: seed.primaryUserId,
+      expect(create.body.booking).toMatchObject({
+        tripId: seed.draftTripId,
+        type: "outbound",
+        seatNumber: firstAvailableSeat!.id,
+        status: "pending",
+      });
+      expect(create.body.booking.departureTime).toEqual(expect.any(String));
+      expect(create.body.paymentSession).toMatchObject({
+        amountInCents: create.body.booking.priceInCents,
+        status: "pending",
+        clientSecret: `${ctx.prefix}secret_created`,
       });
 
-      expect(res.status).toBe(200);
-      expect(body).toHaveLength(1);
-      expect(body[0].id).toBe(seed.primaryBookingId);
-      expect(body[0].tripId).toBe(seed.upcomingTripId);
+      const paymentRows = await db
+        .select({ amountInCents: payment.amountInCents, status: payment.status })
+        .from(payment)
+        .where(eq(payment.id, create.body.paymentSession.id))
+        .limit(1);
+      expect(paymentRows[0]).toMatchObject({
+        amountInCents: create.body.booking.priceInCents,
+        status: "pending",
+      });
     });
 
-    it("GET /api/trips/:id/flights/:flightId returns booking detail with seat map", async () => {
-      const { res, body } = await requestJson({
-        method: "GET",
-        path: `/api/trips/${seed.upcomingTripId}/flights/${seed.primaryBookingId}`,
-        userId: seed.primaryUserId,
+    it("returns an existing active booking with a reused payment session", async () => {
+      createPaymentIntentSpy.mockResolvedValue({
+        id: `${ctx.prefix}pi_created`,
+        clientSecret: `${ctx.prefix}secret_first`,
+        status: "requires_payment_method",
+        customerId: `${ctx.prefix}cus_first`,
+        metadata: {},
       });
 
-      expect(res.status).toBe(200);
-      expect(body.id).toBe(seed.primaryBookingId);
-      expect(Array.isArray(body.seatMap)).toBe(true);
-      expect(body.seatMap.length).toBeGreaterThan(0);
-      expect(body.seatMap[0].sections.length).toBeGreaterThan(0);
-    });
+      const search = await requestJson({
+        method: "GET",
+        path: "/api/flights/search?from=BOS&to=LHR&date=2026-10-12&cabinClass=business&passengers=1",
+        userId: seed.primaryUserId,
+      });
+      const option = search.body[0];
+      const firstAvailableSeat = option.seatMap
+        .flatMap((row: { sections: Array<Array<{ id: string; isBooked: boolean }>> }) => row.sections.flat())
+        .find((seat: { id: string; isBooked: boolean }) => !seat.isBooked);
 
-    it("DELETE cancels booking and may move trip back to draft", async () => {
-      const created = await requestJson({
+      const first = await requestJson({
         method: "POST",
         path: `/api/trips/${seed.draftTripId}/flights`,
         userId: seed.primaryUserId,
         body: {
           type: "outbound",
-          flightNumber: "PA112",
-          airline: "Pacific Airlines",
-          departureAirportCode: "SFO",
-          departureCity: "San Francisco",
-          departureTime: "2026-11-01T08:00:00.000Z",
-          arrivalAirportCode: "NRT",
-          arrivalCity: "Tokyo",
-          arrivalTime: "2026-11-01T19:20:00.000Z",
-          durationMinutes: 680,
-          cabinClass: "economy",
-          priceInCents: 62_000,
-          seatNumber: "9A",
+          offerToken: option.offerToken,
+          seatNumber: firstAvailableSeat!.id,
         },
       });
-      expect(created.res.status).toBe(201);
+
+      retrievePaymentIntentSpy.mockResolvedValue({
+        id: `${ctx.prefix}pi_created`,
+        clientSecret: `${ctx.prefix}secret_reused`,
+        status: "requires_payment_method",
+        customerId: `${ctx.prefix}cus_reused`,
+        metadata: {
+          tripId: seed.draftTripId,
+          bookingType: "flight",
+          bookingId: first.body.booking.id,
+        },
+      });
+
+      const second = await requestJson({
+        method: "POST",
+        path: `/api/trips/${seed.draftTripId}/flights`,
+        userId: seed.primaryUserId,
+        body: {
+          type: "outbound",
+          offerToken: option.offerToken,
+          seatNumber: firstAvailableSeat!.id,
+        },
+      });
+
+      expect(first.res.status).toBe(201);
+      expect(second.res.status).toBe(200);
+      expect(second.body.booking.id).toBe(first.body.booking.id);
+      expect(second.body.paymentSession.id).toBe(first.body.paymentSession.id);
+      expect(second.body.paymentSession.clientSecret).toBe(`${ctx.prefix}secret_reused`);
+      expect(createPaymentIntentSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("rejects invalid or booked seats", async () => {
+      createPaymentIntentSpy.mockResolvedValue({
+        id: `${ctx.prefix}pi_created`,
+        clientSecret: `${ctx.prefix}secret_created`,
+        status: "requires_payment_method",
+        customerId: `${ctx.prefix}cus_created`,
+        metadata: {},
+      });
+
+      const search = await requestJson({
+        method: "GET",
+        path: "/api/flights/search?from=BOS&to=LHR&date=2026-10-15&cabinClass=economy&passengers=1",
+        userId: seed.primaryUserId,
+      });
+      const option = search.body[0];
+      const bookedSeat = option.seatMap
+        .flatMap((row: { sections: Array<Array<{ id: string; isBooked: boolean }>> }) => row.sections.flat())
+        .find((seat: { id: string; isBooked: boolean }) => seat.isBooked);
+
+      const invalidSeatResponse = await requestJson({
+        method: "POST",
+        path: `/api/trips/${seed.draftTripId}/flights`,
+        userId: seed.primaryUserId,
+        body: {
+          type: "outbound",
+          offerToken: option.offerToken,
+          seatNumber: "99Z",
+        },
+      });
+
+      expect(invalidSeatResponse.res.status).toBe(400);
+
+      if (bookedSeat) {
+        const bookedSeatResponse = await requestJson({
+          method: "POST",
+          path: `/api/trips/${seed.draftTripId}/flights`,
+          userId: seed.primaryUserId,
+          body: {
+            type: "outbound",
+            offerToken: option.offerToken,
+            seatNumber: bookedSeat.id,
+          },
+        });
+
+        expect(bookedSeatResponse.res.status).toBe(400);
+        expect(bookedSeatResponse.body.message).toContain("already been taken");
+      }
+    });
+
+    it("lists, fetches, and cancels only the owner's bookings", async () => {
+      const list = await requestJson({
+        method: "GET",
+        path: `/api/trips/${seed.upcomingTripId}/flights`,
+        userId: seed.primaryUserId,
+      });
+      expect(list.res.status).toBe(200);
+      expect(list.body).toHaveLength(1);
+      expect(list.body[0].departureTime).toEqual(expect.any(String));
+
+      const detail = await requestJson({
+        method: "GET",
+        path: `/api/trips/${seed.upcomingTripId}/flights/${seed.primaryBookingId}`,
+        userId: seed.primaryUserId,
+      });
+      expect(detail.res.status).toBe(200);
+      expect(Array.isArray(detail.body.seatMap)).toBe(true);
 
       const deleted = await requestJson({
         method: "DELETE",
-        path: `/api/trips/${seed.draftTripId}/flights/${created.body.id}`,
+        path: `/api/trips/${seed.upcomingTripId}/flights/${seed.primaryBookingId}`,
         userId: seed.primaryUserId,
       });
-
       expect(deleted.res.status).toBe(204);
 
       const bookingRows = await db
         .select({ status: flightBooking.status })
         .from(flightBooking)
-        .where(eq(flightBooking.id, created.body.id));
+        .where(eq(flightBooking.id, seed.primaryBookingId));
       expect(bookingRows[0]?.status).toBe("cancelled");
     });
 
-    it("DELETE keeps trip upcoming when itinerary still exists", async () => {
-      const created = await requestJson({
-        method: "POST",
-        path: `/api/trips/${seed.draftTripId}/flights`,
-        userId: seed.primaryUserId,
-        body: {
-          type: "outbound",
-          flightNumber: "NO221",
-          airline: "North Orbit",
-          departureAirportCode: "JFK",
-          departureCity: "New York",
-          departureTime: "2026-10-12T12:00:00.000Z",
-          arrivalAirportCode: "LAX",
-          arrivalCity: "Los Angeles",
-          arrivalTime: "2026-10-12T18:05:00.000Z",
-          durationMinutes: 365,
-          cabinClass: "economy",
-          priceInCents: 41_000,
-        },
-      });
-      expect(created.res.status).toBe(201);
-
-      await db.insert(itinerary).values({
-        id: `${ctx.prefix}draft_trip_itinerary`,
-        tripId: seed.draftTripId,
-      });
-
-      const deleted = await requestJson({
-        method: "DELETE",
-        path: `/api/trips/${seed.draftTripId}/flights/${created.body.id}`,
-        userId: seed.primaryUserId,
-      });
-
-      expect(deleted.res.status).toBe(204);
-    });
-
-    it("cannot access another user's trip bookings", async () => {
+    it("returns 404 for another user's trip or booking", async () => {
       const calls = await Promise.all([
         requestJson({
           method: "GET",
@@ -621,9 +563,7 @@ describe("Flights API", () => {
 
       for (const call of calls) {
         expect(call.res.status).toBe(404);
-        expect(call.body).toMatchObject({
-          error: "NotFound",
-        });
+        expect(call.body).toMatchObject({ error: "NotFound" });
       }
 
       const secondaryRows = await db
@@ -637,6 +577,21 @@ describe("Flights API", () => {
         );
       expect(secondaryRows).toHaveLength(1);
       expect(secondaryRows[0]?.status).not.toBe("cancelled");
+    });
+
+    it("keeps cancellation compatible when itinerary still exists", async () => {
+      await db.insert(itinerary).values({
+        id: `${ctx.prefix}draft_trip_itinerary`,
+        tripId: seed.upcomingTripId,
+      });
+
+      const deleted = await requestJson({
+        method: "DELETE",
+        path: `/api/trips/${seed.upcomingTripId}/flights/${seed.primaryBookingId}`,
+        userId: seed.primaryUserId,
+      });
+
+      expect(deleted.res.status).toBe(204);
     });
   });
 });

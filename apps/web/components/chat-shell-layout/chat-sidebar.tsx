@@ -143,9 +143,9 @@ export function ChatSidebar() {
         )}
 
         {status === "success" && !trips.length && (
-          <div className="px-2 py-3 text-xs text-destructive">
+          <div className="px-2 py-4 text-xs text-secondary-foreground text-center">
             {showArchivedTrips
-              ? "You have no archived trips yet."
+              ? "You have no archived trips."
               : "You have no trips yet. Get started by planning a trip!"}
           </div>
         )}

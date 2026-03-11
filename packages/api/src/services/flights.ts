@@ -5,6 +5,7 @@ import { BadRequestError } from "../errors";
 import type {
   AirportSummaryDTO,
   CreateFlightBookingInput,
+  CreateFlightBookingResultDTO,
   FlightBookingDTO,
   FlightBookingDetailDTO,
   FlightOptionDTO,
@@ -12,34 +13,21 @@ import type {
 } from "@trip-loom/contracts/dto/flights";
 import { generateId } from "../lib/nanoid";
 import {
+  createFlightOfferToken,
+  verifyFlightOfferToken,
+} from "../lib/flights/offer-token";
+import {
   generateFlightOptions,
   generateSeatMapForFlight,
 } from "../lib/flights/generator";
+import { buildSeatMapSeedKey } from "../lib/flights/seat-map";
 import { getOwnedTripMeta } from "../lib/trips/ownership";
 import { flightBookingSelectFields } from "../mappers/flights";
-
-type SeatMapSource = {
-  flightNumber: string;
-  departureAirportCode: string;
-  arrivalAirportCode: string;
-  departureTime: Date;
-  arrivalTime: Date;
-  cabinClass: FlightBookingDTO["cabinClass"];
-};
+import { createPaymentSessionForBooking } from "./payments";
 
 type ResolvedAirport = AirportSummaryDTO & {
   cityLabel: string;
 };
-
-const buildSeatMapSeedKey = (source: SeatMapSource): string =>
-  [
-    source.flightNumber,
-    source.departureAirportCode,
-    source.arrivalAirportCode,
-    source.departureTime.toISOString(),
-    source.arrivalTime.toISOString(),
-    source.cabinClass,
-  ].join("|");
 
 const airportSummaryFromRow = (value: typeof airport.$inferSelect): ResolvedAirport => {
   const cityLabel = value.city?.trim() || value.name;
@@ -55,6 +43,16 @@ const airportSummaryFromRow = (value: typeof airport.$inferSelect): ResolvedAirp
     cityLabel,
   };
 };
+
+const mapFlightBookingToDTO = (
+  row: typeof flightBooking.$inferSelect,
+): FlightBookingDTO => ({
+  ...row,
+  departureTime: row.departureTime.toISOString(),
+  arrivalTime: row.arrivalTime.toISOString(),
+  createdAt: row.createdAt.toISOString(),
+  updatedAt: row.updatedAt.toISOString(),
+});
 
 const getAirportByCode = async (code: string): Promise<ResolvedAirport | null> => {
   const normalizedCode = code.toUpperCase();
@@ -80,19 +78,6 @@ const ensureAirport = async (code: string): Promise<ResolvedAirport> => {
   return resolved;
 };
 
-const getFlightBookingById = async (
-  tripId: string,
-  bookingId: string,
-): Promise<FlightBookingDTO | null> => {
-  const rows = await db
-    .select(flightBookingSelectFields)
-    .from(flightBooking)
-    .where(and(eq(flightBooking.tripId, tripId), eq(flightBooking.id, bookingId)))
-    .limit(1);
-
-  return rows[0] ?? null;
-};
-
 export async function searchFlights(
   params: FlightSearchQuery,
 ): Promise<FlightOptionDTO[]> {
@@ -103,7 +88,23 @@ export async function searchFlights(
     params,
     departureAirport,
     arrivalAirport,
-  });
+  }).map((option) => ({
+    ...option,
+    offerToken: createFlightOfferToken({
+      priceInCents: option.priceInCents,
+      flightNumber: option.flightNumber,
+      airline: option.airline,
+      departureAirportCode: option.departureAirportCode,
+      departureCity: option.departureCity,
+      departureTime: option.departureTime,
+      arrivalAirportCode: option.arrivalAirportCode,
+      arrivalCity: option.arrivalCity,
+      arrivalTime: option.arrivalTime,
+      durationMinutes: option.durationMinutes,
+      cabinClass: option.cabinClass,
+      expiresAt: new Date(Date.now() + 1000 * 60 * 30).toISOString(),
+    }),
+  }));
 }
 
 export async function listFlightBookings(
@@ -123,7 +124,8 @@ export async function listFlightBookings(
       asc(flightBooking.departureTime),
       asc(flightBooking.createdAt),
       asc(flightBooking.id),
-    );
+    )
+    .then((rows) => rows.map(mapFlightBookingToDTO));
 }
 
 export async function getFlightBooking(
@@ -163,7 +165,7 @@ export async function getFlightBooking(
   });
 
   return {
-    ...booking,
+    ...mapFlightBookingToDTO(booking),
     seatMap: seatMapData.seatMap,
     departureAirport: departureAirport ?? {
       code: booking.departureAirportCode,
@@ -186,7 +188,9 @@ export async function getFlightBooking(
   };
 }
 
-export type CreateFlightBookingResult = FlightBookingDTO & { existing?: true };
+export type CreateFlightBookingResult = CreateFlightBookingResultDTO & {
+  existing?: true;
+};
 
 export async function createFlightBooking(
   userId: string,
@@ -198,6 +202,8 @@ export async function createFlightBooking(
     return null;
   }
 
+  const offer = verifyFlightOfferToken(input.offerToken);
+
   // Idempotency guard: return existing active booking for same flight on same trip
   const existingRows = await db
     .select(flightBookingSelectFields)
@@ -205,20 +211,63 @@ export async function createFlightBooking(
     .where(
       and(
         eq(flightBooking.tripId, tripId),
-        eq(flightBooking.flightNumber, input.flightNumber),
+        eq(flightBooking.flightNumber, offer.flightNumber),
+        eq(flightBooking.departureTime, new Date(offer.departureTime)),
         not(eq(flightBooking.status, "cancelled")),
       ),
     )
     .limit(1);
 
   if (existingRows.length > 0) {
-    return { ...existingRows[0], existing: true as const };
-  }
+    const existingBooking = await getFlightBooking(
+      userId,
+      tripId,
+      existingRows[0].id,
+    );
+    if (!existingBooking) {
+      return null;
+    }
 
+    const paymentSession = await createPaymentSessionForBooking({
+      tripId,
+      bookingType: "flight",
+      bookingId: existingBooking.id,
+      currency: "usd",
+      description: `${input.type === "outbound" ? "Outbound" : "Return"} flight: ${existingBooking.flightNumber}`,
+    });
+
+    return { booking: existingBooking, paymentSession, existing: true as const };
+  }
   const [departureAirport, arrivalAirport] = await Promise.all([
-    ensureAirport(input.departureAirportCode),
-    ensureAirport(input.arrivalAirportCode),
+    ensureAirport(offer.departureAirportCode),
+    ensureAirport(offer.arrivalAirportCode),
   ]);
+
+  if (input.seatNumber) {
+    const seatMap = generateSeatMapForFlight({
+      seedKey: buildSeatMapSeedKey({
+        flightNumber: offer.flightNumber,
+        departureAirportCode: offer.departureAirportCode,
+        arrivalAirportCode: offer.arrivalAirportCode,
+        departureTime: new Date(offer.departureTime),
+        arrivalTime: new Date(offer.arrivalTime),
+        cabinClass: offer.cabinClass,
+      }),
+      cabinClass: offer.cabinClass,
+    }).seatMap;
+
+    const selectedSeat = seatMap
+      .flatMap((row) => row.sections.flat())
+      .find((seat) => seat.id === input.seatNumber);
+
+    if (!selectedSeat) {
+      throw new BadRequestError(`Seat '${input.seatNumber}' is not available for this flight`);
+    }
+
+    if (selectedSeat.isBooked) {
+      throw new BadRequestError(`Seat '${input.seatNumber}' has already been taken`);
+    }
+  }
 
   const [created] = await db
     .insert(flightBooking)
@@ -227,23 +276,36 @@ export async function createFlightBooking(
       tripId,
       paymentId: null,
       type: input.type,
-      flightNumber: input.flightNumber,
-      airline: input.airline,
-      departureAirportCode: input.departureAirportCode,
+      flightNumber: offer.flightNumber,
+      airline: offer.airline,
+      departureAirportCode: offer.departureAirportCode,
       departureCity: departureAirport.cityLabel,
-      departureTime: new Date(input.departureTime),
-      arrivalAirportCode: input.arrivalAirportCode,
+      departureTime: new Date(offer.departureTime),
+      arrivalAirportCode: offer.arrivalAirportCode,
       arrivalCity: arrivalAirport.cityLabel,
-      arrivalTime: new Date(input.arrivalTime),
-      durationMinutes: input.durationMinutes,
+      arrivalTime: new Date(offer.arrivalTime),
+      durationMinutes: offer.durationMinutes,
       seatNumber: input.seatNumber ?? null,
-      cabinClass: input.cabinClass,
-      priceInCents: input.priceInCents,
+      cabinClass: offer.cabinClass,
+      priceInCents: offer.priceInCents,
       status: "pending",
     })
     .returning({ id: flightBooking.id });
 
-  return getFlightBookingById(tripId, created.id);
+  const booking = await getFlightBooking(userId, tripId, created.id);
+  if (!booking) {
+    return null;
+  }
+
+  const paymentSession = await createPaymentSessionForBooking({
+    tripId,
+    bookingType: "flight",
+    bookingId: booking.id,
+    currency: "usd",
+    description: `${input.type === "outbound" ? "Outbound" : "Return"} flight: ${booking.flightNumber}`,
+  });
+
+  return { booking, paymentSession };
 }
 
 export async function cancelFlightBooking(

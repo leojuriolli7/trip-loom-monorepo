@@ -121,7 +121,7 @@ Make sure both the API server and MCP server are running. On first connection, `
 | `get_destination_details` | Get destination detail |
 | `get_recommended_destinations` | Get recommended destinations |
 | `search_flights` | Search flights |
-| `book_flight` | Create flight booking |
+| `create_flight_booking` | Create flight booking |
 | `cancel_flight_booking` | Cancel flight booking |
 | `search_hotels` | Search hotels |
 | `create_hotel_booking` | Create hotel booking |

@@ -5,6 +5,7 @@ import type {
   FlightSearchQuery,
   FlightSeatMap,
 } from "@trip-loom/contracts/dto/flights";
+import { buildSeatMapSeedKey } from "./seat-map";
 
 type CabinClass = (typeof cabinClassEnum.enumValues)[number];
 
@@ -186,20 +187,29 @@ export function generateFlightOptions({
     const arrivalTime = new Date(
       departureTime.getTime() + durationMinutes * 60_000,
     );
+    const flightNumber = `${airline.code}${randomInt(random, 100, 999)}`;
 
     const priceInCents = Math.round(
       (durationMinutes * 52 + randomInt(random, 3_000, 12_500)) *
         CABIN_MULTIPLIER[params.cabinClass],
     );
     const seatMapData = generateSeatMapForFlight({
-      seedKey: `${seedKey}|${index + 1}`,
+      seedKey: buildSeatMapSeedKey({
+        flightNumber,
+        departureAirportCode: from,
+        arrivalAirportCode: to,
+        departureTime,
+        arrivalTime,
+        cabinClass: params.cabinClass,
+      }),
       cabinClass: params.cabinClass,
     });
 
     options.push({
       id: `flight_opt_${hashString(`${seedKey}|${index}`).toString(36)}`,
+      offerToken: "",
       priceInCents,
-      flightNumber: `${airline.code}${randomInt(random, 100, 999)}`,
+      flightNumber,
       airline: airline.name,
       departureAirportCode: from,
       departureCity,

@@ -1,11 +1,9 @@
 import type {
-  RequestPaymentInterrupt,
-  RequestPaymentResume,
-} from "../request-payment";
-import type {
+  BookingPaymentInterrupt,
+  BookingPaymentResume,
   RequestSeatSelectionInterrupt,
-  RequestSeatSelectionResume,
-} from "../request-seat-selection";
+  SeatSelectionResume,
+} from "../booking-flow";
 import type {
   ToolApprovalInterrupt,
   ToolApprovalResume,
@@ -13,10 +11,12 @@ import type {
 
 export type TripLoomInterruptValue =
   | ToolApprovalInterrupt
-  | RequestPaymentInterrupt
+  | BookingPaymentInterrupt
   | RequestSeatSelectionInterrupt;
 
 export type TripLoomResumePayload =
   | ToolApprovalResume
-  | RequestPaymentResume
-  | RequestSeatSelectionResume;
+  | BookingPaymentResume
+  | SeatSelectionResume;
+
+export type { BookingPaymentInterrupt };

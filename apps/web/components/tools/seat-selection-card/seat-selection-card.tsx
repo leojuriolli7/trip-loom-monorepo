@@ -1,11 +1,14 @@
 "use client";
 
 import type { FlightOptionDTO } from "@trip-loom/contracts/dto";
+import type { FlightType } from "@trip-loom/contracts/enums";
 import { AirplaneSeatView } from "./airplane-seat-view/airplane-seat-view";
 
 type SeatSelectionInterruptValue = {
   type: "request-seat-selection";
   flightOptionId: string;
+  offerToken: string;
+  flightType: FlightType;
   flightNumber: string;
   airline: string;
   departureAirportCode: string;

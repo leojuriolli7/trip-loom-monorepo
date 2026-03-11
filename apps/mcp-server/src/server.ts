@@ -10,6 +10,7 @@ import { registerCreateItinerary } from "./tools/create-itinerary";
 import { registerCreateTrip } from "./tools/create-trip";
 import { registerDeleteItineraryActivity } from "./tools/delete-itinerary-activity";
 import { registerGetDestinationDetails } from "./tools/get-destination-details";
+import { registerGetPaymentSession } from "./tools/get-payment-session";
 import { registerGetRecommendedDestinations } from "./tools/get-recommended-destinations";
 import { registerGetUserPreferences } from "./tools/get-user-preferences";
 import { registerGetTripDetails } from "./tools/get-trip-details";
@@ -45,6 +46,7 @@ export function createMcpServer(accessToken: string) {
   registerPing(server);
   registerGetUserPreferences(server, apiClient);
   registerGetTripDetails(server, apiClient);
+  registerGetPaymentSession(server, apiClient);
   registerSearchDestinations(server, apiClient);
   registerGetDestinationDetails(server, apiClient);
   registerGetRecommendedDestinations(server, apiClient);
@@ -59,7 +61,7 @@ export function createMcpServer(accessToken: string) {
   registerAddItineraryActivity(server, apiClient);
   registerUpdateItineraryActivity(server, apiClient);
   registerDeleteItineraryActivity(server, apiClient);
-  // registerCreateTrip(server, apiClient);
+  registerCreateTrip(server, apiClient);
   registerUpdateTrip(server, apiClient);
 
   // Resources

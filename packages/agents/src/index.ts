@@ -1,6 +1,4 @@
 export { initPersistence } from "./persistence";
-export { type RequestPaymentResume } from "./tools/request-payment";
-export { type RequestSeatSelectionResume } from "./tools/request-seat-selection";
 
 export {
   TRIP_LOOM_TOOL_NAMES,
@@ -10,6 +8,7 @@ export {
 } from "./tools/core";
 
 export type {
+  BookingPaymentInterrupt,
   ToolApprovalInterrupt,
   ToolApprovalResume,
   TripLoomMessage,

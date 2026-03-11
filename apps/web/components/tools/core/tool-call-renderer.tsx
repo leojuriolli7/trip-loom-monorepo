@@ -25,12 +25,10 @@ import { GetRecommendedDestinationsCard } from "../get-recommended-destinations-
  * tool calls that can be rendered directly from their args.
  */
 const NON_RENDERABLE_ASSISTANT_TOOL_CALL_NAMES = new Set([
-  "book_flight",
+  "create_flight_booking",
   "create_hotel_booking",
   "cancel_hotel_booking",
   "cancel_flight_booking",
-  "request_payment",
-  "request_seat_selection",
 ]);
 
 /**

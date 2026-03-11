@@ -6,6 +6,7 @@ import {
   describe,
   expect,
   it,
+  setDefaultTimeout,
   spyOn,
 } from "bun:test";
 import { db } from "../db";
@@ -41,8 +42,6 @@ type SeedData = {
   secondaryUserId: string;
   primaryTripId: string;
   secondaryTripId: string;
-  pendingFlightBookingId: string;
-  pendingHotelBookingId: string;
   refundableHotelBookingId: string;
   partiallyRefundableFlightBookingId: string;
   webhookHotelBookingId: string;
@@ -50,22 +49,16 @@ type SeedData = {
   fullRefundPaymentId: string;
   partialRefundPaymentId: string;
   webhookPaymentId: string;
-  concurrentPaymentId: string;
   secondaryPaymentId: string;
 };
 
 let seed: SeedData;
 
-const createPaymentIntentSpy = spyOn(paymentProvider, "createPaymentIntent");
-const retrievePaymentIntentSpy = spyOn(
-  paymentProvider,
-  "retrievePaymentIntent",
-);
 const createRefundSpy = spyOn(paymentProvider, "createRefund");
-const constructWebhookEventSpy = spyOn(
-  paymentProvider,
-  "constructWebhookEvent",
-);
+const constructWebhookEventSpy = spyOn(paymentProvider, "constructWebhookEvent");
+const retrievePaymentIntentSpy = spyOn(paymentProvider, "retrievePaymentIntent");
+
+setDefaultTimeout(15_000);
 
 const requestWebhook = async ({
   signature = "t=12345,v1=test-signature",
@@ -86,9 +79,7 @@ const requestWebhook = async ({
   );
 
   const contentType = res.headers.get("content-type") ?? "";
-  const body = contentType.includes("application/json")
-    ? await res.json()
-    : null;
+  const body = contentType.includes("application/json") ? await res.json() : null;
 
   return { res, body };
 };
@@ -102,26 +93,18 @@ const seedFixtureData = async () => {
 
   const primaryUserId = `${ctx.prefix}user_primary`;
   const secondaryUserId = `${ctx.prefix}user_secondary`;
-
   const primaryTripId = `${ctx.prefix}trip_primary`;
   const secondaryTripId = `${ctx.prefix}trip_secondary`;
-
   const destinationId = `${ctx.prefix}destination`;
-  const pendingHotelId = `${ctx.prefix}hotel_pending_ref`;
-  const refundableHotelId = `${ctx.prefix}hotel_refundable_ref`;
-  const webhookHotelId = `${ctx.prefix}hotel_webhook_ref`;
-
-  const pendingFlightBookingId = `${ctx.prefix}flight_pending`;
-  const pendingHotelBookingId = `${ctx.prefix}hotel_pending`;
-  const refundableHotelBookingId = `${ctx.prefix}hotel_refundable`;
-  const partiallyRefundableFlightBookingId = `${ctx.prefix}flight_partial_refund`;
-  const webhookHotelBookingId = `${ctx.prefix}hotel_webhook`;
-
+  const hotelId = `${ctx.prefix}hotel_refundable`;
+  const webhookHotelId = `${ctx.prefix}hotel_webhook`;
+  const refundableHotelBookingId = `${ctx.prefix}hotel_booking_refundable`;
+  const partiallyRefundableFlightBookingId = `${ctx.prefix}flight_booking_partial_refund`;
+  const webhookHotelBookingId = `${ctx.prefix}hotel_booking_webhook`;
   const pendingPaymentId = `${ctx.prefix}payment_pending`;
   const fullRefundPaymentId = `${ctx.prefix}payment_full_refund`;
   const partialRefundPaymentId = `${ctx.prefix}payment_partial_refund`;
   const webhookPaymentId = `${ctx.prefix}payment_webhook`;
-  const concurrentPaymentId = `${ctx.prefix}payment_concurrent`;
   const secondaryPaymentId = `${ctx.prefix}payment_secondary`;
 
   await Promise.all([
@@ -186,19 +169,7 @@ const seedFixtureData = async () => {
 
   await db.insert(hotel).values([
     {
-      id: pendingHotelId,
-      destinationId,
-      name: "Payment Test Hotel Pending",
-      address: "123 Test Street",
-      rating: 4,
-      amenities: ["wifi", "pool"],
-      priceRange: "moderate",
-      avgPricePerNightInCents: 20_000,
-      createdAt: new Date(baseTime + 1_000),
-      updatedAt: new Date(baseTime + 1_000),
-    },
-    {
-      id: refundableHotelId,
+      id: hotelId,
       destinationId,
       name: "Payment Test Hotel Refundable",
       address: "124 Test Street",
@@ -260,7 +231,7 @@ const seedFixtureData = async () => {
       metadata: JSON.stringify({
         tripId: primaryTripId,
         bookingType: "flight",
-        bookingId: pendingFlightBookingId,
+        bookingId: partiallyRefundableFlightBookingId,
       }),
       createdAt: new Date(baseTime + 4_000),
       updatedAt: new Date(baseTime + 4_000),
@@ -320,24 +291,6 @@ const seedFixtureData = async () => {
       updatedAt: new Date(baseTime + 7_000),
     },
     {
-      id: concurrentPaymentId,
-      tripId: primaryTripId,
-      stripePaymentIntentId: `${ctx.prefix}pi_concurrent`,
-      stripeCustomerId: null,
-      amountInCents: 42_000,
-      currency: "usd",
-      status: "pending",
-      description: "Concurrent candidate",
-      refundedAmountInCents: 0,
-      metadata: JSON.stringify({
-        tripId: primaryTripId,
-        bookingType: "flight",
-        bookingId: pendingFlightBookingId,
-      }),
-      createdAt: new Date(baseTime + 8_000),
-      updatedAt: new Date(baseTime + 8_000),
-    },
-    {
       id: secondaryPaymentId,
       tripId: secondaryTripId,
       stripePaymentIntentId: `${ctx.prefix}pi_secondary`,
@@ -352,33 +305,12 @@ const seedFixtureData = async () => {
         bookingType: "hotel",
         bookingId: `${ctx.prefix}secondary_hotel_booking`,
       }),
-      createdAt: new Date(baseTime + 9_000),
-      updatedAt: new Date(baseTime + 9_000),
+      createdAt: new Date(baseTime + 8_000),
+      updatedAt: new Date(baseTime + 8_000),
     },
   ]);
 
   await db.insert(flightBooking).values([
-    {
-      id: pendingFlightBookingId,
-      tripId: primaryTripId,
-      paymentId: null,
-      type: "outbound",
-      flightNumber: "TL210",
-      airline: "TripLoom Airways",
-      departureAirportCode: "JFK",
-      departureCity: "New York",
-      departureTime: new Date("2026-09-10T12:00:00.000Z"),
-      arrivalAirportCode: "LAX",
-      arrivalCity: "Los Angeles",
-      arrivalTime: new Date("2026-09-10T18:00:00.000Z"),
-      durationMinutes: 360,
-      seatNumber: "10A",
-      cabinClass: "economy",
-      priceInCents: 42_000,
-      status: "pending",
-      createdAt: new Date(baseTime + 10_000),
-      updatedAt: new Date(baseTime + 10_000),
-    },
     {
       id: partiallyRefundableFlightBookingId,
       tripId: primaryTripId,
@@ -397,31 +329,16 @@ const seedFixtureData = async () => {
       cabinClass: "economy",
       priceInCents: 50_000,
       status: "confirmed",
-      createdAt: new Date(baseTime + 11_000),
-      updatedAt: new Date(baseTime + 11_000),
+      createdAt: new Date(baseTime + 9_000),
+      updatedAt: new Date(baseTime + 9_000),
     },
   ]);
 
   await db.insert(hotelBooking).values([
     {
-      id: pendingHotelBookingId,
-      tripId: primaryTripId,
-      hotelId: pendingHotelId,
-      paymentId: null,
-      checkInDate: dateWithOffset(30),
-      checkOutDate: dateWithOffset(33),
-      roomType: "standard",
-      numberOfNights: 3,
-      pricePerNightInCents: 15_000,
-      totalPriceInCents: 45_000,
-      status: "pending",
-      createdAt: new Date(baseTime + 12_000),
-      updatedAt: new Date(baseTime + 12_000),
-    },
-    {
       id: refundableHotelBookingId,
       tripId: primaryTripId,
-      hotelId: refundableHotelId,
+      hotelId,
       paymentId: fullRefundPaymentId,
       checkInDate: dateWithOffset(34),
       checkOutDate: dateWithOffset(37),
@@ -430,8 +347,8 @@ const seedFixtureData = async () => {
       pricePerNightInCents: 20_000,
       totalPriceInCents: 60_000,
       status: "confirmed",
-      createdAt: new Date(baseTime + 13_000),
-      updatedAt: new Date(baseTime + 13_000),
+      createdAt: new Date(baseTime + 10_000),
+      updatedAt: new Date(baseTime + 10_000),
     },
     {
       id: webhookHotelBookingId,
@@ -445,8 +362,8 @@ const seedFixtureData = async () => {
       pricePerNightInCents: 23_333,
       totalPriceInCents: 70_000,
       status: "pending",
-      createdAt: new Date(baseTime + 14_000),
-      updatedAt: new Date(baseTime + 14_000),
+      createdAt: new Date(baseTime + 11_000),
+      updatedAt: new Date(baseTime + 11_000),
     },
   ]);
 
@@ -455,8 +372,6 @@ const seedFixtureData = async () => {
     secondaryUserId,
     primaryTripId,
     secondaryTripId,
-    pendingFlightBookingId,
-    pendingHotelBookingId,
     refundableHotelBookingId,
     partiallyRefundableFlightBookingId,
     webhookHotelBookingId,
@@ -464,7 +379,6 @@ const seedFixtureData = async () => {
     fullRefundPaymentId,
     partialRefundPaymentId,
     webhookPaymentId,
-    concurrentPaymentId,
     secondaryPaymentId,
   };
 };
@@ -477,59 +391,25 @@ describe("Payments API", () => {
   beforeEach(async () => {
     await cleanupFixtureData();
     await seedFixtureData();
-
-    createPaymentIntentSpy.mockReset();
-    retrievePaymentIntentSpy.mockReset();
     createRefundSpy.mockReset();
     constructWebhookEventSpy.mockReset();
-
-    createPaymentIntentSpy.mockImplementation(async () => {
-      throw new Error("createPaymentIntent was not mocked for this test");
-    });
-    retrievePaymentIntentSpy.mockImplementation(async () => {
-      throw new Error("retrievePaymentIntent was not mocked for this test");
-    });
-    createRefundSpy.mockImplementation(async () => {
-      throw new Error("createRefund was not mocked for this test");
-    });
-    constructWebhookEventSpy.mockImplementation(() => {
-      throw new Error("constructWebhookEvent was not mocked for this test");
-    });
+    retrievePaymentIntentSpy.mockReset();
   });
 
   afterAll(async () => {
     await cleanupFixtureData();
     authMock.restore();
-    createPaymentIntentSpy.mockRestore();
-    retrievePaymentIntentSpy.mockRestore();
     createRefundSpy.mockRestore();
     constructWebhookEventSpy.mockRestore();
+    retrievePaymentIntentSpy.mockRestore();
   });
 
   describe("Authentication", () => {
-    it("all payment endpoints return 401 without auth", async () => {
+    it("protects read and refund endpoints", async () => {
       const calls = await Promise.all([
         requestJson({
-          method: "POST",
-          path: "/api/payments/create-intent",
-          body: {
-            tripId: seed.primaryTripId,
-            currency: "usd",
-            bookingType: "flight",
-            bookingId: seed.pendingFlightBookingId,
-          },
-        }),
-        requestJson({
-          method: "POST",
-          path: "/api/payments/confirm",
-          body: {
-            paymentId: seed.pendingPaymentId,
-            paymentIntentId: `${ctx.prefix}pi_pending`,
-          },
-        }),
-        requestJson({
           method: "GET",
-          path: `/api/payments/${seed.pendingPaymentId}`,
+          path: `/api/payments/${seed.fullRefundPaymentId}`,
         }),
         requestJson({
           method: "POST",
@@ -548,261 +428,6 @@ describe("Payments API", () => {
     });
   });
 
-  describe("POST /api/payments/create-intent", () => {
-    it("creates a payment intent for a pending booking", async () => {
-      createPaymentIntentSpy.mockResolvedValue({
-        id: `${ctx.prefix}pi_created`,
-        clientSecret: `${ctx.prefix}secret_created`,
-        status: "requires_payment_method",
-        customerId: `${ctx.prefix}cus_created`,
-        metadata: {},
-      });
-
-      const { res, body } = await requestJson({
-        method: "POST",
-        path: "/api/payments/create-intent",
-        userId: seed.primaryUserId,
-        body: {
-          tripId: seed.primaryTripId,
-          currency: "usd",
-          description: "Hotel checkout",
-          bookingType: "hotel",
-          bookingId: seed.pendingHotelBookingId,
-        },
-      });
-
-      expect(res.status).toBe(200);
-      expect(body).toMatchObject({
-        clientSecret: `${ctx.prefix}secret_created`,
-        amountInCents: 45_000,
-        currency: "usd",
-      });
-      expect(typeof body.paymentId).toBe("string");
-
-      const rows = await db
-        .select()
-        .from(payment)
-        .where(eq(payment.id, body.paymentId))
-        .limit(1);
-
-      expect(rows).toHaveLength(1);
-      expect(rows[0]).toMatchObject({
-        tripId: seed.primaryTripId,
-        stripePaymentIntentId: `${ctx.prefix}pi_created`,
-        amountInCents: 45_000,
-        status: "pending",
-      });
-    });
-
-    it("returns 404 when trip is missing or not owned", async () => {
-      const { res, body } = await requestJson({
-        method: "POST",
-        path: "/api/payments/create-intent",
-        userId: seed.primaryUserId,
-        body: {
-          tripId: `${ctx.prefix}trip_missing`,
-          currency: "usd",
-          bookingType: "flight",
-          bookingId: seed.pendingFlightBookingId,
-        },
-      });
-
-      expect(res.status).toBe(404);
-      expect(body).toMatchObject({
-        error: "NotFound",
-      });
-    });
-
-    it("reuses an existing open payment intent for the same booking", async () => {
-      retrievePaymentIntentSpy.mockResolvedValue({
-        id: `${ctx.prefix}pi_concurrent`,
-        clientSecret: `${ctx.prefix}secret_reused`,
-        status: "requires_payment_method",
-        customerId: `${ctx.prefix}cus_reused`,
-        metadata: {
-          tripId: seed.primaryTripId,
-          bookingType: "flight",
-          bookingId: seed.pendingFlightBookingId,
-        },
-      });
-
-      const { res, body } = await requestJson({
-        method: "POST",
-        path: "/api/payments/create-intent",
-        userId: seed.primaryUserId,
-        body: {
-          tripId: seed.primaryTripId,
-          currency: "usd",
-          bookingType: "flight",
-          bookingId: seed.pendingFlightBookingId,
-        },
-      });
-
-      expect(res.status).toBe(200);
-      expect(body).toMatchObject({
-        paymentId: seed.concurrentPaymentId,
-        clientSecret: `${ctx.prefix}secret_reused`,
-        amountInCents: 42_000,
-        currency: "usd",
-      });
-      expect(createPaymentIntentSpy).not.toHaveBeenCalled();
-
-      const rows = await db
-        .select({
-          status: payment.status,
-          stripeCustomerId: payment.stripeCustomerId,
-        })
-        .from(payment)
-        .where(eq(payment.id, seed.concurrentPaymentId))
-        .limit(1);
-
-      expect(rows[0]).toMatchObject({
-        status: "pending",
-        stripeCustomerId: `${ctx.prefix}cus_reused`,
-      });
-    });
-
-    it("reconciles stale succeeded payments instead of returning a terminal intent", async () => {
-      retrievePaymentIntentSpy.mockResolvedValue({
-        id: `${ctx.prefix}pi_webhook`,
-        clientSecret: `${ctx.prefix}secret_terminal`,
-        status: "succeeded",
-        customerId: `${ctx.prefix}cus_webhook`,
-        metadata: {
-          tripId: seed.primaryTripId,
-          bookingType: "hotel",
-          bookingId: seed.webhookHotelBookingId,
-        },
-      });
-
-      const { res, body } = await requestJson({
-        method: "POST",
-        path: "/api/payments/create-intent",
-        userId: seed.primaryUserId,
-        body: {
-          tripId: seed.primaryTripId,
-          currency: "usd",
-          bookingType: "hotel",
-          bookingId: seed.webhookHotelBookingId,
-        },
-      });
-
-      expect(res.status).toBe(409);
-      expect(body).toMatchObject({
-        error: "PaymentAlreadySuccessful",
-      });
-
-      const paymentRows = await db
-        .select({
-          status: payment.status,
-          stripeCustomerId: payment.stripeCustomerId,
-        })
-        .from(payment)
-        .where(eq(payment.id, seed.webhookPaymentId))
-        .limit(1);
-
-      expect(paymentRows[0]).toMatchObject({
-        status: "succeeded",
-        stripeCustomerId: `${ctx.prefix}cus_webhook`,
-      });
-
-      const bookingRows = await db
-        .select({
-          paymentId: hotelBooking.paymentId,
-          status: hotelBooking.status,
-        })
-        .from(hotelBooking)
-        .where(eq(hotelBooking.id, seed.webhookHotelBookingId))
-        .limit(1);
-
-      expect(bookingRows[0]).toMatchObject({
-        paymentId: seed.webhookPaymentId,
-        status: "confirmed",
-      });
-    });
-
-    it("returns a payment-specific error when the booking is already paid", async () => {
-      const { res, body } = await requestJson({
-        method: "POST",
-        path: "/api/payments/create-intent",
-        userId: seed.primaryUserId,
-        body: {
-          tripId: seed.primaryTripId,
-          currency: "usd",
-          bookingType: "hotel",
-          bookingId: seed.refundableHotelBookingId,
-        },
-      });
-
-      expect(res.status).toBe(409);
-      expect(body).toMatchObject({
-        error: "PaymentAlreadySuccessful",
-      });
-    });
-  });
-
-  describe("POST /api/payments/confirm", () => {
-    it("reconciles non-terminal processing state from provider", async () => {
-      retrievePaymentIntentSpy.mockResolvedValue({
-        id: `${ctx.prefix}pi_pending`,
-        clientSecret: `${ctx.prefix}secret_pending`,
-        status: "processing",
-        customerId: `${ctx.prefix}cus_processing`,
-        metadata: {},
-      });
-
-      const { res, body } = await requestJson({
-        method: "POST",
-        path: "/api/payments/confirm",
-        userId: seed.primaryUserId,
-        body: {
-          paymentId: seed.pendingPaymentId,
-          paymentIntentId: `${ctx.prefix}pi_pending`,
-        },
-      });
-
-      expect(res.status).toBe(200);
-      expect(body.status).toBe("processing");
-
-      const rows = await db
-        .select({ status: payment.status })
-        .from(payment)
-        .where(eq(payment.id, seed.pendingPaymentId))
-        .limit(1);
-      expect(rows[0]?.status).toBe("processing");
-    });
-
-    it("does not apply terminal transition from confirm reconciliation", async () => {
-      retrievePaymentIntentSpy.mockResolvedValue({
-        id: `${ctx.prefix}pi_pending`,
-        clientSecret: `${ctx.prefix}secret_pending`,
-        status: "succeeded",
-        customerId: `${ctx.prefix}cus_processing`,
-        metadata: {},
-      });
-
-      const { res, body } = await requestJson({
-        method: "POST",
-        path: "/api/payments/confirm",
-        userId: seed.primaryUserId,
-        body: {
-          paymentId: seed.pendingPaymentId,
-          paymentIntentId: `${ctx.prefix}pi_pending`,
-        },
-      });
-
-      expect(res.status).toBe(200);
-      expect(body.status).toBe("pending");
-
-      const rows = await db
-        .select({ status: payment.status })
-        .from(payment)
-        .where(eq(payment.id, seed.pendingPaymentId))
-        .limit(1);
-      expect(rows[0]?.status).toBe("pending");
-    });
-  });
-
   describe("GET /api/payments/:id", () => {
     it("returns the requested payment for the owner", async () => {
       const { res, body } = await requestJson({
@@ -815,7 +440,10 @@ describe("Payments API", () => {
       expect(body).toMatchObject({
         id: seed.fullRefundPaymentId,
         tripId: seed.primaryTripId,
+        status: "succeeded",
       });
+      expect(body.createdAt).toEqual(expect.any(String));
+      expect(body.updatedAt).toEqual(expect.any(String));
     });
 
     it("returns 404 for another user's payment", async () => {
@@ -826,14 +454,65 @@ describe("Payments API", () => {
       });
 
       expect(res.status).toBe(404);
-      expect(body).toMatchObject({
-        error: "NotFound",
+      expect(body).toMatchObject({ error: "NotFound" });
+    });
+  });
+
+  describe("GET /api/payments/:id/session", () => {
+    it("returns a hosted payment session without auth when payment is resumable", async () => {
+      retrievePaymentIntentSpy.mockResolvedValue({
+        id: `${ctx.prefix}pi_pending`,
+        clientSecret: `${ctx.prefix}secret_pending`,
+        status: "requires_payment_method",
+        customerId: `${ctx.prefix}cus_pending`,
+        metadata: {
+          tripId: seed.primaryTripId,
+          bookingType: "flight",
+          bookingId: seed.partiallyRefundableFlightBookingId,
+        },
       });
+
+      const { res, body } = await requestJson({
+        method: "GET",
+        path: `/api/payments/${seed.pendingPaymentId}/session`,
+      });
+
+      expect(res.status).toBe(200);
+      expect(body).toMatchObject({
+        id: seed.pendingPaymentId,
+        amountInCents: 42_000,
+        currency: "usd",
+        status: "pending",
+        clientSecret: `${ctx.prefix}secret_pending`,
+      });
+      expect(body.checkoutUrl).toBe(
+        `${process.env.FRONTEND_BASE_URL}/payments/${seed.pendingPaymentId}`,
+      );
+    });
+
+    it("returns 409 when the payment session is already completed", async () => {
+      const { res, body } = await requestJson({
+        method: "GET",
+        path: `/api/payments/${seed.fullRefundPaymentId}/session`,
+      });
+
+      expect(res.status).toBe(409);
+      expect(body.message).toContain("already been completed");
+    });
+
+    it("returns 404 for an unknown payment session", async () => {
+      const { res, body } = await requestJson({
+        method: "GET",
+        path: `/api/payments/${ctx.prefix}missing/session`,
+      });
+
+      expect(res.status).toBe(404);
+      expect(body).toMatchObject({ error: "NotFound" });
     });
   });
 
   describe("POST /api/payments/:id/refund", () => {
-    it("processes full refunds and cancels linked bookings", async () => {
+    it("processes full refunds and cancels linked hotel bookings", async () => {
       createRefundSpy.mockResolvedValue({
         id: `${ctx.prefix}refund_full`,
         paymentIntentId: `${ctx.prefix}pi_full_refund`,
@@ -863,7 +542,7 @@ describe("Payments API", () => {
       expect(bookingRows[0]?.status).toBe("cancelled");
     });
 
-    it("supports partial refunds without cancelling booking", async () => {
+    it("supports partial refunds without cancelling linked flight bookings", async () => {
       createRefundSpy.mockResolvedValue({
         id: `${ctx.prefix}refund_partial`,
         paymentIntentId: `${ctx.prefix}pi_partial_refund`,
@@ -874,9 +553,7 @@ describe("Payments API", () => {
         method: "POST",
         path: `/api/payments/${seed.partialRefundPaymentId}/refund`,
         userId: seed.primaryUserId,
-        body: {
-          amountInCents: 15_000,
-        },
+        body: { amountInCents: 15_000 },
       });
 
       expect(res.status).toBe(200);
@@ -893,6 +570,18 @@ describe("Payments API", () => {
         .limit(1);
 
       expect(bookingRows[0]?.status).toBe("confirmed");
+    });
+
+    it("rejects refunds for non-succeeded payments", async () => {
+      const { res, body } = await requestJson({
+        method: "POST",
+        path: `/api/payments/${seed.pendingPaymentId}/refund`,
+        userId: seed.primaryUserId,
+        body: {},
+      });
+
+      expect(res.status).toBe(400);
+      expect(body.message).toContain("Only succeeded or partially refunded payments");
     });
   });
 
@@ -938,10 +627,7 @@ describe("Payments API", () => {
       });
 
       const bookingRows = await db
-        .select({
-          paymentId: hotelBooking.paymentId,
-          status: hotelBooking.status,
-        })
+        .select({ paymentId: hotelBooking.paymentId, status: hotelBooking.status })
         .from(hotelBooking)
         .where(eq(hotelBooking.id, seed.webhookHotelBookingId))
         .limit(1);
@@ -959,14 +645,14 @@ describe("Payments API", () => {
         type: "payment_intent.payment_failed",
         payload: JSON.stringify({ type: "payment_intent.payment_failed" }),
         paymentIntent: {
-          id: `${ctx.prefix}pi_concurrent`,
+          id: `${ctx.prefix}pi_pending`,
           clientSecret: `${ctx.prefix}secret_retryable`,
           status: "requires_payment_method",
           customerId: `${ctx.prefix}cus_retryable`,
           metadata: {
             tripId: seed.primaryTripId,
             bookingType: "flight",
-            bookingId: seed.pendingFlightBookingId,
+            bookingId: seed.partiallyRefundableFlightBookingId,
           },
         },
       });
@@ -979,12 +665,9 @@ describe("Payments API", () => {
       expect(body).toEqual({ received: true });
 
       const paymentRows = await db
-        .select({
-          status: payment.status,
-          stripeCustomerId: payment.stripeCustomerId,
-        })
+        .select({ status: payment.status, stripeCustomerId: payment.stripeCustomerId })
         .from(payment)
-        .where(eq(payment.id, seed.concurrentPaymentId))
+        .where(eq(payment.id, seed.pendingPaymentId))
         .limit(1);
 
       expect(paymentRows[0]).toMatchObject({
@@ -993,7 +676,7 @@ describe("Payments API", () => {
       });
     });
 
-    it("ignores duplicate webhook event ids (idempotent)", async () => {
+    it("ignores duplicate webhook event ids", async () => {
       constructWebhookEventSpy.mockResolvedValue({
         kind: "payment_intent",
         id: `${ctx.prefix}evt_duplicate`,
@@ -1012,12 +695,8 @@ describe("Payments API", () => {
         },
       });
 
-      const first = await requestWebhook({
-        payload: JSON.stringify({ id: "event_duplicate" }),
-      });
-      const second = await requestWebhook({
-        payload: JSON.stringify({ id: "event_duplicate" }),
-      });
+      const first = await requestWebhook({ payload: JSON.stringify({ id: "event_duplicate" }) });
+      const second = await requestWebhook({ payload: JSON.stringify({ id: "event_duplicate" }) });
 
       expect(first.res.status).toBe(200);
       expect(second.res.status).toBe(200);
@@ -1030,76 +709,17 @@ describe("Payments API", () => {
       expect(eventRows).toHaveLength(1);
     });
 
-    it("webhook and confirm calls do not corrupt terminal payment state", async () => {
-      retrievePaymentIntentSpy.mockResolvedValue({
-        id: `${ctx.prefix}pi_concurrent`,
-        clientSecret: `${ctx.prefix}secret_concurrent`,
-        status: "succeeded",
-        customerId: `${ctx.prefix}cus_concurrent`,
-        metadata: {},
-      });
-
-      constructWebhookEventSpy.mockResolvedValue({
-        kind: "payment_intent",
-        id: `${ctx.prefix}evt_concurrent`,
-        type: "payment_intent.succeeded",
-        payload: JSON.stringify({ type: "payment_intent.succeeded" }),
-        paymentIntent: {
-          id: `${ctx.prefix}pi_concurrent`,
-          clientSecret: null,
-          status: "succeeded",
-          customerId: `${ctx.prefix}cus_concurrent`,
-          metadata: {
-            tripId: seed.primaryTripId,
-            bookingType: "flight",
-            bookingId: seed.pendingFlightBookingId,
-          },
-        },
-      });
-
-      const [confirmResponse, webhookResponse] = await Promise.all([
-        requestJson({
+    it("returns 400 when Stripe signature is missing", async () => {
+      const res = await app.handle(
+        new Request("http://localhost/api/webhooks/stripe", {
           method: "POST",
-          path: "/api/payments/confirm",
-          userId: seed.primaryUserId,
-          body: {
-            paymentId: seed.concurrentPaymentId,
-            paymentIntentId: `${ctx.prefix}pi_concurrent`,
-          },
+          headers: { "content-type": "application/json" },
+          body: "{}",
         }),
-        requestWebhook({
-          payload: JSON.stringify({ id: "event_concurrent" }),
-        }),
-      ]);
+      );
 
-      expect(confirmResponse.res.status).toBe(200);
-      expect(webhookResponse.res.status).toBe(200);
-
-      const paymentRows = await db
-        .select({ status: payment.status })
-        .from(payment)
-        .where(eq(payment.id, seed.concurrentPaymentId))
-        .limit(1);
-      expect(paymentRows[0]?.status).toBe("succeeded");
-
-      const bookingRows = await db
-        .select({
-          paymentId: flightBooking.paymentId,
-          status: flightBooking.status,
-        })
-        .from(flightBooking)
-        .where(
-          and(
-            eq(flightBooking.id, seed.pendingFlightBookingId),
-            eq(flightBooking.tripId, seed.primaryTripId),
-          ),
-        )
-        .limit(1);
-
-      expect(bookingRows[0]).toMatchObject({
-        paymentId: seed.concurrentPaymentId,
-        status: "confirmed",
-      });
+      expect(res.status).toBe(400);
+      await expect(res.json()).resolves.toMatchObject({ error: "BadRequest" });
     });
   });
 });

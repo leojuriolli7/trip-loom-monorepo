@@ -99,6 +99,9 @@ pnpm dev:web      # Next.js app
 
 ### Immediate
 
+- [ ] Trip details card sends multiple wrong requests while still streaming the full ID and flight search lags while streaming
+  - Likely use `useToolCallProgress(toolCall.id)` to not enable requests or render loading until done
+- [ ] General UI tweaks: Streaming indication, loading states, animations
 - [ ] Switch to `evlog` for structured logging + add logging and OpenTelemetry to agents and MCP
 
 ### Agents and Orchestration
@@ -141,6 +144,7 @@ pnpm dev:web      # Next.js app
 
 ### Later
 
+- [ ] Integrate itinerary with google maps: render map + routes for each day?
 - [ ] Add `get_weather` tool via new API endpoint for weather -- For current trips asking about daily weather
 - [ ] File uploads -- images, pdfs
 - [ ] Agents not using web-search enough: Destination agent + hotel agent for enrichment (Itinerary agent uses it fine)

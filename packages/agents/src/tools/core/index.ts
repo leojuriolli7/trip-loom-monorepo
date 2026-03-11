@@ -13,5 +13,8 @@ export type {
   TripLoomToolCall,
 } from "./contract";
 
-export type { TripLoomResumePayload } from "./types";
+export type {
+  BookingPaymentInterrupt,
+  TripLoomResumePayload,
+} from "./types";
 export type { ToolApprovalInterrupt, ToolApprovalResume } from "./with-approval";

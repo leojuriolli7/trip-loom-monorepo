@@ -43,7 +43,7 @@ type KnownTripLoomMcpToolArgsByName = {
     "limit"
   >;
   search_flights: SearchFlightsArgs;
-  book_flight: {
+  create_flight_booking: {
     tripId: string;
   } & CreateFlightBookingInput;
   cancel_flight_booking: {

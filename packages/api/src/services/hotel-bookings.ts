@@ -3,6 +3,7 @@ import { db } from "../db";
 import { hotel, hotelBooking } from "../db/schema";
 import type {
   CreateHotelBookingInput,
+  CreateHotelBookingResultDTO,
   HotelBookingDTO,
   HotelSummaryDTO,
 } from "@trip-loom/contracts/dto/hotel-bookings";
@@ -13,6 +14,7 @@ import { generatePricePerNight } from "../lib/hotels/pricing";
 import { generateId } from "../lib/nanoid";
 import { getOwnedTripMeta } from "../lib/trips/ownership";
 import { hotelSummarySelectFields } from "../mappers/hotel-bookings";
+import { createPaymentSessionForBooking } from "./payments";
 
 /**
  * Column selection for hotel summary in relational queries.
@@ -39,7 +41,7 @@ const calculateNights = (checkInDate: string, checkOutDate: string): number => {
  * Maps a database row with hotel relation to the DTO format.
  */
 const mapBookingToDTO = (
-  row: HotelBookingDTO & {
+  row: typeof hotelBooking.$inferSelect & {
     hotel: HotelSummaryDTO;
   },
 ): HotelBookingDTO => ({
@@ -54,8 +56,8 @@ const mapBookingToDTO = (
   pricePerNightInCents: row.pricePerNightInCents,
   totalPriceInCents: row.totalPriceInCents,
   status: row.status,
-  createdAt: row.createdAt,
-  updatedAt: row.updatedAt,
+  createdAt: row.createdAt.toISOString(),
+  updatedAt: row.updatedAt.toISOString(),
   hotel: row.hotel,
 });
 
@@ -158,7 +160,9 @@ export async function getHotelBooking(
  * - Calculates numberOfNights and totalPriceInCents
  * - Refreshes trip status (may transition draft -> upcoming)
  */
-export type CreateHotelBookingResult = HotelBookingDTO & { existing?: true };
+export type CreateHotelBookingResult = CreateHotelBookingResultDTO & {
+  existing?: true;
+};
 
 export async function createHotelBooking(
   userId: string,
@@ -181,7 +185,16 @@ export async function createHotelBooking(
   });
 
   if (existingBooking) {
-    return { ...mapBookingToDTO(existingBooking), existing: true as const };
+    const booking = mapBookingToDTO(existingBooking);
+    const paymentSession = await createPaymentSessionForBooking({
+      tripId,
+      bookingType: "hotel",
+      bookingId: booking.id,
+      currency: "usd",
+      description: `Hotel: ${booking.hotel.name} (${booking.numberOfNights} nights)`,
+    });
+
+    return { booking, paymentSession, existing: true as const };
   }
 
   const hotelInfo = await getHotelForBooking(input.hotelId);
@@ -222,7 +235,20 @@ export async function createHotelBooking(
     })
     .returning({ id: hotelBooking.id });
 
-  return getBookingWithHotel(tripId, created.id);
+  const booking = await getBookingWithHotel(tripId, created.id);
+  if (!booking) {
+    return null;
+  }
+
+  const paymentSession = await createPaymentSessionForBooking({
+    tripId,
+    bookingType: "hotel",
+    bookingId: booking.id,
+    currency: "usd",
+    description: `Hotel: ${booking.hotel.name} (${booking.numberOfNights} nights)`,
+  });
+
+  return { booking, paymentSession };
 }
 
 /**

@@ -2,6 +2,7 @@ import { Elysia } from "elysia";
 import { z } from "zod";
 import { errorResponseSchema } from "@trip-loom/contracts/dto/common";
 import {
+  createHotelBookingResultSchema,
   createHotelBookingInputSchema,
   hotelBookingSchema,
 } from "@trip-loom/contracts/dto/hotel-bookings";
@@ -69,17 +70,17 @@ export const hotelBookingRoutes = new Elysia({
         });
       }
 
-      wideEvent.hotel_booking_id = result.id;
-      const { existing, ...booking } = result;
-      return status(existing ? 200 : 201, booking);
+      wideEvent.hotel_booking_id = result.booking.id;
+      const { existing, ...bookingResult } = result;
+      return status(existing ? 200 : 201, bookingResult);
     },
     {
       auth: true,
       params: tripParamsSchema,
       body: createHotelBookingInputSchema,
       response: {
-        200: hotelBookingSchema,
-        201: hotelBookingSchema,
+        200: createHotelBookingResultSchema,
+        201: createHotelBookingResultSchema,
         400: errorResponseSchema,
         401: errorResponseSchema,
         404: errorResponseSchema,

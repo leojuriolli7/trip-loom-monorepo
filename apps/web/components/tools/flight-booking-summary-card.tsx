@@ -5,6 +5,7 @@ import { PlaneIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatPaymentAmount } from "@/lib/payments";
 import { formatDurationMinutes } from "@/lib/format-duration";
+import { parseISO } from "date-fns";
 import { ToolCallCard } from "./tool-call-card";
 import { cabinClassLabels } from "@/lib/labels/cabin-class-labels";
 
@@ -17,14 +18,13 @@ type FlightBookingSummaryCardProps = {
   children?: ReactNode;
 };
 
-function formatFlightTime(date: Date) {
-  return format(date, "HH:mm");
+function formatFlightTime(date: string) {
+  return format(parseISO(date), "HH:mm");
 }
 
-function formatFlightDate(date: Date) {
-  return format(date, "MMM d, yyyy");
+function formatFlightDate(date: string) {
+  return format(parseISO(date), "MMM d, yyyy");
 }
-
 
 export function FlightBookingSummaryCard({
   booking,
@@ -35,7 +35,7 @@ export function FlightBookingSummaryCard({
   children,
 }: FlightBookingSummaryCardProps) {
   return (
-    <ToolCallCard className="border-none bg-card shadow-none">
+    <ToolCallCard>
       <ToolCallCard.Header className="gap-4">
         <ToolCallCard.HeaderContent className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
