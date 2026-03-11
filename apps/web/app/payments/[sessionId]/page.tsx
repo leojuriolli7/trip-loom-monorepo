@@ -71,6 +71,7 @@ export default async function PaymentPage({ params }: PaymentPageProps) {
           amountInCents={paymentSession.data.amountInCents}
           clientSecret={paymentSession.data.clientSecret}
           currency={paymentSession.data.currency}
+          sessionId={sessionId}
         />
       </div>
     </main>

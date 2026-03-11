@@ -140,6 +140,7 @@ pnpm dev:web      # Next.js app
 
 ### Later
 
+- [ ] Do not allow dates before today. API validation plus prompting advice.
 - [ ] Integrate itinerary with google maps: render map + routes for each day?
 - [ ] Add `get_weather` tool via new API endpoint for weather -- For current trips asking about daily weather
 - [ ] File uploads -- images, pdfs

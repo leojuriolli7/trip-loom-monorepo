@@ -446,6 +446,44 @@ describe("Payments API", () => {
       expect(body.updatedAt).toEqual(expect.any(String));
     });
 
+    it("reconciles a stale pending payment before returning it", async () => {
+      retrievePaymentIntentSpy.mockResolvedValue({
+        id: `${ctx.prefix}pi_webhook`,
+        clientSecret: null,
+        status: "succeeded",
+        customerId: `${ctx.prefix}cus_reconciled`,
+        metadata: {
+          tripId: seed.primaryTripId,
+          bookingType: "hotel",
+          bookingId: seed.webhookHotelBookingId,
+        },
+      });
+
+      const { res, body } = await requestJson({
+        method: "GET",
+        path: `/api/payments/${seed.webhookPaymentId}`,
+        userId: seed.primaryUserId,
+      });
+
+      expect(res.status).toBe(200);
+      expect(body).toMatchObject({
+        id: seed.webhookPaymentId,
+        status: "succeeded",
+        stripeCustomerId: `${ctx.prefix}cus_reconciled`,
+      });
+
+      const bookingRows = await db
+        .select({ paymentId: hotelBooking.paymentId, status: hotelBooking.status })
+        .from(hotelBooking)
+        .where(eq(hotelBooking.id, seed.webhookHotelBookingId))
+        .limit(1);
+
+      expect(bookingRows[0]).toMatchObject({
+        paymentId: seed.webhookPaymentId,
+        status: "confirmed",
+      });
+    });
+
     it("returns 404 for another user's payment", async () => {
       const { res, body } = await requestJson({
         method: "GET",

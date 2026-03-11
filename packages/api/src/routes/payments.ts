@@ -35,7 +35,7 @@ export const paymentRoutes = new Elysia({
   .use(requireAuthMacro)
   .post(
     "/webhooks/stripe",
-    async ({ request, status, wideEvent }) => {
+    async ({ body, request, status, wideEvent }) => {
       wideEvent.webhook_provider = "stripe";
       const signature = request.headers.get("stripe-signature");
       if (!signature) {
@@ -46,10 +46,8 @@ export const paymentRoutes = new Elysia({
         });
       }
 
-      const payload = await request.text();
-
       try {
-        await handleStripeWebhook(signature, payload);
+        await handleStripeWebhook(signature, body);
         return { received: true as const };
       } catch (error) {
         const isBadRequest = isInvalidStripeWebhookRequest(error);
@@ -65,6 +63,7 @@ export const paymentRoutes = new Elysia({
       }
     },
     {
+      parse: "text",
       response: {
         200: stripeWebhookResponseSchema,
         400: errorResponseSchema,

@@ -1,5 +1,5 @@
 import { parseIsoDate } from "./parse-iso-date";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 
 export function formatTripDates(
   start: string | null,
@@ -7,6 +7,10 @@ export function formatTripDates(
 ): string {
   if (!start || !end) {
     return "Dates pending";
+  }
+
+  if (!isValid(parseIsoDate(start)) || !isValid(parseIsoDate(end))) {
+    return "";
   }
 
   const startDate = parseIsoDate(start);

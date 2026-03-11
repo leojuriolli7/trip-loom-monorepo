@@ -206,6 +206,30 @@ const getOwnedPayment = async (
   return rows[0] ? mapPaymentToDTO(rows[0]) : null;
 };
 
+const reconcilePaymentForRead = async (
+  storedPayment: StoredPayment,
+): Promise<void> => {
+  if (isTerminalPaymentStatus(storedPayment.status)) {
+    return;
+  }
+
+  const bookingReference = parseBookingReference(storedPayment.metadata);
+  if (!bookingReference) {
+    return;
+  }
+
+  try {
+    await reconcileExistingPaymentAttempt({
+      bookingReference,
+      existingPayment: storedPayment,
+    });
+  } catch (error) {
+    if (!(error instanceof PaymentProcessingError)) {
+      throw error;
+    }
+  }
+};
+
 const getResolvedBooking = async (
   tripId: string,
   bookingType: BookingType,
@@ -650,6 +674,18 @@ export async function getPayment(
   userId: string,
   paymentId: string,
 ): Promise<PaymentDTO | null> {
+  const ownedPayment = await getOwnedPayment(userId, paymentId);
+  if (!ownedPayment) {
+    return null;
+  }
+
+  const storedPayment = await getStoredPaymentById(paymentId);
+  if (!storedPayment) {
+    return null;
+  }
+
+  await reconcilePaymentForRead(storedPayment);
+
   return getOwnedPayment(userId, paymentId);
 }
 

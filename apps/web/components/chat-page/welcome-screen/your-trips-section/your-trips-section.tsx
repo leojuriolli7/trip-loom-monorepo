@@ -60,7 +60,7 @@ export function YourTripsSection() {
             Your trips
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Ongoing plans and upcoming adventures, all in one place.
+            Ongoing plans and upcoming adventures, all in one place
           </p>
         </div>
       </div>

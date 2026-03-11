@@ -243,3 +243,9 @@ After implementing a complete feature, always write E2E tests using Playwright. 
 - Test utilities are in `e2e/fixtures/utils.ts`
 - Constants (passwords, etc.) are in `e2e/fixtures/constants.ts`
 - Run tests with `pnpm test:e2e`
+
+## Styling Guidelines
+
+- Value our existing brand identity, inspired by Airbnb. (Big 3D icons, comfortable spacing between items, minimalist)
+- We do not use commas at the end of phrases in the dashboard.
+- We value subtle animations that make the app feel lively.
