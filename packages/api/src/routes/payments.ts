@@ -10,6 +10,7 @@ import {
 } from "@trip-loom/contracts/dto/payments";
 import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
+import { createDefaultRateLimit } from "../lib/rate-limit";
 import {
   getPayment,
   getHostedPaymentSession,
@@ -29,6 +30,7 @@ export const paymentRoutes = new Elysia({
   name: "payments",
   prefix: "/api",
 })
+  .use(createDefaultRateLimit())
   .use(createWideEventPlugin())
   .use(requireAuthMacro)
   .post(

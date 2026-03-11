@@ -20,6 +20,12 @@ export class NotFoundError extends HttpError {
   }
 }
 
+export class TooManyRequestsError extends HttpError {
+  constructor(message: string) {
+    super(429, "TooManyRequests", message);
+  }
+}
+
 export class ForbiddenError extends HttpError {
   constructor(message: string) {
     super(403, "Forbidden", message);

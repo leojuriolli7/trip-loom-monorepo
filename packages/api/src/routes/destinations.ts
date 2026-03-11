@@ -17,11 +17,13 @@ import {
 import { errorResponseSchema, paginatedResponseSchema } from "@trip-loom/contracts/dto/common";
 import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
+import { createDefaultRateLimit } from "../lib/rate-limit";
 
 export const destinationRoutes = new Elysia({
   name: "destinations",
   prefix: "/api/destinations",
 })
+  .use(createDefaultRateLimit())
   .use(createWideEventPlugin())
   .get(
     "/",

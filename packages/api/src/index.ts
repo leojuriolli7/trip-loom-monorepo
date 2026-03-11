@@ -22,6 +22,7 @@ import {
   NotFoundError,
   PaymentAlreadySuccessfulError,
   PaymentProcessingError,
+  TooManyRequestsError,
 } from "./errors";
 import { initPersistence } from "@trip-loom/agents";
 
@@ -39,11 +40,13 @@ export const createApp = (options?: AppConfig) =>
       ConflictError,
       PaymentAlreadySuccessfulError,
       PaymentProcessingError,
+      TooManyRequestsError,
     })
     .onError(({ code, error, status }) => {
       switch (code) {
         case "BadRequestError":
         case "BookingNotPayableError":
+        case "TooManyRequestsError":
         case "NotFoundError":
         case "ForbiddenError":
         case "ConflictError":

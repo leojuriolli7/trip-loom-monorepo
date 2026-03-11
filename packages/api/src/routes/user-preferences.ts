@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
+import { createDefaultRateLimit } from "../lib/rate-limit";
 import { errorResponseSchema } from "@trip-loom/contracts/dto/common";
 import {
   userPreferenceInputSchema,
@@ -15,6 +16,7 @@ export const userPreferenceRoutes = new Elysia({
   name: "user-preferences",
   prefix: "/api/user",
 })
+  .use(createDefaultRateLimit())
   .use(createWideEventPlugin())
   .use(requireAuthMacro)
   .get(

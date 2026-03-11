@@ -8,6 +8,7 @@ import {
 } from "@trip-loom/contracts/dto/hotel-bookings";
 import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
+import { createDefaultRateLimit } from "../lib/rate-limit";
 import {
   cancelHotelBooking,
   createHotelBooking,
@@ -28,6 +29,7 @@ export const hotelBookingRoutes = new Elysia({
   name: "hotel-bookings",
   prefix: "/api",
 })
+  .use(createDefaultRateLimit())
   .use(createWideEventPlugin())
   .use(requireAuthMacro)
   .get(

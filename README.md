@@ -110,7 +110,6 @@ pnpm dev:web      # Next.js app
 ### Quality and Observability
 
 - [ ] Add eval suite for routing accuracy and tool-call correctness (choose eval framework: Evalite, LangSmith, or Vitest-based)
-- [ ] Add API rate limits
 - [ ] Add RLS to DB + separate database pools and roles
     1. Split DB roles first.
       app_owner for migrations, app_runtime for normal API/MCP business queries, app_internal for

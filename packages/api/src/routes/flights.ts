@@ -11,6 +11,7 @@ import {
 } from "@trip-loom/contracts/dto/flights";
 import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
+import { createDefaultRateLimit } from "../lib/rate-limit";
 import {
   cancelFlightBooking,
   createFlightBooking,
@@ -32,6 +33,7 @@ export const flightRoutes = new Elysia({
   name: "flights",
   prefix: "/api",
 })
+  .use(createDefaultRateLimit())
   .use(createWideEventPlugin())
   .use(requireAuthMacro)
   .get(

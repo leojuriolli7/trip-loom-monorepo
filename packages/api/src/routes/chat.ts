@@ -6,8 +6,13 @@ import {
   chatHistoryResponseSchema,
   type ChatInput,
 } from "../dto/chat";
+import { extractMessageFromInput } from "../lib/chat/extract-message";
 import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
+import {
+  createChatConversationRateLimit,
+  createDefaultRateLimit,
+} from "../lib/rate-limit";
 import { BadRequestError } from "../errors";
 import {
   streamChatResponse,
@@ -18,41 +23,6 @@ import {
 const tripIdParamSchema = z.object({
   id: z.string().min(1),
 });
-
-function extractMessageFromInput(input: unknown): string | undefined {
-  if (typeof input === "string" && input.trim()) {
-    return input.trim();
-  }
-
-  if (!input || typeof input !== "object") {
-    return undefined;
-  }
-
-  const messages = Reflect.get(input, "messages");
-  if (!Array.isArray(messages)) {
-    return undefined;
-  }
-
-  for (let index = messages.length - 1; index >= 0; index -= 1) {
-    const message = messages[index];
-    if (!message || typeof message !== "object") {
-      continue;
-    }
-
-    const type = Reflect.get(message, "type");
-    const content = Reflect.get(message, "content");
-
-    if (
-      (type === "human" || type === "user") &&
-      typeof content === "string" &&
-      content.trim()
-    ) {
-      return content.trim();
-    }
-  }
-
-  return undefined;
-}
 
 function normalizeChatInput(body: ChatInput): {
   message?: string;
@@ -75,43 +45,48 @@ export const chatRoutes = new Elysia({
   prefix: "/api/trips",
 })
   .use(createWideEventPlugin())
+  .use(createDefaultRateLimit())
   .use(requireAuthMacro)
-  .post(
-    "/:id/chat",
-    async ({ user, params, body, wideEvent }) => {
-      wideEvent.trip_id = params.id;
-      const normalized = normalizeChatInput(body);
+  .guard({}, (app) =>
+    // Specifically to the chat conversations route, we apply stricter
+    // rate-limits.
+    app.use(createChatConversationRateLimit()).post(
+      "/:id/chat",
+      async ({ user, params, body, wideEvent }) => {
+        wideEvent.trip_id = params.id;
+        const normalized = normalizeChatInput(body);
 
-      const { stream, threadId } =
-        normalized.resumeData !== undefined
-          ? await resumeChatResponse(
-              user.id,
-              params.id,
-              normalized.resumeData,
-            )
-          : await (async () => {
-              if (!normalized.message) {
-                throw new BadRequestError(
-                  "Either input or command.resume is required",
-                );
-              }
-
-              return streamChatResponse(
+        const { stream, threadId } =
+          normalized.resumeData !== undefined
+            ? await resumeChatResponse(
                 user.id,
                 params.id,
-                normalized.message,
-              );
-            })();
+                normalized.resumeData,
+              )
+            : await (async () => {
+                if (!normalized.message) {
+                  throw new BadRequestError(
+                    "Either input or command.resume is required",
+                  );
+                }
 
-      wideEvent.thread_id = threadId;
+                return streamChatResponse(
+                  user.id,
+                  params.id,
+                  normalized.message,
+                );
+              })();
 
-      return new Response(stream, { headers: sseHeaders });
-    },
-    {
-      auth: true,
-      params: tripIdParamSchema,
-      body: chatInputSchema,
-    },
+        wideEvent.thread_id = threadId;
+
+        return new Response(stream, { headers: sseHeaders });
+      },
+      {
+        auth: true,
+        params: tripIdParamSchema,
+        body: chatInputSchema,
+      },
+    ),
   )
   .get(
     "/:id/chat/history",

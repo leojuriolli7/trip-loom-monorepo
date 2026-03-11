@@ -12,6 +12,7 @@ import {
 } from "@trip-loom/contracts/dto/itineraries";
 import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
+import { createDefaultRateLimit } from "../lib/rate-limit";
 import {
   addActivity,
   addDay,
@@ -44,6 +45,7 @@ export const itineraryRoutes = new Elysia({
   name: "itineraries",
   prefix: "/api",
 })
+  .use(createDefaultRateLimit())
   .use(createWideEventPlugin())
   .use(requireAuthMacro)
   // ==========================================================================

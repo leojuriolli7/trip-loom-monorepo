@@ -8,11 +8,13 @@ import {
 } from "@trip-loom/contracts/dto/hotels";
 import { errorResponseSchema, paginatedResponseSchema } from "@trip-loom/contracts/dto/common";
 import { createWideEventPlugin } from "../lib/wide-events";
+import { createDefaultRateLimit } from "../lib/rate-limit";
 
 export const hotelRoutes = new Elysia({
   name: "hotels",
   prefix: "/api/hotels",
 })
+  .use(createDefaultRateLimit())
   .use(createWideEventPlugin())
   .get(
     "/",
