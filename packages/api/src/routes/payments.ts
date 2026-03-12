@@ -47,7 +47,7 @@ export const paymentRoutes = new Elysia({
       }
 
       try {
-        await handleStripeWebhook(signature, body);
+        await handleStripeWebhook(signature, String(body));
         return { received: true as const };
       } catch (error) {
         const isBadRequest = isInvalidStripeWebhookRequest(error);

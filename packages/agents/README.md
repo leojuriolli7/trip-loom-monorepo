@@ -1,6 +1,6 @@
 # @trip-loom/agents
 
-LangGraph.js multi-agent system for TripLoom. A supervisor agent orchestrates 4 specialized sub-agents (Destination, Flight, Hotel, Itinerary) that interact with the world exclusively through MCP tools.
+LangGraph.js multi-agent system for TripLoom. A supervisor agent orchestrates 4 specialized sub-agents (Destination, Flight, Hotel, Itinerary) that use MCP for TripLoom operations plus a small set of internal local tools for UI sugar and app-only capabilities.
 
 ## Architecture
 
@@ -26,7 +26,7 @@ packages/api ─── POST /api/chat (SSE) ──► packages/agents
 ### Key boundaries
 
 - **No runtime coupling to `packages/api`.** This package does not call API internals, access DB, or own auth logic. It only receives an access token and MCP URL. The only shared compile-time contract is DTO types used for MCP tool argument typing.
-- **All data access goes through MCP tools.** The agents call the MCP server, which calls the API on behalf of the authenticated user.
+- **TripLoom operations go through MCP tools.** Database-backed TripLoom reads/writes and weather lookups flow through MCP. Local tools are limited to agent-side presentation or orchestration helpers.
 - **The API is the orchestrator.** It handles auth, creates OAuth tokens for agent→MCP auth, assembles the graph, and pipes the LangGraph stream to SSE.
 
 ### Persistence
@@ -117,7 +117,8 @@ Current steps:
 
 1. Add the tool file (example: `packages/agents/src/tools/suggest-meal.ts`).
 2. Register it in `packages/agents/src/tools/core/registry.ts` (import + assign to the local tools list for the target agent).
-3. Update that agent prompt so it actually calls the tool when appropriate.
+3. If the tool needs runtime config or user-scoped auth, inject a runtime implementation in `packages/agents/src/graph.ts`.
+4. Update that agent prompt so it actually calls the tool when appropriate.
 
 So the required wiring is 2 files plus 1 prompt update for behavior.
 

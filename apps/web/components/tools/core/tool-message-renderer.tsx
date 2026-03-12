@@ -6,7 +6,9 @@ import {
   flightBookingPaymentOutcomeSchema,
   hotelBookingPaymentOutcomeSchema,
 } from "@trip-loom/contracts/dto/booking-payment-flow";
+import { weatherResponseSchema } from "@trip-loom/contracts/dto/weather";
 import { BookingPaymentResultCard } from "../booking-payment-result-card";
+import { GetWeatherToolCard } from "../weather-tool-card/weather-tool-card";
 
 type ToolMessageRendererProps = {
   message: Extract<TripLoomMessage, { type: "tool" }>;
@@ -91,6 +93,16 @@ export function ToolMessageRenderer({
 
     if (paidResult) {
       return <BookingPaymentResultCard result={paidResult} className={className} />;
+    }
+
+    return null;
+  }
+
+  if (message.name === "get_weather") {
+    const weatherResult = parseToolMessageJson(message.content, weatherResponseSchema);
+
+    if (weatherResult) {
+      return <GetWeatherToolCard result={weatherResult} className={className} />;
     }
 
     return null;

@@ -13,6 +13,7 @@ import { itineraryRoutes } from "./routes/itineraries";
 import { paymentRoutes } from "./routes/payments";
 import { chatRoutes } from "./routes/chat";
 import { suggestionsRoutes } from "./routes/suggestions";
+import { weatherRoutes } from "./routes/weather";
 import { auth } from "./lib/auth";
 import {
   BadRequestError,
@@ -118,6 +119,7 @@ export const createApp = (options?: AppConfig) =>
     .use(itineraryRoutes)
     .use(paymentRoutes)
     .use(chatRoutes)
-    .use(suggestionsRoutes);
+    .use(suggestionsRoutes)
+    .use(weatherRoutes);
 
 export type App = ReturnType<typeof createApp>;

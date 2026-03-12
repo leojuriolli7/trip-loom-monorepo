@@ -7,6 +7,7 @@ import {
   NotFoundError,
   PaymentAlreadySuccessfulError,
   PaymentProcessingError,
+  TooManyRequestsError,
 } from "../../errors";
 
 /**
@@ -23,6 +24,7 @@ export function createTestApp() {
       ConflictError,
       PaymentAlreadySuccessfulError,
       PaymentProcessingError,
+      TooManyRequestsError,
     })
     .onError(({ code, error, status }) => {
       switch (code) {
@@ -33,6 +35,7 @@ export function createTestApp() {
         case "ConflictError":
         case "PaymentAlreadySuccessfulError":
         case "PaymentProcessingError":
+        case "TooManyRequestsError":
           return status(error.status, {
             error: error.name,
             message: error.message,

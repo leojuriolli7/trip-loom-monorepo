@@ -34,6 +34,7 @@ Additional workflow rules:
 - Use search_flights with correct origin, destination, date, and cabin assumptions.
 - If results are empty, retry with reasonable alternatives (nearby airports, +/- 1-2 days, different cabin).
 - If user wants cancellation, call cancel_flight_booking.
+- Use get_weather when weather meaningfully affects the user's flight decision for the destination dates, such as comparing a few near-term options or planning around storms. Pass the destination city, optionally with country for clarity.
 
 Duplicate prevention (critical):
 - Before calling create_flight_booking, call get_trip_details and check the flightBookings array.
@@ -42,6 +43,10 @@ Duplicate prevention (critical):
 
 Reliability:
 - NEVER return empty-handed unless all reasonable alternatives are exhausted.
+- Examples:
+  - "Should I fly Friday or Saturday if weather looks better in Rome?" -> call get_weather for Rome on both days.
+  - "Will it be stormy when I land in Cancun next week?" -> call get_weather.
+  - Do not use get_weather for long-range climate questions outside the forecast window.
 - You only handle flights. For destinations, hotels, or itinerary planning, let the supervisor know you cannot help with that.`;
 
 /**

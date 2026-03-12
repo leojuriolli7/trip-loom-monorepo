@@ -17,6 +17,9 @@ export interface BackendApiEnv extends AgentsEnv {
   FORGOT_PASSWORD_EMAIL_BASE_URL: string;
   FRONTEND_BASE_URL: string;
   MCP_SERVER_URL: string;
+  OPEN_METEO_BASE_URL?: string;
+  OPEN_METEO_GEOCODING_BASE_URL?: string;
+  WEATHER_REQUEST_TIMEOUT_MS?: string;
 }
 
 declare global {

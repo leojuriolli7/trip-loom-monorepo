@@ -13,6 +13,7 @@ import { registerGetDestinationDetails } from "./tools/get-destination-details";
 import { registerGetPaymentSession } from "./tools/get-payment-session";
 import { registerGetRecommendedDestinations } from "./tools/get-recommended-destinations";
 import { registerGetUserPreferences } from "./tools/get-user-preferences";
+import { registerGetWeather } from "./tools/get-weather";
 import { registerGetTripDetails } from "./tools/get-trip-details";
 import { registerSearchDestinations } from "./tools/search-destinations";
 import { registerSearchFlights } from "./tools/search-flights";
@@ -45,6 +46,7 @@ export function createMcpServer(accessToken: string) {
   // Tools
   registerPing(server);
   registerGetUserPreferences(server, apiClient);
+  registerGetWeather(server, apiClient);
   registerGetTripDetails(server, apiClient);
   registerGetPaymentSession(server, apiClient);
   registerSearchDestinations(server, apiClient);

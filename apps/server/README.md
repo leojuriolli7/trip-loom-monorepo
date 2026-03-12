@@ -25,3 +25,6 @@ This app requires the following environment variables:
 | `OTEL_SERVICE_NAME` | No | Service name for traces and logs (default: `trip-loom-api`) |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | No | OTLP HTTP endpoint for trace export (default: `http://localhost:4318/v1/traces`) |
 | `OTEL_EXPORTER_OTLP_LOGS_ENDPOINT` | No | OTLP HTTP endpoint for log export (default: `http://localhost:4318/v1/logs`) |
+| `OPEN_METEO_BASE_URL` | No | Override Open-Meteo forecast API base URL |
+| `OPEN_METEO_GEOCODING_BASE_URL` | No | Override Open-Meteo geocoding API base URL |
+| `WEATHER_REQUEST_TIMEOUT_MS` | No | Timeout in milliseconds for outbound weather requests |

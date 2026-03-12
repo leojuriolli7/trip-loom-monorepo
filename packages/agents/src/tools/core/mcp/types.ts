@@ -9,6 +9,7 @@ import type {
   RecommendedDestinationsQuery,
   UpdateActivityInput,
   UpdateTripInput,
+  WeatherRequest,
 } from "@trip-loom/contracts/dto";
 import type { TripLoomMcpToolName } from "../registry";
 
@@ -34,6 +35,7 @@ type KnownTripLoomMcpToolArgsByName = {
     tripId: string;
   } & UpdateTripInput;
   get_user_preferences: Record<string, never>;
+  get_weather: WeatherRequest;
   search_destinations: SearchDestinationsArgs;
   get_destination_details: {
     destinationId: string;

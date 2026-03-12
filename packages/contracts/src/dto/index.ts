@@ -63,6 +63,11 @@ export {
 } from "./payments";
 
 export {
+  type WeatherRequest,
+  type WeatherResponseDTO,
+} from "./weather";
+
+export {
   type TripDTO,
   type TripWithDestinationDTO,
   type TripFlightBookingDTO,

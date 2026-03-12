@@ -55,7 +55,7 @@ packages/
 
 1. User sends a message in `apps/web`.
 2. API streams the conversation through LangGraph agents.
-3. Agents call MCP tools for data reads/writes.
+3. Agents call MCP tools for TripLoom reads/writes and may call a few internal local tools for app-only capabilities.
 4. MCP server calls API endpoints with user auth.
 5. Frontend renders tool calls as cards and collects user confirmations/payments.
 
@@ -96,9 +96,6 @@ pnpm dev:web      # Next.js app
 ```
 
 ## Project TODOs
-
-### Immediate
-
 
 ### Agents and Orchestration
 
@@ -141,7 +138,6 @@ pnpm dev:web      # Next.js app
 ### Later
 
 - [ ] Integrate itinerary with google maps: render map + routes for each day?
-- [ ] Add `get_weather` tool via new API endpoint for weather -- For current trips asking about daily weather
 - [ ] File uploads -- images, pdfs
 - [ ] Agents not using web-search enough: Destination agent + hotel agent for enrichment (Itinerary agent uses it fine)
 
@@ -150,7 +146,6 @@ pnpm dev:web      # Next.js app
 - [ ] Allow filtering by multiple amenities or highlights at once in list hotels/destinations
 - [ ] Better "query" functionality for list endpoionts
 - [ ] Option to book multiple hotels/flights for a trip
-- [ ] Destination suggestions comes with custom descriptions. this needs to be highlighted in some way. Currently, the description is cut off by the char limit in the destination-card. We could rework the ui to not use carousels.
 - [ ] Add option to share trip conversations (read-only)
 
 ## Package Documentation

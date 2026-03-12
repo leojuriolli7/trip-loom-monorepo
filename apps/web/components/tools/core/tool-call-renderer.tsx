@@ -14,6 +14,7 @@ import { GetTripDetailsToolCard } from "../get-trip-details-tool-card/get-trip-d
 import { SuggestNewTripCard } from "../suggest-new-trip-card";
 import { TransferAgentToolCard } from "../transfer-agent-tool-card";
 import { GetRecommendedDestinationsCard } from "../get-recommended-destinations-card";
+import { GetWeatherToolCallCard } from "../get-weather-tool-call-card";
 
 /**
  * These tool calls can appear on assistant messages, but their UI belongs to a
@@ -80,6 +81,8 @@ export function ToolCallRenderer({ toolCall }: { toolCall: TripLoomToolCall }) {
       );
     case "search_flights":
       return <SearchFlightsToolCard args={toolCall.args} />;
+    case "get_weather":
+      return <GetWeatherToolCallCard args={toolCall.args} />;
     case "search_hotels":
       return <SearchHotelsToolCard args={toolCall.args} />;
     case "suggest_new_trip":

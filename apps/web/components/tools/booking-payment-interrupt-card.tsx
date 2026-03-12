@@ -58,6 +58,18 @@ export function BookingPaymentInterruptCard({
     );
   }
 
+  const paymentForm = interrupt.paymentSession.clientSecret ? (
+    <PaymentForm
+      amountInCents={interrupt.paymentSession.amountInCents}
+      clientSecret={interrupt.paymentSession.clientSecret}
+      currency={interrupt.paymentSession.currency}
+      disabled={disabled}
+      onCancel={onCancel}
+      onSuccess={handlePaid}
+      paymentId={interrupt.paymentSession.id}
+    />
+  ) : null;
+
   return (
     <FlightBookingSummaryCard
       booking={interrupt.booking}

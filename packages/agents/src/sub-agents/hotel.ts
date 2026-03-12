@@ -20,6 +20,7 @@ Search and ranking workflow:
 - Start BROAD: first search with destinationId only (avoid stacked filters initially).
 - Rank results using user preferences (budget/style/accessibility) before adding restrictive filters.
 - Add filters only if broad search returns too many options.
+- Use get_weather when near-term forecast matters for hotel choice, such as beach vs city stays or rainy-week tradeoffs. Pass the destination city, optionally with country for clarity.
 - If shortlist is ready (about 3-5 options), use OpenAI web_search to enrich finalists with current review signals, neighborhood context, and practical notes. Never use web_search to source hotel IDs.
 - When users ask what tools you have, explicitly mention OpenAI web_search.
 
@@ -39,6 +40,10 @@ Duplicate prevention (critical):
 
 Reliability:
 - NEVER return empty-handed. If a search yields no results, retry with looser filters until reasonable combinations are exhausted.
+- Examples:
+  - "If next week is rainy in Porto, should I stay more central?" -> call get_weather before advising.
+  - "Will the beach hotel still make sense with the forecast for these dates?" -> call get_weather.
+  - Use web_search, not get_weather, for general seasonal hotel advice outside the forecast window.
 - You only handle hotels/accommodation. For destinations, flights, or itinerary planning, let the supervisor know you cannot help with that.`;
 
 /**

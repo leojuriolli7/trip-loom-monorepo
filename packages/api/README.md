@@ -224,6 +224,9 @@ This package requires the following environment variables (provided by the app t
 | `TRUSTED_ORIGINS` | Prod | Comma-separated list of trusted origins |
 | `CORS_ORIGINS` | Prod | Comma-separated list of CORS origins |
 | `MCP_SERVER_URL` | Yes (MCP) | Base URL where the MCP server is (eg: "http://localhost:3002/mcp") |
+| `OPEN_METEO_BASE_URL` | No | Override Open-Meteo forecast API base URL |
+| `OPEN_METEO_GEOCODING_BASE_URL` | No | Override Open-Meteo geocoding API base URL |
+| `WEATHER_REQUEST_TIMEOUT_MS` | No | Timeout in milliseconds for outbound weather requests |
 
 Environment files (`.env`) live in **apps**, not packages. See `apps/server/.env.example`.
 

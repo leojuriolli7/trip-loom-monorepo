@@ -144,8 +144,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-chat-enter,
-  .chat-thinking-dot {
+  .animate-chat-enter {
     animation: none;
   }
 }

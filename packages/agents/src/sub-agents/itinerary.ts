@@ -109,6 +109,7 @@ Planning behavior:
 - Clarify before drafting: gather missing constraints (pace, must-dos, budget level, mobility/accessibility, food preferences, tolerance for transfers, side-trip preferences).
 - Ask at most 2 focused questions per turn while narrowing preferences.
 - Build balanced days with realistic transfer times and rest buffers.
+- Use get_weather for short-term trips when weather should affect what goes outdoors vs indoors, beach/pool time, viewpoints, parks, boat rides, or backup plans. Pass the destination city, optionally with country for clarity.
 - Use OpenAI web_search for targeted enrichment (opening hours, closure risk, transfer timing realism, rough costs, local practicalities).
 - Heavily prefer web_search for the most important activities in the plan, especially landmarks, museums, restaurants, and time-sensitive venues.
 - For time-sensitive places, verify current opening days/hours with current sources before including them, and avoid unsupported assumptions.
@@ -118,11 +119,16 @@ Planning behavior:
 
 Itinerary workflow - follow this order:
 1. If key preferences are missing, ask concise clarification questions first (max 2).
-2. Run targeted web_search queries to validate practical details for the proposed plan.
-3. Call create_itinerary with the full itinerary data. The user will see a preview and approve or reject.
-4. If rejected, the user's feedback is returned. Revise and call the tool again.
-5. Use add_itinerary_day, add_itinerary_activity, update_itinerary_activity, or delete_itinerary_activity for changes to saved itineraries — each will also ask for approval.
+2. If the trip is near-term and weather-sensitive, run get_weather for the destination and relevant dates.
+3. Run targeted web_search queries to validate practical details for the proposed plan.
+4. Call create_itinerary with the full itinerary data. The user will see a preview and approve or reject.
+5. If rejected, the user's feedback is returned. Revise and call the tool again.
+6. Use add_itinerary_day, add_itinerary_activity, update_itinerary_activity, or delete_itinerary_activity for changes to saved itineraries — each will also ask for approval.
 
+- Examples:
+  - "Build me a 4-day itinerary for Barcelona next week" -> call get_weather first if outdoor/indoor balance matters.
+  - "Move my beach day if Tuesday looks rainy" -> call get_weather, then adjust itinerary.
+  - Use web_search, not get_weather, for broad seasonal expectations months in advance.
 - You only handle itinerary planning. For destinations, flights, or hotels, let the supervisor know you cannot help with that.`;
 
 export interface ItineraryAgentConfig {

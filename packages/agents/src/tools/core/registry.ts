@@ -8,12 +8,14 @@ const SUPERVISOR_MCP_TOOLS = [
   "get_trip_details",
   "update_trip",
   "get_user_preferences",
+  "get_weather",
 ] as const;
 
 const DESTINATION_MCP_TOOLS = [
   "search_destinations",
   "get_destination_details",
   "get_recommended_destinations",
+  "get_weather",
 ] as const;
 
 const FLIGHT_MCP_TOOLS = [
@@ -21,6 +23,7 @@ const FLIGHT_MCP_TOOLS = [
   "create_flight_booking",
   "cancel_flight_booking",
   "get_trip_details",
+  "get_weather",
 ] as const;
 
 const HOTEL_MCP_TOOLS = [
@@ -28,6 +31,7 @@ const HOTEL_MCP_TOOLS = [
   "create_hotel_booking",
   "cancel_hotel_booking",
   "get_trip_details",
+  "get_weather",
 ] as const;
 
 const ITINERARY_MCP_TOOLS = [
@@ -36,6 +40,7 @@ const ITINERARY_MCP_TOOLS = [
   "add_itinerary_activity",
   "update_itinerary_activity",
   "delete_itinerary_activity",
+  "get_weather",
 ] as const;
 
 /**
