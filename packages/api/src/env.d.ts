@@ -3,6 +3,8 @@ import type { AgentsEnv } from "@trip-loom/agents/env";
 export interface BackendApiEnv extends AgentsEnv {
   DATABASE_URL: string;
   API_BASE_URL: string;
+  OTEL_SERVICE_NAME?: string;
+  OTEL_EXPORTER_OTLP_ENDPOINT?: string;
   BETTER_AUTH_SECRET: string;
   STRIPE_SECRET_KEY: string;
   STRIPE_WEBHOOK_SECRET: string;

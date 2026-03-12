@@ -1,12 +1,13 @@
 import { Elysia } from "elysia";
 import { z } from "zod";
 import { errorResponseSchema } from "@trip-loom/contracts/dto/common";
+import { NotFoundError } from "../errors";
+import { setLogContext, setLogEntityId, useLogger } from "../lib/observability";
 import {
   createHotelBookingResultSchema,
   createHotelBookingInputSchema,
   hotelBookingSchema,
 } from "@trip-loom/contracts/dto/hotel-bookings";
-import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
 import { createDefaultRateLimit } from "../lib/rate-limit";
 import {
@@ -30,20 +31,17 @@ export const hotelBookingRoutes = new Elysia({
   prefix: "/api",
 })
   .use(createDefaultRateLimit())
-  .use(createWideEventPlugin())
   .use(requireAuthMacro)
   .get(
     "/trips/:id/hotels",
-    async ({ user, params, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
+    async ({ user, params }) => {
+      const log = useLogger();
+
+      setLogEntityId(log, "trip", params.id);
 
       const result = await listHotelBookings(user.id, params.id);
       if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Trip not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Trip not found");
       }
 
       return result;
@@ -60,21 +58,20 @@ export const hotelBookingRoutes = new Elysia({
   )
   .post(
     "/trips/:id/hotels",
-    async ({ user, params, body, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
+    async ({ set, user, params, body }) => {
+      const log = useLogger();
+
+      setLogEntityId(log, "trip", params.id);
 
       const result = await createHotelBooking(user.id, params.id, body);
       if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Trip not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Trip not found");
       }
 
-      wideEvent.hotel_booking_id = result.booking.id;
+      setLogEntityId(log, "hotelBooking", result.booking.id);
       const { existing, ...bookingResult } = result;
-      return status(existing ? 200 : 201, bookingResult);
+      set.status = existing ? 200 : 201;
+      return bookingResult;
     },
     {
       auth: true,
@@ -91,9 +88,13 @@ export const hotelBookingRoutes = new Elysia({
   )
   .get(
     "/trips/:id/hotels/:hotelBookingId",
-    async ({ user, params, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
-      wideEvent.hotel_booking_id = params.hotelBookingId;
+    async ({ user, params }) => {
+      const log = useLogger();
+
+      setLogContext(log, {
+        trip: { id: params.id },
+        hotelBooking: { id: params.hotelBookingId },
+      });
 
       const result = await getHotelBooking(
         user.id,
@@ -101,11 +102,7 @@ export const hotelBookingRoutes = new Elysia({
         params.hotelBookingId,
       );
       if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Hotel booking not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Hotel booking not found");
       }
 
       return result;
@@ -122,9 +119,13 @@ export const hotelBookingRoutes = new Elysia({
   )
   .delete(
     "/trips/:id/hotels/:hotelBookingId",
-    async ({ user, params, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
-      wideEvent.hotel_booking_id = params.hotelBookingId;
+    async ({ set, user, params }) => {
+      const log = useLogger();
+
+      setLogContext(log, {
+        trip: { id: params.id },
+        hotelBooking: { id: params.hotelBookingId },
+      });
 
       const success = await cancelHotelBooking(
         user.id,
@@ -132,14 +133,11 @@ export const hotelBookingRoutes = new Elysia({
         params.hotelBookingId,
       );
       if (!success) {
-        return status(404, {
-          error: "NotFound",
-          message: "Hotel booking not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Hotel booking not found");
       }
 
-      return new Response(null, { status: 204 });
+      set.status = 204;
+      return new Response(null);
     },
     {
       auth: true,

@@ -1,10 +1,6 @@
 import { BackendApiEnv } from "@trip-loom/api/env";
 
-export interface ServerAppEnv extends BackendApiEnv {
-  OTEL_SERVICE_NAME?: string;
-  OTEL_EXPORTER_OTLP_ENDPOINT?: string;
-  OTEL_EXPORTER_OTLP_LOGS_ENDPOINT?: string;
-}
+export interface ServerAppEnv extends BackendApiEnv {}
 
 declare global {
   namespace NodeJS {

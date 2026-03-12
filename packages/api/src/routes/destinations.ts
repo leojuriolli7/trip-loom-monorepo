@@ -1,5 +1,7 @@
 import { Elysia } from "elysia";
 import { z } from "zod";
+import { NotFoundError } from "../errors";
+import { setLogEntityId, useLogger } from "../lib/observability";
 import {
   listDestinations,
   getDestinationById,
@@ -15,7 +17,6 @@ import {
   recommendedDestinationsQuerySchema,
 } from "@trip-loom/contracts/dto/destinations";
 import { errorResponseSchema, paginatedResponseSchema } from "@trip-loom/contracts/dto/common";
-import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
 import { createDefaultRateLimit } from "../lib/rate-limit";
 
@@ -24,7 +25,6 @@ export const destinationRoutes = new Elysia({
   prefix: "/api/destinations",
 })
   .use(createDefaultRateLimit())
-  .use(createWideEventPlugin())
   .get(
     "/",
     async ({ query }) => {
@@ -54,16 +54,14 @@ export const destinationRoutes = new Elysia({
   )
   .get(
     "/:id",
-    async ({ params, status, wideEvent }) => {
-      wideEvent.destination_id = params.id;
+    async ({ params }) => {
+      const log = useLogger();
+
+      setLogEntityId(log, "destination", params.id);
 
       const result = await getDestinationById(params.id);
       if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Destination not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Destination not found");
       }
       return result;
     },
@@ -77,16 +75,14 @@ export const destinationRoutes = new Elysia({
   )
   .get(
     "/:id/detail",
-    async ({ params, status, wideEvent }) => {
-      wideEvent.destination_id = params.id;
+    async ({ params }) => {
+      const log = useLogger();
+
+      setLogEntityId(log, "destination", params.id);
 
       const result = await getDestinationDetail(params.id);
       if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Destination not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Destination not found");
       }
       return result;
     },

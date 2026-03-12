@@ -1,5 +1,10 @@
 import { Elysia } from "elysia";
 import {
+  createLoggingPlugin,
+  createTracingPlugin,
+  type ObservabilityConfig,
+} from "../../lib/observability";
+import {
   BadRequestError,
   BookingNotPayableError,
   ConflictError,
@@ -7,6 +12,7 @@ import {
   NotFoundError,
   PaymentAlreadySuccessfulError,
   PaymentProcessingError,
+  ServiceUnavailableError,
   TooManyRequestsError,
 } from "../../errors";
 
@@ -15,7 +21,15 @@ import {
  * Tests can compose only the routes they need with `.use(routeModule)`.
  */
 export function createTestApp() {
+  const observability: ObservabilityConfig = {
+    otlpEndpoint: undefined,
+    serviceName: "trip-loom-api-test",
+    traceExporterUrl: undefined,
+  };
+
   return new Elysia()
+    .use(createTracingPlugin(observability))
+    .use(createLoggingPlugin(observability))
     .error({
       BadRequestError,
       BookingNotPayableError,
@@ -24,6 +38,7 @@ export function createTestApp() {
       ConflictError,
       PaymentAlreadySuccessfulError,
       PaymentProcessingError,
+      ServiceUnavailableError,
       TooManyRequestsError,
     })
     .onError(({ code, error, status }) => {
@@ -35,6 +50,7 @@ export function createTestApp() {
         case "ConflictError":
         case "PaymentAlreadySuccessfulError":
         case "PaymentProcessingError":
+        case "ServiceUnavailableError":
         case "TooManyRequestsError":
           return status(error.status, {
             error: error.name,

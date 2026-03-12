@@ -87,7 +87,6 @@ Result: adding a new MCP tool requires registering the tool and adding its arg t
 # from repo root
 pnpm db:up
 pnpm db:migrate
-pnpm db:seed
 
 pnpm dev:server   # API host
 pnpm dev:stripe   # Stripe local webhook handler
@@ -104,28 +103,8 @@ pnpm dev:web      # Next.js app
 
 ### Quality and Observability
 
-- [ ] Switch to `evlog` for structured logging + add logging and OpenTelemetry to agents and MCP
+- [ ] Add logging and OpenTelemetry to agents and MCP
 - [ ] Add eval suite for routing accuracy and tool-call correctness (choose eval framework: Evalite, LangSmith, or Vitest-based)
-- [ ] Add RLS to DB + separate database pools and roles
-    1. Split DB roles first.
-      app_owner for migrations, app_runtime for normal API/MCP business queries, app_internal for
-      Better Auth, OAuth token minting, Stripe webhooks, and LangGraph persistence.
-    2. Stop using the owner connection for normal app queries.
-      Your current drizzle.config.ts:5 can keep using the owner for migrations, but runtime code
-      should move to a non-owner role.
-    3. Add request-scoped DB context for authenticated business queries.
-      Because the app uses one DB login, current_user is not enough. Use transaction-local
-      set_config('app.user_id', ..., true) and policies that read current_setting('app.user_id',
-      true).
-    
-    A safe shape is:
-
-    ```ts
-      await dbRuntime.transaction(async (tx) => {
-        await tx.execute(sql`select set_config('app.user_id', ${userId}, true)`);
-        return runBusinessQuery(tx);
-      });
-    ```
 
 ### Data and Content
 
@@ -133,10 +112,10 @@ pnpm dev:web      # Next.js app
 - [ ] Improve destination descriptions via AI (more about culture, less demographics, longer)
 - [ ] Add more destinations worldwide -- at least 200+ -- Maldives, Arraial do Cabo, Trancoso, Porto de Galinhas, Maragogi, etc.)
 - [ ] Add more hotels per destination from additional sources
-- [ ] Remove data acquisition/generator scripts when data collection is complete
 
 ### Later
 
+- [ ] Conversation minimap for Current, Draft, etc states
 - [ ] Integrate itinerary with google maps: render map + routes for each day?
 - [ ] File uploads -- images, pdfs
 - [ ] Agents not using web-search enough: Destination agent + hotel agent for enrichment (Itinerary agent uses it fine)

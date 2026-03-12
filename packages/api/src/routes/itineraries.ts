@@ -1,6 +1,8 @@
 import { Elysia } from "elysia";
 import { z } from "zod";
 import { errorResponseSchema } from "@trip-loom/contracts/dto/common";
+import { NotFoundError } from "../errors";
+import { setLogContext, setLogEntityId, useLogger } from "../lib/observability";
 import {
   createActivityInputSchema,
   createDayInputSchema,
@@ -10,7 +12,6 @@ import {
   updateActivityInputSchema,
   updateDayInputSchema,
 } from "@trip-loom/contracts/dto/itineraries";
-import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
 import { createDefaultRateLimit } from "../lib/rate-limit";
 import {
@@ -46,7 +47,6 @@ export const itineraryRoutes = new Elysia({
   prefix: "/api",
 })
   .use(createDefaultRateLimit())
-  .use(createWideEventPlugin())
   .use(requireAuthMacro)
   // ==========================================================================
   // User-level: list all itineraries across trips
@@ -72,16 +72,14 @@ export const itineraryRoutes = new Elysia({
   // ==========================================================================
   .get(
     "/trips/:id/itinerary",
-    async ({ user, params, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
+    async ({ user, params }) => {
+      const log = useLogger();
+
+      setLogEntityId(log, "trip", params.id);
 
       const result = await getItinerary(user.id, params.id);
       if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Itinerary not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Itinerary not found");
       }
 
       return result;
@@ -98,19 +96,18 @@ export const itineraryRoutes = new Elysia({
   )
   .post(
     "/trips/:id/itinerary",
-    async ({ user, params, body, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
+    async ({ set, user, params, body }) => {
+      const log = useLogger();
+
+      setLogEntityId(log, "trip", params.id);
 
       const result = await createItinerary(user.id, params.id, body);
       if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Trip not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Trip not found");
       }
 
-      return status(201, result);
+      set.status = 201;
+      return result;
     },
     {
       auth: true,
@@ -126,19 +123,18 @@ export const itineraryRoutes = new Elysia({
   )
   .delete(
     "/trips/:id/itinerary",
-    async ({ user, params, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
+    async ({ set, user, params }) => {
+      const log = useLogger();
+
+      setLogEntityId(log, "trip", params.id);
 
       const success = await deleteItinerary(user.id, params.id);
       if (!success) {
-        return status(404, {
-          error: "NotFound",
-          message: "Itinerary not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Itinerary not found");
       }
 
-      return new Response(null, { status: 204 });
+      set.status = 204;
+      return new Response(null);
     },
     {
       auth: true,
@@ -154,19 +150,18 @@ export const itineraryRoutes = new Elysia({
   // ==========================================================================
   .post(
     "/trips/:id/itinerary/days",
-    async ({ user, params, body, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
+    async ({ set, user, params, body }) => {
+      const log = useLogger();
+
+      setLogEntityId(log, "trip", params.id);
 
       const result = await addDay(user.id, params.id, body);
       if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Trip not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Trip not found");
       }
 
-      return status(201, result);
+      set.status = 201;
+      return result;
     },
     {
       auth: true,
@@ -181,17 +176,14 @@ export const itineraryRoutes = new Elysia({
   )
   .patch(
     "/trips/:id/itinerary/days/:dayId",
-    async ({ user, params, body, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
-      wideEvent.day_id = params.dayId;
+    async ({ user, params, body }) => {
+      const log = useLogger();
+
+      setLogContext(log, { trip: { id: params.id }, day: { id: params.dayId } });
 
       const result = await updateDay(user.id, params.id, params.dayId, body);
       if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Trip not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Trip not found");
       }
 
       return result;
@@ -209,17 +201,14 @@ export const itineraryRoutes = new Elysia({
   )
   .delete(
     "/trips/:id/itinerary/days/:dayId",
-    async ({ user, params, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
-      wideEvent.day_id = params.dayId;
+    async ({ user, params }) => {
+      const log = useLogger();
+
+      setLogContext(log, { trip: { id: params.id }, day: { id: params.dayId } });
 
       const result = await deleteDay(user.id, params.id, params.dayId);
       if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Trip not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Trip not found");
       }
 
       return result;
@@ -239,20 +228,18 @@ export const itineraryRoutes = new Elysia({
   // ==========================================================================
   .post(
     "/trips/:id/itinerary/days/:dayId/activities",
-    async ({ user, params, body, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
-      wideEvent.day_id = params.dayId;
+    async ({ set, user, params, body }) => {
+      const log = useLogger();
+
+      setLogContext(log, { trip: { id: params.id }, day: { id: params.dayId } });
 
       const result = await addActivity(user.id, params.id, params.dayId, body);
       if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Trip not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Trip not found");
       }
 
-      return status(201, result);
+      set.status = 201;
+      return result;
     },
     {
       auth: true,
@@ -267,10 +254,14 @@ export const itineraryRoutes = new Elysia({
   )
   .patch(
     "/trips/:id/itinerary/days/:dayId/activities/:activityId",
-    async ({ user, params, body, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
-      wideEvent.day_id = params.dayId;
-      wideEvent.activity_id = params.activityId;
+    async ({ user, params, body }) => {
+      const log = useLogger();
+
+      setLogContext(log, {
+        trip: { id: params.id },
+        day: { id: params.dayId },
+        activity: { id: params.activityId },
+      });
 
       const result = await updateActivity(
         user.id,
@@ -280,11 +271,7 @@ export const itineraryRoutes = new Elysia({
         body,
       );
       if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Trip not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Trip not found");
       }
 
       return result;
@@ -302,10 +289,14 @@ export const itineraryRoutes = new Elysia({
   )
   .delete(
     "/trips/:id/itinerary/days/:dayId/activities/:activityId",
-    async ({ user, params, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
-      wideEvent.day_id = params.dayId;
-      wideEvent.activity_id = params.activityId;
+    async ({ user, params }) => {
+      const log = useLogger();
+
+      setLogContext(log, {
+        trip: { id: params.id },
+        day: { id: params.dayId },
+        activity: { id: params.activityId },
+      });
 
       const result = await deleteActivity(
         user.id,
@@ -314,11 +305,7 @@ export const itineraryRoutes = new Elysia({
         params.activityId,
       );
       if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Trip not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Trip not found");
       }
 
       return result;

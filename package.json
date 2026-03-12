@@ -25,11 +25,10 @@
     "db:down": "docker compose down",
     "db:reset": "docker compose down -v && docker compose up -d",
     "docker:up": "docker compose --profile signoz up -d && open http://localhost:8080",
+    "docker:down": "docker compose --profile signoz down",
     "db:generate": "pnpm --filter @trip-loom/api db:generate",
     "db:migrate": "pnpm --filter @trip-loom/api db:migrate",
-    "db:studio": "pnpm --filter @trip-loom/api db:studio --port 6969",
-    "db:seed": "pnpm --filter @trip-loom/api db:seed",
-    "db:seed:validate": "pnpm --filter @trip-loom/api db:seed:validate"
+    "db:studio": "pnpm --filter @trip-loom/api db:studio --port 6969"
   },
   "devDependencies": {
     "dotenv-cli": "^11.0.0"

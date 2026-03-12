@@ -55,3 +55,9 @@ export class PaymentProcessingError extends HttpError {
     super(409, "PaymentProcessing", message);
   }
 }
+
+export class ServiceUnavailableError extends HttpError {
+  constructor(message: string) {
+    super(503, "ServiceUnavailable", message);
+  }
+}

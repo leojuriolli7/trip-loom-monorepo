@@ -2,12 +2,13 @@
   "name": "server",
   "private": true,
   "scripts": {
-    "dev": "bun --watch src/index.ts",
+    "dev": "bun --watch --preload ./src/instrumentation.ts ./src/index.ts",
     "dev:stripe": "stripe listen --forward-to localhost:3001/api/webhooks/stripe",
-    "build": "bun build src/index.ts --target bun --outdir dist",
-    "start": "NODE_ENV=production bun dist/index.js"
+    "build": "bun build src/index.ts src/instrumentation.ts --target bun --outdir dist",
+    "start": "NODE_ENV=production bun --preload ./dist/instrumentation.js ./dist/index.js"
   },
   "dependencies": {
+    "@opentelemetry/instrumentation-pg": "^0.58.3",
     "@trip-loom/api": "workspace:*"
   },
   "devDependencies": {

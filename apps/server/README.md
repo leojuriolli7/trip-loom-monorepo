@@ -14,17 +14,8 @@ bun dev
 
 ## Environment Variables
 
-Copy `.env.example` to `.env` and fill in your values. See `packages/api/README.md` for full env var documentation.
+Copy `.env.example` to `.env` and fill in your values.
 
-## Environment Variables
+This server does not define extra environment variables beyond what `@trip-loom/api` reads directly.
 
-This app requires the following environment variables:
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `OTEL_SERVICE_NAME` | No | Service name for traces and logs (default: `trip-loom-api`) |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | No | OTLP HTTP endpoint for trace export (default: `http://localhost:4318/v1/traces`) |
-| `OTEL_EXPORTER_OTLP_LOGS_ENDPOINT` | No | OTLP HTTP endpoint for log export (default: `http://localhost:4318/v1/logs`) |
-| `OPEN_METEO_BASE_URL` | No | Override Open-Meteo forecast API base URL |
-| `OPEN_METEO_GEOCODING_BASE_URL` | No | Override Open-Meteo geocoding API base URL |
-| `WEATHER_REQUEST_TIMEOUT_MS` | No | Timeout in milliseconds for outbound weather requests |
+For the full list, including observability variables like `OTEL_SERVICE_NAME` and `OTEL_EXPORTER_OTLP_ENDPOINT`, see `packages/api/README.md`.

@@ -1,5 +1,7 @@
 import { Elysia } from "elysia";
 import { z } from "zod";
+import { NotFoundError } from "../errors";
+import { setLogEntityId, useLogger } from "../lib/observability";
 import { listHotels, getHotelById } from "../services/hotels";
 import {
   hotelQuerySchema,
@@ -7,7 +9,6 @@ import {
   hotelWithDestinationSchema,
 } from "@trip-loom/contracts/dto/hotels";
 import { errorResponseSchema, paginatedResponseSchema } from "@trip-loom/contracts/dto/common";
-import { createWideEventPlugin } from "../lib/wide-events";
 import { createDefaultRateLimit } from "../lib/rate-limit";
 
 export const hotelRoutes = new Elysia({
@@ -15,7 +16,6 @@ export const hotelRoutes = new Elysia({
   prefix: "/api/hotels",
 })
   .use(createDefaultRateLimit())
-  .use(createWideEventPlugin())
   .get(
     "/",
     async ({ query }) => {
@@ -30,16 +30,14 @@ export const hotelRoutes = new Elysia({
   )
   .get(
     "/:id",
-    async ({ params, status, wideEvent }) => {
-      wideEvent.hotel_id = params.id;
+    async ({ params }) => {
+      const log = useLogger();
+
+      setLogEntityId(log, "hotel", params.id);
 
       const result = await getHotelById(params.id);
       if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Hotel not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Hotel not found");
       }
       return result;
     },

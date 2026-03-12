@@ -1,5 +1,4 @@
 import { Elysia } from "elysia";
-import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
 import { createDefaultRateLimit } from "../lib/rate-limit";
 import { errorResponseSchema } from "@trip-loom/contracts/dto/common";
@@ -17,7 +16,6 @@ export const userPreferenceRoutes = new Elysia({
   prefix: "/api/user",
 })
   .use(createDefaultRateLimit())
-  .use(createWideEventPlugin())
   .use(requireAuthMacro)
   .get(
     "/preferences",

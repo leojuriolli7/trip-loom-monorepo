@@ -29,10 +29,6 @@ packages/api/
 │   ├── services/             # Business logic
 │   │   └── [domain].ts       # e.g., destinations.ts
 │   └── __tests__/            # API integration + unit tests (bun:test)
-├── seeds/                    # Database seeding
-│   ├── data/                 # JSON seed files
-│   ├── seed.ts               # Seed script
-│   └── validate.ts           # Seed validation schemas
 └── drizzle/                  # Generated migrations
 ```
 
@@ -375,15 +371,6 @@ pnpm db:down
 # Reset database (destroys all data)
 pnpm db:reset
 
-# Seed the database with destinations and hotels
-pnpm db:seed
-
-# Seed with clean (clears existing data first)
-pnpm db:seed -- --clean
-
-# Validate seed data without inserting
-pnpm db:seed:validate
-
 # Run tests
 pnpm test:api
 ```
@@ -540,9 +527,3 @@ export function createTestDestinations(
 7. **Test all endpoints** - Pagination, filters, 404s, auth
 8. **Keep exports minimal** - If a symbol is unused, remove it
 9. **No backwards compatibility unless explicitly requested** - Refactors and API changes should not consider backwards compatibility unless the user explicitly asks for it
-
-## Seed Data
-
-Seed data files are located in `packages/api/seeds/data/`:
-- `destinations.json` - Destination data 
-- `hotels.json` - Hotel data

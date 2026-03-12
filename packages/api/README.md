@@ -43,11 +43,7 @@ Factory for creating the Elysia app instance.
 ```typescript
 import { createApp } from "@trip-loom/api";
 
-const app = createApp({
-  serviceName: process.env.OTEL_SERVICE_NAME,
-  traceExporterUrl: process.env.OTEL_EXPORTER_OTLP_ENDPOINT,
-  logsExporterUrl: process.env.OTEL_EXPORTER_OTLP_LOGS_ENDPOINT,
-});
+const app = createApp();
 
 app.listen(3001);
 ```
@@ -79,8 +75,7 @@ src/
     ├── auth/               # Better Auth configuration + Elysia requireAuth macro
     ├── pagination.ts       # Cursor pagination helpers
     ├── date-range.ts       # Shared date-range validation helper
-    ├── otel/               # OpenTelemetry tracing + log export plugin
-    ├── wide-events/        # Structured logging plugin (1 JSON log per request)
+    ├── observability/      # centralized tracing + logging setup
     └── [domain]/           # Domain rules (eg. `lib/trips/rules.ts`)
 ```
 
@@ -204,11 +199,13 @@ await authClient.signOut();
 
 ## Environment Variables
 
-This package requires the following environment variables (provided by the app that imports it):
+This package reads its own environment variables from `process.env`.
 
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `OTEL_SERVICE_NAME` | No | Service name used for traces and structured logs (default: `trip-loom-api`) |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | No | Base OTLP HTTP endpoint used for traces and structured logs (example: `http://localhost:4318`) |
 | `BETTER_AUTH_SECRET` | Yes | Auth encryption secret (min 32 chars). Generate: `openssl rand -base64 32` |
 | `BETTER_AUTH_URL` | Yes | Base URL for auth (e.g., `http://localhost:3000`) |
 | `STRIPE_SECRET_KEY` | Yes (payments) | Stripe secret key for server-side payment operations |
@@ -228,32 +225,30 @@ This package requires the following environment variables (provided by the app t
 | `OPEN_METEO_GEOCODING_BASE_URL` | No | Override Open-Meteo geocoding API base URL |
 | `WEATHER_REQUEST_TIMEOUT_MS` | No | Timeout in milliseconds for outbound weather requests |
 
-Environment files (`.env`) live in **apps**, not packages. See `apps/server/.env.example`.
+In local development, those values usually come from `apps/server/.env`. See `apps/server/.env.example`.
 
 ## Observability
 
-The API ships with **OpenTelemetry tracing** and **wide events** (structured logs).
+The API ships with **OpenTelemetry tracing** and **evlog structured request logs**.
 
 ### OpenTelemetry Tracing
 
-Traces are collected via `@elysiajs/opentelemetry`, the official Elysia plugin that instruments Bun's HTTP layer (Node's `auto-instrumentations-node` doesn't work on Bun). The plugin lives in `src/lib/otel/` and sets up both trace export (OTLP protobuf) and a global `LoggerProvider` for wide events log export (OTLP HTTP). Pass OTEL config to `createApp()` — see the usage example above.
+Traces are collected via `@elysiajs/opentelemetry`, the official Elysia plugin that instruments Bun's HTTP layer. `OTEL_EXPORTER_OTLP_ENDPOINT` is treated as the OTLP base endpoint, and the API sends traces to `${OTEL_EXPORTER_OTLP_ENDPOINT}/v1/traces`.
 
-### Wide Events (Structured Logging)
+### Structured Request Logging
 
-Every request produces a single JSON log line emitted in `onAfterResponse`. The plugin lives in `src/lib/wide-events/`.
+Structured request logging is handled in `src/lib/observability/`. Logs print to console locally, and when `OTEL_EXPORTER_OTLP_ENDPOINT` is set they are exported through `evlog/otlp`, which sends to `${OTEL_EXPORTER_OTLP_ENDPOINT}/v1/logs`.
 
-Auto-populated fields: `timestamp`, `service`, `request_id`, `method`, `path`, `status_code`, `duration_ms`, `outcome`, `error`, `trace_id`, `span_id`.
+Auto-populated fields include request metadata, duration, status, errors, and service context.
 
-Enrich events from any route handler:
+Enrich logs from any route handler or service:
 
 ```typescript
-.get("/:id", async ({ params, wideEvent }) => {
-  wideEvent.trip_id = params.id;
-  // ...
-})
-```
+import { useLogger } from "../lib/observability";
 
-Route files need `.use(createWideEventPlugin())` for type inference. Elysia deduplicates by the plugin's `name`, so there's no double initialization.
+const log = useLogger();
+log.set({ trip: { id: params.id } });
+```
 
 ## Database
 

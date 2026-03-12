@@ -1,6 +1,8 @@
 import { Elysia } from "elysia";
 import { z } from "zod";
 import { errorResponseSchema, paginatedResponseSchema } from "@trip-loom/contracts/dto/common";
+import { NotFoundError } from "../errors";
+import { setLogEntityId, useLogger } from "../lib/observability";
 import {
   createTripInputSchema,
   tripDetailSchema,
@@ -8,7 +10,6 @@ import {
   tripWithDestinationSchema,
   updateTripInputSchema,
 } from "@trip-loom/contracts/dto/trips";
-import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
 import { createDefaultRateLimit } from "../lib/rate-limit";
 import {
@@ -28,7 +29,6 @@ export const tripRoutes = new Elysia({
   prefix: "/api/trips",
 })
   .use(createDefaultRateLimit())
-  .use(createWideEventPlugin())
   .use(requireAuthMacro)
   .get(
     "/",
@@ -46,16 +46,14 @@ export const tripRoutes = new Elysia({
   )
   .get(
     "/:id",
-    async ({ user, params, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
+    async ({ user, params }) => {
+      const log = useLogger();
+
+      setLogEntityId(log, "trip", params.id);
 
       const result = await getTripById(user.id, params.id);
       if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Trip not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Trip not found");
       }
       return result;
     },
@@ -71,13 +69,16 @@ export const tripRoutes = new Elysia({
   )
   .post(
     "/",
-    async ({ user, body, status, wideEvent }) => {
-      wideEvent.destination_id = body.destinationId;
+    async ({ set, user, body }) => {
+      const log = useLogger();
+
+      setLogEntityId(log, "destination", body.destinationId);
 
       const trip = await createTrip(user.id, body);
 
-      wideEvent.trip_id = trip.id;
-      return status(201, trip);
+      setLogEntityId(log, "trip", trip.id);
+      set.status = 201;
+      return trip;
     },
     {
       auth: true,
@@ -91,16 +92,14 @@ export const tripRoutes = new Elysia({
   )
   .patch(
     "/:id",
-    async ({ user, params, body, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
+    async ({ user, params, body }) => {
+      const log = useLogger();
+
+      setLogEntityId(log, "trip", params.id);
 
       const result = await updateTrip(user.id, params.id, body);
       if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Trip not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Trip not found");
       }
       return result;
     },
@@ -118,18 +117,17 @@ export const tripRoutes = new Elysia({
   )
   .delete(
     "/:id",
-    async ({ user, params, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
+    async ({ set, user, params }) => {
+      const log = useLogger();
+
+      setLogEntityId(log, "trip", params.id);
 
       const success = await deleteTrip(user.id, params.id);
       if (!success) {
-        return status(404, {
-          error: "NotFound",
-          message: "Trip not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Trip not found");
       }
-      return new Response(null, { status: 204 });
+      set.status = 204;
+      return new Response(null);
     },
     {
       auth: true,

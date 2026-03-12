@@ -1,6 +1,6 @@
 import { Elysia } from "elysia";
 import { eq } from "drizzle-orm";
-import { createWideEventPlugin } from "../wide-events";
+import { useLogger } from "../observability";
 import { auth } from ".";
 import { db } from "../../db";
 import { user as userTable } from "../../db/schema";
@@ -30,7 +30,6 @@ import { user as userTable } from "../../db/schema";
 export const requireAuthMacro = new Elysia({
   name: "require-auth-macro",
 })
-  .use(createWideEventPlugin())
   .macro({
     /**
      * Auth macro - protects routes and injects user/session into context.
@@ -48,12 +47,13 @@ export const requireAuthMacro = new Elysia({
      * - Cleaner early return pattern
      */
     auth: {
-      async resolve({ status, request: { headers }, wideEvent }) {
+      async resolve({ set, status, request: { headers } }) {
+        const log = useLogger();
         // 1. Try session cookie auth (web app)
         const session = await auth.api.getSession({ headers });
 
         if (session) {
-          wideEvent.user_id = session.user.id;
+          log.set({ user: { id: session.user.id } });
 
           return {
             user: session.user,
@@ -76,10 +76,10 @@ export const requireAuthMacro = new Elysia({
               .select()
               .from(userTable)
               .where(eq(userTable.id, mcpSession.userId))
-              .limit(1);
+            .limit(1);
 
             if (user) {
-              wideEvent.user_id = user.id;
+              log.set({ user: { id: user.id } });
 
               return {
                 user,
@@ -98,6 +98,8 @@ export const requireAuthMacro = new Elysia({
           }
         }
 
+        set.status = 401;
+        log.set({ status: 401 });
         return status(401, {
           error: "Unauthorized",
           message: "Authentication required",

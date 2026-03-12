@@ -2,13 +2,14 @@ import { Elysia } from "elysia";
 import Stripe from "stripe";
 import { z } from "zod";
 import { errorResponseSchema } from "@trip-loom/contracts/dto/common";
+import { BadRequestError, NotFoundError } from "../errors";
+import { setLogEntityId, setLogContext, useLogger } from "../lib/observability";
 import {
   paymentSchema,
   paymentSessionSchema,
   refundPaymentInputSchema,
   stripeWebhookResponseSchema,
 } from "@trip-loom/contracts/dto/payments";
-import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
 import { createDefaultRateLimit } from "../lib/rate-limit";
 import {
@@ -31,34 +32,38 @@ export const paymentRoutes = new Elysia({
   prefix: "/api",
 })
   .use(createDefaultRateLimit())
-  .use(createWideEventPlugin())
   .use(requireAuthMacro)
   .post(
     "/webhooks/stripe",
-    async ({ body, request, status, wideEvent }) => {
-      wideEvent.webhook_provider = "stripe";
+    async ({ body, request, set, status }) => {
+      const log = useLogger();
+
+      setLogContext(log, { webhook: { provider: "stripe" } });
       const signature = request.headers.get("stripe-signature");
       if (!signature) {
-        return status(400, {
-          error: "BadRequest",
-          message: "Missing Stripe signature",
-          statusCode: 400,
-        });
+        throw new BadRequestError("Missing Stripe signature");
       }
 
       try {
         await handleStripeWebhook(signature, String(body));
         return { received: true as const };
       } catch (error) {
-        const isBadRequest = isInvalidStripeWebhookRequest(error);
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Unable to process Stripe webhook";
-        return status(isBadRequest ? 400 : 500, {
-          error: isBadRequest ? "BadRequest" : "InternalServerError",
-          message,
-          statusCode: isBadRequest ? 400 : 500,
+        if (isInvalidStripeWebhookRequest(error)) {
+          throw new BadRequestError(
+            error instanceof Error
+              ? error.message
+              : "Unable to process Stripe webhook",
+          );
+        }
+
+        set.status = 500;
+        return status(500, {
+          error: "InternalServerError",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Unable to process Stripe webhook",
+          statusCode: 500,
         });
       }
     },
@@ -73,8 +78,8 @@ export const paymentRoutes = new Elysia({
   )
   .get(
     "/payments/:id/session",
-    async ({ params, wideEvent }) => {
-      wideEvent.payment_id = params.id;
+    async ({ params }) => {
+      setLogEntityId(useLogger(), "payment", params.id);
 
       return getHostedPaymentSession(params.id);
     },
@@ -90,16 +95,14 @@ export const paymentRoutes = new Elysia({
   )
   .get(
     "/payments/:id",
-    async ({ user, params, status, wideEvent }) => {
-      wideEvent.payment_id = params.id;
+    async ({ user, params }) => {
+      const log = useLogger();
+
+      setLogEntityId(log, "payment", params.id);
 
       const result = await getPayment(user.id, params.id);
       if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Payment not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Payment not found");
       }
 
       return result;
@@ -116,16 +119,14 @@ export const paymentRoutes = new Elysia({
   )
   .post(
     "/payments/:id/refund",
-    async ({ user, params, body, status, wideEvent }) => {
-      wideEvent.payment_id = params.id;
+    async ({ user, params, body }) => {
+      const log = useLogger();
+
+      setLogEntityId(log, "payment", params.id);
 
       const result = await refundPayment(user.id, params.id, body);
       if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Payment not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Payment not found");
       }
 
       return result;

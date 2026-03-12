@@ -1,6 +1,8 @@
 import { Elysia } from "elysia";
 import { z } from "zod";
 import { errorResponseSchema } from "@trip-loom/contracts/dto/common";
+import { NotFoundError } from "../errors";
+import { setLogContext, setLogEntityId, useLogger } from "../lib/observability";
 import {
   createFlightBookingResultSchema,
   createFlightBookingInputSchema,
@@ -9,7 +11,6 @@ import {
   flightOptionSchema,
   flightSearchSchema,
 } from "@trip-loom/contracts/dto/flights";
-import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
 import { createDefaultRateLimit } from "../lib/rate-limit";
 import {
@@ -34,15 +35,11 @@ export const flightRoutes = new Elysia({
   prefix: "/api",
 })
   .use(createDefaultRateLimit())
-  .use(createWideEventPlugin())
   .use(requireAuthMacro)
   .get(
     "/flights/search",
-    async ({ query, wideEvent }) => {
-      wideEvent.search = {
-        from: query.from,
-        to: query.to,
-      };
+    async ({ query }) => {
+      setLogContext(useLogger(), { search: { from: query.from, to: query.to } });
 
       return searchFlights(query);
     },
@@ -58,16 +55,14 @@ export const flightRoutes = new Elysia({
   )
   .get(
     "/trips/:id/flights",
-    async ({ user, params, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
+    async ({ user, params }) => {
+      const log = useLogger();
+
+      setLogEntityId(log, "trip", params.id);
 
       const result = await listFlightBookings(user.id, params.id);
       if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Trip not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Trip not found");
       }
 
       return result;
@@ -84,21 +79,20 @@ export const flightRoutes = new Elysia({
   )
   .post(
     "/trips/:id/flights",
-    async ({ user, params, body, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
+    async ({ set, user, params, body }) => {
+      const log = useLogger();
+
+      setLogEntityId(log, "trip", params.id);
 
       const result = await createFlightBooking(user.id, params.id, body);
       if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Trip not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Trip not found");
       }
 
-      wideEvent.flight_booking_id = result.booking.id;
+      setLogEntityId(log, "flightBooking", result.booking.id);
       const { existing, ...bookingResult } = result;
-      return status(existing ? 200 : 201, bookingResult);
+      set.status = existing ? 200 : 201;
+      return bookingResult;
     },
     {
       auth: true,
@@ -115,9 +109,13 @@ export const flightRoutes = new Elysia({
   )
   .get(
     "/trips/:id/flights/:flightId",
-    async ({ user, params, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
-      wideEvent.flight_booking_id = params.flightId;
+    async ({ user, params }) => {
+      const log = useLogger();
+
+      setLogContext(log, {
+        trip: { id: params.id },
+        flightBooking: { id: params.flightId },
+      });
 
       const result = await getFlightBooking(
         user.id,
@@ -125,11 +123,7 @@ export const flightRoutes = new Elysia({
         params.flightId,
       );
       if (!result) {
-        return status(404, {
-          error: "NotFound",
-          message: "Flight booking not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Flight booking not found");
       }
 
       return result;
@@ -146,9 +140,13 @@ export const flightRoutes = new Elysia({
   )
   .delete(
     "/trips/:id/flights/:flightId",
-    async ({ user, params, status, wideEvent }) => {
-      wideEvent.trip_id = params.id;
-      wideEvent.flight_booking_id = params.flightId;
+    async ({ set, user, params }) => {
+      const log = useLogger();
+
+      setLogContext(log, {
+        trip: { id: params.id },
+        flightBooking: { id: params.flightId },
+      });
 
       const success = await cancelFlightBooking(
         user.id,
@@ -156,14 +154,11 @@ export const flightRoutes = new Elysia({
         params.flightId,
       );
       if (!success) {
-        return status(404, {
-          error: "NotFound",
-          message: "Flight booking not found",
-          statusCode: 404,
-        });
+        throw new NotFoundError("Flight booking not found");
       }
 
-      return new Response(null, { status: 204 });
+      set.status = 204;
+      return new Response(null);
     },
     {
       auth: true,

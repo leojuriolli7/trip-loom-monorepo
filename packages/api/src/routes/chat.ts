@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import { z } from "zod";
 import { errorResponseSchema } from "@trip-loom/contracts/dto/common";
+import { setLogEntityId, useLogger } from "../lib/observability";
 import {
   chatInputSchema,
   chatHistoryResponseSchema,
@@ -8,7 +9,6 @@ import {
   type ChatInputMessage,
 } from "../dto/chat";
 import { extractMessageFromInput } from "../lib/chat/extract-message";
-import { createWideEventPlugin } from "../lib/wide-events";
 import { requireAuthMacro } from "../lib/auth/plugin";
 import {
   createChatConversationRateLimit,
@@ -45,7 +45,6 @@ export const chatRoutes = new Elysia({
   name: "chat",
   prefix: "/api/trips",
 })
-  .use(createWideEventPlugin())
   .use(createDefaultRateLimit())
   .use(requireAuthMacro)
   .guard({}, (app) =>
@@ -53,8 +52,10 @@ export const chatRoutes = new Elysia({
     // rate-limits.
     app.use(createChatConversationRateLimit()).post(
       "/:id/chat",
-      async ({ user, params, body, wideEvent }) => {
-        wideEvent.trip_id = params.id;
+      async ({ user, params, body }) => {
+        const log = useLogger();
+
+        setLogEntityId(log, "trip", params.id);
         const normalized = normalizeChatInput(body);
 
         const { stream, threadId } =
@@ -78,7 +79,7 @@ export const chatRoutes = new Elysia({
                 );
               })();
 
-        wideEvent.thread_id = threadId;
+        setLogEntityId(log, "thread", threadId);
 
         return new Response(stream, { headers: sseHeaders });
       },
