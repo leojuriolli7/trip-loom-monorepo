@@ -7,26 +7,14 @@ const DEFAULT_RATE_LIMIT_MAX = 100;
 const clientKeyGenerator: Generator = (request, server) => {
   const directIp = server?.requestIP(request)?.address;
 
-  // To avoid attackers bypassing ratelimits with fake IPs, we comment this out for now
-  // const realIp = request.headers.get("x-real-ip");
-  // const cloudflareIp = request.headers.get("cf-connecting-ip");
-  // const forwardedFor = request.headers
-  //   .get("x-forwarded-for")
-  //   ?.split(",")[0]
-  //   ?.trim();
+  const realIp = request.headers.get("x-real-ip");
+  const cloudflareIp = request.headers.get("cf-connecting-ip");
+  const forwardedFor = request.headers
+    .get("x-forwarded-for")
+    ?.split(",")[0]
+    ?.trim();
 
-  if (!directIp) {
-    console.error("Rate limit rejected request without direct client IP", {
-      method: request.method,
-      url: request.url,
-    });
-
-    throw new ServiceUnavailableError(
-      "Unable to determine client IP for rate limiting.",
-    );
-  }
-
-  return directIp;
+  return directIp ?? realIp ?? cloudflareIp ?? forwardedFor ?? "unknown";
 };
 
 function createScopedRateLimit(options: Partial<Options> = {}) {
