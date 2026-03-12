@@ -27,13 +27,20 @@ export function EmailVerificationBanner() {
       });
 
       if (error) {
-        toast.error(error.message || "Failed to send verification email");
+        toast.error(error.message || "Failed to send verification email", {
+          position: "bottom-left",
+        });
         return;
       }
 
-      toast.success("Verification email sent! Check your inbox.");
+      setDismissed(true);
+      toast.success("Verification email sent! Check your inbox.", {
+        position: "bottom-left",
+      });
     } catch {
-      toast.error("Something went wrong. Please try again.");
+      toast.error("Something went wrong. Please try again.", {
+        position: "bottom-left",
+      });
     } finally {
       setIsSending(false);
     }
