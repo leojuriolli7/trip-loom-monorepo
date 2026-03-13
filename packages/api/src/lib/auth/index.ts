@@ -36,7 +36,7 @@ export const auth = betterAuth({
 
       url.search = new URLSearchParams({
         token,
-        callbackURL: new URL(process.env.FRONTEND_BASE_URL, "/chat").toString(),
+        callbackURL: new URL("/chat", process.env.FRONTEND_BASE_URL).toString(),
       }).toString();
 
       const verificationUrl = url.toString();

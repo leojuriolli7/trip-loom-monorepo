@@ -5,8 +5,10 @@ import type {
   CreateHotelBookingInput,
   DestinationQuery,
   FlightSearchQuery,
+  GetPlaceDetailsInput,
   HotelQuery,
   RecommendedDestinationsQuery,
+  SearchPlacesInput,
   UpdateActivityInput,
   UpdateTripInput,
   WeatherRequest,
@@ -37,6 +39,8 @@ type KnownTripLoomMcpToolArgsByName = {
   get_user_preferences: Record<string, never>;
   get_weather: WeatherRequest;
   search_destinations: SearchDestinationsArgs;
+  search_places: SearchPlacesInput;
+  get_place_details: GetPlaceDetailsInput;
   get_destination_details: {
     destinationId: string;
   };

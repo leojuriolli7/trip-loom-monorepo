@@ -653,6 +653,13 @@ export const itineraryActivity = pgTable(
     endTime: text("end_time"), // "11:00" format
     location: text("location"),
     locationUrl: text("location_url"), // Google Maps link
+    googlePlaceId: text("google_place_id"),
+    googlePlaceDisplayName: text("google_place_display_name"),
+    googleMapsUrl: text("google_maps_url"),
+    googleFormattedAddress: text("google_formatted_address"),
+    googleLat: real("google_lat"),
+    googleLng: real("google_lng"),
+    googlePlaceImageUrl: text("google_place_image_url"),
     estimatedCostInCents: integer("estimated_cost_in_cents"),
     imageUrl: text("image_url"),
     sourceUrl: text("source_url"),

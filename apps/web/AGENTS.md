@@ -19,6 +19,16 @@ Before writing React code, read the `vercel-react-best-practices` skill for perf
 - Bundle optimization
 - Next.js specific patterns
 
+### Componentization (Required)
+
+Do not ship large monolithic UI files when implementing or refactoring frontend features.
+
+- Break substantial UI into focused components, colocated under a feature folder when appropriate (for example `components/itinerary-sheet/`)
+- Extract shared display logic, small helpers, and feature-specific types into nearby files like `types.ts` and `utils.ts` instead of keeping everything in one component
+- Keep components narrow in responsibility: container/orchestration in one file, presentational pieces in separate files
+- If a file starts handling multiple concerns (state orchestration, rendering several sections, helper functions, and view-specific subtrees), stop and split it before continuing
+- Prefer composition over long inline JSX blocks and repeated conditional sections
+
 ## API Communication Layer
 
 All frontend API communication must go through the Eden treaty client in `lib/api/api-client.ts`:

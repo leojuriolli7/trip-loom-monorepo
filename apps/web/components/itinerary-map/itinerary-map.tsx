@@ -1,0 +1,75 @@
+"use client";
+
+import { APIProvider, Map } from "@vis.gl/react-google-maps";
+import type { CSSProperties } from "react";
+import { ItineraryPlaceCard } from "./itinerary-place-card";
+import { MapOverlay } from "./map-overlay";
+import type { ItineraryMapPlace } from "./types";
+import { useTheme } from "next-themes";
+import { RouteButton } from "./route-button";
+import { createRouteUrlFromPlaces } from "./utils";
+
+type ItineraryMapProps = {
+  places: ItineraryMapPlace[];
+  initialPosition?: google.maps.LatLngLiteral;
+};
+
+const MAP_STYLE: CSSProperties = {
+  width: "100%",
+  height: "100%",
+};
+
+const FALLBACK_DEFAULT_COORDS = { lat: 40.4168, lng: -3.7038 };
+
+function getFirstPlacePosition(
+  places: ItineraryMapPlace[],
+): google.maps.LatLngLiteral {
+  const firstPlace = places[0];
+
+  return firstPlace
+    ? { lat: firstPlace.lat, lng: firstPlace.lng }
+    : FALLBACK_DEFAULT_COORDS;
+}
+
+export function ItineraryMap({
+  places,
+  initialPosition: _initialPosition,
+}: ItineraryMapProps) {
+  const { resolvedTheme: theme } = useTheme();
+  const initialPosition = _initialPosition || getFirstPlacePosition(places);
+
+  const placesRouteUrl = createRouteUrlFromPlaces(places);
+
+  return (
+    <APIProvider
+      language="en"
+      libraries={["places"]}
+      apiKey={process.env.NEXT_PUBLIC_MAPS_API_KEY}
+    >
+      <Map
+        style={MAP_STYLE}
+        defaultCenter={initialPosition}
+        defaultZoom={14}
+        minZoom={5}
+        gestureHandling="greedy"
+        // Both below disable default UI elements.
+        disableDefaultUI
+        colorScheme={theme === "dark" ? "DARK" : "LIGHT"}
+        clickableIcons={false}
+        // This removes the 'keyboard shortcuts' button on the footer of the map.
+        keyboardShortcuts={false}
+      >
+        {places.map((place) => (
+          <MapOverlay
+            key={place.activityId}
+            position={{ lat: place.lat, lng: place.lng }}
+          >
+            <ItineraryPlaceCard place={place} />
+          </MapOverlay>
+        ))}
+
+        {placesRouteUrl ? <RouteButton routeUrl={placesRouteUrl} /> : null}
+      </Map>
+    </APIProvider>
+  );
+}

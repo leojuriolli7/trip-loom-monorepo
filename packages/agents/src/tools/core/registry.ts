@@ -35,6 +35,8 @@ const HOTEL_MCP_TOOLS = [
 ] as const;
 
 const ITINERARY_MCP_TOOLS = [
+  "search_places",
+  "get_place_details",
   "create_itinerary",
   "add_itinerary_day",
   "add_itinerary_activity",

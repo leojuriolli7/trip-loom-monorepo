@@ -22,6 +22,8 @@ export interface BackendApiEnv extends AgentsEnv {
   OPEN_METEO_BASE_URL?: string;
   OPEN_METEO_GEOCODING_BASE_URL?: string;
   WEATHER_REQUEST_TIMEOUT_MS?: string;
+  GOOGLE_MAPS_API_KEY?: string;
+  GOOGLE_MAPS_TIMEOUT_MS?: string;
 }
 
 declare global {

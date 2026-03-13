@@ -6,6 +6,7 @@ import {
   describe,
   expect,
   it,
+  spyOn,
 } from "bun:test";
 import { db } from "../db";
 import {
@@ -16,6 +17,7 @@ import {
   user,
 } from "../db/schema";
 import { itineraryRoutes } from "../routes/itineraries";
+import { googleMapsProvider } from "../lib/google-maps/provider";
 import {
   createHeaderAuthMock,
   createJsonRequester,
@@ -29,6 +31,7 @@ const app = createTestApp().use(itineraryRoutes);
 const request = createJsonRequester(app);
 const requestJson = request.requestJson;
 const authMock = createHeaderAuthMock(ctx.prefix);
+const getPlaceImageUrlSpy = spyOn(googleMapsProvider, "getPlaceImageUrl");
 
 type SeedData = {
   primaryUserId: string;
@@ -160,6 +163,12 @@ const seedFixtureData = async () => {
       endTime: "13:30",
       location: "Local Restaurant",
       locationUrl: "https://maps.example.com/restaurant",
+      googlePlaceId: "test-place-restaurant",
+      googlePlaceDisplayName: "Local Restaurant",
+      googleMapsUrl: "https://www.google.com/maps/place/?q=place_id:test-place-restaurant",
+      googleFormattedAddress: "123 Market St, Test City",
+      googleLat: 40.7128,
+      googleLng: -74.006,
       estimatedCostInCents: 5000,
       createdAt: new Date(baseTime + 6_000),
       updatedAt: new Date(baseTime + 6_000),
@@ -215,6 +224,10 @@ describe("Itineraries API", () => {
   });
 
   beforeEach(async () => {
+    getPlaceImageUrlSpy.mockReset();
+    getPlaceImageUrlSpy.mockImplementation(async (placeId) =>
+      placeId ? `https://images.example.com/${placeId}.jpg` : null,
+    );
     await cleanupFixtureData();
     await seedFixtureData();
   });
@@ -222,6 +235,7 @@ describe("Itineraries API", () => {
   afterAll(async () => {
     await cleanupFixtureData();
     authMock.restore();
+    getPlaceImageUrlSpy.mockRestore();
   });
 
   describe("Authentication", () => {
@@ -378,8 +392,11 @@ describe("Itineraries API", () => {
       expect(body.days[0].activities[0].id).toBe(seed.activity1Id);
       expect(body.days[0].activities[0].title).toBe("Morning Coffee");
       expect(body.days[0].activities[1].orderIndex).toBe(1);
-      expect(body.days[0].activities[1].id).toBe(seed.activity2Id);
-      expect(body.days[0].activities[1].title).toBe("Lunch at Restaurant");
+       expect(body.days[0].activities[1].id).toBe(seed.activity2Id);
+       expect(body.days[0].activities[1].title).toBe("Lunch at Restaurant");
+       expect(body.days[0].activities[1].googlePlaceId).toBe(
+         "test-place-restaurant",
+       );
 
       // Day 2 activities
       expect(body.days[1].activities).toHaveLength(1);
@@ -455,6 +472,13 @@ describe("Itineraries API", () => {
                   startTime: "14:00",
                   endTime: "15:30",
                   location: "Airport",
+                  googlePlaceId: "test-airport-place",
+                  googlePlaceDisplayName: "Test International Airport",
+                  googleMapsUrl:
+                    "https://www.google.com/maps/place/?q=place_id:test-airport-place",
+                  googleFormattedAddress: "1 Airport Way, Test City",
+                  googleLat: 40.6413,
+                  googleLng: -73.7781,
                   estimatedCostInCents: 3000,
                 },
                 {
@@ -493,6 +517,11 @@ describe("Itineraries API", () => {
       expect(body.days[0].activities).toHaveLength(2);
       expect(body.days[0].activities[0].title).toBe("Airport Transfer");
       expect(body.days[0].activities[0].estimatedCostInCents).toBe(3000);
+      expect(body.days[0].activities[0].googlePlaceId).toBe("test-airport-place");
+      expect(body.days[0].activities[0].googleLat).toBe(40.6413);
+      expect(body.days[0].activities[0].googlePlaceImageUrl).toBe(
+        "https://images.example.com/test-airport-place.jpg",
+      );
       expect(body.days[0].activities[1].title).toBe("Hotel Check-in");
 
       // Day 2
@@ -788,6 +817,13 @@ describe("Itineraries API", () => {
           endTime: "21:00",
           location: "Downtown Restaurant",
           locationUrl: "https://maps.example.com/dinner",
+          googlePlaceId: "test-dinner-place",
+          googlePlaceDisplayName: "Downtown Restaurant",
+          googleMapsUrl:
+            "https://www.google.com/maps/place/?q=place_id:test-dinner-place",
+          googleFormattedAddress: "456 Dinner Ave, Test City",
+          googleLat: 48.8566,
+          googleLng: 2.3522,
           estimatedCostInCents: 8000,
         },
       });
@@ -803,6 +839,10 @@ describe("Itineraries API", () => {
       expect(day1.activities[2].orderIndex).toBe(2);
       expect(day1.activities[2].title).toBe("Evening Dinner");
       expect(day1.activities[2].estimatedCostInCents).toBe(8000);
+      expect(day1.activities[2].googlePlaceId).toBe("test-dinner-place");
+      expect(day1.activities[2].googlePlaceImageUrl).toBe(
+        "https://images.example.com/test-dinner-place.jpg",
+      );
     });
 
     it("returns 404 for non-existent day", async () => {
@@ -851,6 +891,13 @@ describe("Itineraries API", () => {
           description: "With breakfast",
           startTime: "07:30",
           endTime: "08:30",
+          googlePlaceId: "test-cafe-place",
+          googlePlaceDisplayName: "Hotel Cafe",
+          googleMapsUrl:
+            "https://www.google.com/maps/place/?q=place_id:test-cafe-place",
+          googleFormattedAddress: "789 Cafe Rd, Test City",
+          googleLat: 41.9028,
+          googleLng: 12.4964,
           estimatedCostInCents: 2000,
         },
       });
@@ -867,6 +914,11 @@ describe("Itineraries API", () => {
       expect(activity.startTime).toBe("07:30");
       expect(activity.endTime).toBe("08:30");
       expect(activity.estimatedCostInCents).toBe(2000);
+      expect(activity.googlePlaceId).toBe("test-cafe-place");
+      expect(activity.googleLng).toBe(12.4964);
+      expect(activity.googlePlaceImageUrl).toBe(
+        "https://images.example.com/test-cafe-place.jpg",
+      );
     });
 
     it("can update orderIndex to reorder activities", async () => {
@@ -900,6 +952,12 @@ describe("Itineraries API", () => {
           endTime: null,
           location: null,
           locationUrl: null,
+          googlePlaceId: null,
+          googlePlaceDisplayName: null,
+          googleMapsUrl: null,
+          googleFormattedAddress: null,
+          googleLat: null,
+          googleLng: null,
           estimatedCostInCents: null,
         },
       });
@@ -916,6 +974,11 @@ describe("Itineraries API", () => {
       expect(activity.endTime).toBeNull();
       expect(activity.location).toBeNull();
       expect(activity.locationUrl).toBeNull();
+      expect(activity.googlePlaceId).toBeNull();
+      expect(activity.googleMapsUrl).toBeNull();
+      expect(activity.googleLat).toBeNull();
+      expect(activity.googleLng).toBeNull();
+      expect(activity.googlePlaceImageUrl).toBeNull();
       expect(activity.estimatedCostInCents).toBeNull();
     });
 

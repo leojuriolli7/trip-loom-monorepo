@@ -115,10 +115,8 @@ pnpm dev:web      # Next.js app
 
 ### Later
 
-- [ ] Conversation minimap for Current, Draft, etc states
-- [ ] Integrate itinerary with google maps: render map + routes for each day?
+- [ ] Conversation minimap for Current, Draft, etc states (Inspiration: https://x.com/raunofreiberg/status/2031794945896378820) -- Example: "Finding a destination" -> "Planning" -> "During Trip" -> "Post-Trip"
 - [ ] File uploads -- images, pdfs
-- [ ] Agents not using web-search enough: Destination agent + hotel agent for enrichment (Itinerary agent uses it fine)
 
 ### Nitpicks and Improvements
 
