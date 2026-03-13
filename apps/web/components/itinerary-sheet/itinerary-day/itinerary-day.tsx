@@ -12,8 +12,6 @@ import {
 import { pluralize } from "@/lib/pluralize";
 import { getActivityMapPlace, getDayMapPlaces } from "../utils";
 import { ItineraryMapPlace } from "@/components/itinerary-map/types";
-import { parseIsoDate } from "@/lib/parse-iso-date";
-import { format } from "date-fns";
 
 function toMapState(day: ItinerarySheetDay, places: ItineraryMapPlace[]) {
   return {
@@ -49,27 +47,29 @@ export function ItineraryDay({
 
       <div className="px-4 py-4 pl-6 md:px-6 md:py-5 md:pl-8">
         <>
-          <header className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm font-medium text-muted-foreground">
-              {formatItineraryDateLabel(day.date)}
-            </p>
+          <header className="flex items-center gap-3">
+            {dayMapPlaces.length > 0 ? (
+              <MapCtaCard className="h-16 w-24" onClick={handleMapOpen} />
+            ) : null}
 
-            {/*{dayMapPlaces.length > 0 ? (
-              <MapCtaCard onClick={handleMapOpen} />
-            ) : null}*/}
+            <div>
+              <p className="text-sm font-medium text-muted-foreground leading-none">
+                {formatItineraryDateLabel(day.date)}
+              </p>
+
+              {day.title ? (
+                <p className="mt-2 text-base font-semibold tracking-tight text-foreground leading-none">
+                  {day.title}
+                </p>
+              ) : null}
+
+              {day.notes ? (
+                <p className="mt-2 text-sm text-muted-foreground leading-none">
+                  {day.notes}
+                </p>
+              ) : null}
+            </div>
           </header>
-
-          {day.title ? (
-            <p className="mt-2 text-base font-semibold tracking-tight text-foreground">
-              {day.title}
-            </p>
-          ) : null}
-
-          {day.notes ? (
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              {day.notes}
-            </p>
-          ) : null}
 
           <div className="mt-4 space-y-3">
             {day.activities.length === 0 ? (

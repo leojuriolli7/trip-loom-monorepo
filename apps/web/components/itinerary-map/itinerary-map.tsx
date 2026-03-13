@@ -5,7 +5,7 @@ import type { CSSProperties } from "react";
 import { ItineraryPlaceCard } from "./itinerary-place-card";
 import { MapOverlay } from "./map-overlay";
 import type { ItineraryMapPlace } from "./types";
-// import useMapTheme from "./use-map-theme";
+import { useTheme } from "next-themes";
 
 type ItineraryMapProps = {
   places: ItineraryMapPlace[];
@@ -33,7 +33,7 @@ export function ItineraryMap({
   places,
   initialPosition: _initialPosition,
 }: ItineraryMapProps) {
-  // const { mapBgColor, mapTheme } = useMapTheme();
+  const { resolvedTheme: theme } = useTheme();
   const initialPosition = _initialPosition || getFirstPlacePosition(places);
 
   return (
@@ -47,15 +47,13 @@ export function ItineraryMap({
         defaultCenter={initialPosition}
         defaultZoom={14}
         minZoom={5}
-        // styles={mapTheme}
         gestureHandling="greedy"
         // Both below disable default UI elements.
         disableDefaultUI
+        colorScheme={theme === "dark" ? "DARK" : "LIGHT"}
         clickableIcons={false}
         // This removes the 'keyboard shortcuts' button on the footer of the map.
         keyboardShortcuts={false}
-        // Background color for the loading tiles.
-        // backgroundColor={mapBgColor}
       >
         {places.map((place) => (
           <MapOverlay

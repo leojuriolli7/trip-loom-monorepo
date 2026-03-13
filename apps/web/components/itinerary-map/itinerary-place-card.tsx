@@ -1,4 +1,4 @@
-import { ClockIcon, ExternalLinkIcon, MapPinIcon } from "lucide-react";
+import { ClockIcon, ExternalLinkIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { ItineraryMapPlace } from "./types";
 
@@ -45,11 +45,6 @@ export function ItineraryPlaceCard({ place }: ItineraryPlaceCardProps) {
             {timeLabel}
           </Badge>
         ) : null}
-
-        <Badge variant="outline" className="bg-background/80">
-          <MapPinIcon className="size-3.5 shrink-0" />
-          {place.displayName ?? "Mapped place"}
-        </Badge>
       </div>
 
       {place.mapsUrl ? (

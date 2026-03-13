@@ -123,22 +123,6 @@ export function ItinerarySheet() {
                 {description}
               </SheetDescription>
             </div>
-
-            {/*{itineraryMapPlaces.length > 0 ? (
-              <div className="ml-auto mr-6">
-                <MapCtaCard
-                  title="Open itinerary map"
-                  description="See all mapped places together"
-                  onClick={() =>
-                    setActiveMapView({
-                      title: "Full itinerary map",
-                      description: `${pluralize(itineraryMapPlaces.length, "mapped stop")} across your itinerary`,
-                      places: itineraryMapPlaces,
-                    })
-                  }
-                />
-              </div>
-            ) : null}*/}
           </div>
         </SheetHeader>
 

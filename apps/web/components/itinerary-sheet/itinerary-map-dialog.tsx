@@ -27,7 +27,7 @@ export function ItineraryMapDialog({
 
         {mapState ? (
           <>
-            <div className="h-full min-h-0 bg-muted/20 p-4 md:p-6">
+            <div className="h-full min-h-0 bg-muted/20 p-0">
               <div className="h-full overflow-hidden rounded-[28px] border border-border/60 bg-card shadow-[0_24px_80px_-44px_rgba(15,23,42,0.5)]">
                 <ItineraryMap
                   initialPosition={mapState?.initialPosition}
