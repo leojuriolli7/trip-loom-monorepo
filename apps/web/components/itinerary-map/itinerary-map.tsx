@@ -6,6 +6,8 @@ import { ItineraryPlaceCard } from "./itinerary-place-card";
 import { MapOverlay } from "./map-overlay";
 import type { ItineraryMapPlace } from "./types";
 import { useTheme } from "next-themes";
+import { RouteButton } from "./route-button";
+import { createRouteUrlFromPlaces } from "./utils";
 
 type ItineraryMapProps = {
   places: ItineraryMapPlace[];
@@ -36,6 +38,8 @@ export function ItineraryMap({
   const { resolvedTheme: theme } = useTheme();
   const initialPosition = _initialPosition || getFirstPlacePosition(places);
 
+  const placesRouteUrl = createRouteUrlFromPlaces(places);
+
   return (
     <APIProvider
       language="en"
@@ -63,6 +67,8 @@ export function ItineraryMap({
             <ItineraryPlaceCard place={place} />
           </MapOverlay>
         ))}
+
+        {placesRouteUrl ? <RouteButton routeUrl={placesRouteUrl} /> : null}
       </Map>
     </APIProvider>
   );

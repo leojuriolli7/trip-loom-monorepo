@@ -96,6 +96,11 @@ pnpm dev:web      # Next.js app
 
 ## Project TODOs
 
+- [ ] Itinerary Maps: 
+  - [ ] Google Place Images stored in DB or place enrichment on the frontend when visible in the viewport
+  - [ ] Add option to view the actual route inside our map instead of just route button
+  - [ ] Polishing: Animations, performance
+
 ### Agents and Orchestration
 
 - [ ] Refine system prompts from real conversation test runs
