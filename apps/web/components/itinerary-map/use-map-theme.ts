@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useTheme } from "next-themes";
 import { mapStyles } from "./map-styles";
+import { parse, formatHex } from "culori";
 
 const resolveCssVar = (value: string) => {
   if (typeof window === "undefined") return value;
@@ -24,7 +25,7 @@ export const useMapTheme = () => {
           "color" in s && typeof s.color === "string"
             ? {
                 ...s,
-                color: resolveCssVar(s.color),
+                color: formatHex(parse(resolveCssVar(s.color))),
               }
             : s,
         ),

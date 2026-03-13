@@ -37,6 +37,12 @@ type CreateItineraryActivity = {
   imageUrl?: string;
   sourceUrl?: string;
   sourceName?: string;
+  googlePlaceId?: string;
+  googlePlaceDisplayName?: string;
+  googleMapsUrl?: string;
+  googleFormattedAddress?: string;
+  googleLat?: number;
+  googleLng?: number;
 };
 
 function getCardInfo(toolName: string) {
@@ -102,6 +108,12 @@ function buildSheetDataFromArgs(
         imageUrl: activity.imageUrl ?? null,
         sourceUrl: activity.sourceUrl ?? null,
         sourceName: activity.sourceName ?? null,
+        googlePlaceId: activity.googlePlaceId ?? null,
+        googlePlaceDisplayName: activity.googlePlaceDisplayName ?? null,
+        googleMapsUrl: activity.googleMapsUrl ?? null,
+        googleFormattedAddress: activity.googleFormattedAddress ?? null,
+        googleLat: activity.googleLat ?? null,
+        googleLng: activity.googleLng ?? null,
       })),
     })),
   };
