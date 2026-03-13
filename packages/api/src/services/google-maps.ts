@@ -1,6 +1,7 @@
 import type {
   GetPlaceDetailsInput,
   GooglePlaceDetails,
+  GooglePlaceEnrichedDetails,
   GooglePlaceSummary,
   SearchPlacesInput,
 } from "@trip-loom/contracts/dto";
@@ -16,4 +17,10 @@ export async function getPlaceDetails(
   input: GetPlaceDetailsInput,
 ): Promise<GooglePlaceDetails> {
   return googleMapsProvider.getPlaceDetails(input);
+}
+
+export async function getEnrichedPlaceDetails(
+  input: GetPlaceDetailsInput,
+): Promise<GooglePlaceEnrichedDetails> {
+  return googleMapsProvider.getEnrichedPlaceDetails(input);
 }

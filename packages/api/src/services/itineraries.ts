@@ -18,6 +18,7 @@ import type {
   UpdateDayInput,
 } from "@trip-loom/contracts/dto/itineraries";
 import { ConflictError, NotFoundError } from "../errors";
+import { googleMapsProvider } from "../lib/google-maps/provider";
 import { generateId } from "../lib/nanoid";
 import { getOwnedTripMeta } from "../lib/trips/ownership";
 import {
@@ -180,6 +181,16 @@ const isUniqueViolationError = (
   return value.code === "23505";
 };
 
+const resolvePlaceImageUrl = async (
+  placeId: string | null | undefined,
+): Promise<string | null> => {
+  if (!placeId) {
+    return null;
+  }
+
+  return googleMapsProvider.getPlaceImageUrl(placeId);
+};
+
 // =============================================================================
 // Itinerary Operations
 // =============================================================================
@@ -239,6 +250,18 @@ export async function createItinerary(
     }
   }
 
+  const daysWithEnrichedActivities = await Promise.all(
+    input.days.map(async (day) => ({
+      ...day,
+      activities: await Promise.all(
+        day.activities.map(async (activity) => ({
+          ...activity,
+          googlePlaceImageUrl: await resolvePlaceImageUrl(activity.googlePlaceId),
+        })),
+      ),
+    })),
+  );
+
   try {
     await db.transaction(async (tx) => {
       // Check if itinerary already exists (1:1 relationship)
@@ -262,7 +285,7 @@ export async function createItinerary(
       const dayRows: DB_NewItineraryDay[] = [];
       const activityRows: DB_NewItineraryActivity[] = [];
 
-      for (const dayInput of input.days) {
+       for (const dayInput of daysWithEnrichedActivities) {
         const dayId = generateId();
 
         dayRows.push({
@@ -287,12 +310,13 @@ export async function createItinerary(
             locationUrl: activityInput.locationUrl ?? null,
             googlePlaceId: activityInput.googlePlaceId ?? null,
             googlePlaceDisplayName: activityInput.googlePlaceDisplayName ?? null,
-            googleMapsUrl: activityInput.googleMapsUrl ?? null,
-            googleFormattedAddress: activityInput.googleFormattedAddress ?? null,
-            googleLat: activityInput.googleLat ?? null,
-            googleLng: activityInput.googleLng ?? null,
-            estimatedCostInCents: activityInput.estimatedCostInCents ?? null,
-            imageUrl: activityInput.imageUrl ?? null,
+             googleMapsUrl: activityInput.googleMapsUrl ?? null,
+             googleFormattedAddress: activityInput.googleFormattedAddress ?? null,
+             googleLat: activityInput.googleLat ?? null,
+             googleLng: activityInput.googleLng ?? null,
+             googlePlaceImageUrl: activityInput.googlePlaceImageUrl ?? null,
+             estimatedCostInCents: activityInput.estimatedCostInCents ?? null,
+             imageUrl: activityInput.imageUrl ?? null,
             sourceUrl: activityInput.sourceUrl ?? null,
             sourceName: activityInput.sourceName ?? null,
           });
@@ -515,6 +539,8 @@ export async function addActivity(
     throw new NotFoundError("Day not found");
   }
 
+  const googlePlaceImageUrl = await resolvePlaceImageUrl(input.googlePlaceId);
+
   await db.insert(itineraryActivity).values({
     id: generateId(),
     itineraryDayId: dayId,
@@ -531,6 +557,7 @@ export async function addActivity(
     googleFormattedAddress: input.googleFormattedAddress ?? null,
     googleLat: input.googleLat ?? null,
     googleLng: input.googleLng ?? null,
+    googlePlaceImageUrl,
     estimatedCostInCents: input.estimatedCostInCents ?? null,
     imageUrl: input.imageUrl ?? null,
     sourceUrl: input.sourceUrl ?? null,
@@ -564,6 +591,10 @@ export async function updateActivity(
   const updateData: Partial<typeof itineraryActivity.$inferInsert> = {
     updatedAt: new Date(),
   };
+
+  if (input.googlePlaceId !== undefined) {
+    updateData.googlePlaceImageUrl = await resolvePlaceImageUrl(input.googlePlaceId);
+  }
 
   if (input.orderIndex !== undefined) {
     updateData.orderIndex = input.orderIndex;

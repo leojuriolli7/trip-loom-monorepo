@@ -4,7 +4,7 @@ import { SuggestDestinationsToolCard } from "@/components/tools/suggest-destinat
 import { SuggestFlightToolCard } from "@/components/tools/suggest-flight-tool-card";
 import { SuggestHotelBookingToolCard } from "@/components/tools/suggest-hotel-booking-tool-card";
 import { UserPreferencesToolCard } from "@/components/tools/user-preferences-tool-card";
-import { ToolCallJsonFallback } from "./tool-call-json-fallback";
+// import { ToolCallJsonFallback } from "./tool-call-json-fallback";
 import { SearchDestinationsToolCard } from "../search-destinations-card";
 import { UpdateTripToolCallCard } from "../update-trip-tool-card";
 import { GetDestinationDetailsToolCard } from "../get-destination-details-tool-card";
@@ -94,6 +94,7 @@ export function ToolCallRenderer({ toolCall }: { toolCall: TripLoomToolCall }) {
     case "transfer_back_to_supervisor":
       return <TransferAgentToolCard toolName={toolCall.name} />;
     default:
-      return <ToolCallJsonFallback toolCall={toolCall} />;
+      // return <ToolCallJsonFallback toolCall={toolCall} />;
+      return null;
   }
 }

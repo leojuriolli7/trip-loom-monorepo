@@ -16,6 +16,7 @@ export type ItinerarySheetActivity = {
   googleFormattedAddress: string | null;
   googleLat: number | null;
   googleLng: number | null;
+  googlePlaceImageUrl: string | null;
 };
 
 export type ItinerarySheetDay = {

@@ -14,6 +14,7 @@ const googlePlaceOutputFields = {
   googleFormattedAddress: z.string().nullable(),
   googleLat: z.number().nullable(),
   googleLng: z.number().nullable(),
+  googlePlaceImageUrl: z.string().nullable(),
 } as const;
 
 const googlePlaceCreateInputFields = {

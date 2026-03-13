@@ -31,6 +31,7 @@ export function getActivityMapPlace(
     displayName: activity.googlePlaceDisplayName,
     address: activity.googleFormattedAddress,
     mapsUrl: activity.googleMapsUrl,
+    imageUrl: activity.googlePlaceImageUrl,
     lat: activity.googleLat,
     lng: activity.googleLng,
   };

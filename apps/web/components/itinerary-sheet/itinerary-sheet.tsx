@@ -53,6 +53,7 @@ export function createSavedItinerarySheetData(
         googleFormattedAddress: activity.googleFormattedAddress,
         googleLat: activity.googleLat,
         googleLng: activity.googleLng,
+        googlePlaceImageUrl: activity.googlePlaceImageUrl,
       })),
     })),
   };

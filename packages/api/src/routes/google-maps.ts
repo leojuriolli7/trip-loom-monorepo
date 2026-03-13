@@ -4,12 +4,17 @@ import { errorResponseSchema } from "@trip-loom/contracts/dto/common";
 import {
   getPlaceDetailsQuerySchema,
   googlePlaceDetailsSchema,
+  googlePlaceEnrichedDetailsSchema,
   googlePlaceSummarySchema,
   searchPlacesQuerySchema,
 } from "@trip-loom/contracts/dto";
 import { requireAuthMacro } from "../lib/auth/plugin";
 import { createDefaultRateLimit } from "../lib/rate-limit";
-import { getPlaceDetails, searchPlaces } from "../services/google-maps";
+import {
+  getEnrichedPlaceDetails,
+  getPlaceDetails,
+  searchPlaces,
+} from "../services/google-maps";
 
 export const googleMapsRoutes = new Elysia({
   name: "google-maps",
@@ -51,6 +56,31 @@ export const googleMapsRoutes = new Elysia({
       query: getPlaceDetailsQuerySchema,
       response: {
         200: googlePlaceDetailsSchema,
+        400: errorResponseSchema,
+        401: errorResponseSchema,
+        404: errorResponseSchema,
+        429: errorResponseSchema,
+        503: errorResponseSchema,
+      },
+    },
+  )
+  .get(
+    "/places/:placeId/details",
+    async ({ params, query }) => {
+      return getEnrichedPlaceDetails({
+        placeId: params.placeId,
+        languageCode: query.languageCode,
+        regionCode: query.regionCode,
+      });
+    },
+    {
+      auth: true,
+      params: z.object({
+        placeId: z.string().min(1),
+      }),
+      query: getPlaceDetailsQuerySchema,
+      response: {
+        200: googlePlaceEnrichedDetailsSchema,
         400: errorResponseSchema,
         401: errorResponseSchema,
         404: errorResponseSchema,

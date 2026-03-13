@@ -110,12 +110,13 @@ function buildSheetDataFromArgs(
         sourceName: activity.sourceName ?? null,
         googlePlaceId: activity.googlePlaceId ?? null,
         googlePlaceDisplayName: activity.googlePlaceDisplayName ?? null,
-        googleMapsUrl: activity.googleMapsUrl ?? null,
-        googleFormattedAddress: activity.googleFormattedAddress ?? null,
-        googleLat: activity.googleLat ?? null,
-        googleLng: activity.googleLng ?? null,
+          googleMapsUrl: activity.googleMapsUrl ?? null,
+          googleFormattedAddress: activity.googleFormattedAddress ?? null,
+          googleLat: activity.googleLat ?? null,
+          googleLng: activity.googleLng ?? null,
+          googlePlaceImageUrl: null,
+        })),
       })),
-    })),
   };
 }
 

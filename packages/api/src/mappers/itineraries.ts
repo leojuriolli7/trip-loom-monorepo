@@ -43,6 +43,7 @@ export const itineraryActivitySelectFields = {
   googleFormattedAddress: itineraryActivity.googleFormattedAddress,
   googleLat: itineraryActivity.googleLat,
   googleLng: itineraryActivity.googleLng,
+  googlePlaceImageUrl: itineraryActivity.googlePlaceImageUrl,
   estimatedCostInCents: itineraryActivity.estimatedCostInCents,
   imageUrl: itineraryActivity.imageUrl,
   sourceUrl: itineraryActivity.sourceUrl,
@@ -86,10 +87,23 @@ export const itineraryActivityColumns = {
   googleFormattedAddress: true,
   googleLat: true,
   googleLng: true,
+  googlePlaceImageUrl: true,
   estimatedCostInCents: true,
   imageUrl: true,
   sourceUrl: true,
   sourceName: true,
   createdAt: true,
   updatedAt: true,
+} as const;
+
+export const itineraryActivityPlaceDetailsSelectFields = {
+  id: itineraryActivity.id,
+  itineraryDayId: itineraryActivity.itineraryDayId,
+  googlePlaceId: itineraryActivity.googlePlaceId,
+  googlePlaceDisplayName: itineraryActivity.googlePlaceDisplayName,
+  googleMapsUrl: itineraryActivity.googleMapsUrl,
+  googleFormattedAddress: itineraryActivity.googleFormattedAddress,
+  googleLat: itineraryActivity.googleLat,
+  googleLng: itineraryActivity.googleLng,
+  googlePlaceImageUrl: itineraryActivity.googlePlaceImageUrl,
 } as const;

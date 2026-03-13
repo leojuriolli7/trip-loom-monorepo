@@ -6,6 +6,7 @@ import {
   describe,
   expect,
   it,
+  spyOn,
 } from "bun:test";
 import { db } from "../db";
 import {
@@ -16,6 +17,7 @@ import {
   user,
 } from "../db/schema";
 import { itineraryRoutes } from "../routes/itineraries";
+import { googleMapsProvider } from "../lib/google-maps/provider";
 import {
   createHeaderAuthMock,
   createJsonRequester,
@@ -29,6 +31,7 @@ const app = createTestApp().use(itineraryRoutes);
 const request = createJsonRequester(app);
 const requestJson = request.requestJson;
 const authMock = createHeaderAuthMock(ctx.prefix);
+const getPlaceImageUrlSpy = spyOn(googleMapsProvider, "getPlaceImageUrl");
 
 type SeedData = {
   primaryUserId: string;
@@ -221,6 +224,10 @@ describe("Itineraries API", () => {
   });
 
   beforeEach(async () => {
+    getPlaceImageUrlSpy.mockReset();
+    getPlaceImageUrlSpy.mockImplementation(async (placeId) =>
+      placeId ? `https://images.example.com/${placeId}.jpg` : null,
+    );
     await cleanupFixtureData();
     await seedFixtureData();
   });
@@ -228,6 +235,7 @@ describe("Itineraries API", () => {
   afterAll(async () => {
     await cleanupFixtureData();
     authMock.restore();
+    getPlaceImageUrlSpy.mockRestore();
   });
 
   describe("Authentication", () => {
@@ -511,6 +519,9 @@ describe("Itineraries API", () => {
       expect(body.days[0].activities[0].estimatedCostInCents).toBe(3000);
       expect(body.days[0].activities[0].googlePlaceId).toBe("test-airport-place");
       expect(body.days[0].activities[0].googleLat).toBe(40.6413);
+      expect(body.days[0].activities[0].googlePlaceImageUrl).toBe(
+        "https://images.example.com/test-airport-place.jpg",
+      );
       expect(body.days[0].activities[1].title).toBe("Hotel Check-in");
 
       // Day 2
@@ -829,6 +840,9 @@ describe("Itineraries API", () => {
       expect(day1.activities[2].title).toBe("Evening Dinner");
       expect(day1.activities[2].estimatedCostInCents).toBe(8000);
       expect(day1.activities[2].googlePlaceId).toBe("test-dinner-place");
+      expect(day1.activities[2].googlePlaceImageUrl).toBe(
+        "https://images.example.com/test-dinner-place.jpg",
+      );
     });
 
     it("returns 404 for non-existent day", async () => {
@@ -902,6 +916,9 @@ describe("Itineraries API", () => {
       expect(activity.estimatedCostInCents).toBe(2000);
       expect(activity.googlePlaceId).toBe("test-cafe-place");
       expect(activity.googleLng).toBe(12.4964);
+      expect(activity.googlePlaceImageUrl).toBe(
+        "https://images.example.com/test-cafe-place.jpg",
+      );
     });
 
     it("can update orderIndex to reorder activities", async () => {
@@ -961,6 +978,7 @@ describe("Itineraries API", () => {
       expect(activity.googleMapsUrl).toBeNull();
       expect(activity.googleLat).toBeNull();
       expect(activity.googleLng).toBeNull();
+      expect(activity.googlePlaceImageUrl).toBeNull();
       expect(activity.estimatedCostInCents).toBeNull();
     });
 

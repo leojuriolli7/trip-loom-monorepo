@@ -659,6 +659,7 @@ export const itineraryActivity = pgTable(
     googleFormattedAddress: text("google_formatted_address"),
     googleLat: real("google_lat"),
     googleLng: real("google_lng"),
+    googlePlaceImageUrl: text("google_place_image_url"),
     estimatedCostInCents: integer("estimated_cost_in_cents"),
     imageUrl: text("image_url"),
     sourceUrl: text("source_url"),

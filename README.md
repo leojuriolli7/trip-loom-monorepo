@@ -96,11 +96,6 @@ pnpm dev:web      # Next.js app
 
 ## Project TODOs
 
-- [ ] Itinerary Maps: 
-  - [ ] Google Place Images stored in DB or place enrichment on the frontend when visible in the viewport
-  - [ ] Add option to view the actual route inside our map instead of just route button
-  - [ ] Polishing: Animations, performance
-
 ### Agents and Orchestration
 
 - [ ] Refine system prompts from real conversation test runs
@@ -120,9 +115,8 @@ pnpm dev:web      # Next.js app
 
 ### Later
 
-- [ ] Conversation minimap for Current, Draft, etc states
+- [ ] Conversation minimap for Current, Draft, etc states (Inspiration: https://x.com/raunofreiberg/status/2031794945896378820) -- Example: "Finding a destination" -> "Planning" -> "During Trip" -> "Post-Trip"
 - [ ] File uploads -- images, pdfs
-- [ ] Agents not using web-search enough: Destination agent + hotel agent for enrichment (Itinerary agent uses it fine)
 
 ### Nitpicks and Improvements
 

@@ -1,6 +1,9 @@
 import type {
   GetPlaceDetailsInput,
   GooglePlaceDetails,
+  GooglePlaceEnrichedDetails,
+  GooglePlacePhoto,
+  GooglePlaceReview,
   GooglePlaceSummary,
   SearchPlacesInput,
 } from "@trip-loom/contracts/dto";
@@ -18,6 +21,42 @@ type GooglePlaceResponse = {
   googleMapsUri?: string;
   location?: { latitude?: number; longitude?: number };
   primaryType?: string;
+  websiteUri?: string;
+  internationalPhoneNumber?: string;
+  rating?: number;
+  userRatingCount?: number;
+  businessStatus?: string;
+  currentOpeningHours?: {
+    openNow?: boolean;
+    weekdayDescriptions?: string[];
+  };
+  editorialSummary?: { text?: string };
+  reviewSummary?: { text?: string };
+  reviews?: Array<{
+    rating?: number;
+    text?: { text?: string };
+    publishTime?: string;
+    relativePublishTimeDescription?: string;
+    authorAttribution?: {
+      displayName?: string;
+      uri?: string;
+    };
+  }>;
+  photos?: GooglePlacePhotoResource[];
+};
+
+type GooglePlacePhotoResource = {
+  name?: string;
+  widthPx?: number;
+  heightPx?: number;
+  authorAttributions?: Array<{
+    displayName?: string;
+    uri?: string;
+  }>;
+};
+
+type GooglePlacePhotoMediaResponse = {
+  photoUri?: string;
 };
 
 type SearchPlacesResponse = {
@@ -59,6 +98,40 @@ function normalizePlaceDetails(place: GooglePlaceResponse): GooglePlaceDetails {
   return {
     ...normalizePlaceSummary(place),
     primaryType: place.primaryType ?? null,
+  };
+}
+
+function normalizeReview(
+  review: NonNullable<GooglePlaceResponse["reviews"]>[number],
+): GooglePlaceReview {
+  return {
+    rating: review.rating ?? null,
+    text: review.text?.text ?? null,
+    publishTime: review.publishTime ?? null,
+    relativePublishTimeDescription:
+      review.relativePublishTimeDescription ?? null,
+    authorName: review.authorAttribution?.displayName ?? null,
+    authorUrl: review.authorAttribution?.uri ?? null,
+  };
+}
+
+function normalizeEnrichedPlaceDetails(
+  place: GooglePlaceResponse,
+  photos: GooglePlacePhoto[],
+): GooglePlaceEnrichedDetails {
+  return {
+    ...normalizePlaceDetails(place),
+    websiteUrl: place.websiteUri ?? null,
+    phoneNumber: place.internationalPhoneNumber ?? null,
+    rating: place.rating ?? null,
+    userRatingCount: place.userRatingCount ?? null,
+    businessStatus: place.businessStatus ?? null,
+    isOpenNow: place.currentOpeningHours?.openNow ?? null,
+    weekdayDescriptions: place.currentOpeningHours?.weekdayDescriptions ?? [],
+    editorialSummary: place.editorialSummary?.text ?? null,
+    reviewSummary: place.reviewSummary?.text ?? null,
+    photos,
+    reviews: (place.reviews ?? []).slice(0, 3).map(normalizeReview),
   };
 }
 
@@ -124,9 +197,76 @@ async function fetchGoogleMaps<T>(
   }
 }
 
+async function fetchGooglePhotoMedia(photoName: string): Promise<string | null> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), getTimeoutMs());
+
+  try {
+    const encodedPhotoName = photoName
+      .split("/")
+      .map((segment) => encodeURIComponent(segment))
+      .join("/");
+
+    const response = await fetch(
+      `${DEFAULT_BASE_URL}/${encodedPhotoName}/media?maxWidthPx=1200&skipHttpRedirect=true`,
+      {
+        method: "GET",
+        signal: controller.signal,
+        headers: {
+          "X-Goog-Api-Key": getGoogleMapsApiKey(),
+        },
+      },
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = (await response.json()) as GooglePlacePhotoMediaResponse;
+    return data.photoUri ?? null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function resolvePhotos(
+  photos: GooglePlacePhotoResource[] | undefined,
+  limit: number,
+): Promise<GooglePlacePhoto[]> {
+  const photoResources = (photos ?? []).filter((photo) => photo.name).slice(0, limit);
+
+  const resolved = await Promise.all(
+    photoResources.map(async (photo) => {
+      const url = await fetchGooglePhotoMedia(photo.name!);
+
+      if (!url) {
+        return null;
+      }
+
+      const firstAttribution = photo.authorAttributions?.[0];
+
+      return {
+        url,
+        width: photo.widthPx ?? null,
+        height: photo.heightPx ?? null,
+        authorName: firstAttribution?.displayName ?? null,
+        authorUrl: firstAttribution?.uri ?? null,
+      } satisfies GooglePlacePhoto;
+    }),
+  );
+
+  return resolved.filter((photo): photo is GooglePlacePhoto => photo !== null);
+}
+
 export interface GoogleMapsProvider {
   searchPlaces(input: SearchPlacesInput): Promise<GooglePlaceSummary[]>;
   getPlaceDetails(input: GetPlaceDetailsInput): Promise<GooglePlaceDetails>;
+  getEnrichedPlaceDetails(
+    input: GetPlaceDetailsInput,
+  ): Promise<GooglePlaceEnrichedDetails>;
+  getPlaceImageUrl(placeId: string): Promise<string | null>;
 }
 
 export const googleMapsProvider: GoogleMapsProvider = {
@@ -201,5 +341,54 @@ export const googleMapsProvider: GoogleMapsProvider = {
     }
 
     return normalizePlaceDetails(result);
+  },
+
+  async getEnrichedPlaceDetails(input) {
+    const params = new URLSearchParams();
+
+    if (input.languageCode) {
+      params.set("languageCode", input.languageCode);
+    }
+
+    if (input.regionCode) {
+      params.set("regionCode", input.regionCode);
+    }
+
+    const suffix = params.size > 0 ? `?${params.toString()}` : "";
+    const result = await fetchGoogleMaps<GooglePlaceResponse>(
+      `/places/${input.placeId}${suffix}`,
+      {
+        method: "GET",
+        fieldMask:
+          "id,displayName,formattedAddress,googleMapsUri,location,primaryType,websiteUri,internationalPhoneNumber,rating,userRatingCount,businessStatus,currentOpeningHours,editorialSummary,reviewSummary,reviews,photos",
+      },
+    );
+
+    if (!result.id) {
+      throw new NotFoundError(
+        `Google Maps place not found for ID ${input.placeId}`,
+      );
+    }
+
+    const photos = await resolvePhotos(result.photos, 6);
+
+    return normalizeEnrichedPlaceDetails(result, photos);
+  },
+
+  async getPlaceImageUrl(placeId) {
+    try {
+      const result = await fetchGoogleMaps<GooglePlaceResponse>(
+        `/places/${placeId}`,
+        {
+          method: "GET",
+          fieldMask: "id,photos",
+        },
+      );
+
+      const photos = await resolvePhotos(result.photos, 1);
+      return photos[0]?.url ?? null;
+    } catch {
+      return null;
+    }
   },
 };

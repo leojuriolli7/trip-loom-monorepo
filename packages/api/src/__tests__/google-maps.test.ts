@@ -18,6 +18,10 @@ const authMock = createHeaderAuthMock(ctx.prefix);
 
 const searchPlacesSpy = spyOn(googleMapsProvider, "searchPlaces");
 const getPlaceDetailsSpy = spyOn(googleMapsProvider, "getPlaceDetails");
+const getEnrichedPlaceDetailsSpy = spyOn(
+  googleMapsProvider,
+  "getEnrichedPlaceDetails",
+);
 
 const testUserId = `${ctx.prefix}user_maps`;
 
@@ -37,12 +41,14 @@ describe("Google Maps API", () => {
     authMock.restore();
     searchPlacesSpy.mockRestore();
     getPlaceDetailsSpy.mockRestore();
+    getEnrichedPlaceDetailsSpy.mockRestore();
     await ctx.cleanup();
   });
 
   beforeEach(() => {
     searchPlacesSpy.mockReset();
     getPlaceDetailsSpy.mockReset();
+    getEnrichedPlaceDetailsSpy.mockReset();
   });
 
   it("searches places with destination bias", async () => {
@@ -115,5 +121,59 @@ describe("Google Maps API", () => {
 
     expect(res.status).toBe(404);
     expect(body.message).toContain("missing-place");
+  });
+
+  it("gets enriched place details by place id", async () => {
+    getEnrichedPlaceDetailsSpy.mockResolvedValue({
+      placeId: "test-place-id",
+      displayName: "Park Guell",
+      formattedAddress: "08024 Barcelona, Spain",
+      mapsUrl: "https://www.google.com/maps/place/?q=place_id:test-place-id",
+      lat: 41.4145,
+      lng: 2.1527,
+      primaryType: "tourist_attraction",
+      websiteUrl: "https://example.com",
+      phoneNumber: "+34 123 456 789",
+      rating: 4.7,
+      userRatingCount: 420,
+      businessStatus: "OPERATIONAL",
+      isOpenNow: true,
+      weekdayDescriptions: ["Monday: 9:30 AM - 8:00 PM"],
+      editorialSummary: "A colorful hilltop park in Barcelona.",
+      reviewSummary: "Visitors love the views and mosaics.",
+      photos: [
+        {
+          url: "https://images.example.com/park-guell.jpg",
+          width: 1200,
+          height: 900,
+          authorName: "Ada",
+          authorUrl: "https://example.com/ada",
+        },
+      ],
+      reviews: [
+        {
+          rating: 5,
+          text: "Beautiful place",
+          publishTime: "2026-03-10T12:00:00Z",
+          relativePublishTimeDescription: "2 days ago",
+          authorName: "Ada",
+          authorUrl: "https://example.com/ada",
+        },
+      ],
+    });
+
+    const { res, body } = await request.get(
+      "/api/maps/places/test-place-id/details",
+      testUserId,
+    );
+
+    expect(res.status).toBe(200);
+    expect(body.photos).toHaveLength(1);
+    expect(body.reviews).toHaveLength(1);
+    expect(getEnrichedPlaceDetailsSpy).toHaveBeenCalledWith({
+      placeId: "test-place-id",
+      languageCode: undefined,
+      regionCode: undefined,
+    });
   });
 });

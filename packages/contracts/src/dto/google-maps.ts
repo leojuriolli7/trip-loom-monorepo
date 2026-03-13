@@ -28,6 +28,45 @@ export const googlePlaceDetailsSchema = googlePlaceSummarySchema.extend({
 
 export type GooglePlaceDetails = z.infer<typeof googlePlaceDetailsSchema>;
 
+export const googlePlacePhotoSchema = z.object({
+  url: z.string().url(),
+  width: z.number().int().positive().nullable(),
+  height: z.number().int().positive().nullable(),
+  authorName: z.string().nullable(),
+  authorUrl: z.string().url().nullable(),
+});
+
+export type GooglePlacePhoto = z.infer<typeof googlePlacePhotoSchema>;
+
+export const googlePlaceReviewSchema = z.object({
+  rating: z.number().nullable(),
+  text: z.string().nullable(),
+  publishTime: z.string().nullable(),
+  relativePublishTimeDescription: z.string().nullable(),
+  authorName: z.string().nullable(),
+  authorUrl: z.string().url().nullable(),
+});
+
+export type GooglePlaceReview = z.infer<typeof googlePlaceReviewSchema>;
+
+export const googlePlaceEnrichedDetailsSchema = googlePlaceDetailsSchema.extend({
+  websiteUrl: z.string().url().nullable(),
+  phoneNumber: z.string().nullable(),
+  rating: z.number().nullable(),
+  userRatingCount: z.number().int().nullable(),
+  businessStatus: z.string().nullable(),
+  isOpenNow: z.boolean().nullable(),
+  weekdayDescriptions: z.array(z.string()),
+  editorialSummary: z.string().nullable(),
+  reviewSummary: z.string().nullable(),
+  photos: z.array(googlePlacePhotoSchema),
+  reviews: z.array(googlePlaceReviewSchema),
+});
+
+export type GooglePlaceEnrichedDetails = z.infer<
+  typeof googlePlaceEnrichedDetailsSchema
+>;
+
 export const searchPlacesInputSchema = z.object({
   query: z.string().min(1).max(500),
   destination: z.string().min(1).max(200).optional(),

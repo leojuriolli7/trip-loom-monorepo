@@ -10,6 +10,7 @@ export type ItineraryMapPlace = {
   displayName: string | null;
   address: string | null;
   mapsUrl: string | null;
+  imageUrl: string | null;
   lat: number;
   lng: number;
 };

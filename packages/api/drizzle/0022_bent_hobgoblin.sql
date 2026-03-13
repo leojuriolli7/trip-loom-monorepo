@@ -1,0 +1,1 @@
+ALTER TABLE "itinerary_activity" ADD COLUMN "google_place_image_url" text;
