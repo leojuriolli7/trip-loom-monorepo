@@ -1,10 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import type { ApiClient } from "../api-client";
-
-const timeSchema = z
-  .string()
-  .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format, expected HH:mm");
+import { updateItineraryActivityInputSchema } from "./shared/itinerary-activity-schemas";
 
 export function registerUpdateItineraryActivity(
   server: McpServer,
@@ -15,77 +12,12 @@ export function registerUpdateItineraryActivity(
     {
       title: "Update Itinerary Activity",
       description:
-        "Update an existing itinerary activity on a specific day. Returns the full updated itinerary detail including all days and activities.",
+        "Update an existing itinerary activity on a specific day. Supports optional Google Maps place metadata from search_places/get_place_details and returns the full updated itinerary detail.",
       inputSchema: z.object({
         tripId: z.string().describe("The trip ID that owns the itinerary."),
         dayId: z.string().describe("The itinerary day ID containing the activity."),
         activityId: z.string().describe("The itinerary activity ID to update."),
-        orderIndex: z
-          .number()
-          .int()
-          .min(0)
-          .optional()
-          .describe("Optional new order position in the day."),
-        title: z
-          .string()
-          .min(1)
-          .max(200)
-          .optional()
-          .describe("Optional new activity title."),
-        description: z
-          .string()
-          .max(2000)
-          .nullable()
-          .optional()
-          .describe("Optional new description; use null to clear."),
-        startTime: timeSchema
-          .nullable()
-          .optional()
-          .describe("Optional new start time (HH:mm); use null to clear."),
-        endTime: timeSchema
-          .nullable()
-          .optional()
-          .describe("Optional new end time (HH:mm); use null to clear."),
-        location: z
-          .string()
-          .max(500)
-          .nullable()
-          .optional()
-          .describe("Optional new location; use null to clear."),
-        locationUrl: z
-          .string()
-          .url()
-          .max(2000)
-          .nullable()
-          .optional()
-          .describe("Optional new location URL; use null to clear."),
-        estimatedCostInCents: z
-          .number()
-          .int()
-          .min(0)
-          .nullable()
-          .optional()
-          .describe("Optional new estimated cost in cents; use null to clear."),
-        imageUrl: z
-          .string()
-          .url()
-          .max(2000)
-          .nullable()
-          .optional()
-          .describe("Optional new image URL; use null to clear."),
-        sourceUrl: z
-          .string()
-          .url()
-          .max(2000)
-          .nullable()
-          .optional()
-          .describe("Optional new source URL; use null to clear."),
-        sourceName: z
-          .string()
-          .max(200)
-          .nullable()
-          .optional()
-          .describe("Optional new source name; use null to clear."),
+        ...updateItineraryActivityInputSchema.shape,
       }),
     },
     async ({
@@ -99,6 +31,12 @@ export function registerUpdateItineraryActivity(
       endTime,
       location,
       locationUrl,
+      googlePlaceId,
+      googlePlaceDisplayName,
+      googleMapsUrl,
+      googleFormattedAddress,
+      googleLat,
+      googleLng,
       estimatedCostInCents,
       imageUrl,
       sourceUrl,
@@ -116,6 +54,12 @@ export function registerUpdateItineraryActivity(
           endTime,
           location,
           locationUrl,
+          googlePlaceId,
+          googlePlaceDisplayName,
+          googleMapsUrl,
+          googleFormattedAddress,
+          googleLat,
+          googleLng,
           estimatedCostInCents,
           imageUrl,
           sourceUrl,

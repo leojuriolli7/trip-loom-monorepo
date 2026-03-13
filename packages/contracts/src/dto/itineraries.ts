@@ -7,6 +7,33 @@ const timeSchema = z
   .string()
   .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format, expected HH:mm");
 
+const googlePlaceOutputFields = {
+  googlePlaceId: z.string().nullable(),
+  googlePlaceDisplayName: z.string().nullable(),
+  googleMapsUrl: z.string().nullable(),
+  googleFormattedAddress: z.string().nullable(),
+  googleLat: z.number().nullable(),
+  googleLng: z.number().nullable(),
+} as const;
+
+const googlePlaceCreateInputFields = {
+  googlePlaceId: z.string().min(1).max(255).optional(),
+  googlePlaceDisplayName: z.string().min(1).max(255).optional(),
+  googleMapsUrl: z.string().url().max(2000).optional(),
+  googleFormattedAddress: z.string().max(500).optional(),
+  googleLat: z.number().min(-90).max(90).optional(),
+  googleLng: z.number().min(-180).max(180).optional(),
+} as const;
+
+const googlePlaceUpdateInputFields = {
+  googlePlaceId: z.string().min(1).max(255).nullable().optional(),
+  googlePlaceDisplayName: z.string().min(1).max(255).nullable().optional(),
+  googleMapsUrl: z.string().url().max(2000).nullable().optional(),
+  googleFormattedAddress: z.string().max(500).nullable().optional(),
+  googleLat: z.number().min(-90).max(90).nullable().optional(),
+  googleLng: z.number().min(-180).max(180).nullable().optional(),
+} as const;
+
 // =============================================================================
 // Output Schemas (for API responses)
 // =============================================================================
@@ -25,6 +52,7 @@ export const itineraryActivitySchema = z.object({
   imageUrl: z.string().nullable(),
   sourceUrl: z.string().nullable(),
   sourceName: z.string().nullable(),
+  ...googlePlaceOutputFields,
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -85,6 +113,7 @@ const activityInputSchema = z.object({
   imageUrl: z.string().url().max(2000).optional(),
   sourceUrl: z.string().url().max(2000).optional(),
   sourceName: z.string().max(200).optional(),
+  ...googlePlaceCreateInputFields,
 });
 
 // Day input (nested in itinerary creation)
@@ -136,6 +165,7 @@ export const createActivityInputSchema = z.object({
   imageUrl: z.string().url().max(2000).optional(),
   sourceUrl: z.string().url().max(2000).optional(),
   sourceName: z.string().max(200).optional(),
+  ...googlePlaceCreateInputFields,
 });
 
 export type CreateActivityInput = z.infer<typeof createActivityInputSchema>;
@@ -153,6 +183,7 @@ export const updateActivityInputSchema = z.object({
   imageUrl: z.string().url().max(2000).nullable().optional(),
   sourceUrl: z.string().url().max(2000).nullable().optional(),
   sourceName: z.string().max(200).nullable().optional(),
+  ...googlePlaceUpdateInputFields,
 });
 
 export type UpdateActivityInput = z.infer<typeof updateActivityInputSchema>;

@@ -17,6 +17,7 @@ import { paymentRoutes } from "./routes/payments";
 import { chatRoutes } from "./routes/chat";
 import { suggestionsRoutes } from "./routes/suggestions";
 import { weatherRoutes } from "./routes/weather";
+import { googleMapsRoutes } from "./routes/google-maps";
 import { auth } from "./lib/auth";
 import {
   BadRequestError,
@@ -126,6 +127,7 @@ export const createApp = () => {
       .use(chatRoutes)
       .use(suggestionsRoutes)
       .use(weatherRoutes)
+      .use(googleMapsRoutes)
   );
 };
 

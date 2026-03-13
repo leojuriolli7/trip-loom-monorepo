@@ -285,6 +285,12 @@ export async function createItinerary(
             endTime: activityInput.endTime ?? null,
             location: activityInput.location ?? null,
             locationUrl: activityInput.locationUrl ?? null,
+            googlePlaceId: activityInput.googlePlaceId ?? null,
+            googlePlaceDisplayName: activityInput.googlePlaceDisplayName ?? null,
+            googleMapsUrl: activityInput.googleMapsUrl ?? null,
+            googleFormattedAddress: activityInput.googleFormattedAddress ?? null,
+            googleLat: activityInput.googleLat ?? null,
+            googleLng: activityInput.googleLng ?? null,
             estimatedCostInCents: activityInput.estimatedCostInCents ?? null,
             imageUrl: activityInput.imageUrl ?? null,
             sourceUrl: activityInput.sourceUrl ?? null,
@@ -519,6 +525,12 @@ export async function addActivity(
     endTime: input.endTime ?? null,
     location: input.location ?? null,
     locationUrl: input.locationUrl ?? null,
+    googlePlaceId: input.googlePlaceId ?? null,
+    googlePlaceDisplayName: input.googlePlaceDisplayName ?? null,
+    googleMapsUrl: input.googleMapsUrl ?? null,
+    googleFormattedAddress: input.googleFormattedAddress ?? null,
+    googleLat: input.googleLat ?? null,
+    googleLng: input.googleLng ?? null,
     estimatedCostInCents: input.estimatedCostInCents ?? null,
     imageUrl: input.imageUrl ?? null,
     sourceUrl: input.sourceUrl ?? null,
@@ -573,6 +585,24 @@ export async function updateActivity(
   }
   if (input.locationUrl !== undefined) {
     updateData.locationUrl = input.locationUrl;
+  }
+  if (input.googlePlaceId !== undefined) {
+    updateData.googlePlaceId = input.googlePlaceId;
+  }
+  if (input.googlePlaceDisplayName !== undefined) {
+    updateData.googlePlaceDisplayName = input.googlePlaceDisplayName;
+  }
+  if (input.googleMapsUrl !== undefined) {
+    updateData.googleMapsUrl = input.googleMapsUrl;
+  }
+  if (input.googleFormattedAddress !== undefined) {
+    updateData.googleFormattedAddress = input.googleFormattedAddress;
+  }
+  if (input.googleLat !== undefined) {
+    updateData.googleLat = input.googleLat;
+  }
+  if (input.googleLng !== undefined) {
+    updateData.googleLng = input.googleLng;
   }
   if (input.estimatedCostInCents !== undefined) {
     updateData.estimatedCostInCents = input.estimatedCostInCents;

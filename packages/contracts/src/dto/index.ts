@@ -53,6 +53,19 @@ export {
 } from "./itineraries";
 
 export {
+  getPlaceDetailsInputSchema,
+  getPlaceDetailsQuerySchema,
+  googlePlaceDetailsSchema,
+  googlePlaceSummarySchema,
+  searchPlacesInputSchema,
+  searchPlacesQuerySchema,
+  type GetPlaceDetailsInput,
+  type GooglePlaceDetails,
+  type GooglePlaceSummary,
+  type SearchPlacesInput,
+} from "./google-maps";
+
+export {
   type PaymentBookingType,
   type PaymentDTO,
   type PaymentSessionDTO,

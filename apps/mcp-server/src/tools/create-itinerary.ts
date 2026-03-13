@@ -1,64 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import type { ApiClient } from "../api-client";
-
-const timeSchema = z
-  .string()
-  .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format, expected HH:mm");
-
-const activityInputSchema = z.object({
-  orderIndex: z
-    .number()
-    .int()
-    .min(0)
-    .describe("Zero-based order of this activity within the day."),
-  title: z
-    .string()
-    .min(1)
-    .max(200)
-    .describe("Activity title."),
-  description: z
-    .string()
-    .max(2000)
-    .optional()
-    .describe("Optional activity description."),
-  startTime: timeSchema.optional().describe("Optional start time in HH:mm format."),
-  endTime: timeSchema.optional().describe("Optional end time in HH:mm format."),
-  location: z
-    .string()
-    .max(500)
-    .optional()
-    .describe("Optional activity location label."),
-  locationUrl: z
-    .string()
-    .url()
-    .max(2000)
-    .optional()
-    .describe("Optional external location URL."),
-  estimatedCostInCents: z
-    .number()
-    .int()
-    .min(0)
-    .optional()
-    .describe("Optional estimated activity cost in cents."),
-  imageUrl: z
-    .string()
-    .url()
-    .max(2000)
-    .optional()
-    .describe("Optional image URL for this activity."),
-  sourceUrl: z
-    .string()
-    .url()
-    .max(2000)
-    .optional()
-    .describe("Optional source URL where activity info was found."),
-  sourceName: z
-    .string()
-    .max(200)
-    .optional()
-    .describe("Optional source name (e.g. 'TripAdvisor', 'Lonely Planet')."),
-});
+import { createItineraryActivityInputSchema } from "./shared/itinerary-activity-schemas";
 
 const dayInputSchema = z.object({
   dayNumber: z
@@ -74,7 +17,7 @@ const dayInputSchema = z.object({
     .optional()
     .describe("Optional notes for the itinerary day."),
   activities: z
-    .array(activityInputSchema)
+    .array(createItineraryActivityInputSchema)
     .optional()
     .describe("Optional activities to create for this day."),
 });
@@ -88,7 +31,7 @@ export function registerCreateItinerary(
     {
       title: "Create Itinerary",
       description:
-        "Create an itinerary for a trip. Supports creating nested days and activities in the same request, and returns the full itinerary detail.",
+        "Create an itinerary for a trip. Supports creating nested days and activities in the same request. Activities can include optional Google Maps place metadata from search_places/get_place_details so the saved itinerary is map-ready.",
       inputSchema: z.object({
         tripId: z.string().describe("The trip ID that will own the itinerary."),
         days: z

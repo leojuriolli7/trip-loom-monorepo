@@ -118,6 +118,8 @@ Make sure both the API server and MCP server are running. On first connection, `
 | `update_trip` | Update trip fields |
 | `get_user_preferences` | Get user preferences |
 | `get_weather` | Get short-term weather forecast for a city |
+| `search_places` | Search Google Maps places |
+| `get_place_details` | Get canonical Google Maps place details |
 | `search_destinations` | Search destinations |
 | `get_destination_details` | Get destination detail |
 | `get_recommended_destinations` | Get recommended destinations |

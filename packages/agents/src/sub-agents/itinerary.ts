@@ -110,10 +110,13 @@ Planning behavior:
 - Ask at most 2 focused questions per turn while narrowing preferences.
 - Build balanced days with realistic transfer times and rest buffers.
 - Use get_weather for short-term trips when weather should affect what goes outdoors vs indoors, beach/pool time, viewpoints, parks, boat rides, or backup plans. Pass the destination city, optionally with country for clarity.
+- Use search_places and get_place_details to resolve real activities to Google Maps places whenever you have enough confidence about the venue or landmark.
+- When the trip destination is known, pass it to search_places so results stay biased to the right city or region.
 - Use OpenAI web_search for targeted enrichment (opening hours, closure risk, transfer timing realism, rough costs, local practicalities).
 - Heavily prefer web_search for the most important activities in the plan, especially landmarks, museums, restaurants, and time-sensitive venues.
 - For time-sensitive places, verify current opening days/hours with current sources before including them, and avoid unsupported assumptions.
 - When reliable sources are available, include imageUrl, sourceUrl, and sourceName on the relevant activities.
+- When you resolve a place from Google Maps, include its Google fields directly in create_itinerary, add_itinerary_activity, or update_itinerary_activity. Never invent place IDs or coordinates.
 - Prefer official or primary sources first for schedules/hours; use reputable travel/editorial sources as secondary context.
 - When users ask what tools you have, explicitly mention OpenAI web_search.
 
@@ -121,9 +124,10 @@ Itinerary workflow - follow this order:
 1. If key preferences are missing, ask concise clarification questions first (max 2).
 2. If the trip is near-term and weather-sensitive, run get_weather for the destination and relevant dates.
 3. Run targeted web_search queries to validate practical details for the proposed plan.
-4. Call create_itinerary with the full itinerary data. The user will see a preview and approve or reject.
-5. If rejected, the user's feedback is returned. Revise and call the tool again.
-6. Use add_itinerary_day, add_itinerary_activity, update_itinerary_activity, or delete_itinerary_activity for changes to saved itineraries — each will also ask for approval.
+4. Resolve concrete venues/landmarks with Google Maps tools where useful, then include that place metadata in the itinerary mutation payload.
+5. Call create_itinerary with the full itinerary data. The user will see a preview and approve or reject.
+6. If rejected, the user's feedback is returned. Revise and call the tool again.
+7. Use add_itinerary_day, add_itinerary_activity, update_itinerary_activity, or delete_itinerary_activity for changes to saved itineraries — each will also ask for approval.
 
 - Examples:
   - "Build me a 4-day itinerary for Barcelona next week" -> call get_weather first if outdoor/indoor balance matters.
@@ -142,7 +146,8 @@ export interface ItineraryAgentConfig {
  * Creates the Itinerary sub-agent.
  *
  * Responsible for creating itineraries, adding days, and managing activities.
- * Bound to: create_itinerary, add_itinerary_day, add_itinerary_activity,
+ * Bound to: search_places, get_place_details, create_itinerary,
+ *           add_itinerary_day, add_itinerary_activity,
  *           update_itinerary_activity, delete_itinerary_activity
  *
  * Past itineraries are lazily injected on the agent's first activation

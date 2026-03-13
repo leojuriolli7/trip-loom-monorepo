@@ -1,10 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import type { ApiClient } from "../api-client";
-
-const timeSchema = z
-  .string()
-  .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format, expected HH:mm");
+import { createItineraryActivityInputSchema } from "./shared/itinerary-activity-schemas";
 
 export function registerAddItineraryActivity(
   server: McpServer,
@@ -15,57 +12,11 @@ export function registerAddItineraryActivity(
     {
       title: "Add Itinerary Activity",
       description:
-        "Add an activity to a specific itinerary day within a trip. Returns the full updated itinerary detail including all days and activities.",
+        "Add an activity to a specific itinerary day within a trip. Supports optional Google Maps place metadata from search_places/get_place_details and returns the full updated itinerary detail.",
       inputSchema: z.object({
         tripId: z.string().describe("The trip ID that owns the itinerary."),
         dayId: z.string().describe("The itinerary day ID that will receive the activity."),
-        orderIndex: z
-          .number()
-          .int()
-          .min(0)
-          .describe("Zero-based order position for the activity in the day."),
-        title: z.string().min(1).max(200).describe("Activity title."),
-        description: z
-          .string()
-          .max(2000)
-          .optional()
-          .describe("Optional activity description."),
-        startTime: timeSchema.optional().describe("Optional start time in HH:mm format."),
-        endTime: timeSchema.optional().describe("Optional end time in HH:mm format."),
-        location: z
-          .string()
-          .max(500)
-          .optional()
-          .describe("Optional activity location label."),
-        locationUrl: z
-          .string()
-          .url()
-          .max(2000)
-          .optional()
-          .describe("Optional external location URL."),
-        estimatedCostInCents: z
-          .number()
-          .int()
-          .min(0)
-          .optional()
-          .describe("Optional estimated activity cost in cents."),
-        imageUrl: z
-          .string()
-          .url()
-          .max(2000)
-          .optional()
-          .describe("Optional image URL for this activity."),
-        sourceUrl: z
-          .string()
-          .url()
-          .max(2000)
-          .optional()
-          .describe("Optional source URL where activity info was found."),
-        sourceName: z
-          .string()
-          .max(200)
-          .optional()
-          .describe("Optional source name (e.g. 'TripAdvisor', 'Lonely Planet')."),
+        ...createItineraryActivityInputSchema.shape,
       }),
     },
     async ({
@@ -78,6 +29,12 @@ export function registerAddItineraryActivity(
       endTime,
       location,
       locationUrl,
+      googlePlaceId,
+      googlePlaceDisplayName,
+      googleMapsUrl,
+      googleFormattedAddress,
+      googleLat,
+      googleLng,
       estimatedCostInCents,
       imageUrl,
       sourceUrl,
@@ -94,6 +51,12 @@ export function registerAddItineraryActivity(
           endTime,
           location,
           locationUrl,
+          googlePlaceId,
+          googlePlaceDisplayName,
+          googleMapsUrl,
+          googleFormattedAddress,
+          googleLat,
+          googleLng,
           estimatedCostInCents,
           imageUrl,
           sourceUrl,
