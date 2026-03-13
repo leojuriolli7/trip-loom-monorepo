@@ -68,7 +68,7 @@ export function PromptBlock({
       id={PROMPT_BLOCK_ID}
       ref={containerRef}
       data-slot="prompt-block"
-      className="relative min-h-16 flex-1 px-3 py-3 text-sm leading-relaxed"
+      className="relative min-h-16 flex-1 px-3 py-3 md:text-sm text-base leading-relaxed"
     >
       <Button
         onClick={onClear}
@@ -114,7 +114,7 @@ export function PromptBlock({
                 onKeyDown={handleInputKeyDown}
                 placeholder={part.description}
                 className={cn(
-                  "inline-block border-b border-dashed border-primary/40 bg-transparent text-sm text-foreground outline-none transition-colors",
+                  "inline-block border-b border-dashed border-primary/40 bg-transparent md:text-sm text-base text-foreground outline-none transition-colors",
                   "placeholder:text-muted-foreground/50",
                   "focus:border-primary focus:border-solid",
                   "w-auto min-w-24 mx-1",
