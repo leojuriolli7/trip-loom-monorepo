@@ -65,6 +65,6 @@ export function createFlightAgent(
     prompt: SYSTEM_PROMPT,
     name: "flight_agent",
     description:
-      "Specialist for searching, comparing, and booking flights. Handles flight search, booking, and cancellation.",
+      "Primary specialist for flights. Use this for any request to search, compare, choose, book, or cancel flights. The supervisor should only ask the minimum blocking airport/date question first if required, then transfer.",
   });
 }

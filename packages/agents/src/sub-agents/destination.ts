@@ -53,6 +53,6 @@ export function createDestinationAgent(
     prompt: SYSTEM_PROMPT,
     name: "destination_agent",
     description:
-      "Specialist for discovering and recommending travel destinations. Handles destination search, details, and personalized recommendations.",
+      "Primary specialist for destination discovery. Use this immediately for any request to recommend, explore, compare, shortlist, or research places to go based on vibe, dates, origin city, weather, or user preferences. The supervisor should not answer those requests directly.",
   });
 }

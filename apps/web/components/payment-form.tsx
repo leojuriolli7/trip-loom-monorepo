@@ -32,7 +32,11 @@ function getStripe(): Promise<Stripe | null> {
       console.error("NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is not set");
       return Promise.resolve(null);
     }
-    stripePromise = loadStripe(key);
+    stripePromise = loadStripe(key, {
+      developerTools: {
+        assistant: { enabled: false },
+      },
+    });
   }
 
   return stripePromise;

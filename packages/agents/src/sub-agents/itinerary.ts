@@ -170,6 +170,6 @@ export function createItineraryAgent(config: ItineraryAgentConfig) {
     prompt: systemContent,
     name: "itinerary_agent",
     description:
-      "Specialist for creating and managing day-by-day trip itineraries. Handles itinerary creation, day planning, and activity scheduling.",
+      "Primary specialist for itinerary work. Use this for any request to create, revise, optimize, or reason about day-by-day plans, activities, and schedules. The supervisor should not draft itineraries itself.",
   });
 }

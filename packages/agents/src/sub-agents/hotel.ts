@@ -62,6 +62,6 @@ export function createHotelAgent(
     prompt: SYSTEM_PROMPT,
     name: "hotel_agent",
     description:
-      "Specialist for searching, comparing, and booking hotels. Handles hotel search, booking, and cancellation.",
+      "Primary specialist for hotels and accommodation. Use this for any request to search, compare, choose, book, or cancel a stay. The supervisor should only ensure blocking trip details like dates/destination are known first, then transfer.",
   });
 }
