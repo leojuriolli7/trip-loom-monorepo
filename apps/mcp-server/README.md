@@ -18,6 +18,8 @@ The MCP server starts on `http://localhost:3002` (configurable via `MCP_SERVER_P
 |----------|----------|---------|-------------|
 | `API_BASE_URL` | Yes | — | TripLoom API URL (e.g., `http://localhost:3001`) |
 | `MCP_SERVER_PORT` | No | `3002` | Port for the MCP server |
+| `OTEL_SERVICE_NAME` | No | `"trip-loom-mcp"` | Service name for OTEL + Logs |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | No | — | Base OTLP HTTP endpoint used for traces and structured logs (example: `http://localhost:4318`) |
 
 Copy `.env.example` to `.env` and fill in values.
 

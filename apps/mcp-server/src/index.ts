@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { Elysia } from "elysia";
+import { createLogger } from "evlog";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import {
   WebStandardStreamableHTTPServerTransport,
@@ -7,6 +8,11 @@ import {
 } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { mcpAuth } from "./auth";
 import { createMcpServer } from "./server";
+import {
+  observabilityConfig,
+  createTracingPlugin,
+  createLoggingPlugin,
+} from "./lib/observability";
 
 // Transport map: sessionId -> transport instance
 const transports: Record<string, WebStandardStreamableHTTPServerTransport> = {};
@@ -52,6 +58,7 @@ const handleMcp = mcpAuth.handler(async (request, session) => {
       sessionIdGenerator: () => randomUUID(),
       onsessioninitialized: (sid) => {
         transports[sid] = transport;
+        createLogger({ kind: "mcp.session_start", sessionId: sid }).emit();
       },
     };
 
@@ -61,6 +68,7 @@ const handleMcp = mcpAuth.handler(async (request, session) => {
       const sid = transport.sessionId;
       if (sid && transports[sid]) {
         delete transports[sid];
+        createLogger({ kind: "mcp.session_close", sessionId: sid }).emit();
       }
     };
 
@@ -70,7 +78,10 @@ const handleMcp = mcpAuth.handler(async (request, session) => {
     // Pass pre-parsed body since we already consumed the stream
     return transport.handleRequest(request, { parsedBody: body });
   } catch (error) {
-    console.error("Error handling MCP request:", error);
+    const errorLog = createLogger({ kind: "mcp.request_error", sessionId });
+    errorLog.error(error instanceof Error ? error : new Error(String(error)));
+    errorLog.emit({ _forceKeep: true });
+
     return Response.json(
       {
         jsonrpc: "2.0",
@@ -83,6 +94,8 @@ const handleMcp = mcpAuth.handler(async (request, session) => {
 });
 
 new Elysia()
+  .use(createTracingPlugin(observabilityConfig))
+  .use(createLoggingPlugin(observabilityConfig))
   // OAuth 2.1 discovery endpoints (.well-known/*)
   .get("/.well-known/oauth-authorization-server", async ({ request }) =>
     discoveryHandler(request),
@@ -94,11 +107,15 @@ new Elysia()
   .all("/mcp", ({ request }) => handleMcp(request))
   .listen(Number.parseInt(MCP_SERVER_PORT, 10));
 
-console.log(`TripLoom MCP server running on http://localhost:${MCP_SERVER_PORT}`);
+createLogger({
+  kind: "server.start",
+  port: Number.parseInt(MCP_SERVER_PORT, 10),
+  url: MCP_SERVER_URL,
+}).emit();
 
 // Graceful shutdown
 process.on("SIGINT", async () => {
-  console.log("Shutting down MCP server...");
+  createLogger({ kind: "server.shutdown" }).emit();
   for (const sessionId in transports) {
     await transports[sessionId].close();
     delete transports[sessionId];

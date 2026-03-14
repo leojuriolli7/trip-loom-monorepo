@@ -9,11 +9,16 @@
   },
   "dependencies": {
     "@elysiajs/eden": "^1.4.8",
+    "@elysiajs/opentelemetry": "^1.4.10",
     "@modelcontextprotocol/sdk": "^1.27.1",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/exporter-trace-otlp-proto": "^0.212.0",
+    "@opentelemetry/sdk-trace-node": "^2.5.1",
     "@trip-loom/api": "workspace:*",
     "@trip-loom/contracts": "workspace:*",
     "better-auth": "^1.5.0",
     "elysia": "^1.2.25",
+    "evlog": "^2.5.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {

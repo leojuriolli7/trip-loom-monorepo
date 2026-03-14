@@ -103,8 +103,15 @@ pnpm dev:web      # Next.js app
 
 ### Quality and Observability
 
-- [ ] Add logging and OpenTelemetry to agents and MCP
+- [ ] Add logging and OpenTelemetry to agents
 - [ ] Add eval suite for routing accuracy and tool-call correctness (choose eval framework: Evalite, LangSmith, or Vitest-based)
+
+### Release
+
+- [ ] Deployments of API, Web and MCP Server
+- [ ] Analyze MCP server reconnection handling on the API Side
+- [ ] Adjust rate limits based on headers (Have CDN clean up first)
+- [ ] Wire up Observability Platform
 
 ### Data and Content
 

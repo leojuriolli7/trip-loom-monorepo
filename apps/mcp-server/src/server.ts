@@ -1,5 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { createApiClient } from "./api-client";
+import { withToolLogging } from "./lib/observability";
 import { registerAddItineraryActivity } from "./tools/add-itinerary-activity";
 import { registerAddItineraryDay } from "./tools/add-itinerary-day";
 import { registerBookFlight } from "./tools/book-flight";
@@ -32,6 +33,28 @@ import { registerUserItineraries } from "./resources/user-itineraries";
 import { registerPrompts } from "./prompts";
 
 /**
+ * Creates a proxy around McpServer that wraps all `registerTool` callbacks
+ * with structured logging via `withToolLogging`.
+ *
+ * TypeScript's Proxy handler can't preserve generic method signatures, so we
+ * type the intercepted function via `McpServer["registerTool"]` — an indexed
+ * access type that resolves to the full generic signature.
+ */
+function withLoggingProxy(server: McpServer): McpServer {
+  return new Proxy(server, {
+    get(target, prop, receiver) {
+      if (prop === "registerTool") {
+        const wrapped: McpServer["registerTool"] = (name, config, cb) => {
+          return target.registerTool(name, config, withToolLogging(name, cb));
+        };
+        return wrapped;
+      }
+      return Reflect.get(target, prop, receiver);
+    },
+  });
+}
+
+/**
  * Creates an MCP server instance with an authenticated Eden client.
  *
  * Each MCP session gets its own server + client, ensuring the OAuth
@@ -45,32 +68,35 @@ export function createMcpServer(accessToken: string) {
 
   const apiClient = createApiClient(accessToken);
 
-  // Tools
-  registerPing(server);
-  registerGetUserPreferences(server, apiClient);
-  registerGetWeather(server, apiClient);
-  registerGetTripDetails(server, apiClient);
-  registerSearchPlaces(server, apiClient);
-  registerGetPlaceDetails(server, apiClient);
-  registerGetPaymentSession(server, apiClient);
-  registerSearchDestinations(server, apiClient);
-  registerGetDestinationDetails(server, apiClient);
-  registerGetRecommendedDestinations(server, apiClient);
-  registerSearchFlights(server, apiClient);
-  registerBookFlight(server, apiClient);
-  registerCancelFlightBooking(server, apiClient);
-  registerSearchHotels(server, apiClient);
-  registerCreateHotelBooking(server, apiClient);
-  registerCancelHotelBooking(server, apiClient);
-  registerCreateItinerary(server, apiClient);
-  registerAddItineraryDay(server, apiClient);
-  registerAddItineraryActivity(server, apiClient);
-  registerUpdateItineraryActivity(server, apiClient);
-  registerDeleteItineraryActivity(server, apiClient);
-  registerCreateTrip(server, apiClient);
-  registerUpdateTrip(server, apiClient);
+  // Wrap server so all tool registrations get automatic logging
+  const loggedServer = withLoggingProxy(server);
 
-  // Resources
+  // Tools (all callbacks automatically wrapped with structured logging)
+  registerPing(loggedServer);
+  registerGetUserPreferences(loggedServer, apiClient);
+  registerGetWeather(loggedServer, apiClient);
+  registerGetTripDetails(loggedServer, apiClient);
+  registerSearchPlaces(loggedServer, apiClient);
+  registerGetPlaceDetails(loggedServer, apiClient);
+  registerGetPaymentSession(loggedServer, apiClient);
+  registerSearchDestinations(loggedServer, apiClient);
+  registerGetDestinationDetails(loggedServer, apiClient);
+  registerGetRecommendedDestinations(loggedServer, apiClient);
+  registerSearchFlights(loggedServer, apiClient);
+  registerBookFlight(loggedServer, apiClient);
+  registerCancelFlightBooking(loggedServer, apiClient);
+  registerSearchHotels(loggedServer, apiClient);
+  registerCreateHotelBooking(loggedServer, apiClient);
+  registerCancelHotelBooking(loggedServer, apiClient);
+  registerCreateItinerary(loggedServer, apiClient);
+  registerAddItineraryDay(loggedServer, apiClient);
+  registerAddItineraryActivity(loggedServer, apiClient);
+  registerUpdateItineraryActivity(loggedServer, apiClient);
+  registerDeleteItineraryActivity(loggedServer, apiClient);
+  registerCreateTrip(loggedServer, apiClient);
+  registerUpdateTrip(loggedServer, apiClient);
+
+  // Resources (no logging wrapper needed)
   registerUserPreferencesResource(server, apiClient);
   registerTripDetailsResource(server, apiClient);
   registerDestinationDetailsResource(server, apiClient);
