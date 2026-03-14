@@ -16,7 +16,11 @@ import {
 } from "@/components/ai-elements/message";
 import { useChatStream } from "@/context/chat";
 import { EmptyStateSuggestions } from "./empty-state-suggestions";
-import { isRenderableAssistantToolCall, ToolCallRenderer } from "../tools";
+import {
+  isRenderableAssistantToolCall,
+  isRenderableToolMessage,
+  ToolCallRenderer,
+} from "../tools";
 import { ToolMessageRenderer } from "../tools/core/tool-message-renderer";
 import { CancellationApprovalCard } from "../tools/cancellation-approval-card";
 import { BookingPaymentInterruptCard } from "../tools/booking-payment-interrupt-card";
@@ -207,6 +211,10 @@ export function ChatConversation() {
           }
 
           if (message.type === "tool") {
+            if (!isRenderableToolMessage(message)) {
+              return null;
+            }
+
             return (
               <ToolMessageRenderer
                 key={key}

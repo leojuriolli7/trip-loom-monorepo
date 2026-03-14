@@ -4,7 +4,6 @@ import { SuggestDestinationsToolCard } from "@/components/tools/suggest-destinat
 import { SuggestFlightToolCard } from "@/components/tools/suggest-flight-tool-card";
 import { SuggestHotelBookingToolCard } from "@/components/tools/suggest-hotel-booking-tool-card";
 import { UserPreferencesToolCard } from "@/components/tools/user-preferences-tool-card";
-// import { ToolCallJsonFallback } from "./tool-call-json-fallback";
 import { SearchDestinationsToolCard } from "../search-destinations-card";
 import { UpdateTripToolCallCard } from "../update-trip-tool-card";
 import { GetDestinationDetailsToolCard } from "../get-destination-details-tool-card";
@@ -17,28 +16,45 @@ import { GetRecommendedDestinationsCard } from "../get-recommended-destinations-
 import { GetWeatherToolCallCard } from "../get-weather-tool-call-card";
 
 /**
- * These tool calls can appear on assistant messages, but their UI belongs to a
- * different rendering layer:
- * - live approval/payment prompts come from `stream.interrupts`
- * - persisted hotel booking/payment outcomes come from `tool` messages
+ * Whitelist of tool calls that have a visual card in the assistant-message layer.
+ * A tool call is only rendered if its name appears here AND has a matching
+ * case in the ToolCallRenderer switch below.
  *
- * Excluding them here keeps the assistant-message layer focused on previewable
- * tool calls that can be rendered directly from their args.
+ * When adding a new tool card:
+ * 1. Add the switch case in ToolCallRenderer
+ * 2. Add the tool name to this Set
  */
-const NON_RENDERABLE_ASSISTANT_TOOL_CALL_NAMES = new Set([
-  "create_flight_booking",
-  "create_hotel_booking",
-  "cancel_hotel_booking",
-  "cancel_flight_booking",
+const RENDERABLE_TOOL_CALL_NAMES: ReadonlySet<string> = new Set([
+  "get_trip_details",
+  "get_user_preferences",
+  "get_recommended_destinations",
+  "create_itinerary",
+  "add_itinerary_day",
+  "add_itinerary_activity",
+  "update_itinerary_activity",
+  "delete_itinerary_activity",
+  "suggest_destinations",
+  "suggest_hotel_booking",
+  "search_destinations",
+  "get_destination_details",
+  "update_trip",
+  "suggest_flight",
+  "search_flights",
+  "get_weather",
+  "search_hotels",
+  "suggest_new_trip",
+  "transfer_to_destination_agent",
+  "transfer_to_flight_agent",
+  "transfer_to_hotel_agent",
+  "transfer_to_itinerary_agent",
+  "transfer_back_to_supervisor",
 ]);
 
 /**
- * Assistant `tool_calls` and persisted `tool` messages are distinct message
- * shapes in the chat history. This helper only answers whether a tool call
- * should render inside the assistant-message layer.
+ * Whether a tool call has a visual card in the assistant-message layer.
  */
 export function isRenderableAssistantToolCall(toolCall: TripLoomToolCall) {
-  return !NON_RENDERABLE_ASSISTANT_TOOL_CALL_NAMES.has(toolCall.name);
+  return RENDERABLE_TOOL_CALL_NAMES.has(toolCall.name);
 }
 
 /**
@@ -94,7 +110,6 @@ export function ToolCallRenderer({ toolCall }: { toolCall: TripLoomToolCall }) {
     case "transfer_back_to_supervisor":
       return <TransferAgentToolCard toolName={toolCall.name} />;
     default:
-      // return <ToolCallJsonFallback toolCall={toolCall} />;
       return null;
   }
 }

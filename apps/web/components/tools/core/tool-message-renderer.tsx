@@ -61,6 +61,30 @@ function parseToolMessageJson<TSchema extends z.ZodTypeAny>(
 }
 
 /**
+ * Whitelist of tool messages that have a dedicated result card.
+ * Used by chat-conversation.tsx to skip rendering wrapper elements
+ * for tool results that have no visual representation.
+ *
+ * When adding a new tool message card:
+ * 1. Add the switch case in ToolMessageRenderer
+ * 2. Add the tool name to this Set
+ */
+const RENDERABLE_TOOL_MESSAGE_NAMES: ReadonlySet<string> = new Set([
+  "create_flight_booking",
+  "create_hotel_booking",
+  "get_weather",
+]);
+
+type ToolMessage = Extract<TripLoomMessage, { type: "tool" }>;
+
+/**
+ * Whether a tool message has a dedicated result card.
+ */
+export function isRenderableToolMessage(message: ToolMessage) {
+  return !!message.name && RENDERABLE_TOOL_MESSAGE_NAMES.has(message.name);
+}
+
+/**
  * Renders persisted `tool` messages from chat history.
  *
  * This is intentionally separate from assistant `tool_calls`:
@@ -72,41 +96,50 @@ export function ToolMessageRenderer({
   message,
   className,
 }: ToolMessageRendererProps) {
-  if (message.name === "create_flight_booking") {
-    const paidResult = parseToolMessageJson(
-      message.content,
-      flightBookingPaymentOutcomeSchema,
-    );
+  switch (message.name) {
+    case "create_flight_booking": {
+      const paidResult = parseToolMessageJson(
+        message.content,
+        flightBookingPaymentOutcomeSchema,
+      );
 
-    if (paidResult) {
-      return <BookingPaymentResultCard result={paidResult} className={className} />;
+      if (paidResult) {
+        return (
+          <BookingPaymentResultCard result={paidResult} className={className} />
+        );
+      }
+
+      return null;
     }
+    case "create_hotel_booking": {
+      const paidResult = parseToolMessageJson(
+        message.content,
+        hotelBookingPaymentOutcomeSchema,
+      );
 
-    return null;
-  }
+      if (paidResult) {
+        return (
+          <BookingPaymentResultCard result={paidResult} className={className} />
+        );
+      }
 
-  if (message.name === "create_hotel_booking") {
-    const paidResult = parseToolMessageJson(
-      message.content,
-      hotelBookingPaymentOutcomeSchema,
-    );
-
-    if (paidResult) {
-      return <BookingPaymentResultCard result={paidResult} className={className} />;
+      return null;
     }
+    case "get_weather": {
+      const weatherResult = parseToolMessageJson(
+        message.content,
+        weatherResponseSchema,
+      );
 
-    return null;
-  }
+      if (weatherResult) {
+        return (
+          <GetWeatherToolCard result={weatherResult} className={className} />
+        );
+      }
 
-  if (message.name === "get_weather") {
-    const weatherResult = parseToolMessageJson(message.content, weatherResponseSchema);
-
-    if (weatherResult) {
-      return <GetWeatherToolCard result={weatherResult} className={className} />;
+      return null;
     }
-
-    return null;
+    default:
+      return null;
   }
-
-  return null;
 }

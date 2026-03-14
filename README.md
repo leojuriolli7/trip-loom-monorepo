@@ -98,7 +98,6 @@ pnpm dev:web      # Next.js app
 
 ### Agents and Orchestration
 
-- [ ] Refine system prompts from real conversation test runs
 - [ ] Wire PostgresStore: read/write user preferences namespaced by userId
 - [ ] Add eval suite for routing accuracy and tool-call correctness (choose eval framework: Evalite, LangSmith, or Vitest-based)
 
@@ -109,20 +108,10 @@ pnpm dev:web      # Next.js app
 - [ ] Adjust rate limits based on headers (Have CDN clean up first)
 - [ ] Wire up Observability Platform
 
-### Data and Content
-
-- [ ] Fix destination photos (some are SVG country flags, e.g., Monaco)
-- [ ] Improve destination descriptions via AI (more about culture, less demographics, longer)
-- [ ] Add more destinations worldwide -- at least 200+ -- Maldives, Arraial do Cabo, Trancoso, Porto de Galinhas, Maragogi, etc.)
-- [ ] Add more hotels per destination from additional sources
-
-### Later
+### Later Features
 
 - [ ] Conversation minimap for Current, Draft, etc states (Inspiration: https://x.com/raunofreiberg/status/2031794945896378820) -- Example: "Finding a destination" -> "Planning" -> "During Trip" -> "Post-Trip"
 - [ ] File uploads -- images, pdfs
-
-### Nitpicks and Improvements
-
 - [ ] Allow filtering by multiple amenities or highlights at once in list hotels/destinations
 - [ ] Better "query" functionality for list endpoionts
 - [ ] Option to book multiple hotels/flights for a trip
