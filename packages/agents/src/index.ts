@@ -1,3 +1,10 @@
+// Instrument LangChain/LangGraph at import time — patches callbacks to emit
+// OTEL spans. Uses the host's global TracerProvider (no provider registered here).
+import { instrumentLangChain } from "./lib/instrumentation";
+instrumentLangChain();
+
+export { instrumentLangChain } from "./lib/instrumentation";
+
 export { initPersistence } from "./persistence";
 
 export {

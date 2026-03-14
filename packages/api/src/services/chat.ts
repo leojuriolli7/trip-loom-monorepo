@@ -177,6 +177,8 @@ export async function streamChatResponse(
     streamMode: ["values", "messages", "tools"],
     configurable: { thread_id: threadId },
     recursionLimit: 100,
+    metadata: { tripId, userId, threadId },
+    tags: ["chat", `trip:${tripId}`],
   });
 
   return {
@@ -214,6 +216,8 @@ export async function resumeChatResponse(
     streamMode: ["values", "messages", "tools"],
     configurable: { thread_id: threadId },
     recursionLimit: 100,
+    metadata: { tripId, userId, threadId },
+    tags: ["chat:resume", `trip:${tripId}`],
   });
 
   return {

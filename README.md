@@ -100,10 +100,6 @@ pnpm dev:web      # Next.js app
 
 - [ ] Refine system prompts from real conversation test runs
 - [ ] Wire PostgresStore: read/write user preferences namespaced by userId
-
-### Quality and Observability
-
-- [ ] Add logging and OpenTelemetry to agents
 - [ ] Add eval suite for routing accuracy and tool-call correctness (choose eval framework: Evalite, LangSmith, or Vitest-based)
 
 ### Release

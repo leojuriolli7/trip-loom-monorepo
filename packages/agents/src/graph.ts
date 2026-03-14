@@ -1,6 +1,7 @@
 import { createMcpClient, loadMcpTools, readMcpResources } from "./mcp-client";
 import type { McpResources } from "./mcp-client";
 import { createModel, modelConfig } from "./config";
+import { createAgentLogger } from "./lib/logger";
 import { createCheckpointer, createStore } from "./persistence";
 import { createDestinationAgent } from "./sub-agents/destination";
 import { createFlightAgent } from "./sub-agents/flight";
@@ -49,6 +50,8 @@ export interface GraphInstance {
  */
 export async function createGraph(config: GraphConfig): Promise<GraphInstance> {
   const { mcpUrl, accessToken, dbConnectionString } = config;
+  const log = createAgentLogger("agent.graph_create");
+  const start = performance.now();
 
   // 1. Connect to MCP, load tools and read resources in parallel
   const mcpClient = createMcpClient({ mcpUrl, accessToken });
@@ -56,6 +59,7 @@ export async function createGraph(config: GraphConfig): Promise<GraphInstance> {
     loadMcpTools(mcpClient),
     readMcpResources(mcpClient),
   ]);
+  log.set({ mcpConnected: true, toolCount: rawTools.length });
 
   // Wrap approval-required MCP tools with interrupt-based confirmation
   const allTools = rawTools.map((t) =>
@@ -129,6 +133,12 @@ export async function createGraph(config: GraphConfig): Promise<GraphInstance> {
     checkpointer,
     store,
   });
+
+  log.set({
+    graphCompiled: true,
+    graphCompileDurationMs: Math.round(performance.now() - start),
+  });
+  log.emit();
 
   return { graph, mcpClient, mcpResources };
 }
