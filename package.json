@@ -26,6 +26,7 @@
     "eval:ci": "pnpm --filter @trip-loom/agents eval:ci",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
+    "db:seed": "pnpm --filter @trip-loom/api db:seed",
     "db:reset": "docker compose down -v && docker compose up -d",
     "docker:up": "docker compose --profile signoz up -d && open http://localhost:8080",
     "docker:down": "docker compose --profile signoz down",
