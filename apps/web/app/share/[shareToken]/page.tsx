@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import type { SharedTripDTO } from "@trip-loom/contracts/dto";
 import { SharedPageNavbar } from "./_components/shared-page-navbar";
 import { SharedTripHeader } from "./_components/shared-trip-header";
 import { SharedFlightCard } from "./_components/shared-flight-card";
@@ -7,35 +6,18 @@ import { SharedHotelCard } from "./_components/shared-hotel-card";
 import { SharedItinerarySection } from "./_components/shared-itinerary-section";
 import { SharedTripNotFound } from "./_components/shared-trip-not-found";
 import { PlaneIcon, BedDoubleIcon } from "lucide-react";
+import { apiClient } from "@/lib/api/api-client";
+import Link from "next/link";
 
 type PageParams = {
   params: Promise<{ shareToken: string }>;
 };
 
-async function fetchSharedTrip(
-  shareToken: string,
-): Promise<SharedTripDTO | null> {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/shared/${shareToken}`,
-      { cache: "no-store" },
-    );
-
-    if (!res.ok) {
-      return null;
-    }
-
-    return res.json();
-  } catch {
-    return null;
-  }
-}
-
 export async function generateMetadata({
   params,
 }: PageParams): Promise<Metadata> {
   const { shareToken } = await params;
-  const trip = await fetchSharedTrip(shareToken);
+  const { data: trip } = await apiClient.api.shared({ shareToken }).get();
 
   if (!trip) {
     return {
@@ -58,7 +40,7 @@ export async function generateMetadata({
 
 export default async function SharedTripPage({ params }: PageParams) {
   const { shareToken } = await params;
-  const trip = await fetchSharedTrip(shareToken);
+  const { data: trip } = await apiClient.api.shared({ shareToken }).get();
 
   if (!trip) {
     return <SharedTripNotFound />;
@@ -82,7 +64,9 @@ export default async function SharedTripPage({ params }: PageParams) {
                 <div className="flex size-8 items-center justify-center rounded-xl bg-primary/10">
                   <PlaneIcon className="size-4 text-primary" />
                 </div>
-                <h2 className="text-xl font-semibold tracking-tight">Flights</h2>
+                <h2 className="text-xl font-semibold tracking-tight">
+                  Flights
+                </h2>
               </div>
 
               <div className="space-y-3">
@@ -129,12 +113,12 @@ export default async function SharedTripPage({ params }: PageParams) {
         <footer className="mt-12 border-t border-border/40 pt-6 pb-8 text-center">
           <p className="text-sm text-muted-foreground">
             Planned with{" "}
-            <a
+            <Link
               href="/"
               className="font-medium text-foreground underline-offset-4 hover:underline"
             >
               TripLoom
-            </a>{" "}
+            </Link>{" "}
             — your AI travel companion
           </p>
         </footer>
