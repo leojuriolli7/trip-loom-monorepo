@@ -509,7 +509,6 @@ Additional documentation:
 
 ### Release
 
-- [ ] Write more Playwright E2E Tests
 - [ ] Deployments of API, Web and MCP Server
 - [ ] Analyze MCP server reconnection handling on the API Side
 - [ ] Adjust rate limits based on headers (Have CDN clean up first)
