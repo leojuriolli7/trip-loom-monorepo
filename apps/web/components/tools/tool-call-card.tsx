@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { StreamingImage } from "../streaming-image";
 
 const toolCallCardRootVariants = cva(
-  "relative animate-chat-enter overflow-hidden rounded-3xl border border-border/70 bg-linear-to-b from-card via-card to-secondary/25 shadow-[0_10px_18px_-18px_rgba(15,23,42,0.5)]",
+  "relative overflow-hidden rounded-3xl border border-border/70 bg-linear-to-b from-card via-card to-secondary/25 shadow-[0_10px_18px_-18px_rgba(15,23,42,0.5)]",
   {
     variants: {
       size: {

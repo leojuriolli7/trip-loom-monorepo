@@ -5,6 +5,7 @@ import type {
   TripLoomMessage,
   TripLoomToolCall,
 } from "@trip-loom/agents";
+import { motion } from "motion/react";
 import {
   Conversation,
   ConversationContent,
@@ -15,6 +16,7 @@ import {
   MessageResponse,
 } from "@/components/ai-elements/message";
 import { useChatStream } from "@/context/chat";
+import { chatEnterVariants, springs } from "@/lib/motion";
 import { EmptyStateSuggestions } from "./empty-state-suggestions";
 import {
   isRenderableAssistantToolCall,
@@ -137,7 +139,12 @@ export function ChatConversation() {
   return (
     <Conversation data-testid="chat-conversation" className="min-h-0 flex-1">
       {!messages?.length ? (
-        <div className="w-full min-h-full flex-1 flex flex-col gap-4 items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 16, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={springs.gentle}
+          className="w-full min-h-full flex-1 flex flex-col gap-4 items-center justify-center"
+        >
           <Image
             width={192}
             height={192}
@@ -152,7 +159,7 @@ export function ChatConversation() {
           </p>
 
           <EmptyStateSuggestions />
-        </div>
+        </motion.div>
       ) : null}
 
       <ConversationContent className="mx-auto max-w-3xl px-4 py-6">
@@ -161,17 +168,20 @@ export function ChatConversation() {
 
           if (message.type === "human") {
             return (
-              <ConversationMessage
+              <motion.div
                 key={key}
-                from="user"
-                className="animate-chat-enter"
+                initial={chatEnterVariants.hidden}
+                animate={chatEnterVariants.visible}
+                transition={springs.snappy}
               >
-                <MessageContent>
-                  <MessageResponse>
-                    {getMessageContent(message.content)}
-                  </MessageResponse>
-                </MessageContent>
-              </ConversationMessage>
+                <ConversationMessage from="user">
+                  <MessageContent>
+                    <MessageResponse>
+                      {getMessageContent(message.content)}
+                    </MessageResponse>
+                  </MessageContent>
+                </ConversationMessage>
+              </motion.div>
             );
           }
 
@@ -184,7 +194,13 @@ export function ChatConversation() {
             }
 
             return (
-              <div key={key} className="space-y-3 animate-chat-enter">
+              <motion.div
+                key={key}
+                initial={chatEnterVariants.hidden}
+                animate={chatEnterVariants.visible}
+                transition={springs.snappy}
+                className="space-y-3"
+              >
                 {webSearchCalls.map((webSearchCall, webSearchIndex) => (
                   <WebSearchToolCallCard
                     key={`${key}-web-search-call-${webSearchCall.id || webSearchIndex}`}
@@ -206,7 +222,7 @@ export function ChatConversation() {
                     </MessageContent>
                   </ConversationMessage>
                 )}
-              </div>
+              </motion.div>
             );
           }
 
@@ -216,11 +232,14 @@ export function ChatConversation() {
             }
 
             return (
-              <ToolMessageRenderer
+              <motion.div
                 key={key}
-                message={message}
-                className="animate-chat-enter"
-              />
+                initial={chatEnterVariants.hidden}
+                animate={chatEnterVariants.visible}
+                transition={springs.snappy}
+              >
+                <ToolMessageRenderer message={message} />
+              </motion.div>
             );
           }
 
@@ -233,20 +252,30 @@ export function ChatConversation() {
 
           if (value?.type === "request-seat-selection") {
             return (
-              <div key={key} className="animate-chat-enter">
+              <motion.div
+                key={key}
+                initial={chatEnterVariants.hidden}
+                animate={chatEnterVariants.visible}
+                transition={springs.snappy}
+              >
                 <SeatSelectionCard
                   value={value}
                   disabled={stream.isLoading}
                   onConfirm={(seatId) => submitResume({ seatId })}
                   onCancel={() => submitResume({ seatId: null })}
                 />
-              </div>
+              </motion.div>
             );
           }
 
           if (value?.type === "request-booking-payment") {
             return (
-              <div key={key} className="animate-chat-enter">
+              <motion.div
+                key={key}
+                initial={chatEnterVariants.hidden}
+                animate={chatEnterVariants.visible}
+                transition={springs.snappy}
+              >
                 <BookingPaymentInterruptCard
                   interrupt={value}
                   tripId={tripId}
@@ -254,7 +283,7 @@ export function ChatConversation() {
                   onPaid={() => submitResume({ status: "paid" })}
                   onCancel={() => submitResume({ status: "cancelled" })}
                 />
-              </div>
+              </motion.div>
             );
           }
 
@@ -266,7 +295,12 @@ export function ChatConversation() {
             i.value?.type !== "request-seat-selection" &&
             i.value?.type !== "request-booking-payment",
         ) && (
-          <div className="space-y-3 rounded-lg border border-border/60 bg-card p-4 animate-chat-enter">
+          <motion.div
+            initial={chatEnterVariants.hidden}
+            animate={chatEnterVariants.visible}
+            transition={springs.snappy}
+            className="space-y-3 rounded-lg border border-border/60 bg-card p-4"
+          >
             <h3 className="text-sm font-medium">Awaiting confirmation</h3>
 
             {stream.interrupts.map((interrupt, index) => {
@@ -297,7 +331,7 @@ export function ChatConversation() {
                 </pre>
               );
             })}
-          </div>
+          </motion.div>
         )}
 
         <TripChatSuggestions />

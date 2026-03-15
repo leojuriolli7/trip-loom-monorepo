@@ -83,16 +83,14 @@ export function TripChatSuggestions() {
   }
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-      <Suggestions>
-        {suggestions.map((suggestion) => (
-          <Suggestion
-            key={suggestion}
-            suggestion={suggestion}
-            onClick={handleSuggestionClick}
-          />
-        ))}
-      </Suggestions>
-    </div>
+    <Suggestions>
+      {suggestions.map((suggestion) => (
+        <Suggestion
+          key={suggestion}
+          suggestion={suggestion}
+          onClick={handleSuggestionClick}
+        />
+      ))}
+    </Suggestions>
   );
 }

@@ -38,4 +38,6 @@ export type ActiveMapView = {
   description: string;
   places: ItineraryMapPlace[];
   initialPosition?: google.maps.LatLngLiteral;
+  /** The day ID that triggered this map view, used for layout animations. */
+  sourceDayId?: string;
 };

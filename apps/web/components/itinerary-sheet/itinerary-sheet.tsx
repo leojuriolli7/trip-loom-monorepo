@@ -2,9 +2,11 @@
 
 import { pluralize } from "@/lib/pluralize";
 import type { ItineraryDetailDTO } from "@trip-loom/contracts/dto";
+import { LayoutGroup, motion } from "motion/react";
 import { atom, useAtom } from "jotai";
 import Image from "next/image";
 import { useState } from "react";
+import { springs, STAGGER_DELAY } from "@/lib/motion";
 import {
   Sheet,
   SheetContent,
@@ -99,6 +101,7 @@ export function ItinerarySheet() {
   }
 
   return (
+    <LayoutGroup>
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
@@ -128,15 +131,28 @@ export function ItinerarySheet() {
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto bg-linear-to-b from-background to-secondary/20 px-4 py-5 md:px-7 md:py-6 [&::-webkit-scrollbar]:hidden">
-          <div className="mx-auto space-y-5">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            transition={{ staggerChildren: STAGGER_DELAY * 2 }}
+            className="mx-auto space-y-5"
+          >
             {itinerary.days.map((day) => (
-              <ItineraryDay
-                day={day}
+              <motion.div
                 key={day.id}
-                onClickOpenMap={setActiveMapView}
-              />
+                variants={{
+                  hidden: { opacity: 0, y: 16 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                transition={springs.smooth}
+              >
+                <ItineraryDay
+                  day={day}
+                  onClickOpenMap={setActiveMapView}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </SheetContent>
 
@@ -145,5 +161,6 @@ export function ItinerarySheet() {
         mapState={activeMapView}
       />
     </Sheet>
+    </LayoutGroup>
   );
 }

@@ -489,7 +489,6 @@ Additional documentation:
 
 ### Release
 
-- [ ] Write more Playwright E2E Tests
 - [ ] Deployments of API, Web and MCP Server
 - [ ] Analyze MCP server reconnection handling on the API Side
 - [ ] Adjust rate limits based on headers (Have CDN clean up first)
@@ -497,7 +496,5 @@ Additional documentation:
 
 ### Later Features
 
-- [ ] Conversation minimap for Current, Draft, etc states. [Inspiration](https://x.com/raunofreiberg/status/2031794945896378820) — Example: "Finding a destination" -> "Planning" -> "During Trip" -> "Post-Trip"
 - [ ] File uploads — images, pdfs
 - [ ] Option to book multiple hotels/flights for a trip
-- [ ] Add option to share trip conversations (read-only)

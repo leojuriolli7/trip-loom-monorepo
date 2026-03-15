@@ -1,7 +1,9 @@
 "use client";
 
+import { motion } from "motion/react";
 import { ItineraryMap } from "../itinerary-map/itinerary-map";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
+import { springs } from "@/lib/motion";
 import { ActiveMapView } from "./types";
 
 export function ItineraryMapDialog({
@@ -11,6 +13,10 @@ export function ItineraryMapDialog({
   mapState: ActiveMapView | null;
   clearMapState: () => void;
 }) {
+  const layoutId = mapState?.sourceDayId
+    ? `map-preview-${mapState.sourceDayId}`
+    : undefined;
+
   return (
     <Dialog
       open={mapState !== null}
@@ -26,16 +32,19 @@ export function ItineraryMapDialog({
         </DialogTitle>
 
         {mapState ? (
-          <>
-            <div className="h-full min-h-0 bg-muted/20 p-0">
-              <div className="h-full overflow-hidden rounded-[28px] border border-border/60 bg-card shadow-[0_24px_80px_-44px_rgba(15,23,42,0.5)]">
-                <ItineraryMap
-                  initialPosition={mapState?.initialPosition}
-                  places={mapState.places}
-                />
-              </div>
+          <motion.div
+            layoutId={layoutId}
+            transition={springs.smooth}
+            className="h-full min-h-0 bg-muted/20 p-0"
+            style={{ borderRadius: 28 }}
+          >
+            <div className="h-full overflow-hidden rounded-[28px] border border-border/60 bg-card shadow-[0_24px_80px_-44px_rgba(15,23,42,0.5)]">
+              <ItineraryMap
+                initialPosition={mapState?.initialPosition}
+                places={mapState.places}
+              />
             </div>
-          </>
+          </motion.div>
         ) : null}
       </DialogContent>
     </Dialog>

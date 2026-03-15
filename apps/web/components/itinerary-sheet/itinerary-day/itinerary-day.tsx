@@ -2,6 +2,7 @@
 
 import { MapCtaCard } from "../map-cta-card";
 import { ClockIcon, ExternalLinkIcon, MapIcon, MapPinIcon } from "lucide-react";
+import { motion } from "motion/react";
 import { Badge } from "../../ui/badge";
 import { ActiveMapView, ItinerarySheetDay } from "../types";
 import {
@@ -10,6 +11,7 @@ import {
   getActivityTimeLabel,
 } from "./utils";
 import { pluralize } from "@/lib/pluralize";
+import { springs, STAGGER_DELAY } from "@/lib/motion";
 import { getActivityMapPlace, getDayMapPlaces } from "../utils";
 import { ItineraryMapPlace } from "@/components/itinerary-map/types";
 
@@ -18,6 +20,7 @@ function toMapState(day: ItinerarySheetDay, places: ItineraryMapPlace[]) {
     title: day.title ?? `Day ${day.dayNumber} map`,
     description: `${pluralize(places.length, "mapped stop")} for ${formatItineraryDateLabel(day.date)}`,
     places: places,
+    sourceDayId: day.id,
   };
 }
 
@@ -49,7 +52,11 @@ export function ItineraryDay({
         <>
           <header className="flex items-center gap-3">
             {dayMapPlaces.length > 0 ? (
-              <MapCtaCard className="h-16 w-24" onClick={handleMapOpen} />
+              <MapCtaCard
+                className="h-16 w-24"
+                onClick={handleMapOpen}
+                layoutId={`map-preview-${day.id}`}
+              />
             ) : null}
 
             <div>
@@ -71,7 +78,12 @@ export function ItineraryDay({
             </div>
           </header>
 
-          <div className="mt-4 space-y-3">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            transition={{ staggerChildren: STAGGER_DELAY }}
+            className="mt-4 space-y-3"
+          >
             {day.activities.length === 0 ? (
               <p className="rounded-2xl bg-background/80 px-4 py-3 text-sm text-muted-foreground ring-1 ring-border/40">
                 No activities planned for this day yet.
@@ -84,7 +96,15 @@ export function ItineraryDay({
               const place = getActivityMapPlace(day, activity);
 
               return (
-                <article key={activity.id} className="rounded-2xl px-4 py-3">
+                <motion.article
+                  key={activity.id}
+                  variants={{
+                    hidden: { opacity: 0, x: -8 },
+                    visible: { opacity: 1, x: 0 },
+                  }}
+                  transition={springs.snappy}
+                  className="rounded-2xl px-4 py-3"
+                >
                   <div className="flex items-start gap-4">
                     {activity.imageUrl ? (
                       <div className="size-14 shrink-0 overflow-hidden rounded-2xl border border-border/50 bg-muted/40">
@@ -161,10 +181,10 @@ export function ItineraryDay({
                       ) : null}
                     </div>
                   ) : null}
-                </article>
+                </motion.article>
               );
             })}
-          </div>
+          </motion.div>
         </>
       </div>
     </section>
