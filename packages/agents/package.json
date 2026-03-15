@@ -8,7 +8,10 @@
     "./env": "./src/env.d.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "eval": "vitest --config vitest.eval.config.ts",
+    "eval:run": "vitest run --config vitest.eval.config.ts",
+    "eval:ci": "vitest run --config vitest.eval.config.ts --reporter=vitest-evals/reporter --reporter=json --outputFile.json=eval-results.json"
   },
   "dependencies": {
     "@arizeai/openinference-instrumentation-langchain": "^4.0.6",
@@ -25,6 +28,9 @@
   },
   "devDependencies": {
     "bun-types": "^1.3.10",
-    "typescript": "^5.9.3"
+    "dotenv": "^17.3.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.0",
+    "vitest-evals": "^0.6.0"
   }
 }

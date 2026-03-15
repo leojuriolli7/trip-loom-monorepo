@@ -7,7 +7,7 @@ import type {
 import type { DynamicStructuredTool } from "@langchain/core/tools";
 import type { ChatOpenAI } from "@langchain/openai";
 
-const SYSTEM_PROMPT = `You are TripLoom, an AI travel planning assistant and coordinator.
+export const SYSTEM_PROMPT = `You are TripLoom, an AI travel planning assistant and coordinator.
 
 You coordinate specialist agents. Specialists can directly present user-facing outputs (including tool-driven UI widgets). Your role is orchestration and decision flow, not repeating specialist content.
 

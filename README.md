@@ -19,6 +19,7 @@ This is a research project built to go deep on the AI agent ecosystem. The goal 
 - **Real payments** — Stripe payment intents with webhook verification, refunds, and cancellation flows
 - **Google Maps integration** — Places API for real venue data in itineraries, with interactive map views and route planning
 - **End-to-end type safety** — Elysia Eden treaty client shared across frontend, MCP server, and agents. One type change propagates everywhere
+- **Agent evals** — 18 evals testing routing, state management, blocking questions, and output quality against the full LangGraph supervisor graph with vitest-evals
 - **Full observability** — OpenTelemetry tracing and structured logging across API, agents, and MCP server, all forwarded to any OTLP-compatible dashboard
 - **Shared contracts** — Single `@trip-loom/contracts` package with 12 DTO schemas and 26 enums consumed by every service
 
@@ -311,6 +312,24 @@ Complete REST API with full CRUD for all domains, built with Elysia on Bun:
 
 PostgreSQL with Drizzle ORM. **19 tables** covering users, auth (sessions, accounts, verification), OAuth (applications, tokens, consent), trips, destinations, airports, hotels, flight bookings, hotel bookings, payments, Stripe webhook events, itineraries with days and activities, and user preferences. **11 PostgreSQL enums** for type-safe domain values. Full-text search vectors on destinations and hotels.
 
+### Agent Evals
+
+**18 evaluation tests** across 5 eval files, powered by [vitest-evals](https://github.com/getsentry/vitest-evals). Evals invoke the **full LangGraph supervisor graph** — the real `buildSupervisor` with `MemorySaver`, mock tools, and mock sub-agents — so multi-step tool sequences (e.g., `update_trip` → `transfer_to_hotel_agent`) execute through the actual graph loop, not isolated LLM calls.
+
+| Eval File                  | Tests | What It Validates                                                       |
+| -------------------------- | ----- | ----------------------------------------------------------------------- |
+| `routing.eval.ts`          | 7     | Supervisor delegates to the correct sub-agent per routing rules         |
+| `state-management.eval.ts` | 4     | Trip state updates happen before delegation (destination, dates, title) |
+| `weather.eval.ts`          | 3     | Supervisor handles forecasts directly, delegates climate questions      |
+| `blocking.eval.ts`         | 2     | Supervisor asks for missing info instead of delegating prematurely      |
+| `output-quality.eval.ts`   | 2     | Anti-parroting, brevity, no internal IDs exposed                        |
+
+**Custom scorers:** `ToolSequenceScorer` (ordered tool call validation), `NoTransferScorer` (blocking question checks), `BrevityScorer` (anti-parroting heuristic), `LLMJudgeScorer` (GPT-4.1-mini as judge), `NoIDsExposedScorer` (ID leak detection).
+
+```bash
+pnpm eval           # run all evals
+```
+
 ### Testing
 
 **10 integration test files** with a shared test harness (`createTestContext`, `createTestApp`, `createJsonRequester`, `createHeaderAuthMock`). Tests run against an isolated `*_test` database auto-created from `DATABASE_URL`.
@@ -444,6 +463,7 @@ pnpm docker:up       # Includes SigNoz UI on port 8080
 
 ```bash
 pnpm test:api        # API integration tests (isolated test database)
+pnpm eval            # Agent evals (full graph execution, requires OPENAI_API_KEY)
 pnpm test:e2e        # Playwright E2E tests
 ```
 
@@ -470,7 +490,6 @@ Additional documentation:
 ### Agents and Orchestration
 
 - [ ] Wire PostgresStore: read/write user preferences namespaced by userId
-- [ ] Add eval suite for routing accuracy and tool-call correctness (choose eval framework: Evalite, LangSmith, or Vitest-based)
 
 ### Release
 
