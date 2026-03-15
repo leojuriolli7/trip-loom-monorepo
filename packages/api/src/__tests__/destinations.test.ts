@@ -39,7 +39,7 @@ describe("Destinations API", () => {
   describe("GET /api/destinations", () => {
     it("should return paginated list", async () => {
       const { res, body } = await request.get(
-        `/api/destinations?country=${TEST_COUNTRY}`,
+        `/api/destinations?countries=${TEST_COUNTRY}`,
       );
 
       expect(res.status).toBe(200);
@@ -52,7 +52,7 @@ describe("Destinations API", () => {
 
     it("should respect limit parameter", async () => {
       const { res, body } = await request.get(
-        `/api/destinations?country=${TEST_COUNTRY}&limit=2`,
+        `/api/destinations?countries=${TEST_COUNTRY}&limit=2`,
       );
 
       expect(res.status).toBe(200);
@@ -64,7 +64,7 @@ describe("Destinations API", () => {
     it("should paginate correctly with cursor", async () => {
       // Get first page
       const { body: firstPage } = await request.get(
-        `/api/destinations?country=${TEST_COUNTRY}&limit=2`,
+        `/api/destinations?countries=${TEST_COUNTRY}&limit=2`,
       );
 
       expect(firstPage.data.length).toBe(2);
@@ -72,7 +72,7 @@ describe("Destinations API", () => {
 
       // Get second page
       const { body: secondPage } = await request.get(
-        `/api/destinations?country=${TEST_COUNTRY}&limit=2&cursor=${firstPage.nextCursor}`,
+        `/api/destinations?countries=${TEST_COUNTRY}&limit=2&cursor=${firstPage.nextCursor}`,
       );
 
       expect(secondPage.data.length).toBe(1);
@@ -87,7 +87,7 @@ describe("Destinations API", () => {
 
     it("should filter by search term", async () => {
       const { res, body } = await request.get(
-        `/api/destinations?country=${TEST_COUNTRY}&search=testtokyo`,
+        `/api/destinations?countries=${TEST_COUNTRY}&search=testtokyo`,
       );
 
       expect(res.status).toBe(200);
@@ -101,7 +101,7 @@ describe("Destinations API", () => {
 
     it("should filter by region", async () => {
       const { res, body } = await request.get(
-        `/api/destinations?region=${TEST_REGION}&country=${TEST_COUNTRY}`,
+        `/api/destinations?regions=${TEST_REGION}&countries=${TEST_COUNTRY}`,
       );
 
       expect(res.status).toBe(200);
@@ -116,7 +116,7 @@ describe("Destinations API", () => {
 
     it("should filter by highlight tag", async () => {
       const { res, body } = await request.get(
-        `/api/destinations?region=${TEST_REGION}&country=${TEST_COUNTRY}&highlight=beaches`,
+        `/api/destinations?regions=${TEST_REGION}&countries=${TEST_COUNTRY}&highlights=beaches`,
       );
 
       expect(res.status).toBe(200);

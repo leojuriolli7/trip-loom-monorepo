@@ -499,7 +499,5 @@ Additional documentation:
 
 - [ ] Conversation minimap for Current, Draft, etc states. [Inspiration](https://x.com/raunofreiberg/status/2031794945896378820) — Example: "Finding a destination" -> "Planning" -> "During Trip" -> "Post-Trip"
 - [ ] File uploads — images, pdfs
-- [ ] Allow filtering by multiple amenities or highlights at once in list hotels/destinations
-- [ ] Better "query" functionality for list endpoionts
 - [ ] Option to book multiple hotels/flights for a trip
 - [ ] Add option to share trip conversations (read-only)

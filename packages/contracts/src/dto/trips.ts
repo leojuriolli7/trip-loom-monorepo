@@ -2,6 +2,7 @@ import { z } from "zod";
 import { tripStatusValues } from "../enums";
 import { isValidDateRange } from "../lib/date-range";
 import { paginationQuerySchema } from "../lib/pagination";
+import { arrayQueryParam } from "./common";
 import { destinationSchema } from "./destinations";
 import { flightBookingSchema, type FlightBookingDTO } from "./flights";
 import { hotelBookingSchema, type HotelBookingDTO } from "./hotel-bookings";
@@ -94,13 +95,8 @@ export const updateTripInputSchema = z
 
 export type UpdateTripInput = z.infer<typeof updateTripInputSchema>;
 
-const statusSchema = z
-  .union([z.enum(tripStatusValues), z.array(z.enum(tripStatusValues))])
-  .transform((val) => (Array.isArray(val) ? val : [val]))
-  .optional();
-
 export const tripQuerySchema = paginationQuerySchema.extend({
-  status: statusSchema,
+  status: arrayQueryParam(z.enum(tripStatusValues)),
   destinationId: z.string().min(1).optional(),
   archived: z.stringbool().optional(),
 });

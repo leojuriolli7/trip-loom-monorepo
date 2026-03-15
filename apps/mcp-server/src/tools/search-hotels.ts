@@ -36,10 +36,12 @@ export function registerSearchHotels(server: McpServer, apiClient: ApiClient) {
           .max(5)
           .optional()
           .describe("Optional minimum hotel rating filter (0-5)."),
-        amenity: z
-          .enum(amenityValues)
+        amenities: z
+          .array(z.enum(amenityValues))
           .optional()
-          .describe("Optional amenity filter."),
+          .describe(
+            "Optional array of required amenities (AND logic — hotel must have all). E.g., ['pool', 'spa', 'gym'].",
+          ),
         limit: z
           .number()
           .int()
@@ -55,22 +57,14 @@ export function registerSearchHotels(server: McpServer, apiClient: ApiClient) {
           ),
       }),
     },
-    async ({
-      destinationId,
-      search,
-      priceRange,
-      minRating,
-      amenity,
-      limit,
-      cursor,
-    }) => {
+    async ({ destinationId, search, priceRange, minRating, amenities, limit, cursor }) => {
       const { data, error } = await apiClient.api.hotels.get({
         query: {
           destinationId,
           search,
           priceRange,
           minRating,
-          amenity,
+          amenities,
           limit: limit ?? 20,
           cursor,
         },

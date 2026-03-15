@@ -112,9 +112,9 @@ describe("Hotels API", () => {
       ).toBe(true);
     });
 
-    it("should filter by amenity", async () => {
+    it("should filter by amenities", async () => {
       const { res, body } = await request.get(
-        `/api/hotels?destinationId=${tokyoId}&amenity=spa`,
+        `/api/hotels?destinationId=${tokyoId}&amenities=spa`,
       );
 
       expect(res.status).toBe(200);

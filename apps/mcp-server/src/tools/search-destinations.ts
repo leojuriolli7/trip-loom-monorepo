@@ -12,7 +12,7 @@ export function registerSearchDestinations(
     {
       title: "Search Destinations",
       description:
-        "Search TripLoom destinations with optional filters for free-text terms, region, country, and highlight. Returns paginated results with `data`, `hasMore`, and `nextCursor` for sequential page retrieval.",
+        "Search TripLoom destinations with optional filters for free-text terms, regions, countries, and highlights. Prefer using structured filters (highlights, regions, countries) over free-text search for better results. The search param uses PostgreSQL full-text search and works best with short, specific terms — not natural language sentences. Returns paginated results with `data`, `hasMore`, and `nextCursor` for sequential page retrieval.",
       inputSchema: z.object({
         search: z
           .string()
@@ -20,27 +20,25 @@ export function registerSearchDestinations(
           .min(1)
           .optional()
           .describe(
-            "Optional search text (e.g., 'beach city', 'ski', 'food scene'). Full-text matches destination content.",
+            "Optional free-text search (e.g., 'beach city', 'ski', 'food scene'). Full-text matches destination content.",
           ),
-        region: z
-          .enum(regionValues)
+        regions: z
+          .array(z.enum(regionValues))
           .optional()
           .describe(
-            "Optional geographic region filter.",
+            "Optional array of regions to filter by (OR logic). E.g., ['Europe', 'North America'].",
           ),
-        country: z
-          .string()
-          .trim()
-          .min(1)
+        countries: z
+          .array(z.string().trim().min(1))
           .optional()
           .describe(
-            "Optional country name filter (e.g., 'Japan', 'Italy', 'Brazil').",
+            "Optional array of country names to filter by (OR logic). E.g., ['Japan', 'Italy', 'Brazil'].",
           ),
-        highlight: z
-          .enum(travelInterestValues)
+        highlights: z
+          .array(z.enum(travelInterestValues))
           .optional()
           .describe(
-            "Optional travel-interest filter to narrow destinations by highlight (e.g., beaches, food, nightlife).",
+            "Optional array of travel interests to filter by (OR logic). E.g., ['food', 'architecture', 'culture'].",
           ),
         limit: z
           .number()
@@ -59,13 +57,13 @@ export function registerSearchDestinations(
           ),
       }),
     },
-    async ({ search, region, country, highlight, limit, cursor }) => {
+    async ({ search, regions, countries, highlights, limit, cursor }) => {
       const { data, error } = await apiClient.api.destinations.get({
         query: {
           search,
-          region,
-          country,
-          highlight,
+          regions,
+          countries,
+          highlights,
           limit: limit ?? 20,
           cursor,
         },

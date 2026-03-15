@@ -7,6 +7,7 @@ import {
   hotelRoomTypeValues,
   priceRangeValues,
 } from "../enums";
+import { arrayQueryParam } from "./common";
 
 // =============================================================================
 // Response Schemas
@@ -78,9 +79,9 @@ export type DestinationDetailDTO = z.infer<typeof destinationDetailSchema>;
 
 /** Query params for list endpoint - extends shared pagination schema */
 export const destinationQuerySchema = paginationQuerySchema.extend({
-  region: z.enum(regionValues).optional(),
-  country: z.string().optional(),
-  highlight: z.enum(travelInterestValues).optional(),
+  regions: arrayQueryParam(z.enum(regionValues)),
+  countries: arrayQueryParam(z.string().min(1)),
+  highlights: arrayQueryParam(z.enum(travelInterestValues)),
 });
 
 export type DestinationQuery = z.infer<typeof destinationQuerySchema>;

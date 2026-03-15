@@ -1,4 +1,4 @@
-import { arrayContains, desc, asc, eq, sql } from "drizzle-orm";
+import { arrayOverlaps, desc, asc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "../db";
 import { destination, hotel } from "../db/schema";
 import type {
@@ -22,12 +22,12 @@ import { destinationSelectFields } from "../mappers/destinations";
 export async function listDestinations(
   query: DestinationQuery,
 ): Promise<PaginatedResponse<DestinationDTO>> {
-  const { cursor, limit, search, region, country, highlight } = query;
+  const { cursor, limit, search, regions, countries, highlights } = query;
 
   const whereCondition = combineConditions(
-    region ? eq(destination.region, region) : undefined,
-    country ? eq(destination.country, country) : undefined,
-    highlight ? arrayContains(destination.highlights, [highlight]) : undefined,
+    regions ? inArray(destination.region, regions) : undefined,
+    countries ? inArray(destination.country, countries) : undefined,
+    highlights ? arrayOverlaps(destination.highlights, highlights) : undefined,
     buildSearchCondition(destination.searchVector, search),
     buildCursorCondition(cursor, destination.createdAt, destination.id),
   );

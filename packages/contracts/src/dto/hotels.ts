@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { paginationQuerySchema } from "../lib/pagination";
 import { amenityValues, hotelRoomTypeValues, priceRangeValues } from "../enums";
+import { arrayQueryParam } from "./common";
 
 // =============================================================================
 // Response Schemas
@@ -50,7 +51,7 @@ export const hotelQuerySchema = paginationQuerySchema.extend({
   destinationId: z.string().optional(),
   priceRange: z.enum(priceRangeValues).optional(),
   minRating: z.coerce.number().min(0).max(5).optional(),
-  amenity: z.enum(amenityValues).optional(),
+  amenities: arrayQueryParam(z.enum(amenityValues)),
 });
 
 export type HotelQuery = z.infer<typeof hotelQuerySchema>;
