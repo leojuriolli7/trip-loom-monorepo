@@ -1,12 +1,13 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArchiveIcon, InfoIcon, ArchiveRestoreIcon } from "lucide-react";
+import { ArchiveIcon, InfoIcon, ArchiveRestoreIcon, Share2Icon } from "lucide-react";
 import { useSetAtom } from "jotai";
 import { usePathname } from "next/navigation";
 import { toast } from "sonner";
 import { DeleteTripButton } from "@/components/chat-shell-layout/delete-trip-button";
 import { tripDetailsSheetAtom } from "@/components/trip-details-sheet";
+import { shareDialogAtom } from "@/components/share-dialog";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { tripQueries } from "@/lib/api/react-query/trips";
@@ -26,6 +27,7 @@ export function ChatTopbar() {
   const pathname = usePathname();
   const chatId = getChatId(pathname);
   const setTripDetailsSheet = useSetAtom(tripDetailsSheetAtom);
+  const setShareDialog = useSetAtom(shareDialogAtom);
   const queryClient = useQueryClient();
   const archiveTripMutation = useMutation(tripQueries.updateTrip());
 
@@ -92,6 +94,23 @@ export function ChatTopbar() {
 
         {trip ? (
           <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className="rounded-full border border-border/60"
+              aria-label="Share trip"
+              onClick={() =>
+                setShareDialog({
+                  tripId: trip.id,
+                  isOpen: true,
+                })
+              }
+              data-testid="share-trip-button"
+            >
+              <Share2Icon className="size-4" />
+            </Button>
+
             <Button
               type="button"
               variant="ghost"

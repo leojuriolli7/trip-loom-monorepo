@@ -5,6 +5,7 @@ import { UserPreferencesDialog } from "@/components/user-preferences-dialog";
 import { DestinationDetailDialog } from "@/components/destination-detail-dialog";
 import { ItinerarySheet } from "@/components/itinerary-sheet";
 import { TripDetailsSheet } from "@/components/trip-details-sheet";
+import { ShareDialog } from "@/components/share-dialog";
 
 export default async function ChatLayout({
   children,
@@ -25,6 +26,7 @@ export default async function ChatLayout({
       <DestinationDetailDialog />
       <ItinerarySheet />
       <TripDetailsSheet />
+      <ShareDialog />
       <ChatShellLayout>{children}</ChatShellLayout>
     </>
   );

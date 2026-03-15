@@ -98,4 +98,12 @@ export {
   type TripQuery,
 } from "./trips";
 
+export {
+  type SharedTripDTO,
+  type SharedFlightBookingDTO,
+  type SharedHotelBookingDTO,
+  type ShareTripResponseDTO,
+  type ShareTokenStatusDTO,
+} from "./sharing";
+
 export { tripStatusValues, type TripStatus } from "../enums";

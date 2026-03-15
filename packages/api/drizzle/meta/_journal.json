@@ -162,6 +162,13 @@
       "when": 1773435199381,
       "tag": "0022_bent_hobgoblin",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1773600616303,
+      "tag": "0023_brown_azazel",
+      "breakpoints": true
     }
   ]
 }

@@ -18,6 +18,7 @@ import { chatRoutes } from "./routes/chat";
 import { suggestionsRoutes } from "./routes/suggestions";
 import { weatherRoutes } from "./routes/weather";
 import { googleMapsRoutes } from "./routes/google-maps";
+import { tripSharingRoutes, sharedTripRoutes } from "./routes/sharing";
 import { auth } from "./lib/auth";
 import {
   BadRequestError,
@@ -128,6 +129,8 @@ export const createApp = () => {
       .use(suggestionsRoutes)
       .use(weatherRoutes)
       .use(googleMapsRoutes)
+      .use(tripSharingRoutes)
+      .use(sharedTripRoutes)
   );
 };
 

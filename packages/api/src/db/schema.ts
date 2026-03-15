@@ -2,6 +2,7 @@ import {
   pgTable,
   pgEnum,
   text,
+  varchar,
   timestamp,
   boolean,
   integer,
@@ -367,6 +368,8 @@ export const trip = pgTable(
     cancelledAt: timestamp("cancelled_at"),
     startDate: date("start_date"),
     endDate: date("end_date"),
+    // Share token for public read-only access
+    shareToken: varchar("share_token", { length: 32 }).unique(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at")
       .notNull()
