@@ -66,11 +66,17 @@ function toBoolean(value: number | null | undefined): boolean | null {
 export async function getWeatherForecast(
   input: WeatherRequest,
 ): Promise<WeatherResponseDTO> {
-  const { startDate, endDate } = normalizeDateRange(input);
+  const { startDate: rawStart, endDate: rawEnd } = normalizeDateRange(input);
   const { forecastWindowStart, forecastWindowEnd } = validateForecastWindow(
-    startDate,
-    endDate,
+    rawStart,
+    rawEnd,
   );
+
+  // Clamp requested dates to the forecast window so Open-Meteo
+  // doesn't reject out-of-range dates with a 400.
+  const startDate =
+    rawStart < forecastWindowStart ? forecastWindowStart : rawStart;
+  const endDate = rawEnd > forecastWindowEnd ? forecastWindowEnd : rawEnd;
 
   const resolvedLocation = await weatherProvider.geocodeLocation({
     query: input.city,
@@ -148,8 +154,8 @@ export async function getWeatherForecast(
           ? resolvedLocation.timezone
           : forecast.timezone,
     },
-    requestedStartDate: startDate,
-    requestedEndDate: endDate,
+    requestedStartDate: rawStart,
+    requestedEndDate: rawEnd,
     forecastWindowStart,
     forecastWindowEnd,
     isSingleDay: startDate === endDate,

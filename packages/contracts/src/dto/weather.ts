@@ -19,7 +19,12 @@ function normalizeQueryString(value: unknown) {
 
 export const weatherRequestSchema = z
   .object({
-    city: z.string().trim().min(2).max(120),
+    city: z
+      .string()
+      .trim()
+      .min(2)
+      .max(120)
+      .describe("City name, optionally with country for clarity (e.g. 'Paris, France')"),
     startDate: isoDateSchema,
     endDate: isoDateSchema.optional(),
   })
