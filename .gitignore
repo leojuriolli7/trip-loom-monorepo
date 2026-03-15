@@ -9,12 +9,6 @@ dist
 .env.*.local
 !.env.example
 
-# Drizzle
-# Keep package migrations tracked in git (packages/api/drizzle/*).
-
-# don't commit plans
-plans/*
-
 # opensrc - source code for packages
 opensrc/
 

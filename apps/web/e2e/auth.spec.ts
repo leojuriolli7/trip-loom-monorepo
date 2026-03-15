@@ -37,6 +37,11 @@ test.describe("Authentication", () => {
       // Submit
       await page.getByTestId("sign-up-submit").click();
 
+      // Email verification screen is shown — skip it
+      const doLaterButton = page.getByTestId("verify-email-do-later");
+      await doLaterButton.waitFor({ state: "visible", timeout: 10000 });
+      await doLaterButton.click();
+
       // Should redirect to chat dashboard (wait for navigation)
       await page.waitForURL("/chat", { timeout: 15000 });
 
@@ -116,6 +121,7 @@ test.describe("Authentication", () => {
     });
 
     test("should show error for duplicate email", async ({ page }) => {
+      test.setTimeout(60000);
       // First, create a user
       const testUser = await signUpUser(page);
 
@@ -147,6 +153,8 @@ test.describe("Authentication", () => {
     test("should sign in existing user and redirect to chat dashboard", async ({
       page,
     }) => {
+      // This test does signUp + signOut + signIn, which exceeds 30s default
+      test.setTimeout(60000);
       // First create a user
       const testUser = await signUpUser(page);
 
@@ -217,8 +225,8 @@ test.describe("Authentication", () => {
       // Sign out
       await signOutUser(page);
 
-      // Try to access dashboard directly
-      await page.goto("/");
+      // Try to access chat dashboard directly
+      await page.goto("/chat");
 
       // Should be redirected to /enter
       await expect(page).toHaveURL("/enter");
@@ -226,17 +234,18 @@ test.describe("Authentication", () => {
   });
 
   test.describe("Route Protection", () => {
-    test("should redirect unauthenticated users from / to /enter", async ({
+    test("should show landing page for unauthenticated users at /", async ({
       page,
     }) => {
       // Clear any existing cookies/storage
       await page.context().clearCookies();
 
-      // Try to access dashboard directly
+      // Visit the root URL
       await page.goto("/");
 
-      // Should be redirected to /enter
-      await expect(page).toHaveURL("/enter");
+      // Should show the landing page instead of redirecting
+      await expect(page.getByTestId("landing-page")).toBeVisible();
+      await expect(page).toHaveURL("/");
     });
 
     test("should redirect unauthenticated users from /chat to /enter", async ({

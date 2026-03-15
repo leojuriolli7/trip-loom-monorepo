@@ -30,7 +30,7 @@ export function CurrentTripCta() {
   }
 
   return (
-    <section className="mx-auto max-w-5xl px-6 lg:px-8">
+    <section data-testid="current-trip-cta" className="mx-auto max-w-5xl px-6 lg:px-8">
       <h3 className="text-lg font-semibold">Message your trip assistant</h3>
       <p className="mb-3 mt-1 text-sm text-muted-foreground">
         Need to change your itinerary or book your return flight?

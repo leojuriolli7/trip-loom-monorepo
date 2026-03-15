@@ -17,6 +17,7 @@ export function LandingHeader() {
 
   return (
     <header
+      data-testid="landing-header"
       className={`fixed top-0 z-50 w-full transition-all duration-300 ${
         scrolled
           ? "border-b border-border/40 bg-background/80 backdrop-blur-xl"
@@ -80,7 +81,7 @@ export function LandingHeader() {
                 : "bg-white/15 text-white backdrop-blur-sm hover:bg-white/25 hover:text-white"
             }`}
           >
-            <Link href="/enter">Sign in</Link>
+            <Link href="/enter" data-testid="landing-sign-in">Sign in</Link>
           </Button>
         </div>
       </div>

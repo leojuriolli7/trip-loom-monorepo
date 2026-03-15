@@ -47,7 +47,7 @@ export function TripChatPage() {
 
   if (historyStatus === "pending") {
     return (
-      <div className="flex h-full items-center justify-center">
+      <div data-testid="trip-chat-loading" className="flex h-full items-center justify-center">
         <Spinner className="size-6" />
       </div>
     );
@@ -55,7 +55,7 @@ export function TripChatPage() {
 
   if (historyStatus === "error") {
     return (
-      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+      <div data-testid="trip-chat-error" className="flex h-full items-center justify-center text-sm text-muted-foreground">
         Could not load this chat right now.
       </div>
     );
@@ -67,7 +67,7 @@ export function TripChatPage() {
       tripId={tripId}
       initialMessages={historyResult.messages}
     >
-      <div className="relative flex h-full min-h-0 flex-col">
+      <div data-testid="trip-chat-page" className="relative flex h-full min-h-0 flex-col">
         <Suspense>
           <AutoSubmitFromSearchParam />
         </Suspense>

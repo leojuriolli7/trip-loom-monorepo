@@ -1,6 +1,122 @@
 import { faker } from "@faker-js/faker";
-import type { Page } from "@playwright/test";
+import type { Page, Route } from "@playwright/test";
 import { DEFAULT_VALID_PASSWORD } from "./constants";
+import type { apiClient } from "../../lib/api/api-client";
+
+/**
+ * The JSON shape returned by `GET /api/trips` for each trip.
+ * Inferred from the Eden treaty client so it stays in sync with the API.
+ */
+type TripsGetResponse = Awaited<ReturnType<typeof apiClient.api.trips.get>>;
+
+type TripsListPage = NonNullable<TripsGetResponse["data"]>;
+
+export type MockTrip = TripsListPage["data"][number];
+
+/**
+ * Creates a mock trip object matching the TripWithDestinationDTO shape.
+ */
+export function createMockTrip(overrides?: Partial<MockTrip>): MockTrip {
+  return {
+    id: faker.string.uuid(),
+    userId: faker.string.uuid(),
+    destinationId: faker.string.uuid(),
+    title: "Trip to Tokyo",
+    archived: false,
+    status: "current",
+    startDate: "2026-04-01",
+    endDate: "2026-04-10",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    destination: {
+      id: faker.string.uuid(),
+      name: "Tokyo",
+      country: "Japan",
+      countryCode: "JP",
+      imagesUrls: [
+        {
+          caption: "",
+          isCover: true,
+          url: "/placeholder.jpg",
+        },
+      ],
+    },
+    hasFlights: true,
+    hasHotel: true,
+    hasItinerary: false,
+    ...overrides,
+  };
+}
+
+/**
+ * Creates a mock paginated trips response.
+ */
+export function createMockTripsResponse(trips: MockTrip[]): TripsListPage {
+  return {
+    data: trips,
+    nextCursor: null,
+    hasMore: false,
+  };
+}
+
+/**
+ * Creates a mock chat history response with optional messages.
+ */
+export function createMockChatHistory(
+  messages: Array<{ type: string; content: string; id?: string }> = [],
+) {
+  return { messages };
+}
+
+/**
+ * Intercepts trips list API calls and returns mock data.
+ * Matches any GET request to /api/trips (with or without query params).
+ * Uses a URL predicate so it matches `/api/trips` and `/api/trips?cursor=...`
+ * but not sub-routes like `/api/trips/:id`.
+ */
+export async function mockTripsListApi(
+  page: Page,
+  trips: MockTrip[],
+): Promise<void> {
+  await page.route(
+    (url) => url.pathname.endsWith("/api/trips"),
+    async (route: Route) => {
+      if (route.request().method() !== "GET") {
+        return route.fallback();
+      }
+
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(createMockTripsResponse(trips)),
+      });
+    },
+  );
+}
+
+/**
+ * Intercepts chat history API and returns mock data.
+ */
+export async function mockChatHistoryApi(
+  page: Page,
+  tripId: string,
+  messages: Array<{ type: string; content: string; id?: string }> = [],
+): Promise<void> {
+  await page.route(
+    `**/api/trips/${tripId}/chat/history`,
+    async (route: Route) => {
+      if (route.request().method() !== "GET") {
+        return route.fallback();
+      }
+
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(createMockChatHistory(messages)),
+      });
+    },
+  );
+}
 
 export type TestUser = {
   name: string;
@@ -34,8 +150,10 @@ export async function signUpUser(
 
   await page.goto("/enter");
 
-  // Wait for page to be ready
-  await page.waitForLoadState("networkidle");
+  // Wait for the sign-in form to be ready
+  await page
+    .getByTestId("toggle-to-sign-up")
+    .waitFor({ state: "visible", timeout: 15000 });
 
   // Switch to sign-up mode
   await page.getByTestId("toggle-to-sign-up").click();
@@ -61,11 +179,21 @@ export async function signUpUser(
     page.getByTestId("sign-up-submit").click(),
   ]);
 
+  // After sign-up, an email verification screen is shown.
+  // Click "Do later" to skip verification and proceed to the dashboard.
+  const doLaterButton = page.getByTestId("verify-email-do-later");
+  await doLaterButton.waitFor({ state: "visible", timeout: 10000 });
+  await doLaterButton.click();
+
   // Wait for redirect to chat dashboard
   await page.waitForURL("/chat", { timeout: 15000 });
 
-  // Wait for page to be fully loaded
-  await page.waitForLoadState("networkidle");
+  // Wait for the greeting to be visible (don't use networkidle — persistent
+  // connections prevent it from settling under parallel test load)
+  await page.getByTestId("greeting-message").waitFor({
+    state: "visible",
+    timeout: 15000,
+  });
 
   return testUser;
 }
@@ -79,11 +207,10 @@ export async function signInUser(
 ): Promise<void> {
   await page.goto("/enter");
 
-  // Wait for page to be ready
-  await page.waitForLoadState("networkidle");
-
   // Wait for the form to be ready
-  await page.getByTestId("sign-in-email-input").waitFor({ state: "visible" });
+  await page
+    .getByTestId("sign-in-email-input")
+    .waitFor({ state: "visible", timeout: 15000 });
 
   // Fill in the sign-in form
   await page.getByTestId("sign-in-email-input").fill(credentials.email);
@@ -102,8 +229,11 @@ export async function signInUser(
   // Wait for redirect to chat dashboard
   await page.waitForURL("/chat", { timeout: 15000 });
 
-  // Wait for page to be fully loaded
-  await page.waitForLoadState("networkidle");
+  // Wait for the dashboard to be ready
+  await page.getByTestId("greeting-message").waitFor({
+    state: "visible",
+    timeout: 15000,
+  });
 }
 
 /**
@@ -129,8 +259,11 @@ export async function signOutUser(page: Page): Promise<void> {
   // Wait for redirect to /enter
   await page.waitForURL("/enter", { timeout: 15000 });
 
-  // Wait for page to be fully loaded
-  await page.waitForLoadState("networkidle");
+  // Wait for the sign-in form to be ready
+  await page.getByTestId("sign-in-email-input").waitFor({
+    state: "visible",
+    timeout: 15000,
+  });
 }
 
 /**

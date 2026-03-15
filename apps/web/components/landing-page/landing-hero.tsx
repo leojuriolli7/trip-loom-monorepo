@@ -7,7 +7,7 @@ import { ArrowRightIcon } from "lucide-react";
 
 export function LandingHero() {
   return (
-    <section className="relative flex min-h-[90vh] flex-col items-center justify-center overflow-hidden px-6 text-center">
+    <section data-testid="landing-hero" className="relative flex min-h-[90vh] flex-col items-center justify-center overflow-hidden px-6 text-center">
       {/* Immersive Background Image */}
       <div className="absolute inset-0 z-0">
         <img
@@ -41,7 +41,7 @@ export function LandingHero() {
           </span>
         </motion.div>
 
-        <h1 className="text-5xl font-bold tracking-tight text-white sm:text-7xl md:text-[5.5rem] md:leading-[1.05]">
+        <h1 data-testid="landing-hero-heading" className="text-5xl font-bold tracking-tight text-white sm:text-7xl md:text-[5.5rem] md:leading-[1.05]">
           Travel at the <br />
           <span className="bg-linear-to-r from-amber-300 via-orange-300 to-primary bg-clip-text text-transparent">
             speed of thought
@@ -70,7 +70,7 @@ export function LandingHero() {
             variant="default"
             className="h-12 px-8 text-sm font-semibold shadow-2xl shadow-black/20 transition-all duration-300 hover:scale-[1.03] hover:shadow-xl active:scale-[0.98]"
           >
-            <Link href="/chat">
+            <Link href="/chat" data-testid="landing-start-planning">
               Start Planning
               <ArrowRightIcon className="ml-1.5 size-4" />
             </Link>

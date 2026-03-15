@@ -7,7 +7,7 @@ import { LandingHero } from "./landing-hero";
 
 export function LandingPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-background selection:bg-primary/10 selection:text-primary">
+    <div data-testid="landing-page" className="flex min-h-screen flex-col bg-background selection:bg-primary/10 selection:text-primary">
       <LandingHeader />
 
       <main className="flex-1">

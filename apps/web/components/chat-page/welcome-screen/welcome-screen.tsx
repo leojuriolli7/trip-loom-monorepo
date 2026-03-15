@@ -5,7 +5,7 @@ import { YourTripsSection } from "./your-trips-section/your-trips-section";
 
 export function WelcomeScreen() {
   return (
-    <main className="pb-16">
+    <main data-testid="welcome-screen" className="pb-16">
       <Greeting />
 
       <div className="space-y-12">

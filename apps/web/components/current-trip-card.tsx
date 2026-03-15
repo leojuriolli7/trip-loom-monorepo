@@ -22,6 +22,7 @@ export function CurrentTripCard({ trip, onContinue }: CurrentTripCardProps) {
 
   return (
     <div
+      data-testid="current-trip-card"
       onMouseOver={() => prefetchChatHistory(queryClient, trip.id)}
       onTouchStart={() => prefetchChatHistory(queryClient, trip.id)}
       onFocusCapture={() => prefetchChatHistory(queryClient, trip.id)}
@@ -50,10 +51,10 @@ export function CurrentTripCard({ trip, onContinue }: CurrentTripCardProps) {
 
           <div className="min-w-0 flex flex-col gap-4 items-stretch justify-start sm:flex-row sm:items-end sm:justify-between sm:gap-0">
             <div>
-              <h4 className="truncate text-lg font-semibold text-foreground">
+              <h4 data-testid="current-trip-title" className="truncate text-lg font-semibold text-foreground">
                 {tripTitle}
               </h4>
-              <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+              <p data-testid="current-trip-destination" className="mt-1 inline-flex items-center gap-1.5 text-sm text-muted-foreground">
                 <MapPinIcon className="size-3.5" />
                 {tripDestinationLabel}
               </p>
@@ -71,6 +72,7 @@ export function CurrentTripCard({ trip, onContinue }: CurrentTripCardProps) {
               type="button"
               size="sm"
               className="gap-1.5"
+              data-testid="current-trip-continue-button"
               onClick={onContinue}
             >
               Continue trip chat

@@ -135,7 +135,7 @@ export function ChatConversation() {
   const { messages, stream, submitResume, tripId } = useChatStream();
 
   return (
-    <Conversation className="min-h-0 flex-1">
+    <Conversation data-testid="chat-conversation" className="min-h-0 flex-1">
       {!messages?.length ? (
         <div className="w-full min-h-full flex-1 flex flex-col gap-4 items-center justify-center">
           <Image

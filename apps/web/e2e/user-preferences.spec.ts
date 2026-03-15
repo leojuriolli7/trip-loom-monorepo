@@ -166,7 +166,9 @@ test.describe("User Preferences", () => {
 
     // Success toast should appear
     await expect(
-      page.locator("[data-sonner-toast][data-type='success']"),
+      page
+        .locator("[data-sonner-toast][data-type='success']")
+        .filter({ hasText: "Preferences saved" }),
     ).toBeVisible({ timeout: 10000 });
 
     // Dialog should close
@@ -187,12 +189,16 @@ test.describe("User Preferences", () => {
     // Save and wait for API response
     await savePreferences(page);
     await expect(
-      page.locator("[data-sonner-toast][data-type='success']"),
+      page
+        .locator("[data-sonner-toast][data-type='success']")
+        .filter({ hasText: "Preferences saved" }),
     ).toBeVisible({ timeout: 10000 });
 
     // Reopen the dialog (data may be cached, so we just wait for form)
     await page.getByTestId("user-avatar-trigger").click();
-    await page.getByTestId("preferences-menu-item").waitFor({ state: "visible" });
+    await page
+      .getByTestId("preferences-menu-item")
+      .waitFor({ state: "visible" });
     await page.getByTestId("preferences-menu-item").click();
     await page.getByTestId("cabin-class-select").waitFor({
       state: "visible",
@@ -232,7 +238,9 @@ test.describe("User Preferences", () => {
     await page.getByTestId("interest-hiking").click();
 
     // All should be selected (have bg-primary class)
-    await expect(page.getByTestId("interest-beaches")).toHaveClass(/bg-primary/);
+    await expect(page.getByTestId("interest-beaches")).toHaveClass(
+      /bg-primary/,
+    );
     await expect(page.getByTestId("interest-food")).toHaveClass(/bg-primary/);
     await expect(page.getByTestId("interest-nightlife")).toHaveClass(
       /bg-primary/,
@@ -250,8 +258,12 @@ test.describe("User Preferences", () => {
 
     // All should be selected
     await expect(page.getByTestId("region-europe")).toHaveClass(/bg-primary/);
-    await expect(page.getByTestId("region-east-asia")).toHaveClass(/bg-primary/);
-    await expect(page.getByTestId("region-caribbean")).toHaveClass(/bg-primary/);
+    await expect(page.getByTestId("region-east-asia")).toHaveClass(
+      /bg-primary/,
+    );
+    await expect(page.getByTestId("region-caribbean")).toHaveClass(
+      /bg-primary/,
+    );
   });
 
   test("should add multiple dietary restrictions", async ({ page }) => {

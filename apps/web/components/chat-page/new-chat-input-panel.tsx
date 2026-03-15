@@ -52,6 +52,7 @@ export function NewChatInputPanel() {
         >
           <PromptInputTextarea
             id={CHAT_INPUT_ID}
+            data-testid="new-chat-input"
             placeholder="Where would you like to go?"
             className="min-h-4 max-h-32 resize-none border-0 bg-transparent focus-visible:ring-0"
           />

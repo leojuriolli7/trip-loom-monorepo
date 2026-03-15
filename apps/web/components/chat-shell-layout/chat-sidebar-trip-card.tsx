@@ -38,6 +38,7 @@ export const ChatSidebarTripCard = memo(function ChatSidebarTripCard({
 
   return (
     <SidebarMenuItem
+      data-testid="sidebar-trip-card"
       onMouseOver={() => prefetchChatHistory(queryClient, trip.id)}
       onTouchStart={() => prefetchChatHistory(queryClient, trip.id)}
       onFocusCapture={() => prefetchChatHistory(queryClient, trip.id)}
