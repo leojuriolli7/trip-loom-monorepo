@@ -2,6 +2,9 @@
 
 _Your AI Travel Agent — plan and book entire trips in one chat._
 
+![Main chat greeting page](./assets/chat-page.png)
+
+
 TripLoom is a full-stack AI travel platform where you open a chat, describe what you want, and specialized agents handle everything: finding destinations, booking flights and hotels, processing real payments via Stripe, and building day-by-day itineraries backed by Google Maps data. The entire experience lives inside a single conversational interface, with agents rendering interactive UI widgets inline — destination carousels, hotel cards, airplane seat pickers, payment forms, and itinerary maps.
 
 It's not a rigid wizard. Want to skip the hotel and jump straight to itinerary planning? Just say so. The system is composable, and the user guides the flow.
@@ -214,6 +217,12 @@ The agent renders **20+ interactive React components** based on tool calls:
 
 Every tool call has a corresponding UI. The agent becomes the interface.
 
+![Weather widget](./assets/weather.png)
+
+![Payment form](./assets/payment-form.png)
+
+
+
 ## MCP Server
 
 A standalone TypeScript MCP server that wraps the TripLoom API. Any MCP-compatible client can use it to search destinations, book hotels, plan itineraries — all through the same API the in-house agent uses.
@@ -367,6 +376,8 @@ packages/
 
 ### Hotel Booking
 
+![Hotel Carousel](./assets/hotel-carousel.png)
+
 ```
 User: "Find me a hotel"
 
@@ -385,6 +396,9 @@ User: "Find me a hotel"
 
 ### Flight Booking with Seat Selection
 
+![Seat selector widget](./assets/seat-selector.png)
+
+
 ```
 User: "Book my flights"
 
@@ -402,6 +416,12 @@ User: "Book my flights"
 ```
 
 ### Itinerary Planning with Google Maps
+
+![Itinerary map](./assets/itinerary-map.png)
+
+![Itinerary map place dialog](./assets/itinerary-map-place.png)
+
+![Itinerary map place dialog](./assets/itinerary.png)
 
 ```
 User: "Plan my itinerary"

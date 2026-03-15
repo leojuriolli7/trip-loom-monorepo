@@ -30,8 +30,8 @@ type GooglePlaceResponse = {
     openNow?: boolean;
     weekdayDescriptions?: string[];
   };
-  editorialSummary?: { text?: string };
-  reviewSummary?: { text?: string };
+  editorialSummary?: { text?: string } | string;
+  reviewSummary?: { text?: string | { text?: string } } | string;
   reviews?: Array<{
     rating?: number;
     text?: { text?: string };
@@ -115,6 +115,24 @@ function normalizeReview(
   };
 }
 
+/** Google returns some fields as `string`, `{ text: string }`, or `{ text: { text: string } }`. */
+function extractText(value: unknown): string | null {
+  if (value == null) return null;
+  if (typeof value === "string") return value;
+
+  if (typeof value === "object" && "text" in value) {
+    const inner = (value as Record<string, unknown>).text;
+    if (typeof inner === "string") return inner;
+
+    if (inner != null && typeof inner === "object" && "text" in inner) {
+      const deepText = (inner as Record<string, unknown>).text;
+      if (typeof deepText === "string") return deepText;
+    }
+  }
+
+  return null;
+}
+
 function normalizeEnrichedPlaceDetails(
   place: GooglePlaceResponse,
   photos: GooglePlacePhoto[],
@@ -128,8 +146,8 @@ function normalizeEnrichedPlaceDetails(
     businessStatus: place.businessStatus ?? null,
     isOpenNow: place.currentOpeningHours?.openNow ?? null,
     weekdayDescriptions: place.currentOpeningHours?.weekdayDescriptions ?? [],
-    editorialSummary: place.editorialSummary?.text ?? null,
-    reviewSummary: place.reviewSummary?.text ?? null,
+    editorialSummary: extractText(place.editorialSummary),
+    reviewSummary: extractText(place.reviewSummary),
     photos,
     reviews: (place.reviews ?? []).slice(0, 3).map(normalizeReview),
   };
@@ -197,7 +215,9 @@ async function fetchGoogleMaps<T>(
   }
 }
 
-async function fetchGooglePhotoMedia(photoName: string): Promise<string | null> {
+async function fetchGooglePhotoMedia(
+  photoName: string,
+): Promise<string | null> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), getTimeoutMs());
 
@@ -235,7 +255,9 @@ async function resolvePhotos(
   photos: GooglePlacePhotoResource[] | undefined,
   limit: number,
 ): Promise<GooglePlacePhoto[]> {
-  const photoResources = (photos ?? []).filter((photo) => photo.name).slice(0, limit);
+  const photoResources = (photos ?? [])
+    .filter((photo) => photo.name)
+    .slice(0, limit);
 
   const resolved = await Promise.all(
     photoResources.map(async (photo) => {
