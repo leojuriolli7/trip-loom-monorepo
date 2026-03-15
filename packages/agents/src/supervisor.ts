@@ -2,7 +2,6 @@ import { createSupervisor } from "@langchain/langgraph-supervisor";
 import type {
   CompiledStateGraph,
   BaseCheckpointSaver,
-  BaseStore,
 } from "@langchain/langgraph";
 import type { DynamicStructuredTool } from "@langchain/core/tools";
 import type { ChatOpenAI } from "@langchain/openai";
@@ -128,7 +127,6 @@ export interface SupervisorConfig {
   tools: DynamicStructuredTool[];
   llm: ChatOpenAI;
   checkpointer: BaseCheckpointSaver;
-  store: BaseStore;
 }
 
 /**
@@ -140,7 +138,7 @@ export interface SupervisorConfig {
  * Returns a compiled graph ready for `.stream()` or `.invoke()`.
  */
 export function buildSupervisor(config: SupervisorConfig) {
-  const { agents, tools, llm, checkpointer, store } = config;
+  const { agents, tools, llm, checkpointer } = config;
 
   const graph = createSupervisor({
     agents,
@@ -151,5 +149,5 @@ export function buildSupervisor(config: SupervisorConfig) {
     supervisorName: "supervisor",
   });
 
-  return graph.compile({ checkpointer, store });
+  return graph.compile({ checkpointer });
 }

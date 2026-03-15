@@ -105,7 +105,7 @@ export const createApp = () => {
         const response = await fetch(url);
         return response.json();
       })
-      // Initialize LangGraph persistence (checkpointer + store tables)
+      // Initialize LangGraph persistence (checkpointer tables)
       .onStart(async () => {
         if (process.env.DATABASE_URL) {
           await initPersistence(process.env.DATABASE_URL);

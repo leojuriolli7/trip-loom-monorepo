@@ -2,7 +2,7 @@ import { createMcpClient, loadMcpTools, readMcpResources } from "./mcp-client";
 import type { McpResources } from "./mcp-client";
 import { createModel, modelConfig } from "./config";
 import { createAgentLogger } from "./lib/logger";
-import { createCheckpointer, createStore } from "./persistence";
+import { createCheckpointer } from "./persistence";
 import { createDestinationAgent } from "./sub-agents/destination";
 import { createFlightAgent } from "./sub-agents/flight";
 import { createHotelAgent } from "./sub-agents/hotel";
@@ -78,7 +78,6 @@ export async function createGraph(config: GraphConfig): Promise<GraphInstance> {
 
   // 2. Create persistence layer
   const checkpointer = createCheckpointer(dbConnectionString);
-  const store = createStore(dbConnectionString);
 
   // 3. Create sub-agents with MCP tools + local presentation/HITL tools + web search
   const webSearch = openaiTools.webSearch();
@@ -131,7 +130,6 @@ export async function createGraph(config: GraphConfig): Promise<GraphInstance> {
     ],
     llm: createModel(modelConfig.supervisor),
     checkpointer,
-    store,
   });
 
   log.set({

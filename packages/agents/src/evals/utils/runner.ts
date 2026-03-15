@@ -6,7 +6,7 @@
  * like update_trip → transfer_to_hotel_agent work correctly.
  */
 
-import { MemorySaver, InMemoryStore } from "@langchain/langgraph";
+import { MemorySaver } from "@langchain/langgraph";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { tool } from "@langchain/core/tools";
 import { HumanMessage } from "@langchain/core/messages";
@@ -224,7 +224,6 @@ export function SupervisorRunner(options: SupervisorRunnerOptions = {}) {
       tools: supervisorTools,
       llm: createModel(modelConfig.supervisor, { temperature: 0 }),
       checkpointer: new MemorySaver(),
-      store: new InMemoryStore(),
     });
 
     const messages: BaseMessage[] = [

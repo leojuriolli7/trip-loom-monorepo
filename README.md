@@ -487,10 +487,6 @@ Additional documentation:
 
 ## Project TODOs
 
-### Agents and Orchestration
-
-- [ ] Wire PostgresStore: read/write user preferences namespaced by userId
-
 ### Release
 
 - [ ] Write more Playwright E2E Tests
