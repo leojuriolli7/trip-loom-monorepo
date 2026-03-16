@@ -487,6 +487,52 @@ pnpm eval            # Agent evals (full graph execution, requires OPENAI_API_KE
 pnpm test:e2e        # Playwright E2E tests
 ```
 
+## Connecting to External Agents
+
+The local MCP Server running in development mode can already be connected to external clients. This can be useful for more easily testing individual MCP tools. 
+
+We can use [mcp-remote](https://www.npmjs.com/package/mcp-remote) from NPM. Be sure to start the dev servers first, running `pnpm db:up`, `pnpm dev:server`, `pnpm dev:stripe` and `pnpm dev:mcp` first. 
+
+### Claude Code
+
+Add to config file in `~/.claude.json`: 
+
+```json
+{
+  "mcpServers": {
+    "triploom": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "http://localhost:3002/mcp"
+      ]
+    }
+  }
+}
+```
+
+### Codex
+
+Add to config file in `~/.codex/config.toml`:
+
+```
+[mcp_servers.triploom]
+command = "npx"
+args = ["mcp-remote", "http://localhost:3002/mcp"]
+```
+
+### OpenCode
+
+Add to `~/.config/opencode/opencode.json`: 
+
+```json
+    "triploom": {
+      "type": "local",
+      "enabled": true,
+      "command": ["npx", "mcp-remote", "http://localhost:3002/mcp"]
+    }
+```
+
 ## Package Documentation
 
 Each package and app has its own detailed README:
