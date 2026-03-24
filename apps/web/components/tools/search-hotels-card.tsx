@@ -23,9 +23,9 @@ function formatSearchHotelsSummary(
     filters.push(`minimum rating of ${args.minRating}`);
   }
 
-  if (args.amenity) {
-    // amenity is already formatted for UI use
-    filters.push(`with ${amenityLabels[args.amenity]}`);
+  if (args.amenities?.length) {
+    const labels = args.amenities.map((a) => amenityLabels[a]);
+    filters.push(`with ${labels.join(", ")}`);
   }
 
   const limit = args.limit ?? 20;

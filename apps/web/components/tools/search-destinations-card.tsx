@@ -14,16 +14,16 @@ function formatSearchDestinationsSummary(
     filters.push(`query "${args.search}"`);
   }
 
-  if (args.region) {
-    filters.push(`region ${args.region}`);
+  if (args.regions?.length) {
+    filters.push(`region ${args.regions.join(", ")}`);
   }
 
-  if (args.country) {
-    filters.push(`country ${args.country}`);
+  if (args.countries?.length) {
+    filters.push(`country ${args.countries.join(", ")}`);
   }
 
-  if (args.highlight) {
-    filters.push(`highlight ${args.highlight}`);
+  if (args.highlights?.length) {
+    filters.push(`highlight ${args.highlights.join(", ")}`);
   }
 
   const limit = args.limit ?? 20;
