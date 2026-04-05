@@ -14,6 +14,7 @@ import { SuggestNewTripCard } from "../suggest-new-trip-card";
 import { TransferAgentToolCard } from "../transfer-agent-tool-card";
 import { GetRecommendedDestinationsCard } from "../get-recommended-destinations-card";
 import { GetWeatherToolCallCard } from "../get-weather-tool-call-card";
+import { WebSearchToolCallCard } from "../web-search-tool-card";
 
 /**
  * Whitelist of tool calls that have a visual card in the assistant-message layer.
@@ -43,6 +44,7 @@ const RENDERABLE_TOOL_CALL_NAMES: ReadonlySet<string> = new Set([
   "get_weather",
   "search_hotels",
   "suggest_new_trip",
+  "web_search",
   "transfer_to_destination_agent",
   "transfer_to_flight_agent",
   "transfer_to_hotel_agent",
@@ -103,6 +105,8 @@ export function ToolCallRenderer({ toolCall }: { toolCall: TripLoomToolCall }) {
       return <SearchHotelsToolCard args={toolCall.args} />;
     case "suggest_new_trip":
       return <SuggestNewTripCard args={toolCall.args} />;
+    case "web_search":
+      return <WebSearchToolCallCard args={toolCall.args} />;
     case "transfer_to_destination_agent":
     case "transfer_to_flight_agent":
     case "transfer_to_hotel_agent":

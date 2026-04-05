@@ -553,6 +553,13 @@ Additional documentation:
 
 ## Project TODOs
 
+### Browser-use Refactor
+
+- [x] Better web-search tool as the basis for destination search
+- [ ] Refactor to Browser-use via Stagehand
+- [ ] Polish: Better web search UI/UX, more at `packages/agents/src/tools/web-search.ts` 
+- [ ] Polish: Better Itinerary Google Maps integration, more at `packages/agents/src/sub-agents/itinerary.ts`
+
 ### Release
 
 - [ ] Deployments of API, Web and MCP Server

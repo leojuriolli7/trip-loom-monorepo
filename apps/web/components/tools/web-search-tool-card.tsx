@@ -1,5 +1,6 @@
 "use client";
 
+import type { TripLoomToolArgsByName } from "@trip-loom/agents";
 import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
 import {
@@ -11,20 +12,15 @@ import { cn } from "@/lib/utils";
 import { pluralize } from "@/lib/pluralize";
 import { ToolCallCard } from "./tool-call-card";
 
-export type WebSearchToolCall = {
-  action: { queries?: string[]; query?: string };
-  id: string;
-};
+type WebSearchArgs = TripLoomToolArgsByName<"web_search">;
 
 export function WebSearchToolCallCard({
-  toolCall,
+  args,
 }: {
-  toolCall: WebSearchToolCall;
+  args: WebSearchArgs;
 }) {
   const [isOpen, setIsOpen] = useState(true);
-  const { action } = toolCall || {};
-  const { queries, query } = action || {};
-  const queryList = queries?.length ? queries : query ? [query] : [];
+  const queryList = args.query ? [args.query] : [];
 
   if (queryList.length === 0) return null;
 
@@ -62,10 +58,7 @@ export function WebSearchToolCallCard({
         <CollapsibleContent className="data-open:animate-collapsible-down data-closed:animate-collapsible-up overflow-hidden">
           <ul className="mt-3 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
             {queryList.map((queryItem, index) => (
-              <li
-                key={`${toolCall.id}-${queryItem}-${index}`}
-                className="leading-4"
-              >
+              <li key={`${queryItem}-${index}`} className="leading-4">
                 {queryItem}
               </li>
             ))}

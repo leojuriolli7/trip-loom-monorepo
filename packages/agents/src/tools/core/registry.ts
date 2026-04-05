@@ -3,6 +3,7 @@ import { suggestDestinationsTool } from "../suggest-destinations";
 import { suggestFlightTool } from "../suggest-flight";
 import { suggestHotelBookingTool } from "../suggest-hotel-booking";
 import { suggestNewTripTool } from "../suggest-new-trip";
+import { webSearchTool } from "../web-search";
 
 const SUPERVISOR_MCP_TOOLS = [
   "get_trip_details",
@@ -55,7 +56,7 @@ const AGENT_TOOL_REGISTRY = {
   },
   destination: {
     mcp: DESTINATION_MCP_TOOLS,
-    local: [suggestDestinationsTool] as const,
+    local: [suggestDestinationsTool, webSearchTool] as const,
   },
   flight: {
     mcp: FLIGHT_MCP_TOOLS,
@@ -63,11 +64,11 @@ const AGENT_TOOL_REGISTRY = {
   },
   hotel: {
     mcp: HOTEL_MCP_TOOLS,
-    local: [suggestHotelBookingTool] as const,
+    local: [suggestHotelBookingTool, webSearchTool] as const,
   },
   itinerary: {
     mcp: ITINERARY_MCP_TOOLS,
-    local: [] as const,
+    local: [webSearchTool] as const,
   },
 } as const;
 
@@ -109,6 +110,7 @@ const TRIP_LOOM_LOCAL_TOOL_NAMES = [
   suggestFlightTool.name,
   suggestHotelBookingTool.name,
   suggestNewTripTool.name,
+  webSearchTool.name,
 ] as const;
 
 /**

@@ -26,10 +26,6 @@ import { CancellationApprovalCard } from "../tools/cancellation-approval-card";
 import { BookingPaymentInterruptCard } from "../tools/booking-payment-interrupt-card";
 import { ItineraryApprovalCard } from "../tools/itinerary-approval-card";
 import { SeatSelectionCard } from "../tools/seat-selection-card";
-import {
-  WebSearchToolCallCard,
-  type WebSearchToolCall,
-} from "../tools/web-search-tool-card";
 import { TripChatSuggestions } from "./trip-chat-suggestions";
 import Image from "next/image";
 
@@ -37,7 +33,6 @@ type AssistantMessageDisplay = {
   content: string;
   shouldRender: boolean;
   toolCalls: TripLoomToolCall[];
-  webSearchCalls: WebSearchToolCall[];
 };
 
 /**
@@ -59,18 +54,6 @@ function getMessageContent(content: TripLoomMessage["content"]): string {
 }
 
 /**
- * Narrows response metadata entries to the web-search payloads rendered as cards.
- */
-function isWebSearchToolCall(output: unknown): output is WebSearchToolCall {
-  return (
-    typeof output === "object" &&
-    output !== null &&
-    "type" in output &&
-    output.type === "web_search_call"
-  );
-}
-
-/**
  * Centralizes the assistant-message visibility rules so empty turns are skipped in one place.
  */
 function getAssistantMessageDisplay(
@@ -81,16 +64,11 @@ function getAssistantMessageDisplay(
     "tool_calls" in message && Array.isArray(message.tool_calls)
       ? message.tool_calls.filter(isRenderableAssistantToolCall)
       : [];
-  const webSearchCalls = Array.isArray(message.response_metadata?.output)
-    ? message.response_metadata.output.filter(isWebSearchToolCall)
-    : [];
 
   return {
     content,
     toolCalls,
-    webSearchCalls,
-    shouldRender:
-      content.length > 0 || toolCalls.length > 0 || webSearchCalls.length > 0,
+    shouldRender: content.length > 0 || toolCalls.length > 0,
   };
 }
 
@@ -176,7 +154,7 @@ export function ChatConversation() {
           }
 
           if (message.type === "ai") {
-            const { content, toolCalls, webSearchCalls, shouldRender } =
+            const { content, toolCalls, shouldRender } =
               getAssistantMessageDisplay(message);
 
             if (!shouldRender) {
@@ -185,13 +163,6 @@ export function ChatConversation() {
 
             return (
               <div key={key} className="space-y-3 animate-chat-enter">
-                {webSearchCalls.map((webSearchCall, webSearchIndex) => (
-                  <WebSearchToolCallCard
-                    key={`${key}-web-search-call-${webSearchCall.id || webSearchIndex}`}
-                    toolCall={webSearchCall}
-                  />
-                ))}
-
                 {toolCalls.map((toolCall, toolIndex) => (
                   <ToolCallRenderer
                     key={`${key}-tool-call-${toolIndex}`}

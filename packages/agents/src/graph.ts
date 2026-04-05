@@ -18,7 +18,6 @@ import {
   createHotelBookingFlowTool,
 } from "./tools/booking-flow";
 import { withApproval } from "./tools/core/with-approval";
-import { tools as openaiTools } from "@langchain/openai";
 import type { MultiServerMCPClient } from "@langchain/mcp-adapters";
 
 export interface GraphConfig {
@@ -79,14 +78,11 @@ export async function createGraph(config: GraphConfig): Promise<GraphInstance> {
   // 2. Create persistence layer
   const checkpointer = createCheckpointer(dbConnectionString);
 
-  // 3. Create sub-agents with MCP tools + local presentation/HITL tools + web search
-  const webSearch = openaiTools.webSearch();
-
+  // 3. Create sub-agents with MCP tools + local presentation/HITL tools
   const destinationAgent = createDestinationAgent(
     [
       ...getMcpToolsForAgent(allTools, "destination"),
       ...getLocalToolsForAgent("destination"),
-      webSearch,
     ],
     createModel(modelConfig.destination),
   );
@@ -107,7 +103,6 @@ export async function createGraph(config: GraphConfig): Promise<GraphInstance> {
       ),
       createHotelBookingFlowTool(createHotelBookingMcpTool),
       ...getLocalToolsForAgent("hotel"),
-      webSearch,
     ],
     createModel(modelConfig.hotel),
   );
@@ -115,7 +110,6 @@ export async function createGraph(config: GraphConfig): Promise<GraphInstance> {
     tools: [
       ...getMcpToolsForAgent(allTools, "itinerary"),
       ...getLocalToolsForAgent("itinerary"),
-      webSearch,
     ],
     llm: createModel(modelConfig.itinerary),
     pastItineraries: mcpResources.userItineraries,

@@ -24,6 +24,7 @@
     "@langchain/openai": "^1.2.11",
     "@trip-loom/contracts": "workspace:*",
     "evlog": "^2.5.0",
+    "openai": "^6.29.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
